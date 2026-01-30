@@ -2,7 +2,7 @@ using ServiceDeskSystem.Data.Entities;
 
 namespace ServiceDeskSystem.Services;
 
-internal interface ITicketService
+public interface ITicketService
 {
     Task<List<Ticket>> GetAllTicketsAsync();
 
@@ -15,4 +15,10 @@ internal interface ITicketService
     Task<bool> UpdateTicketStatusAsync(int ticketId, string newStatus);
 
     Task<List<Product>> GetProductsAsync();
+
+    // Dashboard statistics
+    Task<int> GetTotalTicketsCountAsync();
+    Task<int> GetOpenTicketsCountAsync();
+    Task<int> GetCriticalTicketsCountAsync();
+    Task<int> GetUserTicketsCountAsync(int userId);
 }

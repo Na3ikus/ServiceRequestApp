@@ -4,10 +4,11 @@ using ServiceDeskSystem.Data.Entities;
 
 namespace ServiceDeskSystem.Services;
 
-public class TicketService(BugTrackerDbContext dbContext) : ITicketService
+public class TicketService(IDbContextFactory<BugTrackerDbContext> contextFactory) : ITicketService
 {
     public async Task<List<Ticket>> GetAllTicketsAsync()
     {
+        await using var dbContext = await contextFactory.CreateDbContextAsync();
         return await dbContext.Tickets
             .Include(t => t.Author)
             .Include(t => t.Product)
@@ -17,6 +18,7 @@ public class TicketService(BugTrackerDbContext dbContext) : ITicketService
 
     public async Task<Ticket?> GetTicketByIdAsync(int id)
     {
+        await using var dbContext = await contextFactory.CreateDbContextAsync();
         return await dbContext.Tickets
             .Include(t => t.Author)
             .Include(t => t.Product)
@@ -27,6 +29,7 @@ public class TicketService(BugTrackerDbContext dbContext) : ITicketService
 
     public async Task<Ticket> CreateTicketAsync(Ticket ticket)
     {
+        await using var dbContext = await contextFactory.CreateDbContextAsync();
         ticket.CreatedAt = DateTime.UtcNow;
         ticket.Status = "Open";
         
@@ -38,6 +41,7 @@ public class TicketService(BugTrackerDbContext dbContext) : ITicketService
 
     public async Task<Comment> AddCommentAsync(Comment comment)
     {
+        await using var dbContext = await contextFactory.CreateDbContextAsync();
         comment.CreatedAt = DateTime.UtcNow;
         
         dbContext.Comments.Add(comment);
@@ -53,6 +57,7 @@ public class TicketService(BugTrackerDbContext dbContext) : ITicketService
 
     public async Task<bool> UpdateTicketStatusAsync(int ticketId, string newStatus)
     {
+        await using var dbContext = await contextFactory.CreateDbContextAsync();
         var ticket = await dbContext.Tickets.FindAsync(ticketId);
         
         if (ticket is null)
@@ -66,8 +71,33 @@ public class TicketService(BugTrackerDbContext dbContext) : ITicketService
 
     public async Task<List<Product>> GetProductsAsync()
     {
+        await using var dbContext = await contextFactory.CreateDbContextAsync();
         return await dbContext.Products
             .OrderBy(p => p.Name)
             .ToListAsync();
+    }
+
+    public async Task<int> GetTotalTicketsCountAsync()
+    {
+        await using var dbContext = await contextFactory.CreateDbContextAsync();
+        return await dbContext.Tickets.CountAsync();
+    }
+
+    public async Task<int> GetOpenTicketsCountAsync()
+    {
+        await using var dbContext = await contextFactory.CreateDbContextAsync();
+        return await dbContext.Tickets.CountAsync(t => t.Status == "Open");
+    }
+
+    public async Task<int> GetCriticalTicketsCountAsync()
+    {
+        await using var dbContext = await contextFactory.CreateDbContextAsync();
+        return await dbContext.Tickets.CountAsync(t => t.Priority == "Critical");
+    }
+
+    public async Task<int> GetUserTicketsCountAsync(int userId)
+    {
+        await using var dbContext = await contextFactory.CreateDbContextAsync();
+        return await dbContext.Tickets.CountAsync(t => t.AuthorId == userId);
     }
 }

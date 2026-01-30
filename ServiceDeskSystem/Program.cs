@@ -11,10 +11,16 @@ builder.Services.AddRazorComponents()
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
     ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
-builder.Services.AddDbContext<BugTrackerDbContext>(options =>
+// Use DbContextFactory for Blazor Server to avoid concurrency issues
+builder.Services.AddDbContextFactory<BugTrackerDbContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 
+// Also register DbContext for scenarios that need it directly
+builder.Services.AddScoped(sp => 
+    sp.GetRequiredService<IDbContextFactory<BugTrackerDbContext>>().CreateDbContext());
+
 builder.Services.AddScoped<ITicketService, TicketService>();
+builder.Services.AddScoped<IAuthService, SimpleAuthService>();
 
 var app = builder.Build();
 

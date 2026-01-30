@@ -1,23 +1,77 @@
 ﻿@inherits LayoutComponentBase
+@using ServiceDeskSystem.Services
+@inject IAuthService AuthService
+@inject NavigationManager Navigation
 
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
+@if (!AuthService.IsAuthenticated)
+{
+    <!-- Not authenticated - redirect to login -->
+    @Body
+    <RedirectToLogin />
+}
+else
+{
+    <!-- Authenticated Layout -->
+    <div class="flex h-screen bg-gray-100">
+        <!-- Sidebar -->
+        <aside class="w-64 flex-shrink-0">
+            <NavMenu />
+        </aside>
 
-    <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
+        <!-- Main Content Area -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- Top Bar -->
+            <header class="bg-white shadow-sm border-b border-gray-200">
+                <div class="flex items-center justify-between px-6 py-4">
+                    <div>
+                        <h2 class="text-lg font-semibold text-gray-800">Welcome back!</h2>
+                        <p class="text-sm text-gray-500">@DateTime.Now.ToString("dddd, MMMM dd, yyyy")</p>
+                    </div>
+                    
+                    <div class="flex items-center gap-4">
+                        <!-- User Info -->
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
+                                <span class="text-white font-medium text-sm">
+                                    @(AuthService.CurrentUser?.Login?.Substring(0, 1).ToUpper() ?? "U")
+                                </span>
+                            </div>
+                            <div class="hidden sm:block">
+                                <p class="text-sm font-medium text-gray-800">@AuthService.CurrentUser?.Login</p>
+                                <p class="text-xs text-gray-500">@AuthService.CurrentUser?.Role</p>
+                            </div>
+                        </div>
+
+                        <!-- Logout Button -->
+                        <button @onclick="HandleLogout"
+                                class="flex items-center gap-2 px-4 py-2 text-sm text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                            </svg>
+                            <span class="hidden sm:inline">Logout</span>
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <main class="flex-1 overflow-y-auto bg-gray-100">
+                @Body
+            </main>
         </div>
-
-        <article class="content px-4">
-            @Body
-        </article>
-    </main>
-</div>
+    </div>
+}
 
 <div id="blazor-error-ui" data-nosnippet>
     An unhandled error has occurred.
     <a href="." class="reload">Reload</a>
     <span class="dismiss">🗙</span>
 </div>
+
+@code {
+    private void HandleLogout()
+    {
+        AuthService.Logout();
+        Navigation.NavigateTo("/login", forceLoad: true);
+    }
+}

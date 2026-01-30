@@ -2,6 +2,7 @@
 @using ServiceDeskSystem.Data.Entities
 @using ServiceDeskSystem.Services
 @inject ITicketService TicketService
+@inject IAuthService AuthService
 @inject NavigationManager Navigation
 @rendermode InteractiveServer
 
@@ -181,8 +182,7 @@
     private string newCommentMessage = string.Empty;
     private bool isSubmitting;
 
-    // Simulated current user (in a real app, get from authentication)
-    private const int CurrentUserId = 1;
+    private int CurrentUserId => AuthService.CurrentUser?.Id ?? 0;
 
     protected override async Task OnInitializedAsync()
     {
