@@ -1,18 +1,12 @@
-// ПРОБЛЕМА ЗІ ШЛЯХОМ ДО TAILWINDCSS. ВИПРАВИТИ!!!
 {
   "name": "servicedesksystem",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "private": true,
   "scripts": {
-    "build:css": "node node_modules/tailwindcss/lib/cli.js -i ./Styles/input.css -o ./wwwroot/css/app.css",
-    "watch:css": "node node_modules/tailwindcss/lib/cli.js -i ./Styles/input.css -o ./wwwroot/css/app.css --watch"
+    "build:css": "npx tailwindcss -i ./Styles/input.css -o ./wwwroot/css/app.css",
+    "watch:css": "npx tailwindcss -i ./Styles/input.css -o ./wwwroot/css/app.css --watch"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
   "devDependencies": {
-    "tailwindcss": "^4.1.18"
+    "tailwindcss": "3.4.17"
   }
 }
