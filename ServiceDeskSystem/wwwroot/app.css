@@ -92,6 +92,16 @@ a, .btn-link {
     justify-content: center;
 }
 
+.logout-btn {
+    min-width: 120px;
+    justify-content: center;
+}
+
+.new-ticket-btn {
+    min-width: 180px;
+    justify-content: center;
+}
+
 /* Ticket list table layout stability */
 .ticket-table {
     width: 100%;
