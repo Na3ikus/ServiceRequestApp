@@ -20,12 +20,36 @@ a, .btn-link {
     padding-top: 1.1rem;
 }
 
-h1:focus {
-    outline: none;
+h1:focus,
+h2:focus,
+h3:focus,
+p:focus,
+div:focus,
+span:focus,
+section:focus {
+    outline: none !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+h1:focus-visible,
+h2:focus-visible,
+h3:focus-visible {
+    outline: none !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+h1[tabindex],
+h2[tabindex],
+h3[tabindex] {
+    outline: none !important;
+    border: none !important;
+    box-shadow: none !important;
 }
 
 .valid.modified:not([type=checkbox]) {
-    outline: 1px solid #26b050;
+    outline: none;
 }
 
 .invalid {

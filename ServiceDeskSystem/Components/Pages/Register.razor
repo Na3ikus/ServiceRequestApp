@@ -1,5 +1,285 @@
-﻿<h3>Register</h3>
+﻿@page "/register"
+@layout EmptyLayout
+@using ServiceDeskSystem.Services
+@inject IAuthService AuthService
+@inject ILocalizationService L
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+@implements IDisposable
+
+<div class="min-h-screen bg-gradient-to-br from-slate-800 via-slate-900 to-black flex items-center justify-center p-4">
+    <div class="absolute inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute -top-40 -right-40 w-80 h-80 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"></div>
+        <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse" style="animation-delay: 1s;"></div>
+    </div>
+
+    <div class="w-full max-w-md relative z-10">
+        <div class="flex justify-center mb-6">
+            <div class="relative flex items-center bg-slate-700/50 backdrop-blur-sm rounded-full p-1.5 border border-slate-600/50">
+                <div class="absolute top-1.5 bottom-1.5 w-[calc(50%-6px)] bg-gradient-to-r from-blue-500 to-purple-500 rounded-full transition-all duration-300 ease-out shadow-lg shadow-blue-500/30 @(L.CurrentLanguage == "en" ? "left-1.5" : "left-[calc(50%+3px)]")"></div>
+                <button @onclick="@(() => L.SetLanguage("en"))"
+                        class="relative z-10 px-5 py-2 text-sm font-semibold rounded-full transition-colors duration-300 @(L.CurrentLanguage == "en" ? "text-white" : "text-slate-400 hover:text-white")">
+                    English
+                </button>
+                <button @onclick="@(() => L.SetLanguage("uk"))"
+                        class="relative z-10 px-5 py-2 text-sm font-semibold rounded-full transition-colors duration-300 @(L.CurrentLanguage == "uk" ? "text-white" : "text-slate-400 hover:text-white")">
+                    Українська
+                </button>
+            </div>
+        </div>
+
+        <div class="text-center mb-6">
+            <div class="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-2xl shadow-blue-500/25">
+                <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
+                </svg>
+            </div>
+            <h1 tabindex="-1" class="text-3xl font-bold text-white mb-2 outline-none">@L.Translate("nav.serviceDesk")</h1>
+            <p class="text-slate-400">@L.Translate("register.title")</p>
+        </div>
+
+        <div class="bg-white/10 backdrop-blur-xl rounded-2xl shadow-2xl p-8 border border-white/20">
+            <EditForm Model="registerModel" OnValidSubmit="HandleRegisterAsync" FormName="RegisterForm">
+                <DataAnnotationsValidator />
+
+                @if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    <div class="mb-6 p-4 bg-red-500/20 border border-red-500/30 rounded-xl backdrop-blur-sm">
+                        <div class="flex items-center gap-2 text-red-200">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <span class="text-sm font-medium">@errorMessage</span>
+                        </div>
+                    </div>
+                }
+
+                @if (!string.IsNullOrEmpty(successMessage))
+                {
+                    <div class="mb-6 p-4 bg-green-500/20 border border-green-500/30 rounded-xl backdrop-blur-sm">
+                        <div class="flex items-center gap-2 text-green-200">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <span class="text-sm font-medium">@successMessage</span>
+                        </div>
+                    </div>
+                }
+
+                <div class="space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label for="firstName" class="block text-sm font-medium text-slate-300 mb-2">
+                                @L.Translate("register.firstName")
+                            </label>
+                            <InputText id="firstName"
+                                       @bind-Value="registerModel.FirstName"
+                                       placeholder="@L.Translate("register.enterFirstName")"
+                                       class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-slate-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" />
+                            <ValidationMessage For="@(() => registerModel.FirstName)" class="text-red-400 text-xs mt-1" />
+                        </div>
+
+                        <div>
+                            <label for="lastName" class="block text-sm font-medium text-slate-300 mb-2">
+                                @L.Translate("register.lastName")
+                            </label>
+                            <InputText id="lastName"
+                                       @bind-Value="registerModel.LastName"
+                                       placeholder="@L.Translate("register.enterLastName")"
+                                       class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-slate-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" />
+                            <ValidationMessage For="@(() => registerModel.LastName)" class="text-red-400 text-xs mt-1" />
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="username" class="block text-sm font-medium text-slate-300 mb-2">
+                            @L.Translate("login.username")
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <svg class="h-5 w-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                </svg>
+                            </div>
+                            <InputText id="username"
+                                       @bind-Value="registerModel.Username"
+                                       placeholder="@L.Translate("login.enterUsername")"
+                                       class="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-slate-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" />
+                        </div>
+                        <ValidationMessage For="@(() => registerModel.Username)" class="text-red-400 text-xs mt-1" />
+                    </div>
+
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-slate-300 mb-2">
+                            @L.Translate("register.email")
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <svg class="h-5 w-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                                </svg>
+                            </div>
+                            <InputText id="email"
+                                       type="email"
+                                       @bind-Value="registerModel.Email"
+                                       placeholder="@L.Translate("register.enterEmail")"
+                                       class="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-slate-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" />
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-slate-300 mb-2">
+                            @L.Translate("login.password")
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <svg class="h-5 w-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                                </svg>
+                            </div>
+                            <InputText id="password"
+                                       type="password"
+                                       @bind-Value="registerModel.Password"
+                                       placeholder="@L.Translate("login.enterPassword")"
+                                       class="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-slate-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" />
+                        </div>
+                        <ValidationMessage For="@(() => registerModel.Password)" class="text-red-400 text-xs mt-1" />
+                    </div>
+
+                    <div>
+                        <label for="confirmPassword" class="block text-sm font-medium text-slate-300 mb-2">
+                            @L.Translate("register.confirmPassword")
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <svg class="h-5 w-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                                </svg>
+                            </div>
+                            <InputText id="confirmPassword"
+                                       type="password"
+                                       @bind-Value="registerModel.ConfirmPassword"
+                                       placeholder="@L.Translate("register.enterConfirmPassword")"
+                                       class="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-slate-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" />
+                        </div>
+                        <ValidationMessage For="@(() => registerModel.ConfirmPassword)" class="text-red-400 text-xs mt-1" />
+                    </div>
+
+                    <button type="submit"
+                            disabled="@isLoading"
+                            class="w-full py-3 px-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-blue-500/25">
+                        @if (isLoading)
+                        {
+                            <svg class="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <span>@L.Translate("register.signingUp")</span>
+                        }
+                        else
+                        {
+                            <span>@L.Translate("register.signUp")</span>
+                        }
+                    </button>
+                </div>
+            </EditForm>
+
+            <div class="mt-6 text-center">
+                <p class="text-slate-400 text-sm">
+                    @L.Translate("register.haveAccount")
+                    <a href="/login" class="text-blue-400 hover:text-blue-300 font-medium transition-colors">
+                        @L.Translate("register.signIn")
+                    </a>
+                </p>
+            </div>
+        </div>
+
+        <p class="text-center text-slate-500 text-sm mt-6">
+            @L.Translate("common.footer") &copy; @DateTime.Now.Year
+        </p>
+    </div>
+</div>
 
 @code {
+    private RegisterModel registerModel = new();
+    private string? errorMessage;
+    private string? successMessage;
+    private bool isLoading;
 
+    protected override void OnInitialized()
+    {
+        L.LanguageChanged += OnStateChanged;
+
+        if (AuthService.IsAuthenticated)
+        {
+            Navigation.NavigateTo("/");
+        }
+    }
+
+    private void OnStateChanged(object? sender, EventArgs e) => StateHasChanged();
+
+    private async Task HandleRegisterAsync()
+    {
+        errorMessage = null;
+        successMessage = null;
+        isLoading = true;
+
+        if (registerModel.Password != registerModel.ConfirmPassword)
+        {
+            errorMessage = L.CurrentLanguage == "uk" 
+                ? "Паролі не співпадають." 
+                : "Passwords do not match.";
+            isLoading = false;
+            return;
+        }
+
+        var (success, error) = await AuthService.RegisterClientAsync(
+            registerModel.Username.Trim(),
+            registerModel.Password,
+            registerModel.FirstName.Trim(),
+            registerModel.LastName.Trim(),
+            registerModel.Email?.Trim()
+        );
+
+        if (success)
+        {
+            successMessage = L.CurrentLanguage == "uk"
+                ? "Реєстрація успішна! Перенаправляємо на сторінку входу..."
+                : "Registration successful! Redirecting to login...";
+            
+            await Task.Delay(1500);
+            Navigation.NavigateTo("/login");
+        }
+        else
+        {
+            errorMessage = error ?? "Registration failed. Please try again.";
+        }
+
+        isLoading = false;
+    }
+
+    public void Dispose() => L.LanguageChanged -= OnStateChanged;
+
+    private sealed class RegisterModel
+    {
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "First name is required")]
+        public string FirstName { get; set; } = string.Empty;
+
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Last name is required")]
+        public string LastName { get; set; } = string.Empty;
+
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Username is required")]
+        [System.ComponentModel.DataAnnotations.MinLength(3, ErrorMessage = "Username must be at least 3 characters")]
+        public string Username { get; set; } = string.Empty;
+
+        [System.ComponentModel.DataAnnotations.EmailAddress(ErrorMessage = "Invalid email address")]
+        public string? Email { get; set; }
+
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Password is required")]
+        [System.ComponentModel.DataAnnotations.MinLength(6, ErrorMessage = "Password must be at least 6 characters")]
+        public string Password { get; set; } = string.Empty;
+
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Please confirm your password")]
+        public string ConfirmPassword { get; set; } = string.Empty;
+    }
 }

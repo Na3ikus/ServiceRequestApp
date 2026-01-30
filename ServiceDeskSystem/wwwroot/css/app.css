@@ -1888,3 +1888,23 @@ video {
   }
 }
 
+/* Fix for Blazor Enhanced Navigation focus on headings */
+h1:focus,
+h1:focus-visible,
+h2:focus,
+h2:focus-visible,
+h3:focus,
+h3:focus-visible {
+  outline: none !important;
+  border-width: 0 !important;
+  box-shadow: none !important;
+}
+
+h1[tabindex="-1"],
+h2[tabindex="-1"],
+h3[tabindex="-1"] {
+  outline: none !important;
+  border-width: 0 !important;
+  box-shadow: none !important;
+}
+

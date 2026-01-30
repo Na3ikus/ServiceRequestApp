@@ -34,7 +34,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"></path>
                 </svg>
             </div>
-            <h1 class="text-3xl font-bold text-white mb-2">@L.Translate("nav.serviceDesk")</h1>
+            <h1 tabindex="-1" class="text-3xl font-bold text-white mb-2 outline-none">@L.Translate("nav.serviceDesk")</h1>
             <p class="text-slate-400">@L.Translate("login.title")</p>
         </div>
 
@@ -67,6 +67,7 @@
                             </div>
                             <InputText id="username"
                                        @bind-Value="loginModel.Username"
+                                       @oninput="@((e) => loginModel.Username = e.Value?.ToString()?.Trim() ?? string.Empty)"
                                        placeholder="@L.Translate("login.enterUsername")"
                                        class="w-full pl-12 pr-4 py-3.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder-slate-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" />
                         </div>
@@ -110,6 +111,15 @@
                     </button>
                 </div>
             </EditForm>
+
+            <div class="mt-6 text-center">
+                <p class="text-slate-400 text-sm">
+                    @L.Translate("login.noAccount")
+                    <a href="/register" class="text-blue-400 hover:text-blue-300 font-medium transition-colors">
+                        @L.Translate("login.signUp")
+                    </a>
+                </p>
+            </div>
         </div>
 
         <p class="text-center text-slate-500 text-sm mt-6">
@@ -139,6 +149,9 @@
     {
         errorMessage = null;
         isLoading = true;
+
+        loginModel.Username = loginModel.Username.Trim();
+        loginModel.Password = loginModel.Password.Trim();
 
         var (success, error) = await AuthService.LoginAsync(loginModel.Username, loginModel.Password);
 

@@ -28,13 +28,14 @@ else
                     </div>
 
                     <div class="flex items-center gap-3">
-                        <div class="flex items-center bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
+                        <div class="relative flex items-center bg-gray-100 dark:bg-gray-700 rounded-full p-1">
+                            <div class="absolute top-1 bottom-1 w-[calc(50%-4px)] bg-white dark:bg-gray-500 rounded-full transition-all duration-300 ease-out shadow-sm @(L.CurrentLanguage == "en" ? "left-1" : "left-[calc(50%+2px)]")"></div>
                             <button @onclick="@(() => L.SetLanguage("en"))"
-                                    class="@(L.CurrentLanguage == "en" ? "bg-white dark:bg-gray-600 shadow-sm" : "") px-3 py-1.5 text-xs font-medium rounded-md transition-all text-gray-700 dark:text-gray-200">
+                                    class="relative z-10 px-3 py-1.5 text-xs font-medium rounded-full transition-colors duration-300 @(L.CurrentLanguage == "en" ? "text-gray-800 dark:text-white" : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200")">
                                 EN
                             </button>
                             <button @onclick="@(() => L.SetLanguage("uk"))"
-                                    class="@(L.CurrentLanguage == "uk" ? "bg-white dark:bg-gray-600 shadow-sm" : "") px-3 py-1.5 text-xs font-medium rounded-md transition-all text-gray-700 dark:text-gray-200">
+                                    class="relative z-10 px-3 py-1.5 text-xs font-medium rounded-full transition-colors duration-300 @(L.CurrentLanguage == "uk" ? "text-gray-800 dark:text-white" : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200")">
                                 UK
                             </button>
                         </div>
