@@ -56,7 +56,7 @@
         Theme.ThemeChanged += OnStateChanged;
     }
 
-    private void OnStateChanged(object? sender, EventArgs e) => StateHasChanged();
+    private void OnStateChanged(object? sender, EventArgs e) => InvokeAsync(StateHasChanged);
 
     public void Dispose()
     {

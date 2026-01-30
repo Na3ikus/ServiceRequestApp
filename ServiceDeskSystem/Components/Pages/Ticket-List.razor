@@ -112,7 +112,7 @@ else if (!tickets.Any())
         tickets = await TicketService.GetAllTicketsAsync();
     }
 
-    private void OnStateChanged(object? sender, EventArgs e) => StateHasChanged();
+    private void OnStateChanged(object? sender, EventArgs e) => InvokeAsync(StateHasChanged);
 
     private void ViewTicket(int id) => Navigation.NavigateTo($"/ticket/{id}");
 

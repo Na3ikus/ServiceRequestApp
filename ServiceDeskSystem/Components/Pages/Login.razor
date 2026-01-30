@@ -144,7 +144,7 @@ private bool isLoading;
         }
     }
 
-    private void OnStateChanged(object? sender, EventArgs e) => StateHasChanged();
+    private void OnStateChanged(object? sender, EventArgs e) => InvokeAsync(StateHasChanged);
 
     private async Task HandleLoginAsync()
     {

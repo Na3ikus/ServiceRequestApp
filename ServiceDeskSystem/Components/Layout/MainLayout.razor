@@ -102,7 +102,7 @@ else
         Theme.ThemeChanged += OnStateChanged;
     }
 
-    private void OnStateChanged(object? sender, EventArgs e) => StateHasChanged();
+    private void OnStateChanged(object? sender, EventArgs e) => InvokeAsync(StateHasChanged);
 
     private void HandleLogout()
     {
