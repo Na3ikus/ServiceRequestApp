@@ -15,14 +15,14 @@
 
     <div class="w-full max-w-md relative z-10">
         <div class="flex justify-center mb-6">
-            <div class="relative flex items-center bg-slate-700/50 backdrop-blur-sm rounded-full p-1.5 border border-slate-600/50">
-                <div class="lang-slider @(L.CurrentLanguage == "en" ? "en" : "uk")"></div>
+            <div class="relative flex items-center bg-slate-700/50 backdrop-blur-sm rounded-full border border-slate-600/50" style="padding: 6px;">
+                <div class="lang-toggle-slider-gradient @(L.CurrentLanguage == "uk" ? "slide-right" : "")"></div>
                 <button @onclick="@(() => L.SetLanguage("en"))"
-                        class="relative z-10 px-5 py-2 text-sm font-semibold rounded-full transition-colors duration-300 @(L.CurrentLanguage == "en" ? "text-white" : "text-slate-400 hover:text-white")">
+                        class="relative z-10 py-2 text-sm font-semibold rounded-full transition-colors duration-300 text-center @(L.CurrentLanguage == "en" ? "text-white" : "text-slate-400 hover:text-white")" style="width: 100px;">
                     English
                 </button>
                 <button @onclick="@(() => L.SetLanguage("uk"))"
-                        class="relative z-10 px-5 py-2 text-sm font-semibold rounded-full transition-colors duration-300 @(L.CurrentLanguage == "uk" ? "text-white" : "text-slate-400 hover:text-white")">
+                        class="relative z-10 py-2 text-sm font-semibold rounded-full transition-colors duration-300 text-center @(L.CurrentLanguage == "uk" ? "text-white" : "text-slate-400 hover:text-white")" style="width: 100px;">
                     Українська
                 </button>
             </div>

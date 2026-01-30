@@ -28,14 +28,14 @@ else
                     </div>
 
                     <div class="flex items-center gap-3">
-                        <div class="relative flex items-center bg-gray-100 dark:bg-gray-700 rounded-full p-1">
-                            <div class="lang-slider-main bg-white dark:bg-gray-500 @(L.CurrentLanguage == "en" ? "en" : "uk")"></div>
+                        <div class="relative bg-gray-600 rounded-full flex" style="padding: 2px;">
+                            <div class="lang-toggle-slider @(L.CurrentLanguage == "uk" ? "slide-right" : "")"></div>
                             <button @onclick="@(() => L.SetLanguage("en"))"
-                                    class="relative z-10 px-3 py-1.5 text-xs font-medium rounded-full transition-colors duration-300 @(L.CurrentLanguage == "en" ? "text-gray-800 dark:text-white" : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200")">
+                                    class="relative z-10 px-3 py-1 text-xs font-semibold rounded-full transition-colors duration-300 @(L.CurrentLanguage == "en" ? "text-gray-800" : "text-gray-300 hover:text-white")">
                                 EN
                             </button>
                             <button @onclick="@(() => L.SetLanguage("uk"))"
-                                    class="relative z-10 px-3 py-1.5 text-xs font-medium rounded-full transition-colors duration-300 @(L.CurrentLanguage == "uk" ? "text-gray-800 dark:text-white" : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200")">
+                                    class="relative z-10 px-3 py-1 text-xs font-semibold rounded-full transition-colors duration-300 @(L.CurrentLanguage == "uk" ? "text-gray-800" : "text-gray-300 hover:text-white")">
                                 UK
                             </button>
                         </div>
