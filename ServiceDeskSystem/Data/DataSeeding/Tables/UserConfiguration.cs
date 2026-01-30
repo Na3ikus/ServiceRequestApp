@@ -4,7 +4,7 @@ using ServiceDeskSystem.Data.Entities;
 
 namespace ServiceDeskSystem.Data.DataSeeding.Tables;
 
-internal class UserConfiguration : IEntityTypeConfiguration<User>
+internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
 {
     public void Configure(EntityTypeBuilder<User> builder)
     {
@@ -13,26 +13,25 @@ internal class UserConfiguration : IEntityTypeConfiguration<User>
             {
                 Id = 1,
                 Login = "admin",
-                PasswordHash = "admin123",  // Plain text for testing
+                PasswordHash = "admin123",
                 Role = "Admin",
-                PersonId = 1
+                PersonId = 1,
             },
             new User
             {
                 Id = 2,
                 Login = "developer",
-                PasswordHash = "dev123",  // Plain text for testing
+                PasswordHash = "dev123",
                 Role = "Developer",
-                PersonId = 2
+                PersonId = 2,
             },
             new User
             {
                 Id = 3,
                 Login = "client",
-                PasswordHash = "client123",  // Plain text for testing
+                PasswordHash = "client123",
                 Role = "Client",
-                PersonId = 3
-            }
-        );
+                PersonId = 3,
+            });
     }
 }

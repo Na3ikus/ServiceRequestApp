@@ -15,13 +15,14 @@
 
     <div class="w-full max-w-md relative z-10">
         <div class="flex justify-center mb-6">
-            <div class="flex items-center bg-white/10 backdrop-blur-sm rounded-full p-1">
+            <div class="relative flex items-center bg-white/10 backdrop-blur-sm rounded-full p-1">
+                <div class="absolute h-[calc(100%-8px)] w-[calc(50%-4px)] bg-white rounded-full transition-all duration-300 ease-out shadow-lg @(L.CurrentLanguage == "en" ? "left-1" : "left-[calc(50%+2px)]")"></div>
                 <button @onclick="@(() => L.SetLanguage("en"))"
-                        class="@(L.CurrentLanguage == "en" ? "bg-white text-gray-900" : "text-white hover:bg-white/10") px-4 py-2 text-sm font-medium rounded-full transition-all">
+                        class="relative z-10 px-5 py-2 text-sm font-medium rounded-full transition-colors duration-300 @(L.CurrentLanguage == "en" ? "text-gray-900" : "text-white/70 hover:text-white")">
                     English
                 </button>
                 <button @onclick="@(() => L.SetLanguage("uk"))"
-                        class="@(L.CurrentLanguage == "uk" ? "bg-white text-gray-900" : "text-white hover:bg-white/10") px-4 py-2 text-sm font-medium rounded-full transition-all">
+                        class="relative z-10 px-5 py-2 text-sm font-medium rounded-full transition-colors duration-300 @(L.CurrentLanguage == "uk" ? "text-gray-900" : "text-white/70 hover:text-white")">
                     Українська
                 </button>
             </div>
@@ -109,24 +110,6 @@
                     </button>
                 </div>
             </EditForm>
-
-            <div class="mt-6 pt-6 border-t border-white/10">
-                <p class="text-xs text-slate-400 text-center mb-3">Demo accounts:</p>
-                <div class="grid grid-cols-3 gap-2 text-xs">
-                    <div class="bg-white/5 rounded-lg p-2 text-center">
-                        <p class="text-slate-300 font-medium">admin</p>
-                        <p class="text-slate-500">admin123</p>
-                    </div>
-                    <div class="bg-white/5 rounded-lg p-2 text-center">
-                        <p class="text-slate-300 font-medium">developer</p>
-                        <p class="text-slate-500">dev123</p>
-                    </div>
-                    <div class="bg-white/5 rounded-lg p-2 text-center">
-                        <p class="text-slate-300 font-medium">client</p>
-                        <p class="text-slate-500">client123</p>
-                    </div>
-                </div>
-            </div>
         </div>
 
         <p class="text-center text-slate-500 text-sm mt-6">
