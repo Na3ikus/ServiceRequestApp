@@ -28,7 +28,7 @@ else
                         <p class="text-sm text-gray-500 dark:text-gray-400">@DateTime.Now.ToString("dddd, MMMM dd, yyyy")</p>
                     </div>
 
-                    <div class="flex items-center gap-3">
+                    <div class="header-actions flex items-center gap-3">
                         <div class="lang-toggle relative bg-gray-600 rounded-full flex items-center">
                             <div class="lang-toggle-slider @(L.CurrentLanguage == "uk" ? "slide-right" : "")"></div>
                             <button @onclick="@(() => L.SetLanguage("en"))"
@@ -42,7 +42,7 @@ else
                         </div>
 
                         <button @onclick="Theme.ToggleTheme"
-                                class="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                                class="theme-toggle p-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
                                 title="@L.Translate("theme.toggle")">
                             @if (Theme.IsDarkMode)
                             {

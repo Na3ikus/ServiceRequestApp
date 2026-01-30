@@ -60,39 +60,39 @@ else if (!tickets.Any())
     {
         <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden">
             <div class="overflow-x-auto">
-                <table class="w-full">
+                <table class="ticket-table">
                     <thead class="bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700">
                         <tr>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">@L.Translate("table.id")</th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">@L.Translate("table.title")</th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">@L.Translate("table.status")</th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">@L.Translate("table.priority")</th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">@L.Translate("table.product")</th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">@L.Translate("table.author")</th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">@L.Translate("table.created")</th>
+                            <th class="col-id px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">@L.Translate("table.id")</th>
+                            <th class="col-title px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">@L.Translate("table.title")</th>
+                            <th class="col-status px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">@L.Translate("table.status")</th>
+                            <th class="col-priority px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">@L.Translate("table.priority")</th>
+                            <th class="col-product px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">@L.Translate("table.product")</th>
+                            <th class="col-author px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">@L.Translate("table.author")</th>
+                            <th class="col-created px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">@L.Translate("table.created")</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
                         @foreach (var ticket in tickets)
                         {
                             <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer transition-colors" @onclick="@(() => ViewTicket(ticket.Id))">
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 font-mono">#@ticket.Id</td>
-                                <td class="px-6 py-4">
-                                    <div class="text-sm font-medium text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400">@ticket.Title</div>
+                                <td class="col-id px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 font-mono">#@ticket.Id</td>
+                                <td class="col-title px-6 py-4">
+                                    <div class="ticket-title text-sm font-medium text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400">@ticket.Title</div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="@GetStatusBadgeClass(ticket.Status) px-3 py-1 rounded-full text-xs font-semibold">
+                                <td class="col-status px-6 py-4 whitespace-nowrap">
+                                    <span class="ticket-status-badge @GetStatusBadgeClass(ticket.Status) px-3 py-1 rounded-full text-xs font-semibold">
                                         @GetStatusText(ticket.Status)
                                     </span>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="@GetPriorityBadgeClass(ticket.Priority) px-3 py-1 rounded-lg text-xs font-semibold">
+                                <td class="col-priority px-6 py-4 whitespace-nowrap">
+                                    <span class="ticket-priority-badge @GetPriorityBadgeClass(ticket.Priority) px-3 py-1 rounded-lg text-xs font-semibold">
                                         @GetPriorityText(ticket.Priority)
                                     </span>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">@ticket.Product?.Name</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">@ticket.Author?.Login</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">@ticket.CreatedAt.ToString("MMM dd, yyyy")</td>
+                                <td class="col-product px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">@ticket.Product?.Name</td>
+                                <td class="col-author px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">@ticket.Author?.Login</td>
+                                <td class="col-created px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">@ticket.CreatedAt.ToString("MMM dd, yyyy")</td>
                             </tr>
                         }
                     </tbody>

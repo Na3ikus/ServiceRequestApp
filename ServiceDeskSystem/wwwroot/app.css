@@ -65,7 +65,7 @@ a, .btn-link {
 
 .ticket-status-badge {
     display: inline-block;
-    min-width: 90px;
+    min-width: 92px;
     text-align: center;
 }
 
@@ -73,6 +73,81 @@ a, .btn-link {
     display: inline-block;
     min-width: 80px;
     text-align: center;
+}
+
+.header-actions {
+    flex-shrink: 0;
+    gap: 12px;
+}
+
+.header-actions > * {
+    flex-shrink: 0;
+}
+
+.theme-toggle {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Ticket list table layout stability */
+.ticket-table {
+    width: 100%;
+    table-layout: fixed;
+}
+
+.ticket-table th,
+.ticket-table td {
+    vertical-align: middle;
+}
+
+.ticket-table .col-id {
+    width: 70px;
+    min-width: 70px;
+}
+
+.ticket-table .col-title {
+    width: 28%;
+    min-width: 240px;
+}
+
+.ticket-table .col-status {
+    width: 120px;
+    min-width: 110px;
+}
+
+.ticket-table .col-priority {
+    width: 120px;
+    min-width: 110px;
+}
+
+.ticket-table .col-product {
+    width: 200px;
+    min-width: 170px;
+}
+
+.ticket-table .col-author {
+    width: 140px;
+    min-width: 120px;
+}
+
+.ticket-table .col-created {
+    width: 150px;
+    min-width: 130px;
+}
+
+.ticket-title {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Create ticket layout stability */
+.ticket-create-page .form-actions button {
+    min-width: 140px;
 }
 
 /* Login/Register gradient slider */
