@@ -2,26 +2,49 @@
 @layout EmptyLayout
 @using ServiceDeskSystem.Services
 @inject IAuthService AuthService
+@inject ILocalizationService L
 @inject NavigationManager Navigation
 @rendermode InteractiveServer
+@implements IDisposable
 
-<div class="min-h-screen bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center p-4">
-    <div class="w-full max-w-md">
-        <!-- Logo/Brand -->
-        <div class="text-center mb-8">
-            <h1 class="text-3xl font-bold text-white mb-2">ServiceDesk</h1>
-            <p class="text-slate-400">Sign in to your account</p>
+<div class="min-h-screen bg-gradient-to-br from-slate-800 via-slate-900 to-black flex items-center justify-center p-4">
+    <div class="absolute inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute -top-40 -right-40 w-80 h-80 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"></div>
+        <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse" style="animation-delay: 1s;"></div>
+    </div>
+
+    <div class="w-full max-w-md relative z-10">
+        <div class="flex justify-center mb-6">
+            <div class="flex items-center bg-white/10 backdrop-blur-sm rounded-full p-1">
+                <button @onclick="@(() => L.SetLanguage("en"))"
+                        class="@(L.CurrentLanguage == "en" ? "bg-white text-gray-900" : "text-white hover:bg-white/10") px-4 py-2 text-sm font-medium rounded-full transition-all">
+                    English
+                </button>
+                <button @onclick="@(() => L.SetLanguage("uk"))"
+                        class="@(L.CurrentLanguage == "uk" ? "bg-white text-gray-900" : "text-white hover:bg-white/10") px-4 py-2 text-sm font-medium rounded-full transition-all">
+                    Українська
+                </button>
+            </div>
         </div>
 
-        <!-- Login Card -->
-        <div class="bg-white rounded-xl shadow-2xl p-8">
+        <div class="text-center mb-8">
+            <div class="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-2xl shadow-blue-500/25">
+                <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                </svg>
+            </div>
+            <h1 class="text-3xl font-bold text-white mb-2">@L.Translate("nav.serviceDesk")</h1>
+            <p class="text-slate-400">@L.Translate("login.title")</p>
+        </div>
+
+        <div class="bg-white/10 backdrop-blur-xl rounded-2xl shadow-2xl p-8 border border-white/20">
             <EditForm Model="loginModel" OnValidSubmit="HandleLoginAsync" FormName="LoginForm">
                 <DataAnnotationsValidator />
 
                 @if (!string.IsNullOrEmpty(errorMessage))
                 {
-                    <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-                        <div class="flex items-center gap-2 text-red-700">
+                    <div class="mb-6 p-4 bg-red-500/20 border border-red-500/30 rounded-xl backdrop-blur-sm">
+                        <div class="flex items-center gap-2 text-red-200">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                             </svg>
@@ -31,69 +54,83 @@
                 }
 
                 <div class="space-y-5">
-                    <!-- Username Field -->
                     <div>
-                        <label for="username" class="block text-sm font-medium text-gray-700 mb-2">
-                            Username
+                        <label for="username" class="block text-sm font-medium text-slate-300 mb-2">
+                            @L.Translate("login.username")
                         </label>
                         <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <svg class="h-5 w-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                                 </svg>
                             </div>
                             <InputText id="username"
                                        @bind-Value="loginModel.Username"
-                                       placeholder="Enter your username"
-                                       class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" />
+                                       placeholder="@L.Translate("login.enterUsername")"
+                                       class="w-full pl-12 pr-4 py-3.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder-slate-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" />
                         </div>
-                        <ValidationMessage For="@(() => loginModel.Username)" class="text-red-500 text-sm mt-1" />
+                        <ValidationMessage For="@(() => loginModel.Username)" class="text-red-400 text-sm mt-1" />
                     </div>
 
-                    <!-- Password Field -->
                     <div>
-                        <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
-                            Password
+                        <label for="password" class="block text-sm font-medium text-slate-300 mb-2">
+                            @L.Translate("login.password")
                         </label>
                         <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <svg class="h-5 w-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
                                 </svg>
                             </div>
                             <InputText id="password"
                                        type="password"
                                        @bind-Value="loginModel.Password"
-                                       placeholder="Enter your password"
-                                       class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" />
+                                       placeholder="@L.Translate("login.enterPassword")"
+                                       class="w-full pl-12 pr-4 py-3.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder-slate-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" />
                         </div>
-                        <ValidationMessage For="@(() => loginModel.Password)" class="text-red-500 text-sm mt-1" />
+                        <ValidationMessage For="@(() => loginModel.Password)" class="text-red-400 text-sm mt-1" />
                     </div>
 
-                    <!-- Submit Button -->
                     <button type="submit"
                             disabled="@isLoading"
-                            class="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors disabled:bg-blue-400 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+                            class="w-full py-3.5 px-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-blue-500/25">
                         @if (isLoading)
                         {
                             <svg class="animate-spin h-5 w-5" viewBox="0 0 24 24">
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
                                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                             </svg>
-                            <span>Signing in...</span>
+                            <span>@L.Translate("login.signingIn")</span>
                         }
                         else
                         {
-                            <span>Sign In</span>
+                            <span>@L.Translate("login.signIn")</span>
                         }
                     </button>
                 </div>
             </EditForm>
+
+            <div class="mt-6 pt-6 border-t border-white/10">
+                <p class="text-xs text-slate-400 text-center mb-3">Demo accounts:</p>
+                <div class="grid grid-cols-3 gap-2 text-xs">
+                    <div class="bg-white/5 rounded-lg p-2 text-center">
+                        <p class="text-slate-300 font-medium">admin</p>
+                        <p class="text-slate-500">admin123</p>
+                    </div>
+                    <div class="bg-white/5 rounded-lg p-2 text-center">
+                        <p class="text-slate-300 font-medium">developer</p>
+                        <p class="text-slate-500">dev123</p>
+                    </div>
+                    <div class="bg-white/5 rounded-lg p-2 text-center">
+                        <p class="text-slate-300 font-medium">client</p>
+                        <p class="text-slate-500">client123</p>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <!-- Footer -->
         <p class="text-center text-slate-500 text-sm mt-6">
-            Service Desk System &copy; @DateTime.Now.Year
+            @L.Translate("common.footer") &copy; @DateTime.Now.Year
         </p>
     </div>
 </div>
@@ -105,12 +142,15 @@
 
     protected override void OnInitialized()
     {
-        // If already logged in, redirect to home
+        L.LanguageChanged += OnStateChanged;
+
         if (AuthService.IsAuthenticated)
         {
             Navigation.NavigateTo("/");
         }
     }
+
+    private void OnStateChanged(object? sender, EventArgs e) => StateHasChanged();
 
     private async Task HandleLoginAsync()
     {
@@ -131,7 +171,9 @@
         isLoading = false;
     }
 
-    private class LoginModel
+    public void Dispose() => L.LanguageChanged -= OnStateChanged;
+
+    private sealed class LoginModel
     {
         [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Username is required")]
         public string Username { get; set; } = string.Empty;

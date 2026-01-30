@@ -1,78 +1,77 @@
 @using ServiceDeskSystem.Services
 @inject ITicketService TicketService
 @inject IAuthService AuthService
+@inject ILocalizationService L
+@inject IThemeService Theme
+@implements IDisposable
 
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-    <!-- Total Tickets -->
-    <div class="bg-white rounded-xl shadow-md overflow-hidden">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg dark:shadow-gray-900/50 overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
         <div class="p-6">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm font-medium text-gray-500 uppercase tracking-wide">Total Tickets</p>
-                    <p class="mt-2 text-3xl font-bold text-gray-900">@totalTickets</p>
+                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">@L.Translate("dashboard.totalTickets")</p>
+                    <p class="mt-2 text-3xl font-bold text-gray-900 dark:text-white">@totalTickets</p>
                 </div>
-                <div class="p-3 bg-blue-100 rounded-full">
-                    <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="p-4 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl shadow-lg shadow-blue-500/30">
+                    <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
                     </svg>
                 </div>
             </div>
         </div>
-        <div class="bg-blue-600 h-1"></div>
+        <div class="h-1.5 bg-gradient-to-r from-blue-500 to-blue-600"></div>
     </div>
 
-    <!-- Open Tickets -->
-    <div class="bg-white rounded-xl shadow-md overflow-hidden">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg dark:shadow-gray-900/50 overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
         <div class="p-6">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm font-medium text-gray-500 uppercase tracking-wide">Open Tickets</p>
-                    <p class="mt-2 text-3xl font-bold text-gray-900">@openTickets</p>
+                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">@L.Translate("dashboard.openTickets")</p>
+                    <p class="mt-2 text-3xl font-bold text-gray-900 dark:text-white">@openTickets</p>
                 </div>
-                <div class="p-3 bg-yellow-100 rounded-full">
-                    <svg class="w-8 h-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="p-4 bg-gradient-to-br from-amber-500 to-orange-500 rounded-2xl shadow-lg shadow-amber-500/30">
+                    <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
                 </div>
             </div>
         </div>
-        <div class="bg-yellow-500 h-1"></div>
+        <div class="h-1.5 bg-gradient-to-r from-amber-500 to-orange-500"></div>
     </div>
 
-    <!-- Critical Priority -->
-    <div class="bg-white rounded-xl shadow-md overflow-hidden">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg dark:shadow-gray-900/50 overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
         <div class="p-6">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm font-medium text-gray-500 uppercase tracking-wide">Critical Priority</p>
-                    <p class="mt-2 text-3xl font-bold text-gray-900">@criticalTickets</p>
+                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">@L.Translate("dashboard.criticalPriority")</p>
+                    <p class="mt-2 text-3xl font-bold text-gray-900 dark:text-white">@criticalTickets</p>
                 </div>
-                <div class="p-3 bg-red-100 rounded-full">
-                    <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="p-4 bg-gradient-to-br from-red-500 to-rose-600 rounded-2xl shadow-lg shadow-red-500/30">
+                    <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
                     </svg>
                 </div>
             </div>
         </div>
-        <div class="bg-red-500 h-1"></div>
+        <div class="h-1.5 bg-gradient-to-r from-red-500 to-rose-600"></div>
     </div>
 
-    <!-- My Tickets -->
-    <div class="bg-white rounded-xl shadow-md overflow-hidden">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg dark:shadow-gray-900/50 overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
         <div class="p-6">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm font-medium text-gray-500 uppercase tracking-wide">My Tickets</p>
-                    <p class="mt-2 text-3xl font-bold text-gray-900">@myTickets</p>
+                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">@L.Translate("dashboard.myTickets")</p>
+                    <p class="mt-2 text-3xl font-bold text-gray-900 dark:text-white">@myTickets</p>
                 </div>
-                <div class="p-3 bg-green-100 rounded-full">
-                    <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="p-4 bg-gradient-to-br from-emerald-500 to-green-600 rounded-2xl shadow-lg shadow-emerald-500/30">
+                    <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                     </svg>
                 </div>
             </div>
         </div>
-        <div class="bg-green-500 h-1"></div>
+        <div class="h-1.5 bg-gradient-to-r from-emerald-500 to-green-600"></div>
     </div>
 </div>
 
@@ -84,13 +83,24 @@
 
     protected override async Task OnInitializedAsync()
     {
+        L.LanguageChanged += OnStateChanged;
+        Theme.ThemeChanged += OnStateChanged;
+
         totalTickets = await TicketService.GetTotalTicketsCountAsync();
         openTickets = await TicketService.GetOpenTicketsCountAsync();
         criticalTickets = await TicketService.GetCriticalTicketsCountAsync();
-        
+
         if (AuthService.CurrentUser is not null)
         {
             myTickets = await TicketService.GetUserTicketsCountAsync(AuthService.CurrentUser.Id);
         }
+    }
+
+    private void OnStateChanged(object? sender, EventArgs e) => StateHasChanged();
+
+    public void Dispose()
+    {
+        L.LanguageChanged -= OnStateChanged;
+        Theme.ThemeChanged -= OnStateChanged;
     }
 }

@@ -8,6 +8,7 @@ module.exports = {
         "./**/*.razor",
         "./**/*.html"
     ],
+    darkMode: 'class',
     theme: {
         extend: {},
     },

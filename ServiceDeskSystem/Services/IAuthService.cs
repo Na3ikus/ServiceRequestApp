@@ -2,7 +2,7 @@ using ServiceDeskSystem.Data.Entities;
 
 namespace ServiceDeskSystem.Services;
 
-public interface IAuthService
+internal interface IAuthService
 {
     User? CurrentUser { get; }
 
@@ -12,5 +12,5 @@ public interface IAuthService
 
     void Logout();
 
-    event Action? OnAuthStateChanged;
+    event EventHandler? AuthStateChanged;
 }

@@ -21,6 +21,8 @@ builder.Services.AddScoped(sp =>
 
 builder.Services.AddScoped<ITicketService, TicketService>();
 builder.Services.AddScoped<IAuthService, SimpleAuthService>();
+builder.Services.AddScoped<ILocalizationService, LocalizationService>();
+builder.Services.AddScoped<IThemeService, ThemeService>();
 
 var app = builder.Build();
 

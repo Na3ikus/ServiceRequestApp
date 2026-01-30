@@ -2,7 +2,7 @@ using ServiceDeskSystem.Data.Entities;
 
 namespace ServiceDeskSystem.Services;
 
-public interface ITicketService
+internal interface ITicketService
 {
     Task<List<Ticket>> GetAllTicketsAsync();
 
@@ -16,9 +16,11 @@ public interface ITicketService
 
     Task<List<Product>> GetProductsAsync();
 
-    // Dashboard statistics
     Task<int> GetTotalTicketsCountAsync();
+
     Task<int> GetOpenTicketsCountAsync();
+
     Task<int> GetCriticalTicketsCountAsync();
+
     Task<int> GetUserTicketsCountAsync(int userId);
 }

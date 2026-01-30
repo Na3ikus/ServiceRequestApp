@@ -1,66 +1,91 @@
 ﻿@inherits LayoutComponentBase
 @using ServiceDeskSystem.Services
 @inject IAuthService AuthService
+@inject ILocalizationService L
+@inject IThemeService Theme
 @inject NavigationManager Navigation
+@implements IDisposable
 
+<div class="@(Theme.IsDarkMode ? "dark" : "")">
 @if (!AuthService.IsAuthenticated)
 {
-    <!-- Not authenticated - redirect to login -->
     @Body
     <RedirectToLogin />
 }
 else
 {
-    <!-- Authenticated Layout -->
-    <div class="flex h-screen bg-gray-100">
-        <!-- Sidebar -->
+    <div class="flex h-screen bg-gray-100 dark:bg-gray-900 transition-colors duration-200">
         <aside class="w-64 flex-shrink-0">
             <NavMenu />
         </aside>
 
-        <!-- Main Content Area -->
         <div class="flex-1 flex flex-col overflow-hidden">
-            <!-- Top Bar -->
-            <header class="bg-white shadow-sm border-b border-gray-200">
+            <header class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 transition-colors duration-200">
                 <div class="flex items-center justify-between px-6 py-4">
                     <div>
-                        <h2 class="text-lg font-semibold text-gray-800">Welcome back!</h2>
-                        <p class="text-sm text-gray-500">@DateTime.Now.ToString("dddd, MMMM dd, yyyy")</p>
+                        <h2 class="text-lg font-semibold text-gray-800 dark:text-white">@L.Translate("dashboard.welcome")</h2>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">@DateTime.Now.ToString("dddd, MMMM dd, yyyy")</p>
                     </div>
-                    
-                    <div class="flex items-center gap-4">
-                        <!-- User Info -->
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
-                                <span class="text-white font-medium text-sm">
+
+                    <div class="flex items-center gap-3">
+                        <div class="flex items-center bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
+                            <button @onclick="@(() => L.SetLanguage("en"))"
+                                    class="@(L.CurrentLanguage == "en" ? "bg-white dark:bg-gray-600 shadow-sm" : "") px-3 py-1.5 text-xs font-medium rounded-md transition-all text-gray-700 dark:text-gray-200">
+                                EN
+                            </button>
+                            <button @onclick="@(() => L.SetLanguage("uk"))"
+                                    class="@(L.CurrentLanguage == "uk" ? "bg-white dark:bg-gray-600 shadow-sm" : "") px-3 py-1.5 text-xs font-medium rounded-md transition-all text-gray-700 dark:text-gray-200">
+                                UK
+                            </button>
+                        </div>
+
+                        <button @onclick="Theme.ToggleTheme"
+                                class="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                                title="@L.Translate("theme.toggle")">
+                            @if (Theme.IsDarkMode)
+                            {
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                                </svg>
+                            }
+                            else
+                            {
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+                                </svg>
+                            }
+                        </button>
+
+                        <div class="flex items-center gap-3 pl-3 border-l border-gray-200 dark:border-gray-600">
+                            <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg">
+                                <span class="text-white font-semibold text-sm">
                                     @(AuthService.CurrentUser?.Login?.Substring(0, 1).ToUpper() ?? "U")
                                 </span>
                             </div>
                             <div class="hidden sm:block">
-                                <p class="text-sm font-medium text-gray-800">@AuthService.CurrentUser?.Login</p>
-                                <p class="text-xs text-gray-500">@AuthService.CurrentUser?.Role</p>
+                                <p class="text-sm font-medium text-gray-800 dark:text-white">@AuthService.CurrentUser?.Login</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">@AuthService.CurrentUser?.Role</p>
                             </div>
                         </div>
 
-                        <!-- Logout Button -->
                         <button @onclick="HandleLogout"
-                                class="flex items-center gap-2 px-4 py-2 text-sm text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+                                class="flex items-center gap-2 px-4 py-2 text-sm text-gray-600 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
                             </svg>
-                            <span class="hidden sm:inline">Logout</span>
+                            <span class="hidden sm:inline">@L.Translate("common.logout")</span>
                         </button>
                     </div>
                 </div>
             </header>
 
-            <!-- Page Content -->
-            <main class="flex-1 overflow-y-auto bg-gray-100">
+            <main class="flex-1 overflow-y-auto bg-gray-100 dark:bg-gray-900 transition-colors duration-200">
                 @Body
             </main>
         </div>
     </div>
 }
+</div>
 
 <div id="blazor-error-ui" data-nosnippet>
     An unhandled error has occurred.
@@ -69,9 +94,23 @@ else
 </div>
 
 @code {
+    protected override void OnInitialized()
+    {
+        L.LanguageChanged += OnStateChanged;
+        Theme.ThemeChanged += OnStateChanged;
+    }
+
+    private void OnStateChanged(object? sender, EventArgs e) => StateHasChanged();
+
     private void HandleLogout()
     {
         AuthService.Logout();
         Navigation.NavigateTo("/login", forceLoad: true);
+    }
+
+    public void Dispose()
+    {
+        L.LanguageChanged -= OnStateChanged;
+        Theme.ThemeChanged -= OnStateChanged;
     }
 }

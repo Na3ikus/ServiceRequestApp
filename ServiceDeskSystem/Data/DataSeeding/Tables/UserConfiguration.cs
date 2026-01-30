@@ -13,7 +13,7 @@ internal class UserConfiguration : IEntityTypeConfiguration<User>
             {
                 Id = 1,
                 Login = "admin",
-                PasswordHash = "$2a$11$dummyHashForTestingPurposesOnly123456",
+                PasswordHash = "admin123",  // Plain text for testing
                 Role = "Admin",
                 PersonId = 1
             },
@@ -21,7 +21,7 @@ internal class UserConfiguration : IEntityTypeConfiguration<User>
             {
                 Id = 2,
                 Login = "developer",
-                PasswordHash = "$2a$11$dummyHashForTestingPurposesOnly123456",
+                PasswordHash = "dev123",  // Plain text for testing
                 Role = "Developer",
                 PersonId = 2
             },
@@ -29,7 +29,7 @@ internal class UserConfiguration : IEntityTypeConfiguration<User>
             {
                 Id = 3,
                 Login = "client",
-                PasswordHash = "$2a$11$dummyHashForTestingPurposesOnly123456",
+                PasswordHash = "client123",  // Plain text for testing
                 Role = "Client",
                 PersonId = 3
             }
