@@ -6,6 +6,7 @@
 @inject NavigationManager Navigation
 @implements IDisposable
 
+<!-- Created by Nazar "N1h3" Hutsol -->
 <div class="@(Theme.IsDarkMode ? "dark" : "")">
 @if (!AuthService.IsAuthenticated)
 {
@@ -28,14 +29,14 @@ else
                     </div>
 
                     <div class="flex items-center gap-3">
-                        <div class="relative bg-gray-600 rounded-full flex" style="padding: 2px;">
+                        <div class="lang-toggle relative bg-gray-600 rounded-full flex items-center">
                             <div class="lang-toggle-slider @(L.CurrentLanguage == "uk" ? "slide-right" : "")"></div>
                             <button @onclick="@(() => L.SetLanguage("en"))"
-                                    class="relative z-10 px-3 py-1 text-xs font-semibold rounded-full transition-colors duration-300 @(L.CurrentLanguage == "en" ? "text-gray-800" : "text-gray-300 hover:text-white")">
+                                    class="lang-toggle-btn relative z-10 text-xs font-semibold rounded-full transition-colors duration-300 text-center @(L.CurrentLanguage == "en" ? "text-gray-900 dark:text-gray-900" : "text-gray-600 dark:text-gray-200 hover:text-white")">
                                 EN
                             </button>
                             <button @onclick="@(() => L.SetLanguage("uk"))"
-                                    class="relative z-10 px-3 py-1 text-xs font-semibold rounded-full transition-colors duration-300 @(L.CurrentLanguage == "uk" ? "text-gray-800" : "text-gray-300 hover:text-white")">
+                                    class="lang-toggle-btn relative z-10 text-xs font-semibold rounded-full transition-colors duration-300 text-center @(L.CurrentLanguage == "uk" ? "text-gray-900 dark:text-gray-900" : "text-gray-600 dark:text-gray-200 hover:text-white")">
                                 UK
                             </button>
                         </div>
