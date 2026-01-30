@@ -1,6 +1,6 @@
 namespace ServiceDeskSystem.Data.Entities;
 
-internal class ContactType
+public class ContactType
 {
     public int Id { get; set; }
 

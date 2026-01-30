@@ -1,6 +1,6 @@
 namespace ServiceDeskSystem.Data.Entities;
 
-internal class Comment
+public class Comment
 {
     public int Id { get; set; }
     public string Message { get; set; } = string.Empty;

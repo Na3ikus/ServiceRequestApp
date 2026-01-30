@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using ServiceDeskSystem.Components;
 using ServiceDeskSystem.Data;
+using ServiceDeskSystem.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +13,8 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 
 builder.Services.AddDbContext<BugTrackerDbContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
+
+builder.Services.AddScoped<ITicketService, TicketService>();
 
 var app = builder.Build();
 

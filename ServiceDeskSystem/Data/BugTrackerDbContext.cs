@@ -7,7 +7,7 @@ using ServiceDeskSystem.Data.Entities;
 
 namespace ServiceDeskSystem.Data
 {
-    internal class BugTrackerDbContext : DbContext
+    public class BugTrackerDbContext : DbContext
     {
         public BugTrackerDbContext(DbContextOptions<BugTrackerDbContext> options)
                     : base(options)

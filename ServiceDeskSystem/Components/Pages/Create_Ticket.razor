@@ -1,0 +1,197 @@
+﻿@page "/create-ticket"
+@using ServiceDeskSystem.Data.Entities
+@using ServiceDeskSystem.Services
+@inject ITicketService TicketService
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+
+<div class="max-w-3xl mx-auto p-6">
+    <div class="bg-white rounded-lg shadow-md p-8">
+        <div class="mb-6">
+            <h1 class="text-2xl font-bold text-gray-800">Create New Ticket</h1>
+            <p class="text-gray-600 mt-1">Submit a new support request or bug report</p>
+        </div>
+
+        <EditForm Model="ticketModel" OnValidSubmit="HandleSubmitAsync" FormName="CreateTicketForm">
+            <DataAnnotationsValidator />
+
+            <div class="space-y-6">
+                <!-- Title -->
+                <div>
+                    <label for="title" class="block text-sm font-medium text-gray-700 mb-1">
+                        Title <span class="text-red-500">*</span>
+                    </label>
+                    <InputText id="title" 
+                               @bind-Value="ticketModel.Title" 
+                               placeholder="Brief summary of the issue"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                    <ValidationMessage For="@(() => ticketModel.Title)" class="text-red-500 text-sm mt-1" />
+                </div>
+
+                <!-- Description -->
+                <div>
+                    <label for="description" class="block text-sm font-medium text-gray-700 mb-1">
+                        Description <span class="text-red-500">*</span>
+                    </label>
+                    <InputTextArea id="description" 
+                                   @bind-Value="ticketModel.Description" 
+                                   rows="5"
+                                   placeholder="Detailed description of the issue..."
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none" />
+                    <ValidationMessage For="@(() => ticketModel.Description)" class="text-red-500 text-sm mt-1" />
+                </div>
+
+                <!-- Priority and Product Row -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Priority -->
+                    <div>
+                        <label for="priority" class="block text-sm font-medium text-gray-700 mb-1">
+                            Priority <span class="text-red-500">*</span>
+                        </label>
+                        <InputSelect id="priority" 
+                                     @bind-Value="ticketModel.Priority"
+                                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white">
+                            <option value="">Select priority...</option>
+                            <option value="Low">Low</option>
+                            <option value="Medium">Medium</option>
+                            <option value="High">High</option>
+                            <option value="Critical">Critical</option>
+                        </InputSelect>
+                        <ValidationMessage For="@(() => ticketModel.Priority)" class="text-red-500 text-sm mt-1" />
+                    </div>
+
+                    <!-- Product -->
+                    <div>
+                        <label for="product" class="block text-sm font-medium text-gray-700 mb-1">
+                            Product <span class="text-red-500">*</span>
+                        </label>
+                        <InputSelect id="product" 
+                                     @bind-Value="ticketModel.ProductId"
+                                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white">
+                            <option value="0">Select product...</option>
+                            @foreach (var product in products)
+                            {
+                                <option value="@product.Id">@product.Name</option>
+                            }
+                        </InputSelect>
+                        <ValidationMessage For="@(() => ticketModel.ProductId)" class="text-red-500 text-sm mt-1" />
+                    </div>
+                </div>
+
+                <!-- Steps to Reproduce (Optional) -->
+                <div>
+                    <label for="steps" class="block text-sm font-medium text-gray-700 mb-1">
+                        Steps to Reproduce
+                    </label>
+                    <InputTextArea id="steps" 
+                                   @bind-Value="ticketModel.StepsToReproduce" 
+                                   rows="3"
+                                   placeholder="1. Go to...\n2. Click on...\n3. See error"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none" />
+                </div>
+
+                <!-- Environment (Optional) -->
+                <div>
+                    <label for="environment" class="block text-sm font-medium text-gray-700 mb-1">
+                        Environment
+                    </label>
+                    <InputText id="environment" 
+                               @bind-Value="ticketModel.Environment" 
+                               placeholder="e.g., Windows 11, Chrome 120"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                </div>
+
+                <!-- Form Actions -->
+                <div class="flex items-center justify-end gap-4 pt-4 border-t">
+                    <button type="button" 
+                            @onclick="Cancel"
+                            class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                        Cancel
+                    </button>
+                    <button type="submit" 
+                            disabled="@isSubmitting"
+                            class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors">
+                        @if (isSubmitting)
+                        {
+                            <span class="flex items-center gap-2">
+                                <svg class="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                Creating...
+                            </span>
+                        }
+                        else
+                        {
+                            <span>Create Ticket</span>
+                        }
+                    </button>
+                </div>
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    private TicketCreateModel ticketModel = new();
+    private List<Product> products = [];
+    private bool isSubmitting;
+
+    // Simulated current user (in a real app, get from authentication)
+    private const int CurrentUserId = 1;
+
+    protected override async Task OnInitializedAsync()
+    {
+        products = await TicketService.GetProductsAsync();
+    }
+
+    private async Task HandleSubmitAsync()
+    {
+        if (ticketModel.ProductId == 0)
+            return;
+
+        isSubmitting = true;
+
+        var ticket = new Ticket
+        {
+            Title = ticketModel.Title,
+            Description = ticketModel.Description,
+            Priority = ticketModel.Priority,
+            ProductId = ticketModel.ProductId,
+            StepsToReproduce = ticketModel.StepsToReproduce ?? string.Empty,
+            Environment = ticketModel.Environment ?? string.Empty,
+            AffectedVersion = string.Empty,
+            AuthorId = CurrentUserId
+        };
+
+        await TicketService.CreateTicketAsync(ticket);
+        
+        Navigation.NavigateTo("/");
+    }
+
+    private void Cancel()
+    {
+        Navigation.NavigateTo("/");
+    }
+
+    private class TicketCreateModel
+    {
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Title is required")]
+        [System.ComponentModel.DataAnnotations.StringLength(200, MinimumLength = 5, ErrorMessage = "Title must be between 5 and 200 characters")]
+        public string Title { get; set; } = string.Empty;
+
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Description is required")]
+        [System.ComponentModel.DataAnnotations.StringLength(5000, MinimumLength = 10, ErrorMessage = "Description must be between 10 and 5000 characters")]
+        public string Description { get; set; } = string.Empty;
+
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Priority is required")]
+        public string Priority { get; set; } = string.Empty;
+
+        [System.ComponentModel.DataAnnotations.Range(1, int.MaxValue, ErrorMessage = "Please select a product")]
+        public int ProductId { get; set; }
+
+        public string? StepsToReproduce { get; set; }
+
+        public string? Environment { get; set; }
+    }
+}
