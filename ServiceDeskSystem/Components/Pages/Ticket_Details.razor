@@ -3,6 +3,8 @@
 @using ServiceDeskSystem.Services
 @inject ITicketService TicketService
 @inject IAuthService AuthService
+@inject ILocalizationService L
+@inject IThemeService Theme
 @inject NavigationManager Navigation
 @rendermode InteractiveServer
 
@@ -183,12 +185,19 @@
     private Ticket? ticket;
     private string newCommentMessage = string.Empty;
     private bool isSubmitting;
+    private Timer? refreshTimer;
+    private bool isRefreshing;
+    private readonly TimeSpan refreshInterval = TimeSpan.FromSeconds(5);
 
     private int CurrentUserId => AuthService.CurrentUser?.Id ?? 0;
 
     protected override async Task OnInitializedAsync()
     {
+        L.LanguageChanged += OnStateChanged;
+        Theme.ThemeChanged += OnStateChanged;
+
         await LoadTicketAsync();
+        StartAutoRefresh();
     }
 
     private async Task LoadTicketAsync()
@@ -215,6 +224,8 @@
         
         newCommentMessage = string.Empty;
         isSubmitting = false;
+
+        await RefreshCommentsAsync();
     }
 
     private async Task UpdateStatusAsync(string newStatus)
@@ -232,6 +243,33 @@
     private void GoBack()
     {
         Navigation.NavigateTo("/");
+    }
+
+    private void StartAutoRefresh()
+    {
+        refreshTimer = new Timer(async _ => await RefreshCommentsAsync(), null, refreshInterval, refreshInterval);
+    }
+
+    private Task OnStateChanged(object? sender, EventArgs e) => InvokeAsync(StateHasChanged);
+
+    private async Task RefreshCommentsAsync()
+    {
+        if (isRefreshing)
+            return;
+
+        isRefreshing = true;
+        try
+        {
+            await InvokeAsync(async () =>
+            {
+                await LoadTicketAsync();
+                StateHasChanged();
+            });
+        }
+        finally
+        {
+            isRefreshing = false;
+        }
     }
 
     private static string GetStatusBadgeClass(string status) => status switch

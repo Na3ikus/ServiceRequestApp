@@ -18,9 +18,9 @@ builder.Services.AddScoped(sp =>
     sp.GetRequiredService<IDbContextFactory<BugTrackerDbContext>>().CreateDbContext());
 
 builder.Services.AddScoped<ITicketService, TicketService>();
-builder.Services.AddSingleton<IAuthService, SimpleAuthService>();
-builder.Services.AddSingleton<ILocalizationService, LocalizationService>();
-builder.Services.AddSingleton<IThemeService, ThemeService>();
+builder.Services.AddScoped<IAuthService, SimpleAuthService>();
+builder.Services.AddScoped<ILocalizationService, LocalizationService>();
+builder.Services.AddScoped<IThemeService, ThemeService>();
 
 var app = builder.Build();
 
