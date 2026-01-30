@@ -99,6 +99,8 @@ namespace ServiceDeskSystem.Data
                 .WithMany(t => t.Attachments)
                 .HasForeignKey(a => a.TicketId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(BugTrackerDbContext).Assembly);
         }
     }
 }
