@@ -7,6 +7,7 @@
 @inject IThemeService Theme
 @inject NavigationManager Navigation
 @rendermode InteractiveServer
+@implements IDisposable
 
 <!-- Created by Nazar "N1h3" Hutsol -->
 <div class="max-w-6xl mx-auto p-6">
@@ -25,9 +26,15 @@
                 <div class="bg-white rounded-lg shadow-md p-6">
                     <div class="flex items-start justify-between mb-4">
                         <h1 class="text-2xl font-bold text-gray-800">@ticket.Title</h1>
-                        <span class="@GetStatusBadgeClass(ticket.Status) px-3 py-1 rounded-full text-sm font-medium">
-                            @ticket.Status
-                        </span>
+                        <div class="flex items-center gap-2">
+                            <span class="@GetStatusBadgeClass(ticket.Status) px-3 py-1 rounded-full text-sm font-medium">
+                                @ticket.Status
+                            </span>
+                            <button @onclick="DeleteTicketAsync"
+                                    style="background-color: #dc2626; color: white; padding: 4px 12px; font-size: 12px; border-radius: 6px; border: none; cursor: pointer;">
+                                Delete Ticket
+                            </button>
+                        </div>
                     </div>
                     
                     <div class="flex flex-wrap gap-4 text-sm text-gray-600 mb-4">
@@ -56,8 +63,8 @@
 
                 <!-- Comments Section -->
                 <div class="bg-white rounded-lg shadow-md p-6">
-                    <h2 class="text-lg font-semibold text-gray-800 mb-4">
-                        Comments (@(ticket.Comments?.Count ?? 0))
+                        <h2 class="text-lg font-semibold text-gray-800 mb-4">
+                            Comments (@(ticket.Comments?.Count ?? 0))
                     </h2>
 
                     <div class="space-y-4 mb-6">
@@ -69,8 +76,32 @@
                                     <div class="flex items-center gap-2 mb-1">
                                         <span class="font-medium text-gray-800">@comment.Author?.Login</span>
                                         <span class="text-xs text-gray-500">@comment.CreatedAt.ToString("MMM dd, yyyy HH:mm")</span>
+                                        @if (comment.AuthorId == CurrentUserId || IsAdmin)
+                                            {
+                                                <div class="ml-auto flex gap-2 text-xs">
+                                                    @if (editingCommentId == comment.Id)
+                                                    {
+                                                        <button class="text-green-600 hover:underline" @onclick="() => SaveCommentEditAsync(comment.Id)">Save</button>
+                                                        <button class="text-gray-500 hover:underline" @onclick="CancelEdit">Cancel</button>
+                                                    }
+                                                    else
+                                                    {
+                                                        <button class="text-blue-600 hover:underline" @onclick="() => BeginEdit(comment)">Edit</button>
+                                                    }
+                                                </div>
+                                            }
                                     </div>
-                                    <p class="text-gray-600">@comment.Message</p>
+                                        @if (editingCommentId == comment.Id)
+                                        {
+                                            <textarea @bind="editingCommentMessage"
+                                                      @bind:event="oninput"
+                                                      rows="3"
+                                                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"></textarea>
+                                        }
+                                        else
+                                        {
+                                            <p class="text-gray-600">@comment.Message</p>
+                                        }
                                 </div>
                             }
                         }
@@ -188,16 +219,33 @@
     private Timer? refreshTimer;
     private bool isRefreshing;
     private readonly TimeSpan refreshInterval = TimeSpan.FromSeconds(5);
+    private int? editingCommentId;
+    private string editingCommentMessage = string.Empty;
 
     private int CurrentUserId => AuthService.CurrentUser?.Id ?? 0;
+    private string CurrentUserRole => AuthService.CurrentUser?.Role ?? string.Empty;
+    private bool IsAdmin => string.Equals(CurrentUserRole, "Admin", StringComparison.OrdinalIgnoreCase);
+    private bool CanManageTicket => ticket is not null && (ticket.AuthorId == CurrentUserId || IsAdmin);
+    private bool authRestored;
 
     protected override async Task OnInitializedAsync()
     {
         L.LanguageChanged += OnStateChanged;
         Theme.ThemeChanged += OnStateChanged;
+        AuthService.AuthStateChanged += OnStateChanged;
 
         await LoadTicketAsync();
         StartAutoRefresh();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !authRestored)
+        {
+            authRestored = true;
+            await AuthService.EnsureRestoredAsync();
+            StateHasChanged();
+        }
     }
 
     private async Task LoadTicketAsync()
@@ -228,6 +276,37 @@
         await RefreshCommentsAsync();
     }
 
+    private void BeginEdit(Comment comment)
+    {
+        editingCommentId = comment.Id;
+        editingCommentMessage = comment.Message;
+    }
+
+    private void CancelEdit()
+    {
+        editingCommentId = null;
+        editingCommentMessage = string.Empty;
+    }
+
+    private async Task SaveCommentEditAsync(int commentId)
+    {
+        if (editingCommentId != commentId || string.IsNullOrWhiteSpace(editingCommentMessage))
+            return;
+
+        var updated = await TicketService.UpdateCommentAsync(commentId, editingCommentMessage.Trim());
+        if (updated is not null && ticket?.Comments is not null)
+        {
+            var existing = ticket.Comments.FirstOrDefault(c => c.Id == commentId);
+            if (existing is not null)
+            {
+                existing.Message = updated.Message;
+            }
+        }
+
+        CancelEdit();
+        await RefreshCommentsAsync();
+    }
+
     private async Task UpdateStatusAsync(string newStatus)
     {
         if (ticket is null)
@@ -237,6 +316,18 @@
         if (success)
         {
             ticket.Status = newStatus;
+        }
+    }
+
+    private async Task DeleteTicketAsync()
+    {
+        if (ticket is null)
+            return;
+
+        var success = await TicketService.DeleteTicketAsync(ticket.Id);
+        if (success)
+        {
+            Navigation.NavigateTo("/");
         }
     }
 
@@ -250,7 +341,10 @@
         refreshTimer = new Timer(async _ => await RefreshCommentsAsync(), null, refreshInterval, refreshInterval);
     }
 
-    private Task OnStateChanged(object? sender, EventArgs e) => InvokeAsync(StateHasChanged);
+    private void OnStateChanged(object? sender, EventArgs e)
+    {
+        _ = InvokeAsync(StateHasChanged);
+    }
 
     private async Task RefreshCommentsAsync()
     {
@@ -289,4 +383,11 @@
         "Low" => "bg-green-100 text-green-800",
         _ => "bg-gray-100 text-gray-800"
     };
+    public void Dispose()
+    {
+        L.LanguageChanged -= OnStateChanged;
+        Theme.ThemeChanged -= OnStateChanged;
+        AuthService.AuthStateChanged -= OnStateChanged;
+        refreshTimer?.Dispose();
+    }
 }

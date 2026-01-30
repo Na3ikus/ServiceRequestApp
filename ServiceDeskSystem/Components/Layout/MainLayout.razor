@@ -8,7 +8,13 @@
 
 <!-- Created by Nazar "N1h3" Hutsol -->
 <div class="@(Theme.IsDarkMode ? "dark" : "")">
-@if (!AuthService.IsAuthenticated)
+@if (!authRestored)
+{
+    <div class="flex items-center justify-center h-screen bg-gray-100">
+        <div class="text-gray-500">Loading...</div>
+    </div>
+}
+else if (!AuthService.IsAuthenticated)
 {
     @Body
     <RedirectToLogin />
@@ -96,10 +102,23 @@ else
 </div>
 
 @code {
+    private bool authRestored;
+
     protected override void OnInitialized()
     {
         L.LanguageChanged += OnStateChanged;
         Theme.ThemeChanged += OnStateChanged;
+        AuthService.AuthStateChanged += OnStateChanged;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !authRestored)
+        {
+            authRestored = true;
+            await AuthService.EnsureRestoredAsync();
+            StateHasChanged();
+        }
     }
 
     private void OnStateChanged(object? sender, EventArgs e) => InvokeAsync(StateHasChanged);
@@ -114,5 +133,6 @@ else
     {
         L.LanguageChanged -= OnStateChanged;
         Theme.ThemeChanged -= OnStateChanged;
+        AuthService.AuthStateChanged -= OnStateChanged;
     }
 }

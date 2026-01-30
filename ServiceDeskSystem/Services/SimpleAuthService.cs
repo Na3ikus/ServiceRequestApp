@@ -1,16 +1,53 @@
+using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using Microsoft.EntityFrameworkCore;
 using ServiceDeskSystem.Data;
 using ServiceDeskSystem.Data.Entities;
 
 namespace ServiceDeskSystem.Services;
 
-internal sealed class SimpleAuthService(IDbContextFactory<BugTrackerDbContext> contextFactory): IAuthService
+internal sealed class SimpleAuthService(
+    IDbContextFactory<BugTrackerDbContext> contextFactory,
+    ProtectedSessionStorage sessionStorage) : IAuthService
 {
     public event EventHandler? AuthStateChanged;
 
     public User? CurrentUser { get; private set; }
+    private bool initialized;
 
     public bool IsAuthenticated => this.CurrentUser is not null;
+
+    public async Task EnsureRestoredAsync()
+    {
+        if (initialized)
+            return;
+
+        initialized = true;
+
+        try
+        {
+            var stored = await sessionStorage.GetAsync<int>("authUserId");
+            if (stored.Success && stored.Value > 0)
+            {
+                var dbContext = await contextFactory.CreateDbContextAsync();
+                await using (dbContext)
+                {
+                    var user = await dbContext.Users
+                        .Include(u => u.Person)
+                        .FirstOrDefaultAsync(u => u.Id == stored.Value);
+
+                    if (user is not null)
+                    {
+                        this.CurrentUser = user;
+                        this.AuthStateChanged?.Invoke(this, EventArgs.Empty);
+                    }
+                }
+            }
+        }
+        catch
+        {
+            // ProtectedSessionStorage може кинути виключення до першого рендеру - ігноруємо
+        }
+    }
 
     public async Task<(bool Success, string? ErrorMessage)> LoginAsync(string username, string password)
     {
@@ -38,6 +75,7 @@ internal sealed class SimpleAuthService(IDbContextFactory<BugTrackerDbContext> c
             }
 
             this.CurrentUser = user;
+            await SaveToSessionAsync(user).ConfigureAwait(false);
             this.AuthStateChanged?.Invoke(this, EventArgs.Empty);
 
             return (true, null);
@@ -113,10 +151,24 @@ internal sealed class SimpleAuthService(IDbContextFactory<BugTrackerDbContext> c
         }
     }
 
-    public void Logout()
+    public async void Logout()
     {
         this.CurrentUser = null;
+        try
+        {
+            await sessionStorage.DeleteAsync("authUserId");
+        }
+        catch { }
         this.AuthStateChanged?.Invoke(this, EventArgs.Empty);
+    }
+
+    private async Task SaveToSessionAsync(User user)
+    {
+        try
+        {
+            await sessionStorage.SetAsync("authUserId", user.Id);
+        }
+        catch { }
     }
 
     private static bool VerifyPassword(string password, string storedHash)

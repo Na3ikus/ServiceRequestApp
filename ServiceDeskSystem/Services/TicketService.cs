@@ -20,6 +20,29 @@ internal sealed class TicketService(IDbContextFactory<BugTrackerDbContext> conte
         }
     }
 
+    public async Task<Comment?> UpdateCommentAsync(int commentId, string newMessage)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(newMessage);
+
+        var dbContext = await contextFactory.CreateDbContextAsync().ConfigureAwait(false);
+        await using (dbContext.ConfigureAwait(false))
+        {
+            var existing = await dbContext.Comments
+                .Include(c => c.Author)
+                .FirstOrDefaultAsync(c => c.Id == commentId)
+                .ConfigureAwait(false);
+
+            if (existing is null)
+            {
+                return null;
+            }
+
+            existing.Message = newMessage;
+            await dbContext.SaveChangesAsync().ConfigureAwait(false);
+            return existing;
+        }
+    }
+
     public async Task<Ticket?> GetTicketByIdAsync(int id)
     {
         var dbContext = await contextFactory.CreateDbContextAsync().ConfigureAwait(false);
@@ -88,6 +111,27 @@ internal sealed class TicketService(IDbContextFactory<BugTrackerDbContext> conte
             ticket.Status = newStatus;
             await dbContext.SaveChangesAsync().ConfigureAwait(false);
 
+            return true;
+        }
+    }
+
+    public async Task<bool> DeleteTicketAsync(int ticketId)
+    {
+        var dbContext = await contextFactory.CreateDbContextAsync().ConfigureAwait(false);
+        await using (dbContext.ConfigureAwait(false))
+        {
+            var ticket = await dbContext.Tickets
+                .Include(t => t.Comments)
+                .FirstOrDefaultAsync(t => t.Id == ticketId)
+                .ConfigureAwait(false);
+
+            if (ticket is null)
+            {
+                return false;
+            }
+
+            dbContext.Tickets.Remove(ticket);
+            await dbContext.SaveChangesAsync().ConfigureAwait(false);
             return true;
         }
     }

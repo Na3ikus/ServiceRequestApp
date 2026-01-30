@@ -12,7 +12,11 @@ internal interface ITicketService
 
     Task<Comment> AddCommentAsync(Comment comment);
 
+    Task<Comment?> UpdateCommentAsync(int commentId, string newMessage);
+
     Task<bool> UpdateTicketStatusAsync(int ticketId, string newStatus);
+
+    Task<bool> DeleteTicketAsync(int ticketId);
 
     Task<List<Product>> GetProductsAsync();
 

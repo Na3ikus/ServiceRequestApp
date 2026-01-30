@@ -1,66 +1,66 @@
-#!/usr/bin/env pwsh
-# Скрипт для автоматичного запуску ServiceDeskSystem з ngrok
+п»ї#!/usr/bin/env pwsh
+# РЎРєСЂРёРїС‚ РґР»СЏ Р°РІС‚РѕРјР°С‚РёС‡РЅРѕРіРѕ Р·Р°РїСѓСЃРєСѓ ServiceDeskSystem Р· ngrok
 
 Write-Host "=== ServiceDeskSystem Demo Launcher ===" -ForegroundColor Cyan
 Write-Host ""
 
-# Перевірка, чи встановлений ngrok
+# РџРµСЂРµРІС–СЂРєР°, С‡Рё РІСЃС‚Р°РЅРѕРІР»РµРЅРёР№ ngrok
 $ngrokInstalled = Get-Command ngrok -ErrorAction SilentlyContinue
 
 if (-not $ngrokInstalled) {
-    Write-Host "??  ngrok не знайдено!" -ForegroundColor Yellow
-    Write-Host "Встановіть ngrok за інструкцією в NGROK_GUIDE.md" -ForegroundColor Yellow
+    Write-Host "вљ пёЏ  ngrok РЅРµ Р·РЅР°Р№РґРµРЅРѕ!" -ForegroundColor Yellow
+    Write-Host "Р’СЃС‚Р°РЅРѕРІС–С‚СЊ ngrok Р·Р° С–РЅСЃС‚СЂСѓРєС†С–С”СЋ РІ NGROK_GUIDE.md" -ForegroundColor Yellow
     Write-Host ""
-    Write-Host "Швидке встановлення через Chocolatey:" -ForegroundColor Gray
+    Write-Host "РЁРІРёРґРєРµ РІСЃС‚Р°РЅРѕРІР»РµРЅРЅСЏ С‡РµСЂРµР· Chocolatey:" -ForegroundColor Gray
     Write-Host "  choco install ngrok" -ForegroundColor Gray
     Write-Host ""
-    $continue = Read-Host "Продовжити без ngrok? (y/n)"
+    $continue = Read-Host "РџСЂРѕРґРѕРІР¶РёС‚Рё Р±РµР· ngrok? (y/n)"
     if ($continue -ne 'y') { exit }
 }
 
-# Налаштування портів
+# РќР°Р»Р°С€С‚СѓРІР°РЅРЅСЏ РїРѕСЂС‚С–РІ
 $APP_PORT = 5001
 $APP_URL = "https://localhost:$APP_PORT"
 
-Write-Host "?? Збірка проекту..." -ForegroundColor Yellow
+Write-Host "рџ“¦ Р—Р±С–СЂРєР° РїСЂРѕРµРєС‚Сѓ..." -ForegroundColor Yellow
 $scriptRoot = $PSScriptRoot
 if (-not $scriptRoot) { $scriptRoot = Get-Location }
 Push-Location $scriptRoot
 
 dotnet build
 if ($LASTEXITCODE -ne 0) {
-    Write-Host "? Помилка збірки проекту!" -ForegroundColor Red
+    Write-Host "вќЊ РџРѕРјРёР»РєР° Р·Р±С–СЂРєРё РїСЂРѕРµРєС‚Сѓ!" -ForegroundColor Red
     Pop-Location
     exit 1
 }
 
-Write-Host "? Проект успішно зібрано!" -ForegroundColor Green
+Write-Host "вњ… РџСЂРѕРµРєС‚ СѓСЃРїС–С€РЅРѕ Р·С–Р±СЂР°РЅРѕ!" -ForegroundColor Green
 Write-Host ""
 
-# Запуск додатку в фоновому режимі
-Write-Host "?? Запуск Blazor додатку на $APP_URL..." -ForegroundColor Yellow
+# Р—Р°РїСѓСЃРє РґРѕРґР°С‚РєСѓ РІ С„РѕРЅРѕРІРѕРјСѓ СЂРµР¶РёРјС–
+Write-Host "рџљЂ Р—Р°РїСѓСЃРє Blazor РґРѕРґР°С‚РєСѓ РЅР° $APP_URL..." -ForegroundColor Yellow
 $appProcess = Start-Process -FilePath "dotnet" -ArgumentList "run --urls=$APP_URL" -PassThru -NoNewWindow
 
-Write-Host "? Очікування запуску додатку..." -ForegroundColor Gray
+Write-Host "вЏі РћС‡С–РєСѓРІР°РЅРЅСЏ Р·Р°РїСѓСЃРєСѓ РґРѕРґР°С‚РєСѓ..." -ForegroundColor Gray
 Start-Sleep -Seconds 5
 
 try {
     $response = Invoke-WebRequest -Uri $APP_URL -SkipCertificateCheck -TimeoutSec 5 -ErrorAction Stop
-    Write-Host "? Додаток успішно запущено!" -ForegroundColor Green
+    Write-Host "вњ… Р”РѕРґР°С‚РѕРє СѓСЃРїС–С€РЅРѕ Р·Р°РїСѓС‰РµРЅРѕ!" -ForegroundColor Green
 } catch {
-    Write-Host "??  Додаток ще запускається або виникла помилка" -ForegroundColor Yellow
+    Write-Host "вљ пёЏ  Р”РѕРґР°С‚РѕРє С‰Рµ Р·Р°РїСѓСЃРєР°С”С‚СЊСЃСЏ Р°Р±Рѕ РІРёРЅРёРєР»Р° РїРѕРјРёР»РєР°" -ForegroundColor Yellow
 }
 
 Write-Host ""
 
 if ($ngrokInstalled) {
-    Write-Host "?? Запуск ngrok тунелю..." -ForegroundColor Yellow
+    Write-Host "рџЊђ Р—Р°РїСѓСЃРє ngrok С‚СѓРЅРµР»СЋ..." -ForegroundColor Yellow
     $NGROK_DOMAIN = $env:NGROK_DOMAIN
     $ngrokLogOut = Join-Path $scriptRoot "ngrok.log"
     $ngrokLogErr = Join-Path $scriptRoot "ngrok-error.log"
 
     if ($NGROK_DOMAIN) {
-        Write-Host "?? Використання статичного домену: $NGROK_DOMAIN" -ForegroundColor Cyan
+        Write-Host "рџ”— Р’РёРєРѕСЂРёСЃС‚Р°РЅРЅСЏ СЃС‚Р°С‚РёС‡РЅРѕРіРѕ РґРѕРјРµРЅСѓ: $NGROK_DOMAIN" -ForegroundColor Cyan
         $ngrokArgs = "http --domain=$NGROK_DOMAIN $APP_URL --log=stdout"
     } else {
         $ngrokArgs = "http $APP_URL --log=stdout"
@@ -68,11 +68,11 @@ if ($ngrokInstalled) {
 
     $ngrokProcess = Start-Process -FilePath "ngrok" -ArgumentList $ngrokArgs -PassThru -RedirectStandardOutput $ngrokLogOut -RedirectStandardError $ngrokLogErr
 
-    Write-Host "? Очікування запуску ngrok..." -ForegroundColor Gray
+    Write-Host "вЏі РћС‡С–РєСѓРІР°РЅРЅСЏ Р·Р°РїСѓСЃРєСѓ ngrok..." -ForegroundColor Gray
     Start-Sleep -Seconds 1
 
     if ($ngrokProcess.HasExited) {
-        Write-Host "??  ngrok завершився одразу. Деталі нижче:" -ForegroundColor Yellow
+        Write-Host "вљ пёЏ  ngrok Р·Р°РІРµСЂС€РёРІСЃСЏ РѕРґСЂР°Р·Сѓ. Р”РµС‚Р°Р»С– РЅРёР¶С‡Рµ:" -ForegroundColor Yellow
         if (Test-Path $ngrokLogOut) { Get-Content $ngrokLogOut | Select-Object -Last 20 }
         if (Test-Path $ngrokLogErr) { Get-Content $ngrokLogErr | Select-Object -Last 20 }
     }
@@ -86,7 +86,6 @@ if ($ngrokInstalled) {
                 break
             }
         } catch {
-            # продовжуємо спроби
         }
         Start-Sleep -Milliseconds 800
     }
@@ -94,53 +93,53 @@ if ($ngrokInstalled) {
     if ($publicUrl) {
         Write-Host ""
         Write-Host "============================================" -ForegroundColor Green
-        Write-Host "? Додаток доступний публічно!" -ForegroundColor Green
+        Write-Host "вњ… Р”РѕРґР°С‚РѕРє РґРѕСЃС‚СѓРїРЅРёР№ РїСѓР±Р»С–С‡РЅРѕ!" -ForegroundColor Green
         Write-Host "============================================" -ForegroundColor Green
         Write-Host ""
-        Write-Host "?? Публічний URL: $publicUrl" -ForegroundColor Cyan
-        Write-Host "?? Локальний URL: $APP_URL" -ForegroundColor Cyan
-        Write-Host "?? ngrok Dashboard: http://localhost:4040" -ForegroundColor Cyan
+        Write-Host "рџЊЌ РџСѓР±Р»С–С‡РЅРёР№ URL: $publicUrl" -ForegroundColor Cyan
+        Write-Host "рџЏ  Р›РѕРєР°Р»СЊРЅРёР№ URL: $APP_URL" -ForegroundColor Cyan
+        Write-Host "рџ“Љ ngrok Dashboard: http://localhost:4040" -ForegroundColor Cyan
         Write-Host ""
-        Write-Host "??  УВАГА: На безкоштовному плані ngrok відвідувачі" -ForegroundColor Yellow
-        Write-Host "   побачать попереджувальну сторінку перед переходом" -ForegroundColor Yellow
+        Write-Host "вљ пёЏ  РЈР’РђР“Рђ: РќР° Р±РµР·РєРѕС€С‚РѕРІРЅРѕРјСѓ РїР»Р°РЅС– ngrok РІС–РґРІС–РґСѓРІР°С‡С–" -ForegroundColor Yellow
+        Write-Host "   РїРѕР±Р°С‡Р°С‚СЊ РїРѕРїРµСЂРµРґР¶СѓРІР°Р»СЊРЅСѓ СЃС‚РѕСЂС–РЅРєСѓ РїРµСЂРµРґ РїРµСЂРµС…РѕРґРѕРј" -ForegroundColor Yellow
         Write-Host ""
 
         Start-Process $publicUrl
     } else {
-        Write-Host "??  Не вдалося автоматично отримати ngrok URL" -ForegroundColor Yellow
-        Write-Host "Перевірте http://localhost:4040 або консоль ngrok, щоб побачити публічний URL" -ForegroundColor Yellow
+        Write-Host "вљ пёЏ  РќРµ РІРґР°Р»РѕСЃСЏ Р°РІС‚РѕРјР°С‚РёС‡РЅРѕ РѕС‚СЂРёРјР°С‚Рё ngrok URL" -ForegroundColor Yellow
+        Write-Host "РџРµСЂРµРІС–СЂС‚Рµ http://localhost:4040 Р°Р±Рѕ РєРѕРЅСЃРѕР»СЊ ngrok, С‰РѕР± РїРѕР±Р°С‡РёС‚Рё РїСѓР±Р»С–С‡РЅРёР№ URL" -ForegroundColor Yellow
         if (Test-Path $ngrokLogOut) {
-            Write-Host "--- Останні рядки stdout ngrok ---" -ForegroundColor Gray
+            Write-Host "--- РћСЃС‚Р°РЅРЅС– СЂСЏРґРєРё stdout ngrok ---" -ForegroundColor Gray
             Get-Content $ngrokLogOut | Select-Object -Last 20
         }
         if (Test-Path $ngrokLogErr) {
-            Write-Host "--- Останні рядки stderr ngrok ---" -ForegroundColor Gray
+            Write-Host "--- РћСЃС‚Р°РЅРЅС– СЂСЏРґРєРё stderr ngrok ---" -ForegroundColor Gray
             Get-Content $ngrokLogErr | Select-Object -Last 20
         }
     }
 } else {
     Write-Host "============================================" -ForegroundColor Green
-    Write-Host "? Додаток запущено локально!" -ForegroundColor Green
+    Write-Host "вњ… Р”РѕРґР°С‚РѕРє Р·Р°РїСѓС‰РµРЅРѕ Р»РѕРєР°Р»СЊРЅРѕ!" -ForegroundColor Green
     Write-Host "============================================" -ForegroundColor Green
     Write-Host ""
-    Write-Host "?? Локальний URL: $APP_URL" -ForegroundColor Cyan
+    Write-Host "рџЏ  Р›РѕРєР°Р»СЊРЅРёР№ URL: $APP_URL" -ForegroundColor Cyan
     Write-Host ""
     Start-Process $APP_URL
 }
 
 Write-Host ""
-Write-Host "Натисніть Ctrl+C для зупинки всіх сервісів..." -ForegroundColor Gray
+Write-Host "РќР°С‚РёСЃРЅС–С‚СЊ Ctrl+C РґР»СЏ Р·СѓРїРёРЅРєРё РІСЃС–С… СЃРµСЂРІС–СЃС–РІ..." -ForegroundColor Gray
 Write-Host ""
 
 try {
     Wait-Process -Id $appProcess.Id
 } finally {
     Write-Host ""
-    Write-Host "?? Зупинка сервісів..." -ForegroundColor Yellow
+    Write-Host "рџ›‘ Р—СѓРїРёРЅРєР° СЃРµСЂРІС–СЃС–РІ..." -ForegroundColor Yellow
 
     if ($appProcess -and !$appProcess.HasExited) { Stop-Process -Id $appProcess.Id -Force -ErrorAction SilentlyContinue }
     if ($ngrokProcess -and !$ngrokProcess.HasExited) { Stop-Process -Id $ngrokProcess.Id -Force -ErrorAction SilentlyContinue }
 
     Pop-Location
-    Write-Host "? Всі сервіси зупинено!" -ForegroundColor Green
+    Write-Host "вњ… Р’СЃС– СЃРµСЂРІС–СЃРё Р·СѓРїРёРЅРµРЅРѕ!" -ForegroundColor Green
 }
