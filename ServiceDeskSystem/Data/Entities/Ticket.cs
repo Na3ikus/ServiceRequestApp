@@ -1,6 +1,6 @@
 namespace ServiceDeskSystem.Data.Entities;
 
-public class Ticket
+internal class Ticket
 {
     public int Id { get; set; }
 

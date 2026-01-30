@@ -4,11 +4,11 @@ internal sealed class ThemeService : IThemeService
 {
     private string currentTheme = "light";
 
+    public event EventHandler? ThemeChanged;
+
     public string CurrentTheme => this.currentTheme;
 
     public bool IsDarkMode => this.currentTheme == "dark";
-
-    public event EventHandler? ThemeChanged;
 
     public void SetTheme(string theme)
     {

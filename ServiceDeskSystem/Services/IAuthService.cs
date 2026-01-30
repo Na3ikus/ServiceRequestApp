@@ -4,6 +4,8 @@ namespace ServiceDeskSystem.Services;
 
 internal interface IAuthService
 {
+    event EventHandler? AuthStateChanged;
+
     User? CurrentUser { get; }
 
     bool IsAuthenticated { get; }
@@ -13,6 +15,4 @@ internal interface IAuthService
     Task<(bool Success, string? ErrorMessage)> RegisterClientAsync(string username, string password, string firstName, string lastName, string? email);
 
     void Logout();
-
-    event EventHandler? AuthStateChanged;
 }

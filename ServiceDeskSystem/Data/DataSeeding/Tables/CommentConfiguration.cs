@@ -5,7 +5,7 @@ using ServiceDeskSystem.Data.Entities;
 
 namespace ServiceDeskSystem.Data.DataSeeding.Tables;
 
-internal class CommentConfiguration : IEntityTypeConfiguration<Comment>
+internal sealed class CommentConfiguration : IEntityTypeConfiguration<Comment>
 {
     public void Configure(EntityTypeBuilder<Comment> builder)
     {

@@ -2,6 +2,8 @@ namespace ServiceDeskSystem.Services;
 
 internal interface IThemeService
 {
+    event EventHandler? ThemeChanged;
+
     string CurrentTheme { get; }
 
     bool IsDarkMode { get; }
@@ -9,6 +11,4 @@ internal interface IThemeService
     void SetTheme(string theme);
 
     void ToggleTheme();
-
-    event EventHandler? ThemeChanged;
 }

@@ -5,7 +5,7 @@ using ServiceDeskSystem.Data.Entities;
 
 namespace ServiceDeskSystem.Data.DataSeeding.Tables;
 
-internal class TicketConfiguration : IEntityTypeConfiguration<Ticket>
+internal sealed class TicketConfiguration : IEntityTypeConfiguration<Ticket>
 {
     public void Configure(EntityTypeBuilder<Ticket> builder)
     {

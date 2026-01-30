@@ -1,13 +1,9 @@
-﻿using System.IO;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Pomelo.EntityFrameworkCore.MySql;
-using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
+﻿using Microsoft.EntityFrameworkCore;
 using ServiceDeskSystem.Data.Entities;
 
 namespace ServiceDeskSystem.Data
 {
-    public class BugTrackerDbContext : DbContext
+    internal class BugTrackerDbContext : DbContext
     {
         public BugTrackerDbContext(DbContextOptions<BugTrackerDbContext> options)
                     : base(options)
@@ -34,6 +30,8 @@ namespace ServiceDeskSystem.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            ArgumentNullException.ThrowIfNull(modelBuilder);
+
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<User>()

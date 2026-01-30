@@ -2,7 +2,7 @@ namespace ServiceDeskSystem.Services;
 
 internal sealed class LocalizationService : ILocalizationService
 {
-    private readonly Dictionary<string, Dictionary<string, string>> translations = new()
+    private readonly Dictionary<string, Dictionary<string, string>> translations = new ()
     {
         ["en"] = new Dictionary<string, string>
         {
@@ -75,24 +75,24 @@ internal sealed class LocalizationService : ILocalizationService
             ["common.required"] = "required",
             ["common.footer"] = "Service Desk System",
             ["theme.light"] = "Light",
-                ["theme.dark"] = "Dark",
-                ["theme.toggle"] = "Toggle theme",
-                ["register.title"] = "Create your account",
-                ["register.firstName"] = "First Name",
-                ["register.lastName"] = "Last Name",
-                ["register.email"] = "Email (optional)",
-                ["register.enterFirstName"] = "Enter your first name",
-                ["register.enterLastName"] = "Enter your last name",
-                ["register.enterEmail"] = "Enter your email",
-                ["register.confirmPassword"] = "Confirm Password",
-                ["register.enterConfirmPassword"] = "Confirm your password",
-                ["register.signUp"] = "Sign Up",
-                ["register.signingUp"] = "Creating account...",
-                ["register.haveAccount"] = "Already have an account?",
-                ["register.signIn"] = "Sign In",
-                ["login.noAccount"] = "Don't have an account?",
-                ["login.signUp"] = "Sign Up",
-            },
+            ["theme.dark"] = "Dark",
+            ["theme.toggle"] = "Toggle theme",
+            ["register.title"] = "Create your account",
+            ["register.firstName"] = "First Name",
+            ["register.lastName"] = "Last Name",
+            ["register.email"] = "Email (optional)",
+            ["register.enterFirstName"] = "Enter your first name",
+            ["register.enterLastName"] = "Enter your last name",
+            ["register.enterEmail"] = "Enter your email",
+            ["register.confirmPassword"] = "Confirm Password",
+            ["register.enterConfirmPassword"] = "Confirm your password",
+            ["register.signUp"] = "Sign Up",
+            ["register.signingUp"] = "Creating account...",
+            ["register.haveAccount"] = "Already have an account?",
+            ["register.signIn"] = "Sign In",
+            ["login.noAccount"] = "Don't have an account?",
+            ["login.signUp"] = "Sign Up",
+        },
         ["uk"] = new Dictionary<string, string>
         {
             ["nav.allTickets"] = "Усі заявки",
@@ -158,37 +158,37 @@ internal sealed class LocalizationService : ILocalizationService
             ["priority.critical"] = "Критичний",
             ["status.open"] = "Відкрита",
             ["status.inProgress"] = "В роботі",
-                    ["status.resolved"] = "Вирішена",
-                    ["status.closed"] = "Закрита",
-                    ["common.logout"] = "Вийти",
-                    ["common.required"] = "обов'язково",
-                    ["common.footer"] = "Система сервісних запитів",
-                    ["theme.light"] = "Світла",
-                    ["theme.dark"] = "Темна",
-                    ["theme.toggle"] = "Змінити тему",
-                    ["register.title"] = "Створіть обліковий запис",
-                    ["register.firstName"] = "Ім'я",
-                    ["register.lastName"] = "Прізвище",
-                    ["register.email"] = "Email (необов'язково)",
-                    ["register.enterFirstName"] = "Введіть ваше ім'я",
-                    ["register.enterLastName"] = "Введіть ваше прізвище",
-                    ["register.enterEmail"] = "Введіть ваш email",
-                    ["register.confirmPassword"] = "Підтвердіть пароль",
-                    ["register.enterConfirmPassword"] = "Підтвердіть ваш пароль",
-                    ["register.signUp"] = "Зареєструватися",
-                    ["register.signingUp"] = "Створення акаунту...",
-                    ["register.haveAccount"] = "Вже є обліковий запис?",
-                    ["register.signIn"] = "Увійти",
-                    ["login.noAccount"] = "Немає облікового запису?",
-                    ["login.signUp"] = "Зареєструватися",
-                },
-            };
+            ["status.resolved"] = "Вирішена",
+            ["status.closed"] = "Закрита",
+            ["common.logout"] = "Вийти",
+            ["common.required"] = "обов'язково",
+            ["common.footer"] = "Система сервісних запитів",
+            ["theme.light"] = "Світла",
+            ["theme.dark"] = "Темна",
+            ["theme.toggle"] = "Змінити тему",
+            ["register.title"] = "Створіть обліковий запис",
+            ["register.firstName"] = "Ім'я",
+            ["register.lastName"] = "Прізвище",
+            ["register.email"] = "Email (необов'язково)",
+            ["register.enterFirstName"] = "Введіть ваше ім'я",
+            ["register.enterLastName"] = "Введіть ваше прізвище",
+            ["register.enterEmail"] = "Введіть ваш email",
+            ["register.confirmPassword"] = "Підтвердіть пароль",
+            ["register.enterConfirmPassword"] = "Підтвердіть ваш пароль",
+            ["register.signUp"] = "Зареєструватися",
+            ["register.signingUp"] = "Створення акаунту...",
+            ["register.haveAccount"] = "Вже є обліковий запис?",
+            ["register.signIn"] = "Увійти",
+            ["login.noAccount"] = "Немає облікового запису?",
+            ["login.signUp"] = "Зареєструватися",
+        },
+    };
 
     private string currentLanguage = "en";
 
-    public string CurrentLanguage => this.currentLanguage;
-
     public event EventHandler? LanguageChanged;
+
+    public string CurrentLanguage => this.currentLanguage;
 
     public void SetLanguage(string language)
     {

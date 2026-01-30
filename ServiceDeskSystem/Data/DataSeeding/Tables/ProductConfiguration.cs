@@ -5,7 +5,7 @@ using ServiceDeskSystem.Data.Entities;
 
 namespace ServiceDeskSystem.Data.DataSeeding.Tables;
 
-internal class ProductConfiguration : IEntityTypeConfiguration<Product>
+internal sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
 {
     public void Configure(EntityTypeBuilder<Product> builder)
     {

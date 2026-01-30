@@ -1,8 +1,9 @@
 namespace ServiceDeskSystem.Data.Entities;
 
-public class Comment
+internal class Comment
 {
     public int Id { get; set; }
+
     public string Message { get; set; } = string.Empty;
 
     public bool IsInternal { get; set; }

@@ -1,6 +1,6 @@
 namespace ServiceDeskSystem.Data.Entities;
 
-public class Product
+internal class Product
 {
     public int Id { get; set; }
 

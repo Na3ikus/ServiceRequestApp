@@ -16,7 +16,7 @@ builder.Services.AddDbContextFactory<BugTrackerDbContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 
 // Also register DbContext for scenarios that need it directly
-builder.Services.AddScoped(sp => 
+builder.Services.AddScoped(sp =>
     sp.GetRequiredService<IDbContextFactory<BugTrackerDbContext>>().CreateDbContext());
 
 builder.Services.AddScoped<ITicketService, TicketService>();

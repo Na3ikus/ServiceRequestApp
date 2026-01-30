@@ -5,6 +5,9 @@ using Microsoft.EntityFrameworkCore.Migrations;
 #nullable disable
 
 #pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+#pragma warning disable CA1515 // Types can be made internal
+#pragma warning disable SA1413 // Use trailing comma in multi-line initializers
+#pragma warning disable CA1062 // Validate parameter is non-null
 
 namespace ServiceDeskSystem.Migrations
 {
