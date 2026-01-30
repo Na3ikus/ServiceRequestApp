@@ -9,9 +9,8 @@ internal sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
 {
     public void Configure(EntityTypeBuilder<Product> builder)
     {
-        Randomizer.Seed = new Random(123);
-
         var productFaker = new Faker<Product>()
+            .UseSeed(123)
             .RuleFor(p => p.Id, f => f.IndexFaker + 1)
             .RuleFor(p => p.Name, f => f.Commerce.ProductName())
             .RuleFor(p => p.Description, f => f.Lorem.Sentence(10))

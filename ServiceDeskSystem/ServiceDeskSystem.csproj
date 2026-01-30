@@ -9,7 +9,7 @@
 	<EnableNETAnalyzers>true</EnableNETAnalyzers>
 	<AnalysisMode>AllEnabledByDefault</AnalysisMode>
 	<CodeAnalysisTreatWarningsAsErrors>false</CodeAnalysisTreatWarningsAsErrors>
-	<NoWarn>CA1031,CA1303,CA1051,CA1707,CA1711,CA1812,CA1852,CA1861,CA2227,CS8618,SA0001,SA1009,SA1024,SA1118,SA1401,SA1600,SA1633</NoWarn>
+	<NoWarn>CA1031,CA1303,CA1051,CA1707,CA1711,CA1812,CA1852,CA1861,CA2227,CS8618,SA0001,SA1009,SA1024,SA1118,SA1401,SA1516,SA1600,SA1633</NoWarn>
   </PropertyGroup>
 
 	<ItemGroup>

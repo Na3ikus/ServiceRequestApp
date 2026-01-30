@@ -129,9 +129,9 @@
 </div>
 
 @code {
-    private LoginModel loginModel = new();
-    private string? errorMessage;
-    private bool isLoading;
+private readonly LoginModel loginModel = new();
+private string? errorMessage;
+private bool isLoading;
 
     protected override void OnInitialized()
     {

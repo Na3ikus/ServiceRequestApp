@@ -9,9 +9,8 @@ internal sealed class CommentConfiguration : IEntityTypeConfiguration<Comment>
 {
     public void Configure(EntityTypeBuilder<Comment> builder)
     {
-        Randomizer.Seed = new Random(123);
-
         var commentFaker = new Faker<Comment>()
+            .UseSeed(123)
             .RuleFor(c => c.Id, f => f.IndexFaker + 1)
             .RuleFor(c => c.Message, f => f.Lorem.Paragraph(2))
             .RuleFor(c => c.IsInternal, f => f.Random.Bool(0.3f))

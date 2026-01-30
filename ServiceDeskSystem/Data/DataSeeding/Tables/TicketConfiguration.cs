@@ -9,12 +9,11 @@ internal sealed class TicketConfiguration : IEntityTypeConfiguration<Ticket>
 {
     public void Configure(EntityTypeBuilder<Ticket> builder)
     {
-        Randomizer.Seed = new Random(123);
-
         var priorities = new[] { "Critical", "High", "Medium", "Low" };
         var statuses = new[] { "New", "In Progress", "Code Review", "Testing", "Done" };
 
         var ticketFaker = new Faker<Ticket>()
+            .UseSeed(123)
             .RuleFor(t => t.Id, f => f.IndexFaker + 1)
             .RuleFor(t => t.Title, f => f.Lorem.Sentence(5).TrimEnd('.'))
             .RuleFor(t => t.Description, f => f.Lorem.Paragraph(3))

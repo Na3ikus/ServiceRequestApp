@@ -201,10 +201,10 @@
 </div>
 
 @code {
-    private RegisterModel registerModel = new();
-    private string? errorMessage;
-    private string? successMessage;
-    private bool isLoading;
+private readonly RegisterModel registerModel = new();
+private string? errorMessage;
+private string? successMessage;
+private bool isLoading;
 
     protected override void OnInitialized()
     {
