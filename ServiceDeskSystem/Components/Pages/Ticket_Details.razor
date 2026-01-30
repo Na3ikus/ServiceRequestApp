@@ -41,7 +41,7 @@
                             </svg>
                             @ticket.CreatedAt.ToString("MMM dd, yyyy HH:mm")
                         </span>
-                        <span class="@GetPriorityBadgeClass(ticket.Priority) px-2 py-0.5 rounded text-xs font-medium">
+                        <span class="ticket-priority-badge @GetPriorityBadgeClass(ticket.Priority) px-2 py-0.5 rounded text-xs font-medium">
                             @ticket.Priority
                         </span>
                     </div>
@@ -117,7 +117,7 @@
                         <div>
                             <dt class="text-sm font-medium text-gray-500">Priority</dt>
                             <dd>
-                                <span class="@GetPriorityBadgeClass(ticket.Priority) px-2 py-0.5 rounded text-xs font-medium">
+                        <span class="ticket-priority-badge @GetPriorityBadgeClass(ticket.Priority) px-2 py-0.5 rounded text-xs font-medium">
                                     @ticket.Priority
                                 </span>
                             </dd>
