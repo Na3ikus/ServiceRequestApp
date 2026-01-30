@@ -6,7 +6,7 @@ using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 
 namespace ServiceDeskSystem.Data
 {
-    public class BugTrackerDbContext : DbContext
+    internal class BugTrackerDbContext : DbContext
     {
         private readonly string? customConnectionString;
 
