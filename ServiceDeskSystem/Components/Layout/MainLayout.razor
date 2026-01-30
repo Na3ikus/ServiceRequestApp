@@ -105,7 +105,7 @@ else
     private void HandleLogout()
     {
         AuthService.Logout();
-        Navigation.NavigateTo("/login", forceLoad: true);
+        Navigation.NavigateTo("/login");
     }
 
     public void Dispose()
