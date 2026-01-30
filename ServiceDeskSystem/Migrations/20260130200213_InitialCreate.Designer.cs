@@ -12,7 +12,7 @@ using ServiceDeskSystem.Data;
 namespace ServiceDeskSystem.Migrations
 {
     [DbContext(typeof(BugTrackerDbContext))]
-    [Migration("20260130182214_InitialCreate")]
+    [Migration("20260130200213_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -88,7 +88,7 @@ namespace ServiceDeskSystem.Migrations
                         {
                             Id = 1,
                             AuthorId = 3,
-                            CreatedAt = new DateTime(2025, 12, 24, 12, 57, 18, 73, DateTimeKind.Local).AddTicks(5417),
+                            CreatedAt = new DateTime(2025, 12, 24, 14, 37, 17, 793, DateTimeKind.Local).AddTicks(9922),
                             IsInternal = false,
                             Message = "Maxime vel id ab sit voluptatem adipisci et voluptates dolores. Praesentium beatae nulla similique. Consequatur earum nesciunt accusantium dolor. Facere quidem nobis. Occaecati eos mollitia at possimus quasi deserunt explicabo sint quia.",
                             TicketId = 19
@@ -97,7 +97,7 @@ namespace ServiceDeskSystem.Migrations
                         {
                             Id = 2,
                             AuthorId = 2,
-                            CreatedAt = new DateTime(2025, 11, 23, 11, 8, 38, 551, DateTimeKind.Local).AddTicks(3223),
+                            CreatedAt = new DateTime(2025, 11, 23, 12, 48, 38, 271, DateTimeKind.Local).AddTicks(5126),
                             IsInternal = true,
                             Message = "Possimus fugit sit eum. Deleniti cumque sequi aut. Qui sapiente consequuntur quod inventore aut commodi.",
                             TicketId = 2
@@ -106,7 +106,7 @@ namespace ServiceDeskSystem.Migrations
                         {
                             Id = 3,
                             AuthorId = 2,
-                            CreatedAt = new DateTime(2025, 12, 13, 7, 38, 30, 473, DateTimeKind.Local).AddTicks(7498),
+                            CreatedAt = new DateTime(2025, 12, 13, 9, 18, 30, 193, DateTimeKind.Local).AddTicks(9371),
                             IsInternal = false,
                             Message = "Sed accusamus maiores non ea pariatur non aut. Provident officia dolore rerum qui.",
                             TicketId = 1
@@ -115,7 +115,7 @@ namespace ServiceDeskSystem.Migrations
                         {
                             Id = 4,
                             AuthorId = 2,
-                            CreatedAt = new DateTime(2025, 11, 7, 11, 12, 5, 902, DateTimeKind.Local).AddTicks(3040),
+                            CreatedAt = new DateTime(2025, 11, 7, 12, 52, 5, 622, DateTimeKind.Local).AddTicks(4909),
                             IsInternal = false,
                             Message = "Non magnam harum delectus quia ratione nemo iusto vel. Odio nesciunt cumque autem et. Dolor unde laboriosam nemo et sed omnis.",
                             TicketId = 10
@@ -124,7 +124,7 @@ namespace ServiceDeskSystem.Migrations
                         {
                             Id = 5,
                             AuthorId = 2,
-                            CreatedAt = new DateTime(2025, 12, 6, 4, 54, 37, 705, DateTimeKind.Local).AddTicks(928),
+                            CreatedAt = new DateTime(2025, 12, 6, 6, 34, 37, 425, DateTimeKind.Local).AddTicks(2801),
                             IsInternal = false,
                             Message = "Vel qui laborum. Numquam cupiditate accusamus labore sit facere non. Omnis adipisci aut explicabo molestiae perspiciatis voluptatem. Repellendus natus quos aut dolores eaque.",
                             TicketId = 5
@@ -133,7 +133,7 @@ namespace ServiceDeskSystem.Migrations
                         {
                             Id = 6,
                             AuthorId = 3,
-                            CreatedAt = new DateTime(2026, 1, 9, 9, 35, 27, 339, DateTimeKind.Local).AddTicks(3277),
+                            CreatedAt = new DateTime(2026, 1, 9, 11, 15, 27, 59, DateTimeKind.Local).AddTicks(5194),
                             IsInternal = false,
                             Message = "Expedita quis et tempore dolorem error atque at. Minima nesciunt quibusdam consequuntur. Accusantium nisi ut suscipit fugit hic voluptatem voluptatem ad. Sunt excepturi praesentium quia pariatur ipsum aperiam mollitia architecto.",
                             TicketId = 9
@@ -142,7 +142,7 @@ namespace ServiceDeskSystem.Migrations
                         {
                             Id = 7,
                             AuthorId = 2,
-                            CreatedAt = new DateTime(2025, 7, 31, 5, 4, 22, 870, DateTimeKind.Local).AddTicks(6375),
+                            CreatedAt = new DateTime(2025, 7, 31, 6, 44, 22, 590, DateTimeKind.Local).AddTicks(8300),
                             IsInternal = false,
                             Message = "Eos veritatis velit amet molestias. Optio aut quis perferendis sit nesciunt. Enim qui culpa qui explicabo est qui enim odit.",
                             TicketId = 1
@@ -151,7 +151,7 @@ namespace ServiceDeskSystem.Migrations
                         {
                             Id = 8,
                             AuthorId = 2,
-                            CreatedAt = new DateTime(2026, 1, 26, 7, 17, 26, 309, DateTimeKind.Local).AddTicks(2650),
+                            CreatedAt = new DateTime(2026, 1, 26, 8, 57, 26, 29, DateTimeKind.Local).AddTicks(4590),
                             IsInternal = false,
                             Message = "Facilis aut dolorum culpa sed et magnam necessitatibus. Architecto assumenda nihil qui sed sunt neque sint. Dolorem quis nisi. Corrupti nemo voluptatem facere a possimus facere velit nesciunt ut.",
                             TicketId = 7
@@ -160,7 +160,7 @@ namespace ServiceDeskSystem.Migrations
                         {
                             Id = 9,
                             AuthorId = 3,
-                            CreatedAt = new DateTime(2026, 1, 15, 20, 7, 39, 504, DateTimeKind.Local).AddTicks(1763),
+                            CreatedAt = new DateTime(2026, 1, 15, 21, 47, 39, 224, DateTimeKind.Local).AddTicks(3718),
                             IsInternal = false,
                             Message = "Tenetur et veritatis quo voluptas quia voluptas amet consectetur. Sit ratione atque sit architecto ad vel maxime qui. Molestiae ducimus aut dolores dolores.",
                             TicketId = 11
@@ -169,7 +169,7 @@ namespace ServiceDeskSystem.Migrations
                         {
                             Id = 10,
                             AuthorId = 3,
-                            CreatedAt = new DateTime(2025, 8, 14, 4, 57, 34, 39, DateTimeKind.Local).AddTicks(1672),
+                            CreatedAt = new DateTime(2025, 8, 14, 6, 37, 33, 759, DateTimeKind.Local).AddTicks(3627),
                             IsInternal = true,
                             Message = "Animi assumenda voluptas inventore. Modi quas inventore dolorem reiciendis. Error sit id est molestiae eos consectetur natus mollitia qui.",
                             TicketId = 7
@@ -178,7 +178,7 @@ namespace ServiceDeskSystem.Migrations
                         {
                             Id = 11,
                             AuthorId = 3,
-                            CreatedAt = new DateTime(2025, 12, 25, 8, 43, 34, 70, DateTimeKind.Local).AddTicks(7636),
+                            CreatedAt = new DateTime(2025, 12, 25, 10, 23, 33, 790, DateTimeKind.Local).AddTicks(9610),
                             IsInternal = false,
                             Message = "Nihil excepturi ea eum animi assumenda error. Autem porro a impedit ab officiis. Incidunt suscipit laudantium aut molestiae possimus non ea. Enim voluptatem qui fuga molestias eligendi odio unde soluta.",
                             TicketId = 11
@@ -187,7 +187,7 @@ namespace ServiceDeskSystem.Migrations
                         {
                             Id = 12,
                             AuthorId = 3,
-                            CreatedAt = new DateTime(2025, 12, 14, 15, 30, 37, 82, DateTimeKind.Local).AddTicks(9869),
+                            CreatedAt = new DateTime(2025, 12, 14, 17, 10, 36, 803, DateTimeKind.Local).AddTicks(1850),
                             IsInternal = false,
                             Message = "Autem et voluptatem incidunt quia. Atque molestias est saepe.",
                             TicketId = 18
@@ -196,7 +196,7 @@ namespace ServiceDeskSystem.Migrations
                         {
                             Id = 13,
                             AuthorId = 3,
-                            CreatedAt = new DateTime(2025, 11, 24, 8, 5, 13, 562, DateTimeKind.Local).AddTicks(338),
+                            CreatedAt = new DateTime(2025, 11, 24, 9, 45, 13, 282, DateTimeKind.Local).AddTicks(2334),
                             IsInternal = true,
                             Message = "Dolor aut fuga occaecati culpa hic itaque voluptates nobis. Velit doloremque qui quasi ratione. Sit aspernatur dicta enim iusto exercitationem. Mollitia dolorem sint explicabo. Facilis hic culpa molestiae sint pariatur fuga et.",
                             TicketId = 16
@@ -205,7 +205,7 @@ namespace ServiceDeskSystem.Migrations
                         {
                             Id = 14,
                             AuthorId = 3,
-                            CreatedAt = new DateTime(2025, 11, 8, 7, 59, 7, 432, DateTimeKind.Local).AddTicks(7873),
+                            CreatedAt = new DateTime(2025, 11, 8, 9, 39, 7, 152, DateTimeKind.Local).AddTicks(9873),
                             IsInternal = true,
                             Message = "Unde non assumenda blanditiis fugit expedita. Qui natus voluptas sed qui autem aut sint. Eligendi veritatis at. Ut id cumque atque.",
                             TicketId = 9
@@ -214,7 +214,7 @@ namespace ServiceDeskSystem.Migrations
                         {
                             Id = 15,
                             AuthorId = 2,
-                            CreatedAt = new DateTime(2025, 8, 26, 12, 47, 26, 844, DateTimeKind.Local).AddTicks(3413),
+                            CreatedAt = new DateTime(2025, 8, 26, 14, 27, 26, 564, DateTimeKind.Local).AddTicks(5432),
                             IsInternal = false,
                             Message = "Enim et harum voluptatem maxime voluptatem eum. In odio maiores dolore iure. Iure laudantium rem quod sint aut itaque quisquam doloribus.",
                             TicketId = 17
@@ -223,7 +223,7 @@ namespace ServiceDeskSystem.Migrations
                         {
                             Id = 16,
                             AuthorId = 2,
-                            CreatedAt = new DateTime(2025, 8, 17, 14, 49, 44, 684, DateTimeKind.Local).AddTicks(5347),
+                            CreatedAt = new DateTime(2025, 8, 17, 16, 29, 44, 404, DateTimeKind.Local).AddTicks(7374),
                             IsInternal = false,
                             Message = "Similique non doloremque et aut. Exercitationem qui aliquid dolores et velit. Nam velit eius sit ut.",
                             TicketId = 13
@@ -232,7 +232,7 @@ namespace ServiceDeskSystem.Migrations
                         {
                             Id = 17,
                             AuthorId = 3,
-                            CreatedAt = new DateTime(2025, 11, 19, 9, 44, 18, 5, DateTimeKind.Local).AddTicks(9864),
+                            CreatedAt = new DateTime(2025, 11, 19, 11, 24, 17, 726, DateTimeKind.Local).AddTicks(1894),
                             IsInternal = true,
                             Message = "Eius laborum deserunt magnam. Debitis recusandae aperiam perspiciatis. Eum incidunt a. Autem commodi explicabo facilis.",
                             TicketId = 18
@@ -241,7 +241,7 @@ namespace ServiceDeskSystem.Migrations
                         {
                             Id = 18,
                             AuthorId = 3,
-                            CreatedAt = new DateTime(2025, 9, 25, 12, 55, 57, 923, DateTimeKind.Local).AddTicks(2270),
+                            CreatedAt = new DateTime(2025, 9, 25, 14, 35, 57, 643, DateTimeKind.Local).AddTicks(4319),
                             IsInternal = false,
                             Message = "Culpa aliquam consequuntur. Ut consectetur cumque dolores molestias eum. In eos quae nam rem sed et expedita corporis. Sit quaerat fugiat ut occaecati alias repellat tenetur aspernatur.",
                             TicketId = 20
@@ -250,7 +250,7 @@ namespace ServiceDeskSystem.Migrations
                         {
                             Id = 19,
                             AuthorId = 3,
-                            CreatedAt = new DateTime(2025, 12, 10, 10, 53, 41, 592, DateTimeKind.Local).AddTicks(7197),
+                            CreatedAt = new DateTime(2025, 12, 10, 12, 33, 41, 312, DateTimeKind.Local).AddTicks(9253),
                             IsInternal = false,
                             Message = "Facere totam est ex quia suscipit est magni laboriosam reiciendis. Quae voluptatibus est ea et aliquam enim. Qui asperiores exercitationem dolores. Amet cumque perspiciatis velit corrupti sed ea quia autem.",
                             TicketId = 15
@@ -259,7 +259,7 @@ namespace ServiceDeskSystem.Migrations
                         {
                             Id = 20,
                             AuthorId = 3,
-                            CreatedAt = new DateTime(2025, 12, 23, 8, 31, 58, 550, DateTimeKind.Local).AddTicks(5717),
+                            CreatedAt = new DateTime(2025, 12, 23, 10, 11, 58, 270, DateTimeKind.Local).AddTicks(7791),
                             IsInternal = false,
                             Message = "Et praesentium magni quos asperiores sit a sit corporis eligendi. Ab nobis ipsam. Et praesentium aut eos dolorem.",
                             TicketId = 7
@@ -268,7 +268,7 @@ namespace ServiceDeskSystem.Migrations
                         {
                             Id = 21,
                             AuthorId = 2,
-                            CreatedAt = new DateTime(2025, 10, 3, 13, 27, 45, 337, DateTimeKind.Local).AddTicks(2552),
+                            CreatedAt = new DateTime(2025, 10, 3, 15, 7, 45, 57, DateTimeKind.Local).AddTicks(4639),
                             IsInternal = true,
                             Message = "Dolor tempore modi non libero enim tenetur. Quisquam itaque et et et. Tempora nobis labore porro reprehenderit atque quisquam aut aspernatur. Voluptatem omnis quasi dolores ex impedit qui corrupti est. Voluptas veniam quibusdam autem accusantium repellendus.",
                             TicketId = 12
@@ -277,7 +277,7 @@ namespace ServiceDeskSystem.Migrations
                         {
                             Id = 22,
                             AuthorId = 2,
-                            CreatedAt = new DateTime(2025, 10, 8, 7, 0, 14, 785, DateTimeKind.Local).AddTicks(9541),
+                            CreatedAt = new DateTime(2025, 10, 8, 8, 40, 14, 506, DateTimeKind.Local).AddTicks(1645),
                             IsInternal = false,
                             Message = "Rem illo earum itaque omnis mollitia dolore voluptatem. Dolorem in consequatur nam et et qui aut aut.",
                             TicketId = 3
@@ -286,7 +286,7 @@ namespace ServiceDeskSystem.Migrations
                         {
                             Id = 23,
                             AuthorId = 2,
-                            CreatedAt = new DateTime(2025, 11, 25, 15, 59, 59, 111, DateTimeKind.Local).AddTicks(4735),
+                            CreatedAt = new DateTime(2025, 11, 25, 17, 39, 58, 831, DateTimeKind.Local).AddTicks(6850),
                             IsInternal = false,
                             Message = "Necessitatibus et est est iure consequatur esse omnis vel id. Perferendis adipisci quam nesciunt perspiciatis. Consequatur similique tempore impedit. Impedit quia ut ad autem qui. Nam unde reprehenderit sunt asperiores ab nobis.",
                             TicketId = 19
@@ -295,7 +295,7 @@ namespace ServiceDeskSystem.Migrations
                         {
                             Id = 24,
                             AuthorId = 3,
-                            CreatedAt = new DateTime(2026, 1, 8, 16, 45, 28, 728, DateTimeKind.Local).AddTicks(3865),
+                            CreatedAt = new DateTime(2026, 1, 8, 18, 25, 28, 448, DateTimeKind.Local).AddTicks(6002),
                             IsInternal = false,
                             Message = "Iste veritatis et incidunt et iste pariatur magnam eos. Excepturi exercitationem ut praesentium sequi similique et aut. Eum eius voluptatem illo eveniet molestiae velit consequatur rem quidem. Iusto vitae sint eveniet accusamus facilis molestias. Est qui id nostrum cupiditate.",
                             TicketId = 16
@@ -304,7 +304,7 @@ namespace ServiceDeskSystem.Migrations
                         {
                             Id = 25,
                             AuthorId = 3,
-                            CreatedAt = new DateTime(2025, 8, 31, 10, 9, 46, 335, DateTimeKind.Local).AddTicks(4177),
+                            CreatedAt = new DateTime(2025, 8, 31, 11, 49, 46, 55, DateTimeKind.Local).AddTicks(6325),
                             IsInternal = false,
                             Message = "Laboriosam sunt qui dolores molestiae deserunt voluptate. Porro corporis molestiae. Autem laborum ut corporis. Autem laboriosam officia molestias veritatis possimus.",
                             TicketId = 2
@@ -313,7 +313,7 @@ namespace ServiceDeskSystem.Migrations
                         {
                             Id = 26,
                             AuthorId = 3,
-                            CreatedAt = new DateTime(2025, 9, 28, 5, 31, 12, 84, DateTimeKind.Local).AddTicks(143),
+                            CreatedAt = new DateTime(2025, 9, 28, 7, 11, 11, 804, DateTimeKind.Local).AddTicks(2308),
                             IsInternal = false,
                             Message = "Sit consequuntur odio omnis. Exercitationem accusantium laborum officia asperiores corporis laudantium quidem temporibus consequatur. Harum ea cum maiores. Ducimus nihil quam alias voluptatem minima illum.",
                             TicketId = 17
@@ -322,7 +322,7 @@ namespace ServiceDeskSystem.Migrations
                         {
                             Id = 27,
                             AuthorId = 3,
-                            CreatedAt = new DateTime(2025, 10, 5, 8, 13, 26, 201, DateTimeKind.Local).AddTicks(7038),
+                            CreatedAt = new DateTime(2025, 10, 5, 9, 53, 25, 921, DateTimeKind.Local).AddTicks(9217),
                             IsInternal = false,
                             Message = "Optio dolor doloribus velit et ipsam excepturi eligendi nulla. Eaque quia accusamus enim placeat labore. Qui magnam quidem quod similique nihil sit. Et sit non magnam voluptatem nesciunt quidem soluta officiis. Eum ut eius.",
                             TicketId = 10
@@ -331,7 +331,7 @@ namespace ServiceDeskSystem.Migrations
                         {
                             Id = 28,
                             AuthorId = 3,
-                            CreatedAt = new DateTime(2025, 9, 24, 6, 44, 0, 963, DateTimeKind.Local).AddTicks(6595),
+                            CreatedAt = new DateTime(2025, 9, 24, 8, 24, 0, 683, DateTimeKind.Local).AddTicks(8785),
                             IsInternal = false,
                             Message = "Eum debitis voluptatem. Et consequuntur dolor. Esse ratione voluptatem. Rem ut quidem molestias.",
                             TicketId = 9
@@ -340,7 +340,7 @@ namespace ServiceDeskSystem.Migrations
                         {
                             Id = 29,
                             AuthorId = 2,
-                            CreatedAt = new DateTime(2025, 8, 22, 21, 45, 12, 238, DateTimeKind.Local).AddTicks(986),
+                            CreatedAt = new DateTime(2025, 8, 22, 23, 25, 11, 958, DateTimeKind.Local).AddTicks(3177),
                             IsInternal = true,
                             Message = "Dignissimos asperiores dolor et consequatur quia. Necessitatibus neque non delectus nam quidem ut est aut.",
                             TicketId = 10
@@ -349,7 +349,7 @@ namespace ServiceDeskSystem.Migrations
                         {
                             Id = 30,
                             AuthorId = 2,
-                            CreatedAt = new DateTime(2025, 8, 28, 3, 20, 53, 256, DateTimeKind.Local).AddTicks(849),
+                            CreatedAt = new DateTime(2025, 8, 28, 5, 0, 52, 976, DateTimeKind.Local).AddTicks(3053),
                             IsInternal = false,
                             Message = "At sapiente ex voluptatem qui quam veritatis. Quis accusantium qui maiores.",
                             TicketId = 17
@@ -358,7 +358,7 @@ namespace ServiceDeskSystem.Migrations
                         {
                             Id = 31,
                             AuthorId = 3,
-                            CreatedAt = new DateTime(2025, 8, 30, 1, 16, 5, 858, DateTimeKind.Local).AddTicks(4364),
+                            CreatedAt = new DateTime(2025, 8, 30, 2, 56, 5, 578, DateTimeKind.Local).AddTicks(6577),
                             IsInternal = true,
                             Message = "Ullam non voluptatibus explicabo neque consequatur. Id id nostrum nesciunt ipsam.",
                             TicketId = 4
@@ -367,7 +367,7 @@ namespace ServiceDeskSystem.Migrations
                         {
                             Id = 32,
                             AuthorId = 3,
-                            CreatedAt = new DateTime(2025, 8, 4, 4, 31, 12, 830, DateTimeKind.Local).AddTicks(7154),
+                            CreatedAt = new DateTime(2025, 8, 4, 6, 11, 12, 550, DateTimeKind.Local).AddTicks(9376),
                             IsInternal = true,
                             Message = "Error quod quod eum. Doloribus iste earum nulla est laudantium dolorum dolor repellat.",
                             TicketId = 16
@@ -376,7 +376,7 @@ namespace ServiceDeskSystem.Migrations
                         {
                             Id = 33,
                             AuthorId = 2,
-                            CreatedAt = new DateTime(2025, 10, 8, 18, 44, 5, 618, DateTimeKind.Local).AddTicks(1232),
+                            CreatedAt = new DateTime(2025, 10, 8, 20, 24, 5, 338, DateTimeKind.Local).AddTicks(3464),
                             IsInternal = false,
                             Message = "Quibusdam unde non nulla soluta assumenda sit inventore non. Consequatur non perferendis laborum culpa vel quisquam sint. Asperiores sed modi sapiente nobis enim sed fugit. Enim architecto voluptate atque.",
                             TicketId = 9
@@ -385,7 +385,7 @@ namespace ServiceDeskSystem.Migrations
                         {
                             Id = 34,
                             AuthorId = 3,
-                            CreatedAt = new DateTime(2025, 12, 4, 6, 3, 4, 125, DateTimeKind.Local).AddTicks(9754),
+                            CreatedAt = new DateTime(2025, 12, 4, 7, 43, 3, 846, DateTimeKind.Local).AddTicks(1999),
                             IsInternal = false,
                             Message = "Cumque inventore ut dolores aut consectetur voluptas itaque est error. Fuga corporis quo asperiores iste modi. Officia dolore in error expedita vero placeat. Dolore voluptas dolor harum adipisci similique sunt dolorem numquam. Voluptatem eaque non est voluptas suscipit excepturi unde.",
                             TicketId = 16
@@ -394,7 +394,7 @@ namespace ServiceDeskSystem.Migrations
                         {
                             Id = 35,
                             AuthorId = 3,
-                            CreatedAt = new DateTime(2025, 9, 2, 22, 28, 1, 572, DateTimeKind.Local).AddTicks(3098),
+                            CreatedAt = new DateTime(2025, 9, 3, 0, 8, 1, 292, DateTimeKind.Local).AddTicks(5362),
                             IsInternal = false,
                             Message = "Sequi voluptas molestiae natus ipsam dolores ea fugit placeat. Earum excepturi omnis aut. Pariatur ab voluptatum fuga aliquid.",
                             TicketId = 8
@@ -403,7 +403,7 @@ namespace ServiceDeskSystem.Migrations
                         {
                             Id = 36,
                             AuthorId = 3,
-                            CreatedAt = new DateTime(2025, 9, 21, 22, 32, 16, 70, DateTimeKind.Local).AddTicks(8349),
+                            CreatedAt = new DateTime(2025, 9, 22, 0, 12, 15, 791, DateTimeKind.Local).AddTicks(620),
                             IsInternal = false,
                             Message = "Illo odit sed inventore. Soluta quo eum. Aliquid eos aut excepturi vitae labore.",
                             TicketId = 2
@@ -412,7 +412,7 @@ namespace ServiceDeskSystem.Migrations
                         {
                             Id = 37,
                             AuthorId = 2,
-                            CreatedAt = new DateTime(2025, 9, 16, 22, 36, 31, 869, DateTimeKind.Local).AddTicks(6960),
+                            CreatedAt = new DateTime(2025, 9, 17, 0, 16, 31, 589, DateTimeKind.Local).AddTicks(9233),
                             IsInternal = true,
                             Message = "Sed dolor necessitatibus quidem nostrum rerum eos. Ut deleniti laborum sequi architecto. Exercitationem asperiores est.",
                             TicketId = 14
@@ -421,7 +421,7 @@ namespace ServiceDeskSystem.Migrations
                         {
                             Id = 38,
                             AuthorId = 3,
-                            CreatedAt = new DateTime(2026, 1, 7, 15, 13, 50, 491, DateTimeKind.Local).AddTicks(6929),
+                            CreatedAt = new DateTime(2026, 1, 7, 16, 53, 50, 211, DateTimeKind.Local).AddTicks(9218),
                             IsInternal = false,
                             Message = "Impedit ipsa delectus. Aut fuga eveniet nemo voluptatibus beatae libero. Non tempora nihil autem minus optio quia.",
                             TicketId = 11
@@ -430,7 +430,7 @@ namespace ServiceDeskSystem.Migrations
                         {
                             Id = 39,
                             AuthorId = 3,
-                            CreatedAt = new DateTime(2025, 9, 19, 13, 51, 17, 2, DateTimeKind.Local).AddTicks(3324),
+                            CreatedAt = new DateTime(2025, 9, 19, 15, 31, 16, 722, DateTimeKind.Local).AddTicks(5621),
                             IsInternal = true,
                             Message = "Earum sint mollitia. Sunt et velit eaque neque sit deserunt voluptas ea doloremque. Architecto ipsum harum beatae ea natus consequatur voluptas.",
                             TicketId = 11
@@ -439,7 +439,7 @@ namespace ServiceDeskSystem.Migrations
                         {
                             Id = 40,
                             AuthorId = 3,
-                            CreatedAt = new DateTime(2025, 8, 5, 23, 51, 53, 630, DateTimeKind.Local).AddTicks(5094),
+                            CreatedAt = new DateTime(2025, 8, 6, 1, 31, 53, 350, DateTimeKind.Local).AddTicks(7407),
                             IsInternal = false,
                             Message = "Qui sit sit non ut dolorem impedit ullam voluptatem velit. Totam atque assumenda quae eum totam. Libero corrupti et cumque saepe.",
                             TicketId = 9
@@ -448,7 +448,7 @@ namespace ServiceDeskSystem.Migrations
                         {
                             Id = 41,
                             AuthorId = 3,
-                            CreatedAt = new DateTime(2026, 1, 5, 20, 46, 54, 667, DateTimeKind.Local).AddTicks(7769),
+                            CreatedAt = new DateTime(2026, 1, 5, 22, 26, 54, 388, DateTimeKind.Local).AddTicks(90),
                             IsInternal = false,
                             Message = "Impedit ipsa cum rerum ipsa. Repellat voluptate et.",
                             TicketId = 19
@@ -457,7 +457,7 @@ namespace ServiceDeskSystem.Migrations
                         {
                             Id = 42,
                             AuthorId = 2,
-                            CreatedAt = new DateTime(2025, 8, 23, 14, 50, 52, 801, DateTimeKind.Local).AddTicks(3078),
+                            CreatedAt = new DateTime(2025, 8, 23, 16, 30, 52, 521, DateTimeKind.Local).AddTicks(5412),
                             IsInternal = false,
                             Message = "Et itaque beatae animi. Iusto consequatur velit enim voluptas natus odio quis. Quos aspernatur deserunt natus delectus est. Placeat occaecati odio placeat quae. Nam laudantium aut natus expedita pariatur.",
                             TicketId = 2
@@ -466,7 +466,7 @@ namespace ServiceDeskSystem.Migrations
                         {
                             Id = 43,
                             AuthorId = 2,
-                            CreatedAt = new DateTime(2025, 11, 3, 21, 9, 55, 700, DateTimeKind.Local).AddTicks(1394),
+                            CreatedAt = new DateTime(2025, 11, 3, 22, 49, 55, 420, DateTimeKind.Local).AddTicks(3751),
                             IsInternal = false,
                             Message = "Eveniet ut nulla commodi sit atque. Quo consequatur nemo voluptas ad consequatur consequatur. At ut esse quidem. Tempore perferendis qui minus molestias sed ut deserunt laborum. Qui id et magni quasi.",
                             TicketId = 8
@@ -475,7 +475,7 @@ namespace ServiceDeskSystem.Migrations
                         {
                             Id = 44,
                             AuthorId = 2,
-                            CreatedAt = new DateTime(2025, 12, 3, 9, 53, 14, 961, DateTimeKind.Local).AddTicks(4297),
+                            CreatedAt = new DateTime(2025, 12, 3, 11, 33, 14, 681, DateTimeKind.Local).AddTicks(6665),
                             IsInternal = true,
                             Message = "Suscipit esse ex cumque. Consectetur pariatur est qui incidunt soluta est. Facere rerum possimus. Vero voluptatibus culpa. Aut qui repudiandae doloremque expedita labore quod provident sit excepturi.",
                             TicketId = 14
@@ -484,7 +484,7 @@ namespace ServiceDeskSystem.Migrations
                         {
                             Id = 45,
                             AuthorId = 3,
-                            CreatedAt = new DateTime(2026, 1, 25, 4, 44, 13, 531, DateTimeKind.Local).AddTicks(2425),
+                            CreatedAt = new DateTime(2026, 1, 25, 6, 24, 13, 251, DateTimeKind.Local).AddTicks(4815),
                             IsInternal = true,
                             Message = "Aperiam reiciendis aut illo voluptatibus temporibus quae quo aut. Autem amet hic voluptate non ex. Amet ut nobis dignissimos tempore. Tenetur aut architecto quos porro id ipsa dignissimos esse.",
                             TicketId = 2
@@ -493,7 +493,7 @@ namespace ServiceDeskSystem.Migrations
                         {
                             Id = 46,
                             AuthorId = 3,
-                            CreatedAt = new DateTime(2025, 9, 14, 6, 34, 38, 238, DateTimeKind.Local).AddTicks(3137),
+                            CreatedAt = new DateTime(2025, 9, 14, 8, 14, 37, 958, DateTimeKind.Local).AddTicks(5546),
                             IsInternal = true,
                             Message = "Alias enim nobis velit sit neque eos. Culpa et maiores quisquam enim quos odit. Nisi commodi odit illo earum voluptates ullam sit aut delectus. Sapiente eveniet voluptatibus. Est eum voluptas amet et.",
                             TicketId = 14
@@ -502,7 +502,7 @@ namespace ServiceDeskSystem.Migrations
                         {
                             Id = 47,
                             AuthorId = 2,
-                            CreatedAt = new DateTime(2025, 10, 3, 19, 54, 10, 40, DateTimeKind.Local).AddTicks(8639),
+                            CreatedAt = new DateTime(2025, 10, 3, 21, 34, 9, 761, DateTimeKind.Local).AddTicks(1054),
                             IsInternal = true,
                             Message = "Quos similique minus aut minus tenetur nemo. Fuga porro omnis sint officia explicabo.",
                             TicketId = 2
@@ -511,7 +511,7 @@ namespace ServiceDeskSystem.Migrations
                         {
                             Id = 48,
                             AuthorId = 2,
-                            CreatedAt = new DateTime(2025, 11, 27, 21, 36, 12, 423, DateTimeKind.Local).AddTicks(5581),
+                            CreatedAt = new DateTime(2025, 11, 27, 23, 16, 12, 143, DateTimeKind.Local).AddTicks(8001),
                             IsInternal = true,
                             Message = "Expedita animi deserunt suscipit laboriosam totam nemo sit et aspernatur. Qui delectus eum esse qui animi incidunt ut.",
                             TicketId = 11
@@ -520,7 +520,7 @@ namespace ServiceDeskSystem.Migrations
                         {
                             Id = 49,
                             AuthorId = 2,
-                            CreatedAt = new DateTime(2025, 9, 16, 6, 1, 30, 785, DateTimeKind.Local).AddTicks(9105),
+                            CreatedAt = new DateTime(2025, 9, 16, 7, 41, 30, 506, DateTimeKind.Local).AddTicks(1546),
                             IsInternal = true,
                             Message = "Totam aliquam sunt voluptates est neque id deserunt amet. Saepe reiciendis qui perspiciatis ut est quia totam non aut. Hic sed cum minima facere vero. Voluptatem magnam dolores et voluptatibus laudantium officiis non numquam.",
                             TicketId = 19
@@ -529,7 +529,7 @@ namespace ServiceDeskSystem.Migrations
                         {
                             Id = 50,
                             AuthorId = 2,
-                            CreatedAt = new DateTime(2025, 10, 8, 7, 4, 22, 827, DateTimeKind.Local).AddTicks(6668),
+                            CreatedAt = new DateTime(2025, 10, 8, 8, 44, 22, 547, DateTimeKind.Local).AddTicks(9122),
                             IsInternal = false,
                             Message = "Atque cupiditate facere quia est delectus ducimus non illo. Id quos sint ab esse et eveniet corporis repellendus. Itaque assumenda est repellat non libero inventore. Pariatur non deserunt et in ipsum. Sequi non unde dolorem pariatur sunt quisquam beatae.",
                             TicketId = 20
@@ -836,7 +836,7 @@ namespace ServiceDeskSystem.Migrations
                             Id = 1,
                             AffectedVersion = "1.0.5.8",
                             AuthorId = 3,
-                            CreatedAt = new DateTime(2025, 12, 14, 6, 17, 31, 86, DateTimeKind.Local).AddTicks(2347),
+                            CreatedAt = new DateTime(2025, 12, 14, 7, 57, 30, 804, DateTimeKind.Local).AddTicks(4420),
                             Description = "Voluptatem adipisci et. Dolores consectetur praesentium beatae nulla similique aliquam consequatur earum nesciunt. Dolor alias facere.",
                             DeveloperId = 2,
                             Environment = "macOS Ventura / Chrome",
@@ -851,7 +851,7 @@ namespace ServiceDeskSystem.Migrations
                             Id = 2,
                             AffectedVersion = "3.8.5.5",
                             AuthorId = 3,
-                            CreatedAt = new DateTime(2025, 10, 30, 4, 10, 21, 135, DateTimeKind.Local).AddTicks(7933),
+                            CreatedAt = new DateTime(2025, 10, 30, 5, 50, 20, 853, DateTimeKind.Local).AddTicks(7739),
                             Description = "Sed accusamus maiores non ea pariatur non aut. Provident officia dolore rerum qui. Id ipsa odio odio voluptas.",
                             DeveloperId = 2,
                             Environment = "Windows 11 / Edge",
@@ -866,7 +866,7 @@ namespace ServiceDeskSystem.Migrations
                             Id = 3,
                             AffectedVersion = "5.3.1.9",
                             AuthorId = 3,
-                            CreatedAt = new DateTime(2025, 9, 19, 15, 34, 16, 399, DateTimeKind.Local).AddTicks(376),
+                            CreatedAt = new DateTime(2025, 9, 19, 17, 14, 16, 117, DateTimeKind.Local).AddTicks(143),
                             Description = "Accusamus labore sit facere non ut omnis. Aut explicabo molestiae perspiciatis. Iure repellendus natus quos aut.",
                             DeveloperId = 2,
                             Environment = "Windows 10 / Firefox",
@@ -881,7 +881,7 @@ namespace ServiceDeskSystem.Migrations
                             Id = 4,
                             AffectedVersion = "7.4.3.5",
                             AuthorId = 3,
-                            CreatedAt = new DateTime(2025, 11, 3, 2, 22, 22, 697, DateTimeKind.Local).AddTicks(1046),
+                            CreatedAt = new DateTime(2025, 11, 3, 4, 2, 22, 415, DateTimeKind.Local).AddTicks(819),
                             Description = "Architecto deleniti aut ea omnis suscipit ut. Veritatis velit amet molestias in optio aut quis perferendis. Nesciunt et enim qui culpa.",
                             DeveloperId = 2,
                             Environment = "Windows 10 / Chrome",
@@ -896,7 +896,7 @@ namespace ServiceDeskSystem.Migrations
                             Id = 5,
                             AffectedVersion = "7.0.3.2",
                             AuthorId = 3,
-                            CreatedAt = new DateTime(2025, 8, 30, 4, 38, 29, 73, DateTimeKind.Local).AddTicks(3908),
+                            CreatedAt = new DateTime(2025, 8, 30, 6, 18, 28, 791, DateTimeKind.Local).AddTicks(3691),
                             Description = "A possimus facere velit nesciunt ut quo aut voluptas. Reprehenderit facere tenetur et veritatis quo. Quia voluptas amet consectetur est sit ratione atque sit.",
                             Environment = "Ubuntu 22.04 / Chrome",
                             Priority = "Medium",
@@ -910,7 +910,7 @@ namespace ServiceDeskSystem.Migrations
                             Id = 6,
                             AffectedVersion = "5.7.1.3",
                             AuthorId = 3,
-                            CreatedAt = new DateTime(2025, 9, 27, 21, 55, 15, 936, DateTimeKind.Local).AddTicks(234),
+                            CreatedAt = new DateTime(2025, 9, 27, 23, 35, 15, 654, DateTimeKind.Local).AddTicks(33),
                             Description = "Natus mollitia qui explicabo. Quia molestias est. Nihil excepturi ea eum animi assumenda error.",
                             DeveloperId = 2,
                             Environment = "macOS Ventura / Edge",
@@ -925,7 +925,7 @@ namespace ServiceDeskSystem.Migrations
                             Id = 7,
                             AffectedVersion = "4.7.3.5",
                             AuthorId = 3,
-                            CreatedAt = new DateTime(2025, 11, 23, 22, 52, 32, 506, DateTimeKind.Local).AddTicks(6427),
+                            CreatedAt = new DateTime(2025, 11, 24, 0, 32, 32, 224, DateTimeKind.Local).AddTicks(6139),
                             Description = "Eos fuga omnis consequatur dolor aut fuga occaecati. Hic itaque voluptates nobis minima velit doloremque. Quasi ratione totam sit aspernatur dicta. Iusto exercitationem adipisci mollitia dolorem. Explicabo minus facilis hic culpa molestiae sint. Fuga et eos harum repellendus nulla soluta velit unde.",
                             Environment = "Windows 11 / Chrome",
                             Priority = "Critical",
@@ -939,7 +939,7 @@ namespace ServiceDeskSystem.Migrations
                             Id = 8,
                             AffectedVersion = "6.0.5.2",
                             AuthorId = 3,
-                            CreatedAt = new DateTime(2025, 10, 2, 15, 21, 14, 652, DateTimeKind.Local).AddTicks(4777),
+                            CreatedAt = new DateTime(2025, 10, 2, 17, 1, 14, 370, DateTimeKind.Local).AddTicks(4516),
                             Description = "Iure vel iure laudantium. Quod sint aut itaque quisquam doloribus. Ratione vel incidunt quis ut similique. Doloremque et aut qui. Qui aliquid dolores et velit. Nam velit eius sit ut.",
                             Environment = "Windows 10 / Firefox",
                             Priority = "Low",
@@ -953,7 +953,7 @@ namespace ServiceDeskSystem.Migrations
                             Id = 9,
                             AffectedVersion = "5.4.1.4",
                             AuthorId = 3,
-                            CreatedAt = new DateTime(2026, 1, 22, 21, 11, 39, 256, DateTimeKind.Local).AddTicks(8770),
+                            CreatedAt = new DateTime(2026, 1, 22, 22, 51, 38, 974, DateTimeKind.Local).AddTicks(8538),
                             Description = "Nam rem sed. Expedita corporis quo sit quaerat fugiat ut. Alias repellat tenetur aspernatur laboriosam nemo repellat. Tempore ut facere totam est ex quia. Est magni laboriosam reiciendis quas. Voluptatibus est ea.",
                             DeveloperId = 2,
                             Environment = "macOS Ventura / Chrome",
@@ -968,7 +968,7 @@ namespace ServiceDeskSystem.Migrations
                             Id = 10,
                             AffectedVersion = "3.0.6.4",
                             AuthorId = 3,
-                            CreatedAt = new DateTime(2026, 1, 19, 14, 15, 26, 748, DateTimeKind.Local).AddTicks(9650),
+                            CreatedAt = new DateTime(2026, 1, 19, 15, 55, 26, 466, DateTimeKind.Local).AddTicks(9438),
                             Description = "Praesentium aut eos dolorem dolorum temporibus ipsam rerum aut sunt. Tempore modi non libero. Tenetur sit quisquam itaque et. Et aut tempora nobis labore porro reprehenderit atque quisquam.",
                             DeveloperId = 2,
                             Environment = "Windows 10 / Safari",
@@ -983,7 +983,7 @@ namespace ServiceDeskSystem.Migrations
                             Id = 11,
                             AffectedVersion = "6.9.4.7",
                             AuthorId = 3,
-                            CreatedAt = new DateTime(2025, 8, 11, 9, 23, 46, 856, DateTimeKind.Local).AddTicks(8909),
+                            CreatedAt = new DateTime(2025, 8, 11, 11, 3, 46, 574, DateTimeKind.Local).AddTicks(8707),
                             Description = "Et et qui aut aut autem autem aut. Delectus rerum necessitatibus. Est est iure consequatur esse omnis vel id nostrum. Adipisci quam nesciunt.",
                             DeveloperId = 2,
                             Environment = "macOS Ventura / Edge",
@@ -998,7 +998,7 @@ namespace ServiceDeskSystem.Migrations
                             Id = 12,
                             AffectedVersion = "6.2.0.1",
                             AuthorId = 3,
-                            CreatedAt = new DateTime(2026, 1, 20, 11, 19, 26, 133, DateTimeKind.Local).AddTicks(2986),
+                            CreatedAt = new DateTime(2026, 1, 20, 12, 59, 25, 851, DateTimeKind.Local).AddTicks(2811),
                             Description = "Exercitationem ut praesentium sequi similique et aut. Eum eius voluptatem illo eveniet molestiae velit consequatur rem quidem. Iusto vitae sint eveniet accusamus facilis molestias. Est qui id nostrum cupiditate. Aut quibusdam omnis officia provident laboriosam sunt qui dolores.",
                             DeveloperId = 2,
                             Environment = "Windows 11 / Safari",
@@ -1013,7 +1013,7 @@ namespace ServiceDeskSystem.Migrations
                             Id = 13,
                             AffectedVersion = "0.3.8.1",
                             AuthorId = 3,
-                            CreatedAt = new DateTime(2025, 8, 22, 20, 58, 22, 475, DateTimeKind.Local).AddTicks(789),
+                            CreatedAt = new DateTime(2025, 8, 22, 22, 38, 22, 193, DateTimeKind.Local).AddTicks(641),
                             Description = "Consequatur modi harum ea cum maiores quas ducimus nihil. Alias voluptatem minima illum commodi quia. Nam dolor omnis optio dolor doloribus velit et ipsam. Eligendi nulla vel eaque quia accusamus enim. Labore ut qui magnam quidem quod similique nihil.",
                             DeveloperId = 2,
                             Environment = "Windows 10 / Chrome",
@@ -1028,7 +1028,7 @@ namespace ServiceDeskSystem.Migrations
                             Id = 14,
                             AffectedVersion = "4.6.1.9",
                             AuthorId = 3,
-                            CreatedAt = new DateTime(2025, 12, 17, 1, 39, 17, 833, DateTimeKind.Local).AddTicks(7787),
+                            CreatedAt = new DateTime(2025, 12, 17, 3, 19, 17, 551, DateTimeKind.Local).AddTicks(7659),
                             Description = "Molestias ullam corporis odio culpa modi in dignissimos. Dolor et consequatur quia et necessitatibus neque non delectus nam. Ut est aut qui consequuntur atque inventore modi. At sapiente ex voluptatem qui quam veritatis. Quis accusantium qui maiores. Sequi eum ratione quia praesentium ullam.",
                             DeveloperId = 2,
                             Environment = "Windows 10 / Chrome",
@@ -1043,7 +1043,7 @@ namespace ServiceDeskSystem.Migrations
                             Id = 15,
                             AffectedVersion = "6.7.5.4",
                             AuthorId = 3,
-                            CreatedAt = new DateTime(2026, 1, 1, 20, 18, 12, 131, DateTimeKind.Local).AddTicks(9763),
+                            CreatedAt = new DateTime(2026, 1, 1, 21, 58, 11, 849, DateTimeKind.Local).AddTicks(9668),
                             Description = "Sit inventore non expedita consequatur non perferendis laborum culpa. Quisquam sint cumque asperiores sed modi. Nobis enim sed fugit nesciunt enim architecto voluptate atque aliquid. Esse perferendis consequatur saepe cumque inventore. Dolores aut consectetur voluptas itaque est error esse fuga corporis.",
                             DeveloperId = 2,
                             Environment = "macOS Ventura / Chrome",
@@ -1058,7 +1058,7 @@ namespace ServiceDeskSystem.Migrations
                             Id = 16,
                             AffectedVersion = "2.9.4.6",
                             AuthorId = 3,
-                            CreatedAt = new DateTime(2025, 8, 14, 15, 28, 41, 440, DateTimeKind.Local).AddTicks(2853),
+                            CreatedAt = new DateTime(2025, 8, 14, 17, 8, 41, 158, DateTimeKind.Local).AddTicks(2779),
                             Description = "Excepturi omnis aut quis pariatur ab voluptatum fuga aliquid sed. Commodi vel voluptate et. Odit sed inventore.",
                             Environment = "Windows 10 / Chrome",
                             Priority = "Low",
@@ -1072,7 +1072,7 @@ namespace ServiceDeskSystem.Migrations
                             Id = 17,
                             AffectedVersion = "2.5.9.2",
                             AuthorId = 3,
-                            CreatedAt = new DateTime(2025, 9, 2, 8, 47, 49, 881, DateTimeKind.Local).AddTicks(6319),
+                            CreatedAt = new DateTime(2025, 9, 2, 10, 27, 49, 599, DateTimeKind.Local).AddTicks(6259),
                             Description = "Impedit ipsa delectus. Aut fuga eveniet nemo voluptatibus beatae libero. Non tempora nihil autem minus optio quia. Officiis non vero odio alias earum sint.",
                             DeveloperId = 2,
                             Environment = "macOS Ventura / Chrome",
@@ -1087,7 +1087,7 @@ namespace ServiceDeskSystem.Migrations
                             Id = 18,
                             AffectedVersion = "3.7.5.4",
                             AuthorId = 3,
-                            CreatedAt = new DateTime(2025, 10, 16, 8, 33, 4, 915, DateTimeKind.Local).AddTicks(6999),
+                            CreatedAt = new DateTime(2025, 10, 16, 10, 13, 4, 633, DateTimeKind.Local).AddTicks(6990),
                             Description = "Totam atque assumenda quae eum totam. Libero corrupti et cumque saepe. Aperiam odio in voluptatem sit impedit ipsa cum rerum. Sit repellat voluptate.",
                             DeveloperId = 2,
                             Environment = "Ubuntu 22.04 / Chrome",
@@ -1102,7 +1102,7 @@ namespace ServiceDeskSystem.Migrations
                             Id = 19,
                             AffectedVersion = "4.3.6.5",
                             AuthorId = 3,
-                            CreatedAt = new DateTime(2025, 11, 19, 17, 59, 54, 938, DateTimeKind.Local).AddTicks(7038),
+                            CreatedAt = new DateTime(2025, 11, 19, 19, 39, 54, 656, DateTimeKind.Local).AddTicks(7045),
                             Description = "Commodi aut molestiae. Ut nulla commodi sit atque in quo consequatur nemo voluptas. Consequatur consequatur et at ut.",
                             DeveloperId = 2,
                             Environment = "Windows 10 / Safari",
@@ -1117,7 +1117,7 @@ namespace ServiceDeskSystem.Migrations
                             Id = 20,
                             AffectedVersion = "6.1.0.1",
                             AuthorId = 3,
-                            CreatedAt = new DateTime(2025, 11, 14, 22, 59, 36, 803, DateTimeKind.Local).AddTicks(9026),
+                            CreatedAt = new DateTime(2025, 11, 15, 0, 39, 36, 521, DateTimeKind.Local).AddTicks(9053),
                             Description = "Vero voluptatibus culpa. Aut qui repudiandae doloremque expedita labore quod provident sit excepturi. Soluta soluta laboriosam. Temporibus aperiam reiciendis aut illo voluptatibus temporibus. Quo aut quos. Amet hic voluptate non ex quis.",
                             Environment = "macOS Ventura / Edge",
                             Priority = "Critical",
@@ -1166,7 +1166,7 @@ namespace ServiceDeskSystem.Migrations
                         {
                             Id = 1,
                             Login = "admin",
-                            PasswordHash = "$2a$11$dummyHashForTestingPurposesOnly123456",
+                            PasswordHash = "admin123",
                             PersonId = 1,
                             Role = "Admin"
                         },
@@ -1174,7 +1174,7 @@ namespace ServiceDeskSystem.Migrations
                         {
                             Id = 2,
                             Login = "developer",
-                            PasswordHash = "$2a$11$dummyHashForTestingPurposesOnly123456",
+                            PasswordHash = "dev123",
                             PersonId = 2,
                             Role = "Developer"
                         },
@@ -1182,7 +1182,7 @@ namespace ServiceDeskSystem.Migrations
                         {
                             Id = 3,
                             Login = "client",
-                            PasswordHash = "$2a$11$dummyHashForTestingPurposesOnly123456",
+                            PasswordHash = "client123",
                             PersonId = 3,
                             Role = "Client"
                         });
