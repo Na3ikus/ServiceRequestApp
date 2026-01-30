@@ -4,3 +4,42 @@
 
 /* Custom styles below */
 
+/* Language toggle slider */
+.lang-slider {
+    position: absolute;
+    top: 0.375rem;
+    bottom: 0.375rem;
+    width: calc(50% - 6px);
+    background: linear-gradient(to right, rgb(59 130 246), rgb(168 85 247));
+    border-radius: 9999px;
+    transition: all 0.3s ease-out;
+    box-shadow: 0 10px 15px -3px rgb(59 130 246 / 0.3);
+}
+
+.lang-slider.en {
+    left: 0.375rem;
+}
+
+.lang-slider.uk {
+    left: calc(50% + 3px);
+}
+
+/* Main layout language toggle slider */
+.lang-slider-main {
+    position: absolute;
+    top: 0.25rem;
+    bottom: 0.25rem;
+    width: calc(50% - 4px);
+    border-radius: 9999px;
+    transition: all 0.3s ease-out;
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+}
+
+.lang-slider-main.en {
+    left: 0.25rem;
+}
+
+.lang-slider-main.uk {
+    left: calc(50% + 2px);
+}
+
