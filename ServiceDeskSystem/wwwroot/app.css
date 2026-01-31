@@ -177,6 +177,37 @@ a, .btn-link {
     transform: translateX(100%);
 }
 
+/* Ticket delete button */
+.ticket-delete-btn {
+    padding: 0.5rem 1rem;
+    background-color: #dc2626;
+    color: white;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border-radius: 0.5rem;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.ticket-delete-btn:hover {
+    background-color: #b91c1c;
+}
+
+/* Dark theme */
+.dark .ticket-delete-btn {
+    background-color: #ef4444;
+}
+
+.dark .ticket-delete-btn:hover {
+    background-color: #dc2626;
+}
+
 .content {
     padding-top: 1.1rem;
 }

@@ -115,9 +115,9 @@ else
     {
         if (firstRender && !authRestored)
         {
-            authRestored = true;
             await AuthService.EnsureRestoredAsync();
-            StateHasChanged();
+            authRestored = true;
+            await InvokeAsync(StateHasChanged);
         }
     }
 
