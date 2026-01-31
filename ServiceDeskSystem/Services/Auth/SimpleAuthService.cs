@@ -9,31 +9,34 @@ internal sealed class SimpleAuthService(
     IDbContextFactory<BugTrackerDbContext> contextFactory,
     ProtectedSessionStorage sessionStorage) : IAuthService
 {
+    private bool initialized;
+
     public event EventHandler? AuthStateChanged;
 
     public User? CurrentUser { get; private set; }
-    private bool initialized;
-
     public bool IsAuthenticated => this.CurrentUser is not null;
 
     public async Task EnsureRestoredAsync()
     {
-        if (initialized)
+        if (this.initialized)
+        {
             return;
+        }
 
-        initialized = true;
+        this.initialized = true;
 
         try
         {
-            var stored = await sessionStorage.GetAsync<int>("authUserId");
+            var stored = await sessionStorage.GetAsync<int>("authUserId").ConfigureAwait(false);
             if (stored.Success && stored.Value > 0)
             {
-                var dbContext = await contextFactory.CreateDbContextAsync();
-                await using (dbContext)
+                var dbContext = await contextFactory.CreateDbContextAsync().ConfigureAwait(false);
+                await using (dbContext.ConfigureAwait(false))
                 {
                     var user = await dbContext.Users
                         .Include(u => u.Person)
-                        .FirstOrDefaultAsync(u => u.Id == stored.Value);
+                        .FirstOrDefaultAsync(u => u.Id == stored.Value)
+                        .ConfigureAwait(false);
 
                     if (user is not null)
                     {
@@ -45,7 +48,8 @@ internal sealed class SimpleAuthService(
         }
         catch
         {
-            // ProtectedSessionStorage може кинути виключення до першого рендеру - ігноруємо
+            // ProtectedSessionStorage may throw an exception before the first render.
+            // This can be safely ignored as it does not affect authentication state restoration.
         }
     }
 
@@ -75,7 +79,7 @@ internal sealed class SimpleAuthService(
             }
 
             this.CurrentUser = user;
-            await SaveToSessionAsync(user).ConfigureAwait(false);
+            await this.SaveToSessionAsync(user).ConfigureAwait(false);
             this.AuthStateChanged?.Invoke(this, EventArgs.Empty);
 
             return (true, null);
@@ -156,19 +160,14 @@ internal sealed class SimpleAuthService(
         this.CurrentUser = null;
         try
         {
-            await sessionStorage.DeleteAsync("authUserId");
+            await sessionStorage.DeleteAsync("authUserId").ConfigureAwait(false);
         }
-        catch { }
-        this.AuthStateChanged?.Invoke(this, EventArgs.Empty);
-    }
-
-    private async Task SaveToSessionAsync(User user)
-    {
-        try
+        catch
         {
-            await sessionStorage.SetAsync("authUserId", user.Id);
+            // It's safe to ignore exceptions here, as failure to delete the session does not affect logout logic.
         }
-        catch { }
+
+        this.AuthStateChanged?.Invoke(this, EventArgs.Empty);
     }
 
     private static bool VerifyPassword(string password, string storedHash)
@@ -187,5 +186,17 @@ internal sealed class SimpleAuthService(
         var bytes = System.Text.Encoding.UTF8.GetBytes(input);
         var hashBytes = System.Security.Cryptography.SHA256.HashData(bytes);
         return Convert.ToBase64String(hashBytes);
+    }
+
+    private async Task SaveToSessionAsync(User user)
+    {
+        try
+        {
+            await sessionStorage.SetAsync("authUserId", user.Id).ConfigureAwait(false);
+        }
+        catch
+        {
+            // It's safe to ignore exceptions here, as failure to save the session does not affect authentication logic.
+        }
     }
 }

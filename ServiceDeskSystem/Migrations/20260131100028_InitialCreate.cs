@@ -24,7 +24,7 @@ namespace ServiceDeskSystem.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     Name = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4")
+                        .Annotation("MySql:CharSet", "utf8mb4"),
                 },
                 constraints: table =>
                 {
@@ -43,7 +43,7 @@ namespace ServiceDeskSystem.Migrations
                     LastName = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     MiddleName = table.Column<string>(type: "longtext", nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4")
+                        .Annotation("MySql:CharSet", "utf8mb4"),
                 },
                 constraints: table =>
                 {
@@ -60,7 +60,7 @@ namespace ServiceDeskSystem.Migrations
                     Name = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Type = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4")
+                        .Annotation("MySql:CharSet", "utf8mb4"),
                 },
                 constraints: table =>
                 {
@@ -78,7 +78,7 @@ namespace ServiceDeskSystem.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     IsPrimary = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     PersonId = table.Column<int>(type: "int", nullable: false),
-                    ContactTypeId = table.Column<int>(type: "int", nullable: false)
+                    ContactTypeId = table.Column<int>(type: "int", nullable: false),
                 },
                 constraints: table =>
                 {
@@ -110,7 +110,7 @@ namespace ServiceDeskSystem.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Role = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    PersonId = table.Column<int>(type: "int", nullable: false)
+                    PersonId = table.Column<int>(type: "int", nullable: false),
                 },
                 constraints: table =>
                 {
@@ -136,7 +136,7 @@ namespace ServiceDeskSystem.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     CurrentVersion = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    TechStackId = table.Column<int>(type: "int", nullable: false)
+                    TechStackId = table.Column<int>(type: "int", nullable: false),
                 },
                 constraints: table =>
                 {
@@ -173,7 +173,7 @@ namespace ServiceDeskSystem.Migrations
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     ProductId = table.Column<int>(type: "int", nullable: false),
                     AuthorId = table.Column<int>(type: "int", nullable: false),
-                    DeveloperId = table.Column<int>(type: "int", nullable: true)
+                    DeveloperId = table.Column<int>(type: "int", nullable: true),
                 },
                 constraints: table =>
                 {
@@ -209,7 +209,7 @@ namespace ServiceDeskSystem.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     FilePath = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    TicketId = table.Column<int>(type: "int", nullable: false)
+                    TicketId = table.Column<int>(type: "int", nullable: false),
                 },
                 constraints: table =>
                 {
@@ -234,7 +234,7 @@ namespace ServiceDeskSystem.Migrations
                     IsInternal = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     TicketId = table.Column<int>(type: "int", nullable: false),
-                    AuthorId = table.Column<int>(type: "int", nullable: false)
+                    AuthorId = table.Column<int>(type: "int", nullable: false),
                 },
                 constraints: table =>
                 {
@@ -261,7 +261,7 @@ namespace ServiceDeskSystem.Migrations
                 {
                     { 1, "Email" },
                     { 2, "Phone" },
-                    { 3, "Telegram" }
+                    { 3, "Telegram" },
                 });
 
             migrationBuilder.InsertData(
@@ -273,7 +273,7 @@ namespace ServiceDeskSystem.Migrations
                     { 2, "Олександр", "Коваленко", "Петрович" },
                     { 3, "Марія", "Шевченко", "Іванівна" },
                     { 4, "John", "Smith", null },
-                    { 5, "Андрій", "Бондаренко", "Олегович" }
+                    { 5, "Андрій", "Бондаренко", "Олегович" },
                 });
 
             migrationBuilder.InsertData(
@@ -286,7 +286,7 @@ namespace ServiceDeskSystem.Migrations
                     { 3, "Android / Kotlin", "Mobile Application" },
                     { 4, "C++ / Embedded", "Hardware Firmware" },
                     { 5, "Python / Django", "Web Service" },
-                    { 6, "Network Infrastructure", "Hardware" }
+                    { 6, "Network Infrastructure", "Hardware" },
                 });
 
             migrationBuilder.InsertData(
@@ -301,7 +301,7 @@ namespace ServiceDeskSystem.Migrations
                     { 5, "2.0.5", "Мобільний додаток для роботи з клієнтською базою", "Mobile CRM", 3 },
                     { 6, "1.4.2", "Прошивка для касових терміналів", "POS Terminal v2", 4 },
                     { 7, "2.1.0", "Контролер системи контролю доступу", "Smart Lock Controller", 4 },
-                    { 8, "5.0.1", "Корпоративний маршрутизатор з підтримкою VPN", "Office Router Pro", 6 }
+                    { 8, "5.0.1", "Корпоративний маршрутизатор з підтримкою VPN", "Office Router Pro", 6 },
                 });
 
             migrationBuilder.InsertData(
@@ -313,7 +313,7 @@ namespace ServiceDeskSystem.Migrations
                     { 2, "o.kovalenko", "dev123", 2, "Developer" },
                     { 3, "m.shevchenko", "client123", 3, "Client" },
                     { 4, "j.smith", "client123", 4, "Client" },
-                    { 5, "a.bondarenko", "dev123", 5, "Developer" }
+                    { 5, "a.bondarenko", "dev123", 5, "Developer" },
                 });
 
             migrationBuilder.InsertData(
@@ -335,7 +335,7 @@ namespace ServiceDeskSystem.Migrations
                     { 12, "2.1.0", 3, new DateTime(2024, 4, 22, 8, 0, 0, 0, DateTimeKind.Unspecified), "Система контролю доступу не реагує на NFC картки після останнього оновлення прошивки.", 5, "Smart Lock Hardware v3", "Critical", 7, "In Progress", "1. Піднести NFC картку до зчитувача\n2. Очікувати відкриття замка\n3. Замок не реагує", "Не працює відкриття через NFC" },
                     { 13, "5.0.1", 4, new DateTime(2024, 4, 14, 15, 0, 0, 0, DateTimeKind.Unspecified), "VPN connections are dropping when more than 50 concurrent users are connected.", 2, "Office Router Pro Hardware", "High", 8, "Testing", "1. Establish 50+ VPN connections\n2. Generate network traffic\n3. Monitor connection stability", "VPN tunnel drops under heavy load" },
                     { 14, "5.0.0", 4, new DateTime(2024, 3, 20, 10, 0, 0, 0, DateTimeKind.Unspecified), "New firewall rules added through web interface are not being applied until device restart.", 5, "Office Router Pro Hardware", "Medium", 8, "Done", "1. Login to web interface\n2. Add new firewall rule\n3. Save configuration\n4. Test rule - not working", "Firewall rules not applying" },
-                    { 15, "3.2.1", 3, new DateTime(2024, 4, 23, 12, 0, 0, 0, DateTimeKind.Unspecified), "Було б зручно мати можливість переключатися на темну тему в інтерфейсі програми.", null, "Windows 11", "Low", 1, "New", "Це запит на нову функцію, а не баг.", "Запит на додавання темної теми" }
+                    { 15, "3.2.1", 3, new DateTime(2024, 4, 23, 12, 0, 0, 0, DateTimeKind.Unspecified), "Було б зручно мати можливість переключатися на темну тему в інтерфейсі програми.", null, "Windows 11", "Low", 1, "New", "Це запит на нову функцію, а не баг.", "Запит на додавання темної теми" },
                 });
 
             migrationBuilder.InsertData(
@@ -354,7 +354,7 @@ namespace ServiceDeskSystem.Migrations
                     { 9, 5, new DateTime(2024, 4, 9, 14, 0, 0, 0, DateTimeKind.Unspecified), true, "Issue is in the USB driver timeout handling. Preparing hotfix.", 11 },
                     { 10, 3, new DateTime(2024, 4, 22, 8, 30, 0, 0, DateTimeKind.Unspecified), false, "Проблема критична - офіс не може працювати. Потрібно відкотити прошивку!", 12 },
                     { 11, 5, new DateTime(2024, 4, 22, 9, 45, 0, 0, DateTimeKind.Unspecified), false, "Тимчасово відкотив до версії 2.0.8. Аналізую зміни в 2.1.0.", 12 },
-                    { 12, 2, new DateTime(2024, 4, 16, 11, 0, 0, 0, DateTimeKind.Unspecified), false, "Increased buffer size and connection pool. Testing in progress.", 13 }
+                    { 12, 2, new DateTime(2024, 4, 16, 11, 0, 0, 0, DateTimeKind.Unspecified), false, "Increased buffer size and connection pool. Testing in progress.", 13 },
                 });
 
             migrationBuilder.CreateIndex(

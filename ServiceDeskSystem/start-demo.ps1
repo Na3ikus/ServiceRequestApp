@@ -42,13 +42,23 @@ Write-Host "🚀 Запуск Blazor додатку на $APP_URL..." -Foregroun
 $appProcess = Start-Process -FilePath "dotnet" -ArgumentList "run --urls=$APP_URL" -PassThru -NoNewWindow
 
 Write-Host "⏳ Очікування запуску додатку..." -ForegroundColor Gray
-Start-Sleep -Seconds 5
 
-try {
-    $response = Invoke-WebRequest -Uri $APP_URL -SkipCertificateCheck -TimeoutSec 5 -ErrorAction Stop
+$appReady = $false
+for ($i = 0; $i -lt 15; $i++) {
+    Start-Sleep -Seconds 1
+    try {
+        $response = Invoke-WebRequest -Uri $APP_URL -SkipCertificateCheck -TimeoutSec 3 -ErrorAction Stop
+        $appReady = $true
+        break
+    } catch {
+        # Продовжуємо очікування
+    }
+}
+
+if ($appReady) {
     Write-Host "✅ Додаток успішно запущено!" -ForegroundColor Green
-} catch {
-    Write-Host "⚠️  Додаток ще запускається або виникла помилка" -ForegroundColor Yellow
+} else {
+    Write-Host "⚠️  Додаток ще запускається (це нормально для першого запуску)" -ForegroundColor Yellow
 }
 
 Write-Host ""
@@ -78,16 +88,17 @@ if ($ngrokInstalled) {
     }
 
     $publicUrl = $null
-    for ($i = 0; $i -lt 10; $i++) {
+    for ($i = 0; $i -lt 20; $i++) {
         try {
-            $ngrokApi = Invoke-RestMethod -Uri "http://localhost:4040/api/tunnels" -TimeoutSec 2 -ErrorAction Stop
+            $ngrokApi = Invoke-RestMethod -Uri "http://localhost:4040/api/tunnels" -TimeoutSec 3 -ErrorAction Stop
             if ($ngrokApi.tunnels.Count -gt 0) {
                 $publicUrl = $ngrokApi.tunnels[0].public_url
                 break
             }
         } catch {
+            # ngrok API ще не готовий
         }
-        Start-Sleep -Milliseconds 800
+        Start-Sleep -Seconds 1
     }
 
     if ($publicUrl) {

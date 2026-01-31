@@ -9,7 +9,6 @@ internal sealed class TicketConfiguration : IEntityTypeConfiguration<Ticket>
     public void Configure(EntityTypeBuilder<Ticket> builder)
     {
         builder.HasData(
-            // Áóõãàëòåð³ÿ Pro
             new Ticket
             {
                 Id = 1,
@@ -20,10 +19,10 @@ internal sealed class TicketConfiguration : IEntityTypeConfiguration<Ticket>
                 Status = "In Progress",
                 AffectedVersion = "3.2.1",
                 Environment = "Windows 11 / Chrome",
-                CreatedAt = new DateTime(2024, 4, 15, 10, 30, 0),
+                CreatedAt = new DateTime(2024, 4, 15, 10, 30, 0, DateTimeKind.Utc),
                 ProductId = 1,
                 AuthorId = 3,
-                DeveloperId = 2
+                DeveloperId = 2,
             },
             new Ticket
             {
@@ -35,12 +34,11 @@ internal sealed class TicketConfiguration : IEntityTypeConfiguration<Ticket>
                 Status = "New",
                 AffectedVersion = "3.2.1",
                 Environment = "Windows 10 / Edge",
-                CreatedAt = new DateTime(2024, 4, 18, 14, 0, 0),
+                CreatedAt = new DateTime(2024, 4, 18, 14, 0, 0, DateTimeKind.Utc),
                 ProductId = 1,
                 AuthorId = 3,
-                DeveloperId = null
+                DeveloperId = null,
             },
-            // Warehouse Manager
             new Ticket
             {
                 Id = 3,
@@ -51,10 +49,10 @@ internal sealed class TicketConfiguration : IEntityTypeConfiguration<Ticket>
                 Status = "Code Review",
                 AffectedVersion = "2.5.0",
                 Environment = "Windows Server 2022",
-                CreatedAt = new DateTime(2024, 4, 10, 9, 0, 0),
+                CreatedAt = new DateTime(2024, 4, 10, 9, 0, 0, DateTimeKind.Utc),
                 ProductId = 2,
                 AuthorId = 4,
-                DeveloperId = 5
+                DeveloperId = 5,
             },
             new Ticket
             {
@@ -66,12 +64,11 @@ internal sealed class TicketConfiguration : IEntityTypeConfiguration<Ticket>
                 Status = "In Progress",
                 AffectedVersion = "2.5.0",
                 Environment = "Windows 11",
-                CreatedAt = new DateTime(2024, 4, 12, 11, 30, 0),
+                CreatedAt = new DateTime(2024, 4, 12, 11, 30, 0, DateTimeKind.Utc),
                 ProductId = 2,
                 AuthorId = 4,
-                DeveloperId = 2
+                DeveloperId = 2,
             },
-            // HR Portal
             new Ticket
             {
                 Id = 5,
@@ -82,10 +79,10 @@ internal sealed class TicketConfiguration : IEntityTypeConfiguration<Ticket>
                 Status = "Testing",
                 AffectedVersion = "1.8.3",
                 Environment = "Windows 10 / Firefox",
-                CreatedAt = new DateTime(2024, 4, 5, 16, 0, 0),
+                CreatedAt = new DateTime(2024, 4, 5, 16, 0, 0, DateTimeKind.Utc),
                 ProductId = 3,
                 AuthorId = 3,
-                DeveloperId = 5
+                DeveloperId = 5,
             },
             new Ticket
             {
@@ -97,12 +94,11 @@ internal sealed class TicketConfiguration : IEntityTypeConfiguration<Ticket>
                 Status = "New",
                 AffectedVersion = "1.8.3",
                 Environment = "macOS Ventura / Safari",
-                CreatedAt = new DateTime(2024, 4, 20, 8, 45, 0),
+                CreatedAt = new DateTime(2024, 4, 20, 8, 45, 0, DateTimeKind.Utc),
                 ProductId = 3,
                 AuthorId = 4,
-                DeveloperId = null
+                DeveloperId = null,
             },
-            // E-Commerce Platform
             new Ticket
             {
                 Id = 7,
@@ -113,10 +109,10 @@ internal sealed class TicketConfiguration : IEntityTypeConfiguration<Ticket>
                 Status = "In Progress",
                 AffectedVersion = "4.1.0",
                 Environment = "Android / Chrome Mobile",
-                CreatedAt = new DateTime(2024, 4, 19, 12, 0, 0),
+                CreatedAt = new DateTime(2024, 4, 19, 12, 0, 0, DateTimeKind.Utc),
                 ProductId = 4,
                 AuthorId = 3,
-                DeveloperId = 2
+                DeveloperId = 2,
             },
             new Ticket
             {
@@ -128,12 +124,11 @@ internal sealed class TicketConfiguration : IEntityTypeConfiguration<Ticket>
                 Status = "Done",
                 AffectedVersion = "4.0.5",
                 Environment = "iOS / Safari",
-                CreatedAt = new DateTime(2024, 3, 25, 14, 30, 0),
+                CreatedAt = new DateTime(2024, 3, 25, 14, 30, 0, DateTimeKind.Utc),
                 ProductId = 4,
                 AuthorId = 4,
-                DeveloperId = 5
+                DeveloperId = 5,
             },
-            // Mobile CRM
             new Ticket
             {
                 Id = 9,
@@ -144,10 +139,10 @@ internal sealed class TicketConfiguration : IEntityTypeConfiguration<Ticket>
                 Status = "New",
                 AffectedVersion = "2.0.5",
                 Environment = "Android 14",
-                CreatedAt = new DateTime(2024, 4, 21, 9, 15, 0),
+                CreatedAt = new DateTime(2024, 4, 21, 9, 15, 0, DateTimeKind.Utc),
                 ProductId = 5,
                 AuthorId = 4,
-                DeveloperId = null
+                DeveloperId = null,
             },
             new Ticket
             {
@@ -159,12 +154,11 @@ internal sealed class TicketConfiguration : IEntityTypeConfiguration<Ticket>
                 Status = "In Progress",
                 AffectedVersion = "2.0.5",
                 Environment = "iOS 17",
-                CreatedAt = new DateTime(2024, 4, 17, 11, 0, 0),
+                CreatedAt = new DateTime(2024, 4, 17, 11, 0, 0, DateTimeKind.Utc),
                 ProductId = 5,
                 AuthorId = 3,
-                DeveloperId = 2
+                DeveloperId = 2,
             },
-            // POS Terminal
             new Ticket
             {
                 Id = 11,
@@ -175,12 +169,11 @@ internal sealed class TicketConfiguration : IEntityTypeConfiguration<Ticket>
                 Status = "Code Review",
                 AffectedVersion = "1.4.2",
                 Environment = "POS Terminal Hardware v2",
-                CreatedAt = new DateTime(2024, 4, 8, 7, 30, 0),
+                CreatedAt = new DateTime(2024, 4, 8, 7, 30, 0, DateTimeKind.Utc),
                 ProductId = 6,
                 AuthorId = 4,
-                DeveloperId = 5
+                DeveloperId = 5,
             },
-            // Smart Lock Controller
             new Ticket
             {
                 Id = 12,
@@ -191,12 +184,11 @@ internal sealed class TicketConfiguration : IEntityTypeConfiguration<Ticket>
                 Status = "In Progress",
                 AffectedVersion = "2.1.0",
                 Environment = "Smart Lock Hardware v3",
-                CreatedAt = new DateTime(2024, 4, 22, 8, 0, 0),
+                CreatedAt = new DateTime(2024, 4, 22, 8, 0, 0, DateTimeKind.Utc),
                 ProductId = 7,
                 AuthorId = 3,
-                DeveloperId = 5
+                DeveloperId = 5,
             },
-            // Office Router Pro
             new Ticket
             {
                 Id = 13,
@@ -207,10 +199,10 @@ internal sealed class TicketConfiguration : IEntityTypeConfiguration<Ticket>
                 Status = "Testing",
                 AffectedVersion = "5.0.1",
                 Environment = "Office Router Pro Hardware",
-                CreatedAt = new DateTime(2024, 4, 14, 15, 0, 0),
+                CreatedAt = new DateTime(2024, 4, 14, 15, 0, 0, DateTimeKind.Utc),
                 ProductId = 8,
                 AuthorId = 4,
-                DeveloperId = 2
+                DeveloperId = 2,
             },
             new Ticket
             {
@@ -222,10 +214,10 @@ internal sealed class TicketConfiguration : IEntityTypeConfiguration<Ticket>
                 Status = "Done",
                 AffectedVersion = "5.0.0",
                 Environment = "Office Router Pro Hardware",
-                CreatedAt = new DateTime(2024, 3, 20, 10, 0, 0),
+                CreatedAt = new DateTime(2024, 3, 20, 10, 0, 0, DateTimeKind.Utc),
                 ProductId = 8,
                 AuthorId = 4,
-                DeveloperId = 5
+                DeveloperId = 5,
             },
             new Ticket
             {
@@ -237,10 +229,10 @@ internal sealed class TicketConfiguration : IEntityTypeConfiguration<Ticket>
                 Status = "New",
                 AffectedVersion = "3.2.1",
                 Environment = "Windows 11",
-                CreatedAt = new DateTime(2024, 4, 23, 12, 0, 0),
+                CreatedAt = new DateTime(2024, 4, 23, 12, 0, 0, DateTimeKind.Utc),
                 ProductId = 1,
                 AuthorId = 3,
-                DeveloperId = null
+                DeveloperId = null,
             });
     }
 }
