@@ -20,7 +20,7 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
             new User
             {
                 Id = 2,
-                Login = "developer",
+                Login = "o.kovalenko",
                 PasswordHash = "dev123",
                 Role = "Developer",
                 PersonId = 2,
@@ -28,10 +28,26 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
             new User
             {
                 Id = 3,
-                Login = "client",
+                Login = "m.shevchenko",
                 PasswordHash = "client123",
                 Role = "Client",
                 PersonId = 3,
+            },
+            new User
+            {
+                Id = 4,
+                Login = "j.smith",
+                PasswordHash = "client123",
+                Role = "Client",
+                PersonId = 4,
+            },
+            new User
+            {
+                Id = 5,
+                Login = "a.bondarenko",
+                PasswordHash = "dev123",
+                Role = "Developer",
+                PersonId = 5,
             });
     }
 }

@@ -12,23 +12,37 @@ internal sealed class PersonConfiguration : IEntityTypeConfiguration<Person>
             new Person
             {
                 Id = 1,
-                FirstName = "Admin",
+                FirstName = "System",
                 LastName = "Administrator",
-                MiddleName = "System",
+                MiddleName = null,
             },
             new Person
             {
                 Id = 2,
-                FirstName = "Іван",
-                LastName = "Петренко",
-                MiddleName = "Олександрович",
+                FirstName = "Олександр",
+                LastName = "Коваленко",
+                MiddleName = "Петрович",
             },
             new Person
             {
                 Id = 3,
                 FirstName = "Марія",
-                LastName = "Коваленко",
+                LastName = "Шевченко",
                 MiddleName = "Іванівна",
+            },
+            new Person
+            {
+                Id = 4,
+                FirstName = "John",
+                LastName = "Smith",
+                MiddleName = null,
+            },
+            new Person
+            {
+                Id = 5,
+                FirstName = "Андрій",
+                LastName = "Бондаренко",
+                MiddleName = "Олегович",
             });
     }
 }

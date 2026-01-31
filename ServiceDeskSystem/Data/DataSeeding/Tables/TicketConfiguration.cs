@@ -1,4 +1,3 @@
-using Bogus;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using ServiceDeskSystem.Data.Entities;
@@ -9,26 +8,239 @@ internal sealed class TicketConfiguration : IEntityTypeConfiguration<Ticket>
 {
     public void Configure(EntityTypeBuilder<Ticket> builder)
     {
-        var priorities = new[] { "Critical", "High", "Medium", "Low" };
-        var statuses = new[] { "New", "In Progress", "Code Review", "Testing", "Done" };
-
-        var ticketFaker = new Faker<Ticket>()
-            .UseSeed(123)
-            .RuleFor(t => t.Id, f => f.IndexFaker + 1)
-            .RuleFor(t => t.Title, f => f.Lorem.Sentence(5).TrimEnd('.'))
-            .RuleFor(t => t.Description, f => f.Lorem.Paragraph(3))
-            .RuleFor(t => t.StepsToReproduce, f => string.Join("\n", f.Lorem.Sentences(3)))
-            .RuleFor(t => t.Priority, f => f.PickRandom(priorities))
-            .RuleFor(t => t.Status, f => f.PickRandom(statuses))
-            .RuleFor(t => t.AffectedVersion, f => f.System.Version().ToString())
-            .RuleFor(t => t.Environment, f => $"{f.PickRandom("Windows 10", "Windows 11", "Ubuntu 22.04", "macOS Ventura")} / {f.PickRandom("Chrome", "Firefox", "Edge", "Safari")}")
-            .RuleFor(t => t.CreatedAt, f => f.Date.Between(DateTime.Now.AddMonths(-6), DateTime.Now))
-            .RuleFor(t => t.ProductId, f => f.Random.Int(1, 5))
-            .RuleFor(t => t.AuthorId, f => 3)
-            .RuleFor(t => t.DeveloperId, f => f.Random.Bool(0.7f) ? 2 : (int?)null);
-
-        var tickets = ticketFaker.Generate(20);
-
-        builder.HasData(tickets);
+        builder.HasData(
+            // Бухгалтерія Pro
+            new Ticket
+            {
+                Id = 1,
+                Title = "Помилка при формуванні звіту ПДВ",
+                Description = "При спробі сформувати звіт з ПДВ за останній квартал програма видає помилку 'Invalid date range'.",
+                StepsToReproduce = "1. Відкрити розділ Звіти\n2. Вибрати 'Звіт ПДВ'\n3. Встановити період: 01.01.2024 - 31.03.2024\n4. Натиснути 'Сформувати'",
+                Priority = "High",
+                Status = "In Progress",
+                AffectedVersion = "3.2.1",
+                Environment = "Windows 11 / Chrome",
+                CreatedAt = new DateTime(2024, 4, 15, 10, 30, 0),
+                ProductId = 1,
+                AuthorId = 3,
+                DeveloperId = 2
+            },
+            new Ticket
+            {
+                Id = 2,
+                Title = "Не працює експорт в Excel",
+                Description = "Функція експорту документів в Excel формат не працює - файл створюється порожнім.",
+                StepsToReproduce = "1. Відкрити будь-який документ\n2. Натиснути Експорт -> Excel\n3. Зберегти файл",
+                Priority = "Medium",
+                Status = "New",
+                AffectedVersion = "3.2.1",
+                Environment = "Windows 10 / Edge",
+                CreatedAt = new DateTime(2024, 4, 18, 14, 0, 0),
+                ProductId = 1,
+                AuthorId = 3,
+                DeveloperId = null
+            },
+            // Warehouse Manager
+            new Ticket
+            {
+                Id = 3,
+                Title = "Inventory count mismatch after sync",
+                Description = "After synchronizing with barcode scanners, the inventory count shows incorrect values for some items.",
+                StepsToReproduce = "1. Perform physical inventory count\n2. Sync data from handheld scanners\n3. Compare totals in system",
+                Priority = "Critical",
+                Status = "Code Review",
+                AffectedVersion = "2.5.0",
+                Environment = "Windows Server 2022",
+                CreatedAt = new DateTime(2024, 4, 10, 9, 0, 0),
+                ProductId = 2,
+                AuthorId = 4,
+                DeveloperId = 5
+            },
+            new Ticket
+            {
+                Id = 4,
+                Title = "Slow search performance",
+                Description = "Product search takes more than 10 seconds when warehouse has more than 50,000 items.",
+                StepsToReproduce = "1. Open product search\n2. Enter partial product name\n3. Wait for results",
+                Priority = "Medium",
+                Status = "In Progress",
+                AffectedVersion = "2.5.0",
+                Environment = "Windows 11",
+                CreatedAt = new DateTime(2024, 4, 12, 11, 30, 0),
+                ProductId = 2,
+                AuthorId = 4,
+                DeveloperId = 2
+            },
+            // HR Portal
+            new Ticket
+            {
+                Id = 5,
+                Title = "Не відображаються дні відпустки",
+                Description = "В особистому кабінеті працівника не відображається залишок днів відпустки за поточний рік.",
+                StepsToReproduce = "1. Увійти в особистий кабінет\n2. Перейти в розділ 'Відпустки'\n3. Перевірити баланс днів",
+                Priority = "High",
+                Status = "Testing",
+                AffectedVersion = "1.8.3",
+                Environment = "Windows 10 / Firefox",
+                CreatedAt = new DateTime(2024, 4, 5, 16, 0, 0),
+                ProductId = 3,
+                AuthorId = 3,
+                DeveloperId = 5
+            },
+            new Ticket
+            {
+                Id = 6,
+                Title = "PDF generation fails for reports",
+                Description = "When generating PDF reports for employee attendance, the system throws an error.",
+                StepsToReproduce = "1. Go to Reports section\n2. Select Attendance Report\n3. Click Generate PDF",
+                Priority = "Medium",
+                Status = "New",
+                AffectedVersion = "1.8.3",
+                Environment = "macOS Ventura / Safari",
+                CreatedAt = new DateTime(2024, 4, 20, 8, 45, 0),
+                ProductId = 3,
+                AuthorId = 4,
+                DeveloperId = null
+            },
+            // E-Commerce Platform
+            new Ticket
+            {
+                Id = 7,
+                Title = "Помилка оплати через LiqPay",
+                Description = "Клієнти не можуть завершити оплату через LiqPay - з'являється помилка 'Payment gateway timeout'.",
+                StepsToReproduce = "1. Додати товар в кошик\n2. Перейти до оформлення\n3. Вибрати оплату LiqPay\n4. Спробувати оплатити",
+                Priority = "Critical",
+                Status = "In Progress",
+                AffectedVersion = "4.1.0",
+                Environment = "Android / Chrome Mobile",
+                CreatedAt = new DateTime(2024, 4, 19, 12, 0, 0),
+                ProductId = 4,
+                AuthorId = 3,
+                DeveloperId = 2
+            },
+            new Ticket
+            {
+                Id = 8,
+                Title = "Cart items disappear after login",
+                Description = "Items added to cart as guest user disappear after logging in to account.",
+                StepsToReproduce = "1. Browse as guest\n2. Add items to cart\n3. Click Login\n4. Enter credentials\n5. Check cart",
+                Priority = "High",
+                Status = "Done",
+                AffectedVersion = "4.0.5",
+                Environment = "iOS / Safari",
+                CreatedAt = new DateTime(2024, 3, 25, 14, 30, 0),
+                ProductId = 4,
+                AuthorId = 4,
+                DeveloperId = 5
+            },
+            // Mobile CRM
+            new Ticket
+            {
+                Id = 9,
+                Title = "Push notifications not working",
+                Description = "Users are not receiving push notifications for new tasks assigned to them.",
+                StepsToReproduce = "1. Assign task to user\n2. Wait for notification\n3. Check device - no notification received",
+                Priority = "High",
+                Status = "New",
+                AffectedVersion = "2.0.5",
+                Environment = "Android 14",
+                CreatedAt = new DateTime(2024, 4, 21, 9, 15, 0),
+                ProductId = 5,
+                AuthorId = 4,
+                DeveloperId = null
+            },
+            new Ticket
+            {
+                Id = 10,
+                Title = "Синхронізація контактів зависає",
+                Description = "При синхронізації великої кількості контактів (>1000) додаток зависає і потребує перезапуску.",
+                StepsToReproduce = "1. Відкрити налаштування\n2. Натиснути 'Синхронізувати контакти'\n3. Дочекатися завершення",
+                Priority = "Medium",
+                Status = "In Progress",
+                AffectedVersion = "2.0.5",
+                Environment = "iOS 17",
+                CreatedAt = new DateTime(2024, 4, 17, 11, 0, 0),
+                ProductId = 5,
+                AuthorId = 3,
+                DeveloperId = 2
+            },
+            // POS Terminal
+            new Ticket
+            {
+                Id = 11,
+                Title = "Printer connection lost randomly",
+                Description = "The receipt printer loses connection randomly during operation, requiring terminal restart.",
+                StepsToReproduce = "1. Process several transactions\n2. After ~20-30 receipts, printer stops responding",
+                Priority = "Critical",
+                Status = "Code Review",
+                AffectedVersion = "1.4.2",
+                Environment = "POS Terminal Hardware v2",
+                CreatedAt = new DateTime(2024, 4, 8, 7, 30, 0),
+                ProductId = 6,
+                AuthorId = 4,
+                DeveloperId = 5
+            },
+            // Smart Lock Controller
+            new Ticket
+            {
+                Id = 12,
+                Title = "Не працює відкриття через NFC",
+                Description = "Система контролю доступу не реагує на NFC картки після останнього оновлення прошивки.",
+                StepsToReproduce = "1. Піднести NFC картку до зчитувача\n2. Очікувати відкриття замка\n3. Замок не реагує",
+                Priority = "Critical",
+                Status = "In Progress",
+                AffectedVersion = "2.1.0",
+                Environment = "Smart Lock Hardware v3",
+                CreatedAt = new DateTime(2024, 4, 22, 8, 0, 0),
+                ProductId = 7,
+                AuthorId = 3,
+                DeveloperId = 5
+            },
+            // Office Router Pro
+            new Ticket
+            {
+                Id = 13,
+                Title = "VPN tunnel drops under heavy load",
+                Description = "VPN connections are dropping when more than 50 concurrent users are connected.",
+                StepsToReproduce = "1. Establish 50+ VPN connections\n2. Generate network traffic\n3. Monitor connection stability",
+                Priority = "High",
+                Status = "Testing",
+                AffectedVersion = "5.0.1",
+                Environment = "Office Router Pro Hardware",
+                CreatedAt = new DateTime(2024, 4, 14, 15, 0, 0),
+                ProductId = 8,
+                AuthorId = 4,
+                DeveloperId = 2
+            },
+            new Ticket
+            {
+                Id = 14,
+                Title = "Firewall rules not applying",
+                Description = "New firewall rules added through web interface are not being applied until device restart.",
+                StepsToReproduce = "1. Login to web interface\n2. Add new firewall rule\n3. Save configuration\n4. Test rule - not working",
+                Priority = "Medium",
+                Status = "Done",
+                AffectedVersion = "5.0.0",
+                Environment = "Office Router Pro Hardware",
+                CreatedAt = new DateTime(2024, 3, 20, 10, 0, 0),
+                ProductId = 8,
+                AuthorId = 4,
+                DeveloperId = 5
+            },
+            new Ticket
+            {
+                Id = 15,
+                Title = "Запит на додавання темної теми",
+                Description = "Було б зручно мати можливість переключатися на темну тему в інтерфейсі програми.",
+                StepsToReproduce = "Це запит на нову функцію, а не баг.",
+                Priority = "Low",
+                Status = "New",
+                AffectedVersion = "3.2.1",
+                Environment = "Windows 11",
+                CreatedAt = new DateTime(2024, 4, 23, 12, 0, 0),
+                ProductId = 1,
+                AuthorId = 3,
+                DeveloperId = null
+            });
     }
 }
