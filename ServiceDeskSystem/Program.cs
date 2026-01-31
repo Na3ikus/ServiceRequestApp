@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using ServiceDeskSystem.Components;
 using ServiceDeskSystem.Data;
+using ServiceDeskSystem.Services.Admin;
 using ServiceDeskSystem.Services.Auth;
 using ServiceDeskSystem.Services.Localization;
 using ServiceDeskSystem.Services.Theme;
@@ -30,6 +31,7 @@ internal static class Program
         builder.Services.AddScoped<IAuthService, SimpleAuthService>();
         builder.Services.AddScoped<ILocalizationService, LocalizationService>();
         builder.Services.AddScoped<IThemeService, ThemeService>();
+        builder.Services.AddScoped<IAdminService, AdminService>();
 
         var app = builder.Build();
 
