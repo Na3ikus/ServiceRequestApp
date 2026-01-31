@@ -181,13 +181,23 @@
                 }
             </div>
         }
+    }
+</div>
 
-        <!-- Modal -->
-        @if (showModal)
-        {
-            <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50" @onclick="CloseModal">
-                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 w-full max-w-md mx-4" @onclick:stopPropagation>
-                    <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">@modalTitle</h3>
+<!-- Modal - moved outside for proper z-index layering -->
+@if (showModal)
+{
+    <div class="modal-overlay" @onclick="CloseModal">
+        <div class="modal-content animate-fade-in" @onclick:stopPropagation>
+            <!-- Close button -->
+            <button @onclick="CloseModal" 
+                    class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+
+            <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4 pr-8">@modalTitle</h3>
 
                     @if (modalType == "product")
                     {
@@ -263,8 +273,7 @@
                 </div>
             </div>
         }
-    }
-</div>
+}
 
 @code {
     private List<Product>? products;
