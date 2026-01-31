@@ -1,7 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using ServiceDeskSystem.Components;
 using ServiceDeskSystem.Data;
-using ServiceDeskSystem.Services;
+using ServiceDeskSystem.Services.Auth;
+using ServiceDeskSystem.Services.Localization;
+using ServiceDeskSystem.Services.Theme;
+using ServiceDeskSystem.Services.Tickets;
 
 var builder = WebApplication.CreateBuilder(args);
 

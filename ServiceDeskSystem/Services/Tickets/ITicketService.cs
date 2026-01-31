@@ -1,6 +1,6 @@
 using ServiceDeskSystem.Data.Entities;
 
-namespace ServiceDeskSystem.Services;
+namespace ServiceDeskSystem.Services.Tickets;
 
 internal interface ITicketService
 {

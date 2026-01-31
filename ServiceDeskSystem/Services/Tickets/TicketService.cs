@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using ServiceDeskSystem.Data;
 using ServiceDeskSystem.Data.Entities;
 
-namespace ServiceDeskSystem.Services;
+namespace ServiceDeskSystem.Services.Tickets;
 
 internal sealed class TicketService(IDbContextFactory<BugTrackerDbContext> contextFactory): ITicketService
 {

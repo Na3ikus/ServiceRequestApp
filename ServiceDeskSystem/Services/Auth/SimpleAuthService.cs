@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using ServiceDeskSystem.Data;
 using ServiceDeskSystem.Data.Entities;
 
-namespace ServiceDeskSystem.Services;
+namespace ServiceDeskSystem.Services.Auth;
 
 internal sealed class SimpleAuthService(
     IDbContextFactory<BugTrackerDbContext> contextFactory,
