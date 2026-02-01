@@ -1,9 +1,4 @@
 ﻿@page "/create-ticket"
-@using ServiceDeskSystem.Data.Entities
-@using ServiceDeskSystem.Services
-@inject ITicketService TicketService
-@inject IAuthService AuthService
-@inject NavigationManager Navigation
 @rendermode InteractiveServer
 
 <!-- Created by Nazar "N1h3" Hutsol -->
@@ -133,66 +128,3 @@
         </EditForm>
     </div>
 </div>
-
-@code {
-private TicketCreateModel ticketModel = new();
-private List<Product> products = [];
-private bool isSubmitting;
-
-private int CurrentUserId => AuthService.CurrentUser?.Id ?? 0;
-
-protected override async Task OnInitializedAsync()
-    {
-        products = await TicketService.GetProductsAsync();
-    }
-
-    private async Task HandleSubmitAsync()
-    {
-        if (ticketModel.ProductId == 0)
-            return;
-
-        isSubmitting = true;
-
-        var ticket = new Ticket
-        {
-            Title = ticketModel.Title,
-            Description = ticketModel.Description,
-            Priority = ticketModel.Priority,
-            ProductId = ticketModel.ProductId,
-            StepsToReproduce = ticketModel.StepsToReproduce ?? string.Empty,
-            Environment = ticketModel.Environment ?? string.Empty,
-            AffectedVersion = string.Empty,
-            AuthorId = CurrentUserId
-        };
-
-        await TicketService.CreateTicketAsync(ticket);
-        
-        Navigation.NavigateTo("/");
-    }
-
-    private void Cancel()
-    {
-        Navigation.NavigateTo("/");
-    }
-
-    private class TicketCreateModel
-    {
-        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Title is required")]
-        [System.ComponentModel.DataAnnotations.StringLength(200, MinimumLength = 5, ErrorMessage = "Title must be between 5 and 200 characters")]
-        public string Title { get; set; } = string.Empty;
-
-        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Description is required")]
-        [System.ComponentModel.DataAnnotations.StringLength(5000, MinimumLength = 10, ErrorMessage = "Description must be between 10 and 5000 characters")]
-        public string Description { get; set; } = string.Empty;
-
-        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Priority is required")]
-        public string Priority { get; set; } = string.Empty;
-
-        [System.ComponentModel.DataAnnotations.Range(1, int.MaxValue, ErrorMessage = "Please select a product")]
-        public int ProductId { get; set; }
-
-        public string? StepsToReproduce { get; set; }
-
-        public string? Environment { get; set; }
-    }
-}

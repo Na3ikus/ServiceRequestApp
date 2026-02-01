@@ -1,11 +1,6 @@
 ﻿@page "/login"
 @layout EmptyLayout
-@using ServiceDeskSystem.Services
-@inject IAuthService AuthService
-@inject ILocalizationService L
-@inject NavigationManager Navigation
 @rendermode InteractiveServer
-@implements IDisposable
 
 <div class="min-h-screen bg-gradient-to-br from-slate-800 via-slate-900 to-black flex items-center justify-center p-4">
     <div class="absolute inset-0 overflow-hidden pointer-events-none">
@@ -124,58 +119,7 @@
         </div>
 
         <p class="text-center text-slate-500 text-sm mt-6">
-            @L.Translate("common.footer") &copy; @DateTime.Now.Year
+        @L.Translate("common.footer") &copy; @DateTime.Now.Year
         </p>
     </div>
 </div>
-
-@code {
-private readonly LoginModel loginModel = new();
-private string? errorMessage;
-private bool isLoading;
-
-    protected override void OnInitialized()
-    {
-        L.LanguageChanged += OnStateChanged;
-
-        if (AuthService.IsAuthenticated)
-        {
-            Navigation.NavigateTo("/");
-        }
-    }
-
-    private void OnStateChanged(object? sender, EventArgs e) => InvokeAsync(StateHasChanged);
-
-    private async Task HandleLoginAsync()
-    {
-        errorMessage = null;
-        isLoading = true;
-
-        loginModel.Username = loginModel.Username.Trim();
-        loginModel.Password = loginModel.Password.Trim();
-
-        var (success, error) = await AuthService.LoginAsync(loginModel.Username, loginModel.Password);
-
-        if (success)
-        {
-            Navigation.NavigateTo("/");
-        }
-        else
-        {
-            errorMessage = error ?? "Login failed. Please try again.";
-        }
-
-        isLoading = false;
-    }
-
-    public void Dispose() => L.LanguageChanged -= OnStateChanged;
-
-    private sealed class LoginModel
-    {
-        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Username is required")]
-        public string Username { get; set; } = string.Empty;
-
-        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Password is required")]
-        public string Password { get; set; } = string.Empty;
-    }
-}
