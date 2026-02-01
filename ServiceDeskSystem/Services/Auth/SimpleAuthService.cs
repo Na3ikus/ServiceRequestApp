@@ -38,7 +38,6 @@ internal sealed class SimpleAuthService(
                         .FirstOrDefaultAsync(u => u.Id == stored.Value)
                         .ConfigureAwait(false);
 
-                    // Перевірка чи користувач існує та активний
                     if (user is not null && user.IsActive)
                     {
                         this.CurrentUser = user;
@@ -46,7 +45,6 @@ internal sealed class SimpleAuthService(
                     }
                     else
                     {
-                        // Якщо користувач деактивований, очищаємо сесію
                         await sessionStorage.DeleteAsync("authUserId").ConfigureAwait(false);
                     }
                 }
@@ -79,7 +77,6 @@ internal sealed class SimpleAuthService(
                 return (false, "Invalid username or password.");
             }
 
-            // Перевірка чи користувач активний
             if (!user.IsActive)
             {
                 return (false, "Account is deactivated. Please contact administrator.");
@@ -156,9 +153,9 @@ internal sealed class SimpleAuthService(
             {
                 Login = username,
                 PasswordHash = ComputeSimpleHash(password),
-                Role = "User", // Автоматично присвоюємо роль User
+                Role = "User",
                 PersonId = person.Id,
-                IsActive = true, // Новий користувач активний за замовчуванням
+                IsActive = true,
             };
 
             dbContext.Users.Add(user);

@@ -408,7 +408,7 @@ private async Task ShowToast(string message, ToastType type = ToastType.Info, in
     toast.IsHiding = true;
     await InvokeAsync(StateHasChanged);
 
-    await Task.Delay(300); // Animation duration
+    await Task.Delay(300);
     toasts.Remove(toast);
     await InvokeAsync(StateHasChanged);
 }
@@ -417,10 +417,13 @@ private async Task RemoveToast(ToastMessage toast)
 {
     toast.IsHiding = true;
     await InvokeAsync(StateHasChanged);
-    await Task.Delay(300); // Animation duration
+    await Task.Delay(300);
     toasts.Remove(toast);
     await InvokeAsync(StateHasChanged);
 }
+
+// Helper properties
+private bool IsAdmin => AuthService.CurrentUser?.Role == "Admin";
 
 // Existing code
 private List<Product>? products;
@@ -442,11 +445,17 @@ protected override async Task OnInitializedAsync()
 {
     L.LanguageChanged += OnStateChanged;
     Theme.ThemeChanged += OnStateChanged;
-    await LoadDataAsync();
+    
+    if (IsAdmin)
+    {
+        await LoadDataAsync();
+    }
 }
 
 private async Task LoadDataAsync()
 {
+    if (!IsAdmin) return;
+    
     techStacks = await AdminService.GetAllTechStacksAsync();
     products = await AdminService.GetAllProductsAsync();
     users = await AdminService.GetAllUsersAsync();
@@ -454,16 +463,19 @@ private async Task LoadDataAsync()
 
 private async Task LoadUsersAsync()
 {
+    if (!IsAdmin) return;
     users = await AdminService.GetAllUsersAsync();
 }
 
 private async Task LoadProductsAsync()
 {
+    if (!IsAdmin) return;
     products = await AdminService.GetAllProductsAsync();
 }
 
 private async Task LoadTechStacksAsync()
 {
+    if (!IsAdmin) return;
     techStacks = await AdminService.GetAllTechStacksAsync();
 }
 
@@ -547,7 +559,7 @@ private async Task LoadTechStacksAsync()
         if (success)
         {
             _ = ShowToast(L.Translate("admin.techStackDeleted"), ToastType.Success);
-            await LoadTechStacksAsync(); // Завантажуємо тільки технології
+            await LoadTechStacksAsync();
         }
     }
 
@@ -629,7 +641,6 @@ private async Task LoadTechStacksAsync()
 
     private async Task ToggleUserStatus(int userId)
     {
-        // Перевірка чи це адміністратор
         var user = users?.FirstOrDefault(u => u.Id == userId);
         if (user?.Role == "Admin")
         {

@@ -170,39 +170,42 @@
                 </div>
 
                 <!-- Actions -->
-                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-                    <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">Actions</h3>
-                    <div class="space-y-2">
-                        @if (ticket.Status == "Open")
-                        {
-                            <button @onclick="@(() => UpdateStatusAsync("In Progress"))" 
-                                    class="w-full px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors">
-                                Start Progress
-                            </button>
-                        }
-                        @if (ticket.Status == "In Progress")
-                        {
-                            <button @onclick="@(() => UpdateStatusAsync("Resolved"))" 
-                                    class="w-full px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors">
-                                Mark Resolved
-                            </button>
-                        }
-                        @if (ticket.Status != "Closed")
-                        {
-                            <button @onclick="@(() => UpdateStatusAsync("Closed"))" 
-                                    class="w-full px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors">
-                                Close Ticket
-                            </button>
-                        }
-                        @if (ticket.Status == "Closed")
-                        {
-                            <button @onclick="@(() => UpdateStatusAsync("Open"))" 
-                                    class="w-full px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
-                                Reopen Ticket
-                            </button>
-                        }
+                @if (CanManageTicketStatus)
+                {
+                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">Actions</h3>
+                        <div class="space-y-2">
+                            @if (ticket.Status == "Open")
+                            {
+                                <button @onclick="@(() => UpdateStatusAsync("In Progress"))" 
+                                        class="w-full px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors">
+                                    Start Progress
+                                </button>
+                            }
+                            @if (ticket.Status == "In Progress")
+                            {
+                                <button @onclick="@(() => UpdateStatusAsync("Resolved"))" 
+                                        class="w-full px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors">
+                                    Mark Resolved
+                                </button>
+                            }
+                            @if (ticket.Status != "Closed")
+                            {
+                                <button @onclick="@(() => UpdateStatusAsync("Closed"))" 
+                                        class="w-full px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors">
+                                    Close Ticket
+                                </button>
+                            }
+                            @if (ticket.Status == "Closed")
+                            {
+                                <button @onclick="@(() => UpdateStatusAsync("Open"))" 
+                                        class="w-full px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                                    Reopen Ticket
+                                </button>
+                            }
+                        </div>
                     </div>
-                </div>
+                }
 
                 <!-- Navigation -->
                 <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
@@ -232,7 +235,9 @@
     private int CurrentUserId => AuthService.CurrentUser?.Id ?? 0;
     private string CurrentUserRole => AuthService.CurrentUser?.Role ?? string.Empty;
     private bool IsAdmin => string.Equals(CurrentUserRole, "Admin", StringComparison.OrdinalIgnoreCase);
+    private bool IsDeveloper => string.Equals(CurrentUserRole, "Developer", StringComparison.OrdinalIgnoreCase);
     private bool CanManageTicket => ticket is not null && AuthService.IsAuthenticated && (ticket.AuthorId == CurrentUserId || IsAdmin);
+    private bool CanManageTicketStatus => AuthService.IsAuthenticated && (IsAdmin || IsDeveloper);
     private bool authRestored;
 
     protected override async Task OnInitializedAsync()
@@ -305,6 +310,10 @@
         if (editingCommentId != commentId || string.IsNullOrWhiteSpace(editingCommentMessage))
             return;
 
+        var comment = ticket?.Comments?.FirstOrDefault(c => c.Id == commentId);
+        if (comment is null || (comment.AuthorId != CurrentUserId && !IsAdmin))
+            return;
+
         var updated = await TicketService.UpdateCommentAsync(commentId, editingCommentMessage.Trim());
         if (updated is not null && ticket?.Comments is not null)
         {
@@ -321,7 +330,7 @@
 
     private async Task UpdateStatusAsync(string newStatus)
     {
-        if (ticket is null)
+        if (ticket is null || !CanManageTicketStatus)
             return;
 
         var success = await TicketService.UpdateTicketStatusAsync(ticket.Id, newStatus);

@@ -221,7 +221,6 @@ internal sealed class AdminService(IDbContextFactory<BugTrackerDbContext> contex
                 return false;
             }
 
-            // Не можна видалити користувача з тікетами
             if (user.CreatedTickets.Count > 0 || user.AssignedTickets.Count > 0)
             {
                 return false;
