@@ -11,7 +11,7 @@
 @implements IDisposable
 
 <!-- Created by Nazar "N1h3" Hutsol -->
-<div class="max-w-7xl mx-auto p-6">
+<div class="admin-panel-container max-w-7xl mx-auto p-6">
     @if (AuthService.CurrentUser?.Role != "Admin")
     {
         <div class="bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-700 text-red-700 dark:text-red-400 px-6 py-4 rounded-xl">
@@ -67,32 +67,34 @@
                 }
                 else
                 {
-                    <div class="overflow-x-auto">
-                        <table class="w-full">
+                    <div class="admin-table-container">
+                        <table class="admin-table products-table w-full">
                             <thead class="bg-gray-50 dark:bg-gray-700/50">
                                 <tr>
-                                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">ID</th>
-                                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">@L.Translate("admin.name")</th>
-                                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">@L.Translate("admin.description")</th>
-                                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">@L.Translate("admin.version")</th>
-                                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">@L.Translate("admin.techStack")</th>
-                                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">@L.Translate("admin.actions")</th>
+                                    <th class="col-id px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">ID</th>
+                                    <th class="col-name px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">@L.Translate("admin.name")</th>
+                                    <th class="col-description px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">@L.Translate("admin.description")</th>
+                                    <th class="col-version px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">@L.Translate("admin.version")</th>
+                                    <th class="col-techstack px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">@L.Translate("admin.techStack")</th>
+                                    <th class="col-actions px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">@L.Translate("admin.actions")</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
                                 @foreach (var product in products)
                                 {
                                     <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                                        <td class="px-4 py-3 text-sm text-gray-500 dark:text-gray-400 font-mono">@product.Id</td>
-                                        <td class="px-4 py-3 text-sm font-medium text-gray-900 dark:text-white">@product.Name</td>
-                                        <td class="px-4 py-3 text-sm text-gray-500 dark:text-gray-400 max-w-xs truncate">@product.Description</td>
-                                        <td class="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">@product.CurrentVersion</td>
-                                        <td class="px-4 py-3 text-sm">
-                                            <span class="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded-md text-xs">
+                                        <td class="col-id px-4 py-3 text-sm text-gray-500 dark:text-gray-400 font-mono">@product.Id</td>
+                                        <td class="col-name px-4 py-3 text-sm font-medium text-gray-900 dark:text-white">@product.Name</td>
+                                        <td class="col-description px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
+                                            <div class="truncate" title="@product.Description">@product.Description</div>
+                                        </td>
+                                        <td class="col-version px-4 py-3 text-sm text-gray-500 dark:text-gray-400">@product.CurrentVersion</td>
+                                        <td class="col-techstack px-4 py-3 text-sm">
+                                            <span class="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded-md text-xs inline-block">
                                                 @product.TechStack?.Name
                                             </span>
                                         </td>
-                                        <td class="px-4 py-3">
+                                        <td class="col-actions px-4 py-3">
                                             <div class="flex gap-2">
                                                 <button @onclick="@(() => EditProduct(product))"
                                                         class="admin-edit-btn p-2 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-lg transition-colors">
@@ -137,30 +139,30 @@
                 }
                 else
                 {
-                    <div class="overflow-x-auto">
-                        <table class="w-full">
+                    <div class="admin-table-container">
+                        <table class="admin-table techstacks-table w-full">
                             <thead class="bg-gray-50 dark:bg-gray-700/50">
                                 <tr>
-                                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">ID</th>
-                                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">@L.Translate("admin.name")</th>
-                                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">@L.Translate("admin.type")</th>
-                                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">@L.Translate("admin.productsCount")</th>
-                                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">@L.Translate("admin.actions")</th>
+                                    <th class="col-id px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">ID</th>
+                                    <th class="col-name px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">@L.Translate("admin.name")</th>
+                                    <th class="col-type px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">@L.Translate("admin.type")</th>
+                                    <th class="col-count px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">@L.Translate("admin.productsCount")</th>
+                                    <th class="col-actions px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">@L.Translate("admin.actions")</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
                                 @foreach (var techStack in techStacks)
                                 {
                                     <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                                        <td class="px-4 py-3 text-sm text-gray-500 dark:text-gray-400 font-mono">@techStack.Id</td>
-                                        <td class="px-4 py-3 text-sm font-medium text-gray-900 dark:text-white">@techStack.Name</td>
-                                        <td class="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">@techStack.Type</td>
-                                        <td class="px-4 py-3 text-sm">
-                                            <span class="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md">
+                                        <td class="col-id px-4 py-3 text-sm text-gray-500 dark:text-gray-400 font-mono">@techStack.Id</td>
+                                        <td class="col-name px-4 py-3 text-sm font-medium text-gray-900 dark:text-white">@techStack.Name</td>
+                                        <td class="col-type px-4 py-3 text-sm text-gray-500 dark:text-gray-400">@techStack.Type</td>
+                                        <td class="col-count px-4 py-3 text-sm">
+                                            <span class="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md inline-block">
                                                 @techStack.Products.Count
                                             </span>
                                         </td>
-                                        <td class="px-4 py-3">
+                                        <td class="col-actions px-4 py-3">
                                             <div class="flex gap-2">
                                                 <button @onclick="@(() => EditTechStack(techStack))"
                                                         class="admin-edit-btn p-2 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-lg transition-colors">
@@ -188,7 +190,7 @@
         else if (activeTab == "users")
         {
             <!-- Users Section -->
-            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
+            <div class="admin-content-section bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
                 <div class="flex items-center justify-between mb-4">
                     <h2 class="text-lg font-semibold text-gray-800 dark:text-white">@L.Translate("admin.users")</h2>
                 </div>
@@ -199,43 +201,44 @@
                 }
                 else
                 {
-                    <div class="overflow-x-auto">
-                        <table class="w-full">
+                    <div class="admin-table-container">
+                        <table class="admin-table users-table w-full">
                             <thead class="bg-gray-50 dark:bg-gray-700/50">
                                 <tr>
-                                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">ID</th>
-                                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">@L.Translate("admin.login")</th>
-                                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">@L.Translate("admin.fullName")</th>
-                                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">@L.Translate("admin.role")</th>
-                                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">@L.Translate("admin.status")</th>
-                                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">@L.Translate("admin.actions")</th>
+                                    <th class="col-id px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">ID</th>
+                                    <th class="col-login px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">@L.Translate("admin.login")</th>
+                                    <th class="col-fullname px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">@L.Translate("admin.fullName")</th>
+                                    <th class="col-role px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">@L.Translate("admin.role")</th>
+                                    <th class="col-status px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">@L.Translate("admin.status")</th>
+                                    <th class="col-actions px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">@L.Translate("admin.actions")</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
                                 @foreach (var user in users)
                                 {
                                     <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                                        <td class="px-4 py-3 text-sm text-gray-500 dark:text-gray-400 font-mono">@user.Id</td>
-                                        <td class="px-4 py-3 text-sm font-medium text-gray-900 dark:text-white">@user.Login</td>
-                                        <td class="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
+                                        <td class="col-id px-4 py-3 text-sm text-gray-500 dark:text-gray-400 font-mono">@user.Id</td>
+                                        <td class="col-login px-4 py-3 text-sm font-medium text-gray-900 dark:text-white">@user.Login</td>
+                                        <td class="col-fullname px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
                                             @($"{user.Person.FirstName} {user.Person.LastName}")
                                         </td>
-                                        <td class="px-4 py-3 text-sm">
+                                        <td class="col-role px-4 py-3 text-sm">
                                             <select @bind="user.Role" @bind:after="@(() => UpdateUserRole(user.Id, user.Role))"
-                                                    class="px-2 py-1 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md text-xs">
+                                                    class="w-full px-2 py-1 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md text-xs">
                                                 <option value="Admin">@L.Translate("admin.roleAdmin")</option>
                                                 <option value="Developer">@L.Translate("admin.roleDeveloper")</option>
                                                 <option value="User">@L.Translate("admin.roleUser")</option>
                                             </select>
                                         </td>
-                                        <td class="px-4 py-3 text-sm">
+                                        <td class="col-status px-4 py-3 text-sm">
                                             <button @onclick="@(() => ToggleUserStatus(user.Id))"
-                                                    class="px-3 py-1 rounded-full text-xs font-medium transition-colors @(user.IsActive ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400" : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-400")">
+                                                    disabled="@(user.Role == "Admin")"
+                                                    class="w-full px-3 py-1 rounded-full text-xs font-medium transition-colors @(user.Role == "Admin" ? "opacity-50 cursor-not-allowed" : "") @(user.IsActive ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400" : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-400")">
                                                 @(user.IsActive ? L.Translate("admin.active") : L.Translate("admin.inactive"))
                                             </button>
                                         </td>
-                                        <td class="px-4 py-3">
-                                            <div class="flex gap-2">
+                                        <td class="col-actions px-4 py-3">
+                                            <div class="flex gap-2 justify-center">
                                                 <button @onclick="@(() => DeleteUser(user))"
                                                         class="admin-delete-btn p-2 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-colors @(user.CreatedTickets.Count > 0 || user.AssignedTickets.Count > 0 || user.Role == "Admin" ? "opacity-50 cursor-not-allowed" : "")"
                                                         disabled="@(user.CreatedTickets.Count > 0 || user.AssignedTickets.Count > 0 || user.Role == "Admin")">
@@ -347,7 +350,79 @@
         }
 }
 
+<!-- Toast Notifications -->
+<div class="toast-container">
+    @foreach (var toast in toasts)
+    {
+        <div @key="toast.Id" class="toast toast-@toast.Type.ToString().ToLower() @(toast.IsHiding ? "hiding" : "")">
+            @if (toast.Type == ToastType.Success)
+            {
+                <svg class="toast-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+            }
+            else if (toast.Type == ToastType.Error)
+            {
+                <svg class="toast-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            }
+            else if (toast.Type == ToastType.Warning)
+            {
+                <svg class="toast-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                </svg>
+            }
+            <span class="toast-message">@toast.Message</span>
+            <button @onclick="@(() => RemoveToast(toast))" class="toast-close">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+    }
+</div>
+
 @code {
+// Toast notification system
+private enum ToastType { Success, Error, Warning, Info }
+    
+private class ToastMessage
+{
+    public Guid Id { get; set; } = Guid.NewGuid();
+    public string Message { get; set; } = string.Empty;
+    public ToastType Type { get; set; }
+    public bool IsHiding { get; set; }
+}
+
+private List<ToastMessage> toasts = new();
+
+private async Task ShowToast(string message, ToastType type = ToastType.Info, int durationMs = 4000)
+{
+    var toast = new ToastMessage { Message = message, Type = type };
+    toasts.Add(toast);
+    await InvokeAsync(StateHasChanged);
+
+    await Task.Delay(durationMs);
+        
+    toast.IsHiding = true;
+    await InvokeAsync(StateHasChanged);
+
+    await Task.Delay(300); // Animation duration
+    toasts.Remove(toast);
+    await InvokeAsync(StateHasChanged);
+}
+
+private async void RemoveToast(ToastMessage toast)
+{
+    toast.IsHiding = true;
+    await InvokeAsync(StateHasChanged);
+    await Task.Delay(300); // Animation duration
+    toasts.Remove(toast);
+    await InvokeAsync(StateHasChanged);
+}
+
+// Existing code
 private List<Product>? products;
 private List<TechStack>? techStacks;
 private List<User>? users;
@@ -375,6 +450,21 @@ private async Task LoadDataAsync()
     techStacks = await AdminService.GetAllTechStacksAsync();
     products = await AdminService.GetAllProductsAsync();
     users = await AdminService.GetAllUsersAsync();
+}
+
+private async Task LoadUsersAsync()
+{
+    users = await AdminService.GetAllUsersAsync();
+}
+
+private async Task LoadProductsAsync()
+{
+    products = await AdminService.GetAllProductsAsync();
+}
+
+private async Task LoadTechStacksAsync()
+{
+    techStacks = await AdminService.GetAllTechStacksAsync();
 }
 
     private void OnStateChanged(object? sender, EventArgs e) => InvokeAsync(StateHasChanged);
@@ -411,7 +501,12 @@ private async Task LoadDataAsync()
         var success = await AdminService.DeleteProductAsync(product.Id);
         if (success)
         {
+            await ShowToast(L.Translate("admin.productDeleted"), ToastType.Success);
             await LoadDataAsync();
+        }
+        else
+        {
+            await ShowToast(L.Translate("admin.cannotDeleteProductWithTickets"), ToastType.Error);
         }
     }
 
@@ -444,13 +539,15 @@ private async Task LoadDataAsync()
     {
         if (techStack.Products.Count > 0)
         {
+            _ = ShowToast(L.Translate("admin.cannotDeleteTechStackWithProducts"), ToastType.Error);
             return;
         }
 
         var success = await AdminService.DeleteTechStackAsync(techStack.Id);
         if (success)
         {
-            await LoadDataAsync();
+            _ = ShowToast(L.Translate("admin.techStackDeleted"), ToastType.Success);
+            await LoadTechStacksAsync(); // Завантажуємо тільки технології
         }
     }
 
@@ -478,10 +575,12 @@ private async Task LoadDataAsync()
                 if (isEditing)
                 {
                     await AdminService.UpdateProductAsync(editingProduct);
+                    await ShowToast(L.Translate("admin.productUpdated"), ToastType.Success);
                 }
                 else
                 {
                     await AdminService.CreateProductAsync(editingProduct);
+                    await ShowToast(L.Translate("admin.productCreated"), ToastType.Success);
                 }
             }
             else if (modalType == "techstack")
@@ -495,10 +594,12 @@ private async Task LoadDataAsync()
                 if (isEditing)
                 {
                     await AdminService.UpdateTechStackAsync(editingTechStack);
+                    await ShowToast(L.Translate("admin.techStackUpdated"), ToastType.Success);
                 }
                 else
                 {
                     await AdminService.CreateTechStackAsync(editingTechStack);
+                    await ShowToast(L.Translate("admin.techStackCreated"), ToastType.Success);
                 }
             }
 
@@ -521,16 +622,26 @@ private async Task LoadDataAsync()
         var success = await AdminService.UpdateUserRoleAsync(userId, newRole);
         if (success)
         {
-            await LoadDataAsync();
+            _ = ShowToast(L.Translate("admin.userUpdated"), ToastType.Success);
+            await LoadUsersAsync();
         }
     }
 
     private async Task ToggleUserStatus(int userId)
     {
+        // Перевірка чи це адміністратор
+        var user = users?.FirstOrDefault(u => u.Id == userId);
+        if (user?.Role == "Admin")
+        {
+            _ = ShowToast(L.Translate("admin.cannotDeactivateAdmin"), ToastType.Error);
+            return;
+        }
+
         var success = await AdminService.ToggleUserActiveStatusAsync(userId);
         if (success)
         {
-            await LoadDataAsync();
+            _ = ShowToast(L.Translate("admin.userUpdated"), ToastType.Success);
+            await LoadUsersAsync();
         }
     }
 
@@ -538,18 +649,21 @@ private async Task LoadDataAsync()
     {
         if (user.Role == "Admin")
         {
-            return; // Не можна видаляти адміністраторів
+            _ = ShowToast(L.Translate("admin.cannotDeleteAdmin"), ToastType.Error);
+            return;
         }
 
         if (user.CreatedTickets.Count > 0 || user.AssignedTickets.Count > 0)
         {
-            return; // Не можна видаляти користувачів з тікетами
+            _ = ShowToast(L.Translate("admin.cannotDeleteUserWithTickets"), ToastType.Error);
+            return;
         }
 
         var success = await AdminService.DeleteUserAsync(user.Id);
         if (success)
         {
-            await LoadDataAsync();
+            _ = ShowToast(L.Translate("admin.userDeleted"), ToastType.Success);
+            await LoadUsersAsync();
         }
     }
 
