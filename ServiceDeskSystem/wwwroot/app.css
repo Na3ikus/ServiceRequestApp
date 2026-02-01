@@ -257,6 +257,37 @@ a, .btn-link {
     background-color: rgb(31 41 55);
 }
 
+/* Modal close button - ensure it's on the right */
+.modal-content > button:first-of-type {
+    position: absolute !important;
+    top: 1rem !important;
+    right: 1rem !important;
+    left: auto !important;
+    z-index: 10 !important;
+}
+
+/* Modal title with padding for close button */
+.modal-content > h3 {
+    padding-right: 2.5rem !important;
+}
+
+/* Admin panel action buttons - better visibility in dark mode */
+.admin-edit-btn {
+    color: #2563eb !important;
+}
+
+.dark .admin-edit-btn {
+    color: #60a5fa !important;
+}
+
+.admin-delete-btn {
+    color: #dc2626 !important;
+}
+
+.dark .admin-delete-btn {
+    color: #f87171 !important;
+}
+
 .content {
     padding-top: 1.1rem;
 }
