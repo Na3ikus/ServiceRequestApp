@@ -156,8 +156,9 @@ internal sealed class SimpleAuthService(
             {
                 Login = username,
                 PasswordHash = ComputeSimpleHash(password),
-                Role = "Client",
+                Role = "User", // Автоматично присвоюємо роль User
                 PersonId = person.Id,
+                IsActive = true, // Новий користувач активний за замовчуванням
             };
 
             dbContext.Users.Add(user);

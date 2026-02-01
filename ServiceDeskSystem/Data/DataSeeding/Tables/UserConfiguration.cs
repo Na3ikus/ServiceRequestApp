@@ -16,6 +16,7 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
                 PasswordHash = "admin123",
                 Role = "Admin",
                 PersonId = 1,
+                IsActive = true,
             },
             new User
             {
@@ -24,22 +25,25 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
                 PasswordHash = "dev123",
                 Role = "Developer",
                 PersonId = 2,
+                IsActive = true,
             },
             new User
             {
                 Id = 3,
                 Login = "m.shevchenko",
                 PasswordHash = "client123",
-                Role = "Client",
+                Role = "User",
                 PersonId = 3,
+                IsActive = true,
             },
             new User
             {
                 Id = 4,
                 Login = "j.smith",
                 PasswordHash = "client123",
-                Role = "Client",
+                Role = "User",
                 PersonId = 4,
+                IsActive = true,
             },
             new User
             {
@@ -48,6 +52,7 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
                 PasswordHash = "dev123",
                 Role = "Developer",
                 PersonId = 5,
+                IsActive = true,
             });
     }
 }
