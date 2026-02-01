@@ -101,8 +101,7 @@ public partial class Admin : IDisposable
         this.disposed = true;
     }
 
-    private static bool CanDeleteUser(User user) =>
-        user.Role != "Admin" && user.CreatedTickets.Count == 0 && user.AssignedTickets.Count == 0;
+    private static bool CanDeleteUser(User user) => user.Role != "Admin";
 
     private static bool CanToggleUserStatus(User user) => user.Role != "Admin";
 
@@ -251,8 +250,13 @@ public partial class Admin : IDisposable
         var success = await this.AdminService.UpdateUserRoleAsync(userId, newRole);
         if (success)
         {
+            var user = this.users?.FirstOrDefault(u => u.Id == userId);
+            if (user is not null)
+            {
+                user.Role = newRole;
+                await this.InvokeAsync(this.StateHasChanged);
+            }
             await this.ShowToastAsync(this.L.Translate("admin.userUpdated"), ToastType.Success);
-            await this.LoadUsersAsync();
         }
     }
 
@@ -266,10 +270,11 @@ public partial class Admin : IDisposable
         }
 
         var success = await this.AdminService.ToggleUserActiveStatusAsync(userId);
-        if (success)
+        if (success && user is not null)
         {
+            user.IsActive = !user.IsActive;
+            await this.InvokeAsync(this.StateHasChanged);
             await this.ShowToastAsync(this.L.Translate("admin.userUpdated"), ToastType.Success);
-            await this.LoadUsersAsync();
         }
     }
 
@@ -281,17 +286,16 @@ public partial class Admin : IDisposable
             return;
         }
 
-        if (user.CreatedTickets.Count > 0 || user.AssignedTickets.Count > 0)
-        {
-            await this.ShowToastAsync(this.L.Translate("admin.cannotDeleteUserWithTickets"), ToastType.Error);
-            return;
-        }
-
         var success = await this.AdminService.DeleteUserAsync(user.Id);
         if (success)
         {
             await this.ShowToastAsync(this.L.Translate("admin.userDeleted"), ToastType.Success);
-            await this.LoadUsersAsync();
+            this.users?.Remove(user);
+            await this.InvokeAsync(this.StateHasChanged);
+        }
+        else
+        {
+            await this.ShowToastAsync(this.L.Translate("admin.cannotDeleteUserWithTickets"), ToastType.Error);
         }
     }
 

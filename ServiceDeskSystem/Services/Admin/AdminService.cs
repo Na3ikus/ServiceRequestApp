@@ -161,6 +161,7 @@ internal sealed class AdminService(IDbContextFactory<BugTrackerDbContext> contex
             return await dbContext.Users
                 .Include(u => u.Person)
                 .OrderBy(u => u.Login)
+                .AsNoTracking()
                 .ToListAsync()
                 .ConfigureAwait(false);
         }
@@ -176,15 +177,12 @@ internal sealed class AdminService(IDbContextFactory<BugTrackerDbContext> contex
         var dbContext = await contextFactory.CreateDbContextAsync().ConfigureAwait(false);
         await using (dbContext.ConfigureAwait(false))
         {
-            var user = await dbContext.Users.FindAsync(userId).ConfigureAwait(false);
-            if (user is null)
-            {
-                return false;
-            }
-
-            user.Role = newRole;
-            await dbContext.SaveChangesAsync().ConfigureAwait(false);
-            return true;
+            var affectedRows = await dbContext.Users
+                .Where(u => u.Id == userId)
+                .ExecuteUpdateAsync(setters => setters.SetProperty(u => u.Role, newRole))
+                .ConfigureAwait(false);
+            
+            return affectedRows > 0;
         }
     }
 
@@ -193,15 +191,23 @@ internal sealed class AdminService(IDbContextFactory<BugTrackerDbContext> contex
         var dbContext = await contextFactory.CreateDbContextAsync().ConfigureAwait(false);
         await using (dbContext.ConfigureAwait(false))
         {
-            var user = await dbContext.Users.FindAsync(userId).ConfigureAwait(false);
-            if (user is null)
+            var currentStatus = await dbContext.Users
+                .Where(u => u.Id == userId)
+                .Select(u => (bool?)u.IsActive)
+                .FirstOrDefaultAsync()
+                .ConfigureAwait(false);
+
+            if (currentStatus is null)
             {
                 return false;
             }
 
-            user.IsActive = !user.IsActive;
-            await dbContext.SaveChangesAsync().ConfigureAwait(false);
-            return true;
+            var affectedRows = await dbContext.Users
+                .Where(u => u.Id == userId)
+                .ExecuteUpdateAsync(setters => setters.SetProperty(u => u.IsActive, !currentStatus.Value))
+                .ConfigureAwait(false);
+            
+            return affectedRows > 0;
         }
     }
 
