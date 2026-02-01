@@ -12,14 +12,14 @@ namespace ServiceDeskSystem.Components.Pages;
 /// </summary>
 public partial class TicketDetails : IDisposable
 {
-    [Parameter]
-    public int Id { get; set; }
-
     private readonly TimeSpan refreshInterval = TimeSpan.FromSeconds(5);
     private Timer? refreshTimer;
     private bool isRefreshing;
     private bool authRestored;
     private bool disposed;
+
+    [Parameter]
+    public int Id { get; set; }
 
     [Inject]
     private ITicketService TicketService { get; set; } = null!;

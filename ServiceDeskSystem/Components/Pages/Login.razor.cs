@@ -13,12 +13,6 @@ public partial class Login : IDisposable
     private readonly LoginModel loginModel = new ();
     private bool disposed;
 
-    public void Dispose()
-    {
-        this.Dispose(true);
-        GC.SuppressFinalize(this);
-    }
-
     [Inject]
     private IAuthService AuthService { get; set; } = null!;
 
@@ -31,6 +25,12 @@ public partial class Login : IDisposable
     private string? errorMessage { get; set; }
 
     private bool isLoading { get; set; }
+
+    public void Dispose()
+    {
+        this.Dispose(true);
+        GC.SuppressFinalize(this);
+    }
 
     protected override void OnInitialized()
     {

@@ -13,9 +13,8 @@ namespace ServiceDeskSystem.Components.Pages;
 /// </summary>
 public partial class Admin : IDisposable
 {
-    private bool disposed;
-
     private readonly List<ToastMessage> toasts = [];
+    private bool disposed;
 
     internal IReadOnlyList<ToastMessage> Toasts => this.toasts;
 

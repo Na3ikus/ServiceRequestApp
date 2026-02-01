@@ -10,6 +10,9 @@ namespace ServiceDeskSystem.Components.Pages;
 /// </summary>
 public partial class Register : IDisposable
 {
+    private readonly RegisterModel registerModel = new ();
+    private bool disposed;
+
     [Inject]
     private IAuthService AuthService { get; set; } = null!;
 
@@ -24,9 +27,6 @@ public partial class Register : IDisposable
     private string? successMessage { get; set; }
 
     private bool isLoading { get; set; }
-
-    private readonly RegisterModel registerModel = new ();
-    private bool disposed;
 
     public void Dispose()
     {
@@ -70,7 +70,7 @@ public partial class Register : IDisposable
         if (this.registerModel.Password != this.registerModel.ConfirmPassword)
         {
             this.errorMessage = this.L.CurrentLanguage == "uk"
-                ? "Паролі не співпадають."
+                ? "РџР°СЂРѕР»С– РЅРµ СЃРїС–РІРїР°РґР°СЋС‚СЊ."
                 : "Passwords do not match.";
             this.isLoading = false;
             return;
@@ -86,7 +86,7 @@ public partial class Register : IDisposable
         if (success)
         {
             this.successMessage = this.L.CurrentLanguage == "uk"
-                ? "Реєстрація успішна! Перенаправляємо на сторінку входу..."
+                ? "Р РµС”СЃС‚СЂР°С†С–СЏ СѓСЃРїС–С€РЅР°! РџРµСЂРµРЅР°РїСЂР°РІР»СЏС”РјРѕ РЅР° СЃС‚РѕСЂС–РЅРєСѓ РІС…РѕРґСѓ..."
                 : "Registration successful! Redirecting to login...";
 
             await Task.Delay(1500);
