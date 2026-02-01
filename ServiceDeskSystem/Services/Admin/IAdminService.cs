@@ -19,4 +19,13 @@ internal interface IAdminService
     Task<bool> DeleteTechStackAsync(int id);
 
     Task<bool> DeleteProductAsync(int id);
+
+    // User Management
+    Task<List<User>> GetAllUsersAsync();
+
+    Task<bool> UpdateUserRoleAsync(int userId, string newRole);
+
+    Task<bool> ToggleUserActiveStatusAsync(int userId);
+
+    Task<bool> DeleteUserAsync(int userId);
 }

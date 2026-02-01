@@ -151,4 +151,85 @@ internal sealed class AdminService(IDbContextFactory<BugTrackerDbContext> contex
             return true;
         }
     }
+
+    // User Management
+    public async Task<List<User>> GetAllUsersAsync()
+    {
+        var dbContext = await contextFactory.CreateDbContextAsync().ConfigureAwait(false);
+        await using (dbContext.ConfigureAwait(false))
+        {
+            return await dbContext.Users
+                .Include(u => u.Person)
+                .OrderBy(u => u.Login)
+                .ToListAsync()
+                .ConfigureAwait(false);
+        }
+    }
+
+    public async Task<bool> UpdateUserRoleAsync(int userId, string newRole)
+    {
+        if (string.IsNullOrWhiteSpace(newRole))
+        {
+            return false;
+        }
+
+        var dbContext = await contextFactory.CreateDbContextAsync().ConfigureAwait(false);
+        await using (dbContext.ConfigureAwait(false))
+        {
+            var user = await dbContext.Users.FindAsync(userId).ConfigureAwait(false);
+            if (user is null)
+            {
+                return false;
+            }
+
+            user.Role = newRole;
+            await dbContext.SaveChangesAsync().ConfigureAwait(false);
+            return true;
+        }
+    }
+
+    public async Task<bool> ToggleUserActiveStatusAsync(int userId)
+    {
+        var dbContext = await contextFactory.CreateDbContextAsync().ConfigureAwait(false);
+        await using (dbContext.ConfigureAwait(false))
+        {
+            var user = await dbContext.Users.FindAsync(userId).ConfigureAwait(false);
+            if (user is null)
+            {
+                return false;
+            }
+
+            user.IsActive = !user.IsActive;
+            await dbContext.SaveChangesAsync().ConfigureAwait(false);
+            return true;
+        }
+    }
+
+    public async Task<bool> DeleteUserAsync(int userId)
+    {
+        var dbContext = await contextFactory.CreateDbContextAsync().ConfigureAwait(false);
+        await using (dbContext.ConfigureAwait(false))
+        {
+            var user = await dbContext.Users
+                .Include(u => u.CreatedTickets)
+                .Include(u => u.AssignedTickets)
+                .FirstOrDefaultAsync(u => u.Id == userId)
+                .ConfigureAwait(false);
+
+            if (user is null)
+            {
+                return false;
+            }
+
+            // Не можна видалити користувача з тікетами
+            if (user.CreatedTickets.Count > 0 || user.AssignedTickets.Count > 0)
+            {
+                return false;
+            }
+
+            dbContext.Users.Remove(user);
+            await dbContext.SaveChangesAsync().ConfigureAwait(false);
+            return true;
+        }
+    }
 }

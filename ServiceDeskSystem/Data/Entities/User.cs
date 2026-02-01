@@ -10,6 +10,8 @@ internal class User
 
     public string Role { get; set; } = string.Empty;
 
+    public bool IsActive { get; set; } = true;
+
     public int PersonId { get; set; }
 
     public Person Person { get; set; } = null!;
