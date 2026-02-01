@@ -172,7 +172,7 @@
                                                 </button>
                                                 <button @onclick="@(() => DeleteTechStack(techStack))"
                                                         class="admin-delete-btn p-2 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-colors @(techStack.Products.Count > 0 ? "opacity-50 cursor-not-allowed" : "")"
-                                                        disabled="@(techStack.Products.Count > 0)">
+                                                        disabled="@techStack.Products.Count > 0">
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                                                     </svg>
@@ -387,7 +387,7 @@
 // Toast notification system
 private enum ToastType { Success, Error, Warning, Info }
     
-private class ToastMessage
+private sealed class ToastMessage
 {
     public Guid Id { get; set; } = Guid.NewGuid();
     public string Message { get; set; } = string.Empty;
@@ -395,7 +395,7 @@ private class ToastMessage
     public bool IsHiding { get; set; }
 }
 
-private List<ToastMessage> toasts = new();
+private readonly List<ToastMessage> toasts = new();
 
 private async Task ShowToast(string message, ToastType type = ToastType.Info, int durationMs = 4000)
 {
@@ -404,7 +404,7 @@ private async Task ShowToast(string message, ToastType type = ToastType.Info, in
     await InvokeAsync(StateHasChanged);
 
     await Task.Delay(durationMs);
-        
+            
     toast.IsHiding = true;
     await InvokeAsync(StateHasChanged);
 
@@ -413,7 +413,7 @@ private async Task ShowToast(string message, ToastType type = ToastType.Info, in
     await InvokeAsync(StateHasChanged);
 }
 
-private async void RemoveToast(ToastMessage toast)
+private async Task RemoveToast(ToastMessage toast)
 {
     toast.IsHiding = true;
     await InvokeAsync(StateHasChanged);
