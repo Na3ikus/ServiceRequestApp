@@ -12,6 +12,9 @@ namespace ServiceDeskSystem.Components.Pages;
 /// </summary>
 public partial class TicketDetails : IDisposable
 {
+    [Parameter]
+    public int Id { get; set; }
+
     private readonly TimeSpan refreshInterval = TimeSpan.FromSeconds(5);
     private Timer? refreshTimer;
     private bool isRefreshing;
@@ -32,9 +35,6 @@ public partial class TicketDetails : IDisposable
 
     [Inject]
     private NavigationManager Navigation { get; set; } = null!;
-
-    [Parameter]
-    public int Id { get; set; }
 
     private Ticket? Ticket { get; set; }
 

@@ -13,8 +13,11 @@ namespace ServiceDeskSystem.Components.Pages;
 /// </summary>
 public partial class Admin : IDisposable
 {
-    private readonly List<ToastMessage> toasts = [];
     private bool disposed;
+
+    private readonly List<ToastMessage> toasts = [];
+
+    internal IReadOnlyList<ToastMessage> Toasts => this.toasts;
 
     [Inject]
     private IAdminService AdminService { get; set; } = null!;
@@ -56,8 +59,6 @@ public partial class Admin : IDisposable
     private TechStack editingTechStack { get; set; } = new ();
 
     private bool IsAdmin => this.AuthService.CurrentUser?.Role == "Admin";
-
-    internal IReadOnlyList<ToastMessage> Toasts => this.toasts;
 
     public void Dispose()
     {
