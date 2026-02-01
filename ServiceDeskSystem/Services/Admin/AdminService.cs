@@ -181,7 +181,7 @@ internal sealed class AdminService(IDbContextFactory<BugTrackerDbContext> contex
                 .Where(u => u.Id == userId)
                 .ExecuteUpdateAsync(setters => setters.SetProperty(u => u.Role, newRole))
                 .ConfigureAwait(false);
-            
+
             return affectedRows > 0;
         }
     }
@@ -206,7 +206,6 @@ internal sealed class AdminService(IDbContextFactory<BugTrackerDbContext> contex
                 .Where(u => u.Id == userId)
                 .ExecuteUpdateAsync(setters => setters.SetProperty(u => u.IsActive, !currentStatus.Value))
                 .ConfigureAwait(false);
-            
             return affectedRows > 0;
         }
     }
