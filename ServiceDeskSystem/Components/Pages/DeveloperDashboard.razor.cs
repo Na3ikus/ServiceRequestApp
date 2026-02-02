@@ -1,8 +1,7 @@
 using Microsoft.AspNetCore.Components;
+using ServiceDeskSystem.Components.Common;
 using ServiceDeskSystem.Data.Entities;
 using ServiceDeskSystem.Services.Auth;
-using ServiceDeskSystem.Services.Localization;
-using ServiceDeskSystem.Services.Theme;
 using ServiceDeskSystem.Services.Tickets;
 
 namespace ServiceDeskSystem.Components.Pages;
@@ -10,9 +9,8 @@ namespace ServiceDeskSystem.Components.Pages;
 /// <summary>
 /// Developer dashboard page component.
 /// </summary>
-public partial class DeveloperDashboard : IDisposable
+public partial class DeveloperDashboard : BaseComponent
 {
-    private bool disposed;
     private bool authRestored;
 
     [Inject]
@@ -20,12 +18,6 @@ public partial class DeveloperDashboard : IDisposable
 
     [Inject]
     private IAuthService AuthService { get; set; } = null!;
-
-    [Inject]
-    private ILocalizationService L { get; set; } = null!;
-
-    [Inject]
-    private IThemeService Theme { get; set; } = null!;
 
     [Inject]
     private NavigationManager Navigation { get; set; } = null!;
@@ -43,16 +35,8 @@ public partial class DeveloperDashboard : IDisposable
     private string CurrentUserRole => this.AuthService.CurrentUser?.Role ?? string.Empty;
 
     private bool IsDeveloper => string.Equals(this.CurrentUserRole, "Developer", StringComparison.OrdinalIgnoreCase);
-    public void Dispose()
-    {
-        this.Dispose(true);
-        GC.SuppressFinalize(this);
-    }
-
     protected override async Task OnInitializedAsync()
     {
-        this.L.LanguageChanged += this.OnStateChanged;
-        this.Theme.ThemeChanged += this.OnStateChanged;
         this.AuthService.AuthStateChanged += this.OnAuthStateChanged;
 
         await this.LoadDataAsync();
@@ -69,21 +53,14 @@ public partial class DeveloperDashboard : IDisposable
         }
     }
 
-    protected virtual void Dispose(bool disposing)
+    protected override void Dispose(bool disposing)
     {
-        if (this.disposed)
-        {
-            return;
-        }
-
         if (disposing)
         {
-            this.L.LanguageChanged -= this.OnStateChanged;
-            this.Theme.ThemeChanged -= this.OnStateChanged;
             this.AuthService.AuthStateChanged -= this.OnAuthStateChanged;
         }
 
-        this.disposed = true;
+        base.Dispose(disposing);
     }
 
     private static string GetStatusBadgeClass(string status) => status switch

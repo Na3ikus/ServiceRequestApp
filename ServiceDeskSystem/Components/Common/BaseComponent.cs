@@ -7,7 +7,7 @@ namespace ServiceDeskSystem.Components.Common;
 /// <summary>
 /// Base component class with common functionality for localization, theming, and disposal.
 /// </summary>
-internal abstract class BaseComponent : ComponentBase, IDisposable
+public abstract class BaseComponent : ComponentBase, IDisposable
 {
     protected bool disposed;
 

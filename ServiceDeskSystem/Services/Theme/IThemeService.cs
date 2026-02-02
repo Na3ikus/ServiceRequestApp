@@ -1,6 +1,6 @@
 namespace ServiceDeskSystem.Services.Theme;
 
-internal interface IThemeService
+public interface IThemeService
 {
     event EventHandler? ThemeChanged;
 

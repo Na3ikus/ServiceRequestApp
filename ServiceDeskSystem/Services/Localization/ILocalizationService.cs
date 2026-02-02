@@ -1,6 +1,6 @@
 namespace ServiceDeskSystem.Services.Localization;
 
-internal interface ILocalizationService
+public interface ILocalizationService
 {
     event EventHandler? LanguageChanged;
 

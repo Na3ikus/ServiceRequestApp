@@ -1,23 +1,19 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Components;
+using ServiceDeskSystem.Components.Common;
 using ServiceDeskSystem.Services.Auth;
-using ServiceDeskSystem.Services.Localization;
 
 namespace ServiceDeskSystem.Components.Pages;
 
 /// <summary>
 /// Registration page component.
 /// </summary>
-public partial class Register : IDisposable
+public partial class Register : BaseComponent
 {
     private readonly RegisterModel registerModel = new ();
-    private bool disposed;
 
     [Inject]
     private IAuthService AuthService { get; set; } = null!;
-
-    [Inject]
-    private ILocalizationService L { get; set; } = null!;
 
     [Inject]
     private NavigationManager Navigation { get; set; } = null!;
@@ -28,38 +24,13 @@ public partial class Register : IDisposable
 
     private bool isLoading { get; set; }
 
-    public void Dispose()
-    {
-        this.Dispose(true);
-        GC.SuppressFinalize(this);
-    }
-
     protected override void OnInitialized()
     {
-        this.L.LanguageChanged += this.OnStateChanged;
-
         if (this.AuthService.IsAuthenticated)
         {
             this.Navigation.NavigateTo("/");
         }
     }
-
-    protected virtual void Dispose(bool disposing)
-    {
-        if (this.disposed)
-        {
-            return;
-        }
-
-        if (disposing)
-        {
-            this.L.LanguageChanged -= this.OnStateChanged;
-        }
-
-        this.disposed = true;
-    }
-
-    private void OnStateChanged(object? sender, EventArgs e) => this.InvokeAsync(this.StateHasChanged);
 
     private async Task HandleRegisterAsync()
     {

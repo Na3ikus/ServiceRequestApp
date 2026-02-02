@@ -3,18 +3,15 @@ using ServiceDeskSystem.Components.Common;
 using ServiceDeskSystem.Data.Entities;
 using ServiceDeskSystem.Services.Admin;
 using ServiceDeskSystem.Services.Auth;
-using ServiceDeskSystem.Services.Localization;
-using ServiceDeskSystem.Services.Theme;
 
 namespace ServiceDeskSystem.Components.Pages;
 
 /// <summary>
 /// Admin panel page for managing products, tech stacks, and users.
 /// </summary>
-public partial class Admin : IDisposable
+public partial class Admin : BaseComponent
 {
     private readonly List<ToastMessage> toasts = [];
-    private bool disposed;
 
     internal IReadOnlyList<ToastMessage> Toasts => this.toasts;
 
@@ -23,12 +20,6 @@ public partial class Admin : IDisposable
 
     [Inject]
     private IAuthService AuthService { get; set; } = null!;
-
-    [Inject]
-    private ILocalizationService L { get; set; } = null!;
-
-    [Inject]
-    private IThemeService Theme { get; set; } = null!;
 
     [Inject]
     private NavigationManager Navigation { get; set; } = null!;
@@ -59,12 +50,6 @@ public partial class Admin : IDisposable
 
     private bool IsAdmin => this.AuthService.CurrentUser?.Role == "Admin";
 
-    public void Dispose()
-    {
-        this.Dispose(true);
-        GC.SuppressFinalize(this);
-    }
-
     internal async Task RemoveToastAsync(ToastMessage toast)
     {
         toast.IsHiding = true;
@@ -76,29 +61,10 @@ public partial class Admin : IDisposable
 
     protected override async Task OnInitializedAsync()
     {
-        this.L.LanguageChanged += this.OnStateChanged;
-        this.Theme.ThemeChanged += this.OnStateChanged;
-
         if (this.IsAdmin)
         {
             await this.LoadDataAsync();
         }
-    }
-
-    protected virtual void Dispose(bool disposing)
-    {
-        if (this.disposed)
-        {
-            return;
-        }
-
-        if (disposing)
-        {
-            this.L.LanguageChanged -= this.OnStateChanged;
-            this.Theme.ThemeChanged -= this.OnStateChanged;
-        }
-
-        this.disposed = true;
     }
 
     private static bool CanDeleteUser(User user) => user.Role != "Admin";
@@ -375,6 +341,4 @@ public partial class Admin : IDisposable
             await this.InvokeAsync(this.StateHasChanged);
         });
     }
-
-    private void OnStateChanged(object? sender, EventArgs e) => this.InvokeAsync(this.StateHasChanged);
 }

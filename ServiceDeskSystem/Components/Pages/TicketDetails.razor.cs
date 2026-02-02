@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Components;
+using ServiceDeskSystem.Components.Common;
 using ServiceDeskSystem.Data.Entities;
 using ServiceDeskSystem.Services.Auth;
 using ServiceDeskSystem.Services.Localization;
-using ServiceDeskSystem.Services.Theme;
 using ServiceDeskSystem.Services.Tickets;
 
 namespace ServiceDeskSystem.Components.Pages;
@@ -10,13 +10,12 @@ namespace ServiceDeskSystem.Components.Pages;
 /// <summary>
 /// Ticket details page component.
 /// </summary>
-public partial class TicketDetails : IDisposable
+public partial class TicketDetails : BaseComponent
 {
     private readonly TimeSpan refreshInterval = TimeSpan.FromSeconds(5);
     private Timer? refreshTimer;
     private bool isRefreshing;
     private bool authRestored;
-    private bool disposed;
 
     [Parameter]
     public int Id { get; set; }
@@ -26,12 +25,6 @@ public partial class TicketDetails : IDisposable
 
     [Inject]
     private IAuthService AuthService { get; set; } = null!;
-
-    [Inject]
-    private ILocalizationService L { get; set; } = null!;
-
-    [Inject]
-    private IThemeService Theme { get; set; } = null!;
 
     [Inject]
     private NavigationManager Navigation { get; set; } = null!;
@@ -67,16 +60,8 @@ public partial class TicketDetails : IDisposable
         this.Ticket?.DeveloperId is not null &&
         (this.IsAdmin || this.Ticket.DeveloperId == this.CurrentUserId);
 
-    public void Dispose()
-    {
-        this.Dispose(true);
-        GC.SuppressFinalize(this);
-    }
-
     protected override async Task OnInitializedAsync()
     {
-        this.L.LanguageChanged += this.OnStateChanged;
-        this.Theme.ThemeChanged += this.OnStateChanged;
         this.AuthService.AuthStateChanged += this.OnAuthStateChanged;
 
         await this.LoadTicketAsync();
@@ -93,7 +78,7 @@ public partial class TicketDetails : IDisposable
         }
     }
 
-    protected virtual void Dispose(bool disposing)
+    protected override void Dispose(bool disposing)
     {
         if (this.disposed)
         {
@@ -102,13 +87,11 @@ public partial class TicketDetails : IDisposable
 
         if (disposing)
         {
-            this.L.LanguageChanged -= this.OnStateChanged;
-            this.Theme.ThemeChanged -= this.OnStateChanged;
             this.AuthService.AuthStateChanged -= this.OnAuthStateChanged;
             this.refreshTimer?.Dispose();
         }
 
-        this.disposed = true;
+        base.Dispose(disposing);
     }
 
     private static string GetStatusBadgeClass(string status) => status switch
@@ -286,11 +269,6 @@ public partial class TicketDetails : IDisposable
         {
             await this.LoadTicketAsync();
         }
-    }
-
-    private void OnStateChanged(object? sender, EventArgs e)
-    {
-        _ = this.InvokeAsync(this.StateHasChanged);
     }
 
     private void OnAuthStateChanged(object? sender, EventArgs e)

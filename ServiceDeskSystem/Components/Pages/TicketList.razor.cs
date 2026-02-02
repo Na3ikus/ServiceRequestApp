@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Components;
+using ServiceDeskSystem.Components.Common;
 using ServiceDeskSystem.Data.Entities;
 using ServiceDeskSystem.Services.Localization;
-using ServiceDeskSystem.Services.Theme;
 using ServiceDeskSystem.Services.Tickets;
 
 namespace ServiceDeskSystem.Components.Pages;
@@ -9,51 +9,19 @@ namespace ServiceDeskSystem.Components.Pages;
 /// <summary>
 /// Ticket list page component.
 /// </summary>
-public partial class TicketList : IDisposable
+public partial class TicketList : BaseComponent
 {
-    private bool disposed;
-
     [Inject]
     private ITicketService TicketService { get; set; } = null!;
-
-    [Inject]
-    private ILocalizationService L { get; set; } = null!;
-
-    [Inject]
-    private IThemeService Theme { get; set; } = null!;
 
     [Inject]
     private NavigationManager Navigation { get; set; } = null!;
 
     private List<Ticket>? tickets { get; set; }
 
-    public void Dispose()
-    {
-        this.Dispose(true);
-        GC.SuppressFinalize(this);
-    }
-
     protected override async Task OnInitializedAsync()
     {
-        this.L.LanguageChanged += this.OnStateChanged;
-        this.Theme.ThemeChanged += this.OnStateChanged;
         this.tickets = await this.TicketService.GetAllTicketsAsync();
-    }
-
-    protected virtual void Dispose(bool disposing)
-    {
-        if (this.disposed)
-        {
-            return;
-        }
-
-        if (disposing)
-        {
-            this.L.LanguageChanged -= this.OnStateChanged;
-            this.Theme.ThemeChanged -= this.OnStateChanged;
-        }
-
-        this.disposed = true;
     }
 
     private static string GetStatusBadgeClass(string status) => status switch
@@ -73,8 +41,6 @@ public partial class TicketList : IDisposable
         "Low" => "bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300",
         _ => "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300",
     };
-
-    private void OnStateChanged(object? sender, EventArgs e) => this.InvokeAsync(this.StateHasChanged);
 
     private void ViewTicket(int id) => this.Navigation.NavigateTo($"/ticket/{id}");
 
