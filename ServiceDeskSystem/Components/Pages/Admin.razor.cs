@@ -105,6 +105,8 @@ public partial class Admin : IDisposable
 
     private static bool CanToggleUserStatus(User user) => user.Role != "Admin";
 
+    private bool CanEditUserRole(User user) => user.Id != this.AuthService.CurrentUser?.Id;
+
     private async Task LoadDataAsync()
     {
         if (!this.IsAdmin)
@@ -247,10 +249,17 @@ public partial class Admin : IDisposable
 
     private async Task UpdateUserRole(int userId, string newRole)
     {
+        var user = this.users?.FirstOrDefault(u => u.Id == userId);
+        if (user is not null && !this.CanEditUserRole(user))
+        {
+            await this.ShowToastAsync(this.L.Translate("admin.cannotEditSelfRole"), ToastType.Error);
+            await this.LoadUsersAsync();
+            return;
+        }
+
         var success = await this.AdminService.UpdateUserRoleAsync(userId, newRole);
         if (success)
         {
-            var user = this.users?.FirstOrDefault(u => u.Id == userId);
             if (user is not null)
             {
                 user.Role = newRole;

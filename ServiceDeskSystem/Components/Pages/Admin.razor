@@ -216,7 +216,8 @@
                                         </td>
                                         <td class="col-role px-4 py-3 text-sm">
                                             <select @bind="user.Role" @bind:after="@(() => UpdateUserRole(user.Id, user.Role))"
-                                                    class="w-full px-2 py-1 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md text-xs">
+                                                    disabled="@(!CanEditUserRole(user))"
+                                                    class="w-full px-2 py-1 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md text-xs @(!CanEditUserRole(user) ? "opacity-50 cursor-not-allowed" : "")">
                                                 <option value="Admin">@L.Translate("admin.roleAdmin")</option>
                                                 <option value="Developer">@L.Translate("admin.roleDeveloper")</option>
                                                 <option value="User">@L.Translate("admin.roleUser")</option>
