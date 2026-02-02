@@ -256,6 +256,7 @@ public partial class Admin : IDisposable
                 user.Role = newRole;
                 await this.InvokeAsync(this.StateHasChanged);
             }
+
             await this.ShowToastAsync(this.L.Translate("admin.userUpdated"), ToastType.Success);
         }
     }
@@ -353,14 +354,17 @@ public partial class Admin : IDisposable
         this.toasts.Add(toast);
         await this.InvokeAsync(this.StateHasChanged);
 
-        await Task.Delay(durationMs);
+        _ = Task.Run(async () =>
+        {
+            await Task.Delay(durationMs);
 
-        toast.IsHiding = true;
-        await this.InvokeAsync(this.StateHasChanged);
+            toast.IsHiding = true;
+            await this.InvokeAsync(this.StateHasChanged);
 
-        await Task.Delay(300);
-        this.toasts.Remove(toast);
-        await this.InvokeAsync(this.StateHasChanged);
+            await Task.Delay(300);
+            this.toasts.Remove(toast);
+            await this.InvokeAsync(this.StateHasChanged);
+        });
     }
 
     private void OnStateChanged(object? sender, EventArgs e) => this.InvokeAsync(this.StateHasChanged);

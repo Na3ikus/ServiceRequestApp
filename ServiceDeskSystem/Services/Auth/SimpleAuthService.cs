@@ -124,6 +124,25 @@ internal sealed class SimpleAuthService(
                 return (false, "Username already exists.");
             }
 
+            if (!string.IsNullOrWhiteSpace(email))
+            {
+                var emailContactType = await dbContext.ContactTypes
+                    .FirstOrDefaultAsync(ct => ct.Name == "Email")
+                    .ConfigureAwait(false);
+
+                if (emailContactType is not null)
+                {
+                    var existingEmail = await dbContext.ContactInfos
+                        .AnyAsync(ci => ci.ContactTypeId == emailContactType.Id && ci.Value == email)
+                        .ConfigureAwait(false);
+
+                    if (existingEmail)
+                    {
+                        return (false, "Email address is already registered.");
+                    }
+                }
+            }
+
             var person = new Person
             {
                 FirstName = firstName,
