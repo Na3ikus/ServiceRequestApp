@@ -27,4 +27,16 @@ internal interface ITicketService
     Task<int> GetCriticalTicketsCountAsync();
 
     Task<int> GetUserTicketsCountAsync(int userId);
+
+    Task<bool> AssignDeveloperAsync(int ticketId, int developerId);
+
+    Task<bool> UnassignDeveloperAsync(int ticketId);
+
+    Task<List<Ticket>> GetDeveloperTicketsAsync(int developerId);
+
+    Task<int> GetDeveloperAssignedCountAsync(int developerId);
+
+    Task<int> GetDeveloperInProgressCountAsync(int developerId);
+
+    Task<int> GetDeveloperCompletedCountAsync(int developerId);
 }

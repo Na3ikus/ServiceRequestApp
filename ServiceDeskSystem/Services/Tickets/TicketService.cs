@@ -14,6 +14,7 @@ internal sealed class TicketService(IDbContextFactory<BugTrackerDbContext> conte
             return await dbContext.Tickets
                 .Include(t => t.Author)
                 .Include(t => t.Product)
+                .Include(t => t.Developer)
                 .OrderByDescending(t => t.CreatedAt)
                 .ToListAsync()
                 .ConfigureAwait(false);
@@ -51,6 +52,7 @@ internal sealed class TicketService(IDbContextFactory<BugTrackerDbContext> conte
             return await dbContext.Tickets
                 .Include(t => t.Author)
                 .Include(t => t.Product)
+                .Include(t => t.Developer)
                 .Include(t => t.Comments)
                     .ThenInclude(c => c.Author)
                 .FirstOrDefaultAsync(t => t.Id == id)
@@ -177,10 +179,90 @@ internal sealed class TicketService(IDbContextFactory<BugTrackerDbContext> conte
 
     public async Task<int> GetUserTicketsCountAsync(int userId)
     {
-        var dbContext = await contextFactory.CreateDbContextAsync().ConfigureAwait(false);
-        await using (dbContext.ConfigureAwait(false))
-        {
-            return await dbContext.Tickets.CountAsync(t => t.AuthorId == userId).ConfigureAwait(false);
-        }
+            var dbContext = await contextFactory.CreateDbContextAsync().ConfigureAwait(false);
+            await using (dbContext.ConfigureAwait(false))
+            {
+                return await dbContext.Tickets.CountAsync(t => t.AuthorId == userId).ConfigureAwait(false);
+            }
+    }
+
+    public async Task<bool> AssignDeveloperAsync(int ticketId, int developerId)
+    {
+            var dbContext = await contextFactory.CreateDbContextAsync().ConfigureAwait(false);
+            await using (dbContext.ConfigureAwait(false))
+            {
+                var ticket = await dbContext.Tickets.FindAsync(ticketId).ConfigureAwait(false);
+
+                if (ticket is null)
+                {
+                    return false;
+                }
+
+                ticket.DeveloperId = developerId;
+                await dbContext.SaveChangesAsync().ConfigureAwait(false);
+
+                return true;
+            }
+    }
+
+    public async Task<bool> UnassignDeveloperAsync(int ticketId)
+    {
+            var dbContext = await contextFactory.CreateDbContextAsync().ConfigureAwait(false);
+            await using (dbContext.ConfigureAwait(false))
+            {
+                var ticket = await dbContext.Tickets.FindAsync(ticketId).ConfigureAwait(false);
+
+                if (ticket is null)
+                {
+                    return false;
+                }
+
+                ticket.DeveloperId = null;
+                await dbContext.SaveChangesAsync().ConfigureAwait(false);
+
+                return true;
+            }
+    }
+
+    public async Task<List<Ticket>> GetDeveloperTicketsAsync(int developerId)
+    {
+            var dbContext = await contextFactory.CreateDbContextAsync().ConfigureAwait(false);
+            await using (dbContext.ConfigureAwait(false))
+            {
+                return await dbContext.Tickets
+                    .Include(t => t.Author)
+                    .Include(t => t.Product)
+                    .Where(t => t.DeveloperId == developerId)
+                    .OrderByDescending(t => t.CreatedAt)
+                    .ToListAsync()
+                    .ConfigureAwait(false);
+            }
+    }
+
+    public async Task<int> GetDeveloperAssignedCountAsync(int developerId)
+    {
+            var dbContext = await contextFactory.CreateDbContextAsync().ConfigureAwait(false);
+            await using (dbContext.ConfigureAwait(false))
+            {
+                return await dbContext.Tickets.CountAsync(t => t.DeveloperId == developerId).ConfigureAwait(false);
+            }
+    }
+
+    public async Task<int> GetDeveloperInProgressCountAsync(int developerId)
+    {
+            var dbContext = await contextFactory.CreateDbContextAsync().ConfigureAwait(false);
+            await using (dbContext.ConfigureAwait(false))
+            {
+                return await dbContext.Tickets.CountAsync(t => t.DeveloperId == developerId && t.Status == "In Progress").ConfigureAwait(false);
+            }
+    }
+
+    public async Task<int> GetDeveloperCompletedCountAsync(int developerId)
+    {
+            var dbContext = await contextFactory.CreateDbContextAsync().ConfigureAwait(false);
+            await using (dbContext.ConfigureAwait(false))
+            {
+                return await dbContext.Tickets.CountAsync(t => t.DeveloperId == developerId && (t.Status == "Resolved" || t.Status == "Closed")).ConfigureAwait(false);
+            }
     }
 }

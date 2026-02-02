@@ -143,6 +143,11 @@ a, .btn-link {
     min-width: 120px;
 }
 
+.ticket-table .col-assignee {
+    width: 150px;
+    min-width: 140px;
+}
+
 .ticket-table .col-created {
     width: 150px;
     min-width: 130px;
@@ -529,38 +534,42 @@ select {
 
 .toast-success {
     background-color: #10b981;
-    color: white;
+    color: #1a1a1a;
 }
 
 .dark .toast-success {
     background-color: #059669;
+    color: #fff;
 }
 
 .toast-error {
     background-color: #ef4444;
-    color: white;
+    color: #1a1a1a;
 }
 
 .dark .toast-error {
     background-color: #dc2626;
+    color: #fff;
 }
 
 .toast-warning {
     background-color: #f59e0b;
-    color: white;
+    color: #1a1a1a;
 }
 
 .dark .toast-warning {
     background-color: #d97706;
+    color: #fff;
 }
 
 .toast-info {
     background-color: #3b82f6;
-    color: white;
+    color: #1a1a1a;
 }
 
 .dark .toast-info {
     background-color: #2563eb;
+    color: #fff;
 }
 
 .toast-icon {

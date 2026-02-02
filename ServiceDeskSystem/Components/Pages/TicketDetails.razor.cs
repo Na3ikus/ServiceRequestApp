@@ -56,7 +56,16 @@ public partial class TicketDetails : IDisposable
 
     private bool CanManageTicket => this.Ticket is not null && this.AuthService.IsAuthenticated && (this.Ticket.AuthorId == this.CurrentUserId || this.IsAdmin);
 
-    private bool CanManageTicketStatus => this.AuthService.IsAuthenticated && (this.IsAdmin || this.IsDeveloper);
+    private bool CanManageTicketStatus => this.AuthService.IsAuthenticated &&
+        (this.IsAdmin || (this.IsDeveloper && this.Ticket?.DeveloperId == this.CurrentUserId));
+
+    private bool CanTakeTicket => this.AuthService.IsAuthenticated &&
+        this.Ticket?.DeveloperId is null &&
+        (this.IsAdmin || this.IsDeveloper);
+
+    private bool CanReleaseTicket => this.AuthService.IsAuthenticated &&
+        this.Ticket?.DeveloperId is not null &&
+        (this.IsAdmin || this.Ticket.DeveloperId == this.CurrentUserId);
 
     public void Dispose()
     {
@@ -249,6 +258,34 @@ public partial class TicketDetails : IDisposable
     private void GoBack()
     {
         this.Navigation.NavigateTo("/");
+    }
+
+    private async Task AssignToMeAsync()
+    {
+        if (this.Ticket is null || !this.CanTakeTicket)
+        {
+            return;
+        }
+
+        var success = await this.TicketService.AssignDeveloperAsync(this.Ticket.Id, this.CurrentUserId);
+        if (success)
+        {
+            await this.LoadTicketAsync();
+        }
+    }
+
+    private async Task UnassignAsync()
+    {
+        if (this.Ticket is null || !this.CanReleaseTicket)
+        {
+            return;
+        }
+
+        var success = await this.TicketService.UnassignDeveloperAsync(this.Ticket.Id);
+        if (success)
+        {
+            await this.LoadTicketAsync();
+        }
     }
 
     private void OnStateChanged(object? sender, EventArgs e)
