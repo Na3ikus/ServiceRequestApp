@@ -1,3 +1,4 @@
+using System.Threading;
 using Microsoft.AspNetCore.Components;
 using ServiceDeskSystem.Components.Common;
 using ServiceDeskSystem.Data.Entities;
@@ -11,6 +12,9 @@ namespace ServiceDeskSystem.Components.Pages;
 /// </summary>
 public partial class DeveloperDashboard : BaseComponent
 {
+    private readonly TimeSpan refreshInterval = TimeSpan.FromSeconds(5);
+    private Timer? refreshTimer;
+    private bool isRefreshing;
     private bool authRestored;
 
     [Inject]
@@ -40,6 +44,7 @@ public partial class DeveloperDashboard : BaseComponent
         this.AuthService.AuthStateChanged += this.OnAuthStateChanged;
 
         await this.LoadDataAsync();
+        this.StartAutoRefresh();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -58,6 +63,7 @@ public partial class DeveloperDashboard : BaseComponent
         if (disposing)
         {
             this.AuthService.AuthStateChanged -= this.OnAuthStateChanged;
+            this.refreshTimer?.Dispose();
         }
 
         base.Dispose(disposing);
@@ -92,6 +98,33 @@ public partial class DeveloperDashboard : BaseComponent
         this.assignedCount = await this.TicketService.GetDeveloperAssignedCountAsync(this.CurrentUserId);
         this.inProgressCount = await this.TicketService.GetDeveloperInProgressCountAsync(this.CurrentUserId);
         this.completedCount = await this.TicketService.GetDeveloperCompletedCountAsync(this.CurrentUserId);
+    }
+
+    private void StartAutoRefresh()
+    {
+        this.refreshTimer ??= new Timer(async _ => await this.RefreshAsync(), null, this.refreshInterval, this.refreshInterval);
+    }
+
+    private async Task RefreshAsync()
+    {
+        if (this.isRefreshing)
+        {
+            return;
+        }
+
+        this.isRefreshing = true;
+        try
+        {
+            await this.InvokeAsync(async () =>
+            {
+                await this.LoadDataAsync();
+                this.StateHasChanged();
+            });
+        }
+        finally
+        {
+            this.isRefreshing = false;
+        }
     }
 
     private void OnStateChanged(object? sender, EventArgs e) => this.InvokeAsync(this.StateHasChanged);

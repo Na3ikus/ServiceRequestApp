@@ -1,3 +1,4 @@
+using System.Threading;
 using Microsoft.AspNetCore.Components;
 using ServiceDeskSystem.Components.Common;
 using ServiceDeskSystem.Data.Entities;
@@ -11,6 +12,10 @@ namespace ServiceDeskSystem.Components.Pages;
 /// </summary>
 public partial class TicketList : BaseComponent
 {
+    private readonly TimeSpan refreshInterval = TimeSpan.FromSeconds(5);
+    private Timer? refreshTimer;
+    private bool isRefreshing;
+
     [Inject]
     private ITicketService TicketService { get; set; } = null!;
 
@@ -22,6 +27,17 @@ public partial class TicketList : BaseComponent
     protected override async Task OnInitializedAsync()
     {
         this.tickets = await this.TicketService.GetAllTicketsAsync();
+        this.StartAutoRefresh();
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            this.refreshTimer?.Dispose();
+        }
+
+        base.Dispose(disposing);
     }
 
     private static string GetStatusBadgeClass(string status) => status switch
@@ -43,6 +59,33 @@ public partial class TicketList : BaseComponent
     };
 
     private void ViewTicket(int id) => this.Navigation.NavigateTo($"/ticket/{id}");
+
+    private void StartAutoRefresh()
+    {
+        this.refreshTimer ??= new Timer(async _ => await this.RefreshTicketsAsync(), null, this.refreshInterval, this.refreshInterval);
+    }
+
+    private async Task RefreshTicketsAsync()
+    {
+        if (this.isRefreshing)
+        {
+            return;
+        }
+
+        this.isRefreshing = true;
+        try
+        {
+            await this.InvokeAsync(async () =>
+            {
+                this.tickets = await this.TicketService.GetAllTicketsAsync();
+                this.StateHasChanged();
+            });
+        }
+        finally
+        {
+            this.isRefreshing = false;
+        }
+    }
 
     private string GetStatusText(string status) => status switch
     {
