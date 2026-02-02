@@ -42,6 +42,10 @@ generated_code = true
 [*.razor]
 indent_size = 4
 
+# Suppress HTML warnings for Razor syntax in attributes
+# HTML0209: Invalid attribute value (Razor expressions are valid in Blazor)
+dotnet_diagnostic.HTML0209.severity = none
+
 
 [*.{json,xml,csproj}]
 indent_size = 2
