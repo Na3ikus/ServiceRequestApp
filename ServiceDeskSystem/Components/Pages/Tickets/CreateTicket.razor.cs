@@ -4,7 +4,7 @@ using ServiceDeskSystem.Data.Entities;
 using ServiceDeskSystem.Services.Auth;
 using ServiceDeskSystem.Services.Tickets;
 
-namespace ServiceDeskSystem.Components.Pages;
+namespace ServiceDeskSystem.Components.Pages.Tickets;
 
 /// <summary>
 /// Create ticket page component.

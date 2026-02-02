@@ -5,7 +5,7 @@ using ServiceDeskSystem.Data.Entities;
 using ServiceDeskSystem.Services.Localization;
 using ServiceDeskSystem.Services.Tickets;
 
-namespace ServiceDeskSystem.Components.Pages;
+namespace ServiceDeskSystem.Components.Pages.Tickets;
 
 /// <summary>
 /// Ticket list page component.

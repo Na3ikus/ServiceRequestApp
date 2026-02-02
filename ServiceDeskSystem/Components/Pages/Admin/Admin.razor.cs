@@ -4,7 +4,7 @@ using ServiceDeskSystem.Data.Entities;
 using ServiceDeskSystem.Services.Admin;
 using ServiceDeskSystem.Services.Auth;
 
-namespace ServiceDeskSystem.Components.Pages;
+namespace ServiceDeskSystem.Components.Pages.Admin;
 
 /// <summary>
 /// Admin panel page for managing products, tech stacks, and users.

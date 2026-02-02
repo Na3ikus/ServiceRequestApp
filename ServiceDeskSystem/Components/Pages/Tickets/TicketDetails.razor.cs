@@ -5,7 +5,7 @@ using ServiceDeskSystem.Services.Auth;
 using ServiceDeskSystem.Services.Localization;
 using ServiceDeskSystem.Services.Tickets;
 
-namespace ServiceDeskSystem.Components.Pages;
+namespace ServiceDeskSystem.Components.Pages.Tickets;
 
 /// <summary>
 /// Ticket details page component.

@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Components;
 using ServiceDeskSystem.Components.Common;
 using ServiceDeskSystem.Services.Auth;
 
-namespace ServiceDeskSystem.Components.Pages;
+namespace ServiceDeskSystem.Components.Pages.Auth;
 
 /// <summary>
 /// Registration page component.
