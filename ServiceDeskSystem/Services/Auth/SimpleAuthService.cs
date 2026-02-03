@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using Microsoft.EntityFrameworkCore;
 using ServiceDeskSystem.Data;
 using ServiceDeskSystem.Data.Entities;
+using ServiceDeskSystem.Data.Repository;
 
 namespace ServiceDeskSystem.Services.Auth;
 
@@ -30,30 +31,23 @@ internal sealed class SimpleAuthService(
             var stored = await sessionStorage.GetAsync<int>("authUserId").ConfigureAwait(false);
             if (stored.Success && stored.Value > 0)
             {
-                var dbContext = await contextFactory.CreateDbContextAsync().ConfigureAwait(false);
-                await using (dbContext.ConfigureAwait(false))
-                {
-                    var user = await dbContext.Users
-                        .Include(u => u.Person)
-                        .FirstOrDefaultAsync(u => u.Id == stored.Value)
-                        .ConfigureAwait(false);
+                await using var repo = new RepositoryFacade(contextFactory);
+                var user = await repo.Users.GetByIdAsync(stored.Value).ConfigureAwait(false);
 
-                    if (user is not null && user.IsActive)
-                    {
-                        this.CurrentUser = user;
-                        this.AuthStateChanged?.Invoke(this, EventArgs.Empty);
-                    }
-                    else
-                    {
-                        await sessionStorage.DeleteAsync("authUserId").ConfigureAwait(false);
-                    }
+                if (user is not null && user.IsActive)
+                {
+                    this.CurrentUser = user;
+                    this.AuthStateChanged?.Invoke(this, EventArgs.Empty);
+                }
+                else
+                {
+                    await sessionStorage.DeleteAsync("authUserId").ConfigureAwait(false);
                 }
             }
         }
         catch
         {
-            // ProtectedSessionStorage may throw an exception before the first render.
-            // This can be safely ignored as it does not affect authentication state restoration.
+            // It's safe to ignore exceptions here, as failure to restore session does not affect application logic.
         }
     }
 
@@ -64,35 +58,29 @@ internal sealed class SimpleAuthService(
             return (false, "Username and password are required.");
         }
 
-        var dbContext = await contextFactory.CreateDbContextAsync().ConfigureAwait(false);
-        await using (dbContext.ConfigureAwait(false))
+        await using var repo = new RepositoryFacade(contextFactory);
+        var user = await repo.Users.GetByLoginAsync(username).ConfigureAwait(false);
+
+        if (user is null)
         {
-            var user = await dbContext.Users
-                .Include(u => u.Person)
-                .FirstOrDefaultAsync(u => u.Login == username)
-                .ConfigureAwait(false);
-
-            if (user is null)
-            {
-                return (false, "Invalid username or password.");
-            }
-
-            if (!user.IsActive)
-            {
-                return (false, "Account is deactivated. Please contact administrator.");
-            }
-
-            if (!VerifyPassword(password, user.PasswordHash))
-            {
-                return (false, "Invalid username or password.");
-            }
-
-            this.CurrentUser = user;
-            await this.SaveToSessionAsync(user).ConfigureAwait(false);
-            this.AuthStateChanged?.Invoke(this, EventArgs.Empty);
-
-            return (true, null);
+            return (false, "Invalid username or password.");
         }
+
+        if (!user.IsActive)
+        {
+            return (false, "Account is deactivated. Please contact administrator.");
+        }
+
+        if (!VerifyPassword(password, user.PasswordHash))
+        {
+            return (false, "Invalid username or password.");
+        }
+
+        this.CurrentUser = user;
+        await this.SaveToSessionAsync(user).ConfigureAwait(false);
+        this.AuthStateChanged?.Invoke(this, EventArgs.Empty);
+
+        return (true, null);
     }
 
     public async Task<(bool Success, string? ErrorMessage)> RegisterClientAsync(string username, string password, string firstName, string lastName, string? email)

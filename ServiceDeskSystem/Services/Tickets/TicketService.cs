@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using ServiceDeskSystem.Data;
 using ServiceDeskSystem.Data.Entities;
+using ServiceDeskSystem.Data.Repository;
 
 namespace ServiceDeskSystem.Services.Tickets;
 
@@ -8,261 +9,185 @@ internal sealed class TicketService(IDbContextFactory<BugTrackerDbContext> conte
 {
     public async Task<List<Ticket>> GetAllTicketsAsync()
     {
-        var dbContext = await contextFactory.CreateDbContextAsync().ConfigureAwait(false);
-        await using (dbContext.ConfigureAwait(false))
-        {
-            return await dbContext.Tickets
-                .Include(t => t.Author)
-                .Include(t => t.Product)
-                .Include(t => t.Developer)
-                .OrderByDescending(t => t.CreatedAt)
-                .ToListAsync()
-                .ConfigureAwait(false);
-        }
+        await using var repo = new RepositoryFacade(contextFactory);
+        var tickets = await repo.Tickets.GetAllWithIncludesAsync().ConfigureAwait(false);
+        return tickets.ToList();
     }
 
     public async Task<Comment?> UpdateCommentAsync(int commentId, string newMessage)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(newMessage);
 
-        var dbContext = await contextFactory.CreateDbContextAsync().ConfigureAwait(false);
-        await using (dbContext.ConfigureAwait(false))
+        await using var repo = new RepositoryFacade(contextFactory);
+        var existing = await repo.Comments.GetByIdWithAuthorAsync(commentId).ConfigureAwait(false);
+
+        if (existing is null)
         {
-            var existing = await dbContext.Comments
-                .Include(c => c.Author)
-                .FirstOrDefaultAsync(c => c.Id == commentId)
-                .ConfigureAwait(false);
-
-            if (existing is null)
-            {
-                return null;
-            }
-
-            existing.Message = newMessage;
-            await dbContext.SaveChangesAsync().ConfigureAwait(false);
-            return existing;
+            return null;
         }
+
+        existing.Message = newMessage;
+        await repo.SaveChangesAsync().ConfigureAwait(false);
+        return existing;
     }
 
     public async Task<Ticket?> GetTicketByIdAsync(int id)
     {
-        var dbContext = await contextFactory.CreateDbContextAsync().ConfigureAwait(false);
-        await using (dbContext.ConfigureAwait(false))
-        {
-            return await dbContext.Tickets
-                .Include(t => t.Author)
-                .Include(t => t.Product)
-                .Include(t => t.Developer)
-                .Include(t => t.Comments)
-                    .ThenInclude(c => c.Author)
-                .FirstOrDefaultAsync(t => t.Id == id)
-                .ConfigureAwait(false);
-        }
+        await using var repo = new RepositoryFacade(contextFactory);
+        return await repo.Tickets.GetByIdWithIncludesAsync(id).ConfigureAwait(false);
     }
 
     public async Task<Ticket> CreateTicketAsync(Ticket ticket)
     {
         ArgumentNullException.ThrowIfNull(ticket);
 
-        var dbContext = await contextFactory.CreateDbContextAsync().ConfigureAwait(false);
-        await using (dbContext.ConfigureAwait(false))
-        {
-            ticket.CreatedAt = DateTime.UtcNow;
-            ticket.Status = "Open";
+        await using var repo = new RepositoryFacade(contextFactory);
+        ticket.CreatedAt = DateTime.UtcNow;
+        ticket.Status = "Open";
 
-            dbContext.Tickets.Add(ticket);
-            await dbContext.SaveChangesAsync().ConfigureAwait(false);
+        await repo.Tickets.CreateAsync(ticket).ConfigureAwait(false);
+        await repo.SaveChangesAsync().ConfigureAwait(false);
 
-            return ticket;
-        }
+        return ticket;
     }
 
     public async Task<Comment> AddCommentAsync(Comment comment)
     {
         ArgumentNullException.ThrowIfNull(comment);
 
-        var dbContext = await contextFactory.CreateDbContextAsync().ConfigureAwait(false);
-        await using (dbContext.ConfigureAwait(false))
-        {
-            comment.CreatedAt = DateTime.UtcNow;
+        await using var repo = new RepositoryFacade(contextFactory);
+        comment.CreatedAt = DateTime.UtcNow;
 
-            dbContext.Comments.Add(comment);
-            await dbContext.SaveChangesAsync().ConfigureAwait(false);
+        await repo.Comments.CreateAsync(comment).ConfigureAwait(false);
+        await repo.SaveChangesAsync().ConfigureAwait(false);
 
-            await dbContext.Entry(comment)
-                .Reference(c => c.Author)
-                .LoadAsync()
-                .ConfigureAwait(false);
-
-            return comment;
-        }
+        var result = await repo.Comments.GetByIdWithAuthorAsync(comment.Id).ConfigureAwait(false);
+        return result ?? comment;
     }
 
     public async Task<bool> UpdateTicketStatusAsync(int ticketId, string newStatus)
     {
-        var dbContext = await contextFactory.CreateDbContextAsync().ConfigureAwait(false);
-        await using (dbContext.ConfigureAwait(false))
+        await using var repo = new RepositoryFacade(contextFactory);
+        var ticket = await repo.Tickets.GetByIdAsync(ticketId).ConfigureAwait(false);
+
+        if (ticket is null)
         {
-            var ticket = await dbContext.Tickets.FindAsync(ticketId).ConfigureAwait(false);
-
-            if (ticket is null)
-            {
-                return false;
-            }
-
-            ticket.Status = newStatus;
-            await dbContext.SaveChangesAsync().ConfigureAwait(false);
-
-            return true;
+            return false;
         }
+
+        ticket.Status = newStatus;
+        await repo.SaveChangesAsync().ConfigureAwait(false);
+
+        return true;
     }
 
     public async Task<bool> DeleteTicketAsync(int ticketId)
     {
-        var dbContext = await contextFactory.CreateDbContextAsync().ConfigureAwait(false);
-        await using (dbContext.ConfigureAwait(false))
+        await using var repo = new RepositoryFacade(contextFactory);
+        var ticket = await repo.Tickets.GetByIdWithIncludesAsync(ticketId).ConfigureAwait(false);
+
+        if (ticket is null)
         {
-            var ticket = await dbContext.Tickets
-                .Include(t => t.Comments)
-                .FirstOrDefaultAsync(t => t.Id == ticketId)
-                .ConfigureAwait(false);
-
-            if (ticket is null)
-            {
-                return false;
-            }
-
-            dbContext.Tickets.Remove(ticket);
-            await dbContext.SaveChangesAsync().ConfigureAwait(false);
-            return true;
+            return false;
         }
+
+        await repo.Tickets.DeleteAsync(ticketId).ConfigureAwait(false);
+        await repo.SaveChangesAsync().ConfigureAwait(false);
+        return true;
     }
 
     public async Task<List<Product>> GetProductsAsync()
     {
-        var dbContext = await contextFactory.CreateDbContextAsync().ConfigureAwait(false);
-        await using (dbContext.ConfigureAwait(false))
-        {
-            return await dbContext.Products
-                .OrderBy(p => p.Name)
-                .ToListAsync()
-                .ConfigureAwait(false);
-        }
+        await using var repo = new RepositoryFacade(contextFactory);
+        var products = await repo.Products.GetAllAsync().ConfigureAwait(false);
+        return products.OrderBy(p => p.Name).ToList();
     }
 
     public async Task<int> GetTotalTicketsCountAsync()
     {
-        var dbContext = await contextFactory.CreateDbContextAsync().ConfigureAwait(false);
-        await using (dbContext.ConfigureAwait(false))
-        {
-            return await dbContext.Tickets.CountAsync().ConfigureAwait(false);
-        }
+        await using var repo = new RepositoryFacade(contextFactory);
+        var tickets = await repo.Tickets.GetAllAsync().ConfigureAwait(false);
+        return tickets.Count();
     }
 
     public async Task<int> GetOpenTicketsCountAsync()
     {
-        var dbContext = await contextFactory.CreateDbContextAsync().ConfigureAwait(false);
-        await using (dbContext.ConfigureAwait(false))
-        {
-            return await dbContext.Tickets.CountAsync(t => t.Status == "Open").ConfigureAwait(false);
-        }
+        await using var repo = new RepositoryFacade(contextFactory);
+        var tickets = await repo.Tickets.FindAsync(t => t.Status == "Open").ConfigureAwait(false);
+        return tickets.Count();
     }
 
     public async Task<int> GetCriticalTicketsCountAsync()
     {
-        var dbContext = await contextFactory.CreateDbContextAsync().ConfigureAwait(false);
-        await using (dbContext.ConfigureAwait(false))
-        {
-            return await dbContext.Tickets.CountAsync(t => t.Priority == "Critical").ConfigureAwait(false);
-        }
+        await using var repo = new RepositoryFacade(contextFactory);
+        var tickets = await repo.Tickets.FindAsync(t => t.Priority == "Critical").ConfigureAwait(false);
+        return tickets.Count();
     }
 
     public async Task<int> GetUserTicketsCountAsync(int userId)
     {
-            var dbContext = await contextFactory.CreateDbContextAsync().ConfigureAwait(false);
-            await using (dbContext.ConfigureAwait(false))
-            {
-                return await dbContext.Tickets.CountAsync(t => t.AuthorId == userId).ConfigureAwait(false);
-            }
+        await using var repo = new RepositoryFacade(contextFactory);
+        var tickets = await repo.Tickets.FindAsync(t => t.AuthorId == userId).ConfigureAwait(false);
+        return tickets.Count();
     }
 
     public async Task<bool> AssignDeveloperAsync(int ticketId, int developerId)
     {
-            var dbContext = await contextFactory.CreateDbContextAsync().ConfigureAwait(false);
-            await using (dbContext.ConfigureAwait(false))
-            {
-                var ticket = await dbContext.Tickets.FindAsync(ticketId).ConfigureAwait(false);
+        await using var repo = new RepositoryFacade(contextFactory);
+        var ticket = await repo.Tickets.GetByIdAsync(ticketId).ConfigureAwait(false);
 
-                if (ticket is null)
-                {
-                    return false;
-                }
+        if (ticket is null)
+        {
+            return false;
+        }
 
-                ticket.DeveloperId = developerId;
-                await dbContext.SaveChangesAsync().ConfigureAwait(false);
+        ticket.DeveloperId = developerId;
+        await repo.SaveChangesAsync().ConfigureAwait(false);
 
-                return true;
-            }
+        return true;
     }
 
     public async Task<bool> UnassignDeveloperAsync(int ticketId)
     {
-            var dbContext = await contextFactory.CreateDbContextAsync().ConfigureAwait(false);
-            await using (dbContext.ConfigureAwait(false))
-            {
-                var ticket = await dbContext.Tickets.FindAsync(ticketId).ConfigureAwait(false);
+        await using var repo = new RepositoryFacade(contextFactory);
+        var ticket = await repo.Tickets.GetByIdAsync(ticketId).ConfigureAwait(false);
 
-                if (ticket is null)
-                {
-                    return false;
-                }
+        if (ticket is null)
+        {
+            return false;
+        }
 
-                ticket.DeveloperId = null;
-                await dbContext.SaveChangesAsync().ConfigureAwait(false);
+        ticket.DeveloperId = null;
+        await repo.SaveChangesAsync().ConfigureAwait(false);
 
-                return true;
-            }
+        return true;
     }
 
     public async Task<List<Ticket>> GetDeveloperTicketsAsync(int developerId)
     {
-            var dbContext = await contextFactory.CreateDbContextAsync().ConfigureAwait(false);
-            await using (dbContext.ConfigureAwait(false))
-            {
-                return await dbContext.Tickets
-                    .Include(t => t.Author)
-                    .Include(t => t.Product)
-                    .Where(t => t.DeveloperId == developerId)
-                    .OrderByDescending(t => t.CreatedAt)
-                    .ToListAsync()
-                    .ConfigureAwait(false);
-            }
+        await using var repo = new RepositoryFacade(contextFactory);
+        var tickets = await repo.Tickets.GetByDeveloperIdAsync(developerId).ConfigureAwait(false);
+        return tickets.ToList();
     }
 
     public async Task<int> GetDeveloperAssignedCountAsync(int developerId)
     {
-            var dbContext = await contextFactory.CreateDbContextAsync().ConfigureAwait(false);
-            await using (dbContext.ConfigureAwait(false))
-            {
-                return await dbContext.Tickets.CountAsync(t => t.DeveloperId == developerId).ConfigureAwait(false);
-            }
+        await using var repo = new RepositoryFacade(contextFactory);
+        var tickets = await repo.Tickets.FindAsync(t => t.DeveloperId == developerId).ConfigureAwait(false);
+        return tickets.Count();
     }
 
     public async Task<int> GetDeveloperInProgressCountAsync(int developerId)
     {
-            var dbContext = await contextFactory.CreateDbContextAsync().ConfigureAwait(false);
-            await using (dbContext.ConfigureAwait(false))
-            {
-                return await dbContext.Tickets.CountAsync(t => t.DeveloperId == developerId && t.Status == "In Progress").ConfigureAwait(false);
-            }
+        await using var repo = new RepositoryFacade(contextFactory);
+        var tickets = await repo.Tickets.FindAsync(t => t.DeveloperId == developerId && t.Status == "In Progress").ConfigureAwait(false);
+        return tickets.Count();
     }
 
     public async Task<int> GetDeveloperCompletedCountAsync(int developerId)
     {
-            var dbContext = await contextFactory.CreateDbContextAsync().ConfigureAwait(false);
-            await using (dbContext.ConfigureAwait(false))
-            {
-                return await dbContext.Tickets.CountAsync(t => t.DeveloperId == developerId && (t.Status == "Resolved" || t.Status == "Closed")).ConfigureAwait(false);
-            }
+        await using var repo = new RepositoryFacade(contextFactory);
+        var tickets = await repo.Tickets.FindAsync(t => t.DeveloperId == developerId && (t.Status == "Resolved" || t.Status == "Closed")).ConfigureAwait(false);
+        return tickets.Count();
     }
 }

@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using ServiceDeskSystem.Data;
 using ServiceDeskSystem.Data.Entities;
+using ServiceDeskSystem.Data.Repository;
 
 namespace ServiceDeskSystem.Services.Admin;
 
@@ -8,163 +9,119 @@ internal sealed class AdminService(IDbContextFactory<BugTrackerDbContext> contex
 {
     public async Task<List<TechStack>> GetAllTechStacksAsync()
     {
-        var dbContext = await contextFactory.CreateDbContextAsync().ConfigureAwait(false);
-        await using (dbContext.ConfigureAwait(false))
-        {
-            return await dbContext.TechStacks
-                .Include(t => t.Products)
-                .OrderBy(t => t.Name)
-                .ToListAsync()
-                .ConfigureAwait(false);
-        }
+        await using var repo = new RepositoryFacade(contextFactory);
+        var techStacks = await repo.TechStacks.GetAllWithProductsAsync().ConfigureAwait(false);
+        return techStacks.ToList();
     }
 
     public async Task<List<Product>> GetAllProductsAsync()
     {
-        var dbContext = await contextFactory.CreateDbContextAsync().ConfigureAwait(false);
-        await using (dbContext.ConfigureAwait(false))
-        {
-            return await dbContext.Products
-                .Include(p => p.TechStack)
-                .OrderBy(p => p.Name)
-                .ToListAsync()
-                .ConfigureAwait(false);
-        }
+        await using var repo = new RepositoryFacade(contextFactory);
+        var products = await repo.Products.GetAllWithTechStackAsync().ConfigureAwait(false);
+        return products.ToList();
     }
 
     public async Task<TechStack> CreateTechStackAsync(TechStack techStack)
     {
         ArgumentNullException.ThrowIfNull(techStack);
 
-        var dbContext = await contextFactory.CreateDbContextAsync().ConfigureAwait(false);
-        await using (dbContext.ConfigureAwait(false))
-        {
-            dbContext.TechStacks.Add(techStack);
-            await dbContext.SaveChangesAsync().ConfigureAwait(false);
-            return techStack;
-        }
+        await using var repo = new RepositoryFacade(contextFactory);
+        await repo.TechStacks.CreateAsync(techStack).ConfigureAwait(false);
+        await repo.SaveChangesAsync().ConfigureAwait(false);
+        return techStack;
     }
 
     public async Task<Product> CreateProductAsync(Product product)
     {
         ArgumentNullException.ThrowIfNull(product);
 
-        var dbContext = await contextFactory.CreateDbContextAsync().ConfigureAwait(false);
-        await using (dbContext.ConfigureAwait(false))
-        {
-            dbContext.Products.Add(product);
-            await dbContext.SaveChangesAsync().ConfigureAwait(false);
-            return product;
-        }
+        await using var repo = new RepositoryFacade(contextFactory);
+        await repo.Products.CreateAsync(product).ConfigureAwait(false);
+        await repo.SaveChangesAsync().ConfigureAwait(false);
+        return product;
     }
 
     public async Task<bool> UpdateTechStackAsync(TechStack techStack)
     {
         ArgumentNullException.ThrowIfNull(techStack);
 
-        var dbContext = await contextFactory.CreateDbContextAsync().ConfigureAwait(false);
-        await using (dbContext.ConfigureAwait(false))
+        await using var repo = new RepositoryFacade(contextFactory);
+        var existing = await repo.TechStacks.GetByIdAsync(techStack.Id).ConfigureAwait(false);
+        if (existing is null)
         {
-            var existing = await dbContext.TechStacks.FindAsync(techStack.Id).ConfigureAwait(false);
-            if (existing is null)
-            {
-                return false;
-            }
-
-            existing.Name = techStack.Name;
-            existing.Type = techStack.Type;
-            await dbContext.SaveChangesAsync().ConfigureAwait(false);
-            return true;
+            return false;
         }
+
+        existing.Name = techStack.Name;
+        existing.Type = techStack.Type;
+        await repo.SaveChangesAsync().ConfigureAwait(false);
+        return true;
     }
 
     public async Task<bool> UpdateProductAsync(Product product)
     {
         ArgumentNullException.ThrowIfNull(product);
 
-        var dbContext = await contextFactory.CreateDbContextAsync().ConfigureAwait(false);
-        await using (dbContext.ConfigureAwait(false))
+        await using var repo = new RepositoryFacade(contextFactory);
+        var existing = await repo.Products.GetByIdAsync(product.Id).ConfigureAwait(false);
+        if (existing is null)
         {
-            var existing = await dbContext.Products.FindAsync(product.Id).ConfigureAwait(false);
-            if (existing is null)
-            {
-                return false;
-            }
-
-            existing.Name = product.Name;
-            existing.Description = product.Description;
-            existing.CurrentVersion = product.CurrentVersion;
-            existing.TechStackId = product.TechStackId;
-            await dbContext.SaveChangesAsync().ConfigureAwait(false);
-            return true;
+            return false;
         }
+
+        existing.Name = product.Name;
+        existing.Description = product.Description;
+        existing.CurrentVersion = product.CurrentVersion;
+        existing.TechStackId = product.TechStackId;
+        await repo.SaveChangesAsync().ConfigureAwait(false);
+        return true;
     }
 
     public async Task<bool> DeleteTechStackAsync(int id)
     {
-        var dbContext = await contextFactory.CreateDbContextAsync().ConfigureAwait(false);
-        await using (dbContext.ConfigureAwait(false))
+        await using var repo = new RepositoryFacade(contextFactory);
+        var techStack = await repo.TechStacks.GetByIdWithProductsAsync(id).ConfigureAwait(false);
+
+        if (techStack is null)
         {
-            var techStack = await dbContext.TechStacks
-                .Include(t => t.Products)
-                .FirstOrDefaultAsync(t => t.Id == id)
-                .ConfigureAwait(false);
-
-            if (techStack is null)
-            {
-                return false;
-            }
-
-            if (techStack.Products.Count > 0)
-            {
-                return false;
-            }
-
-            dbContext.TechStacks.Remove(techStack);
-            await dbContext.SaveChangesAsync().ConfigureAwait(false);
-            return true;
+            return false;
         }
+
+        if (techStack.Products.Count > 0)
+        {
+            return false;
+        }
+
+        await repo.TechStacks.DeleteAsync(id).ConfigureAwait(false);
+        await repo.SaveChangesAsync().ConfigureAwait(false);
+        return true;
     }
 
     public async Task<bool> DeleteProductAsync(int id)
     {
-        var dbContext = await contextFactory.CreateDbContextAsync().ConfigureAwait(false);
-        await using (dbContext.ConfigureAwait(false))
+        await using var repo = new RepositoryFacade(contextFactory);
+        var product = await repo.Products.GetByIdWithTicketsAsync(id).ConfigureAwait(false);
+
+        if (product is null)
         {
-            var product = await dbContext.Products
-                .Include(p => p.Tickets)
-                .FirstOrDefaultAsync(p => p.Id == id)
-                .ConfigureAwait(false);
-
-            if (product is null)
-            {
-                return false;
-            }
-
-            if (product.Tickets.Count > 0)
-            {
-                return false;
-            }
-
-            dbContext.Products.Remove(product);
-            await dbContext.SaveChangesAsync().ConfigureAwait(false);
-            return true;
+            return false;
         }
+
+        if (product.Tickets.Count > 0)
+        {
+            return false;
+        }
+
+        await repo.Products.DeleteAsync(id).ConfigureAwait(false);
+        await repo.SaveChangesAsync().ConfigureAwait(false);
+        return true;
     }
 
-    // User Management
     public async Task<List<User>> GetAllUsersAsync()
     {
-        var dbContext = await contextFactory.CreateDbContextAsync().ConfigureAwait(false);
-        await using (dbContext.ConfigureAwait(false))
-        {
-            return await dbContext.Users
-                .Include(u => u.Person)
-                .OrderBy(u => u.Login)
-                .AsNoTracking()
-                .ToListAsync()
-                .ConfigureAwait(false);
-        }
+        await using var repo = new RepositoryFacade(contextFactory);
+        var users = await repo.Users.GetAllWithPersonAsync().ConfigureAwait(false);
+        return users.ToList();
     }
 
     public async Task<bool> UpdateUserRoleAsync(int userId, string newRole)
