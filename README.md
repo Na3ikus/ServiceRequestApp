@@ -1,18 +1,36 @@
-# Service Request App
+# 🎫 ServiceDesk - IT Service Management System
 
-<p align="left">
-  <img alt="C#" src="https://img.shields.io/badge/C%23-239120?style=for-the-badge&logo=c-sharp&logoColor=white">
-  <img alt=".NET" src="https://img.shields.io/badge/.NET-512BD4?style=for-the-badge&logo=dotnet&logoColor=white">
-  <img alt="Blazor" src="https://img.shields.io/badge/Blazor-512BD4?style=for-the-badge&logo=blazor&logoColor=white">
-  <img alt="MySQL" src="https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white">
-  <img alt="HTML5" src="https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white">
-  <img alt="CSS3" src="https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white">
-  <img alt="Tailwind CSS" src="https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=for-the-badge&logo=tailwind-css&logoColor=white">
-  <img alt="JavaScript" src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black">
+<p align="center">
+  <img src="screenshots/login-uk.png" alt="ServiceDesk Login" width="600"/>
 </p>
 
-## What it is
-ServiceRequestApp is a comprehensive IT Service Desk and Incident Management system built on .NET (Blazor Server) with MySQL. It enables registering, tracking, and escalating incidents and service requests, supports SLA transparency, and facilitates team collaboration.
+<p align="center">
+  <img alt="C#" src="https://img.shields.io/badge/C%23-239120?style=for-the-badge&logo=c-sharp&logoColor=white">
+  <img alt=".NET 10" src="https://img.shields.io/badge/.NET%2010-512BD4?style=for-the-badge&logo=dotnet&logoColor=white">
+  <img alt="Blazor" src="https://img.shields.io/badge/Blazor-512BD4?style=for-the-badge&logo=blazor&logoColor=white">
+  <img alt="MySQL" src="https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white">
+  <img alt="Tailwind CSS" src="https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=for-the-badge&logo=tailwind-css&logoColor=white">
+</p>
+
+<p align="center">
+  <strong>A modern, comprehensive IT Service Desk and Incident Management system</strong>
+</p>
+
+---
+
+## 📋 Overview
+
+**ServiceDesk** is a powerful IT Service Management (ITSM) platform built with **.NET 10** and **Blazor Server**, designed to streamline incident tracking, service requests, and team collaboration. With multilingual support (English & Ukrainian), intuitive UI, and robust backend, it's perfect for IT departments of any size.
+
+### ✨ Key Highlights
+
+- 🎯 **Real-time incident & request tracking**
+- 🌐 **Multilingual interface** (English/Ukrainian)
+- 📊 **Interactive dashboards & analytics**
+- 🔐 **Role-based access control (RBAC)**
+- ⚡ **SLA management & escalations**
+- 🎨 **Modern UI with Tailwind CSS**
+- 🚀 **Built with .NET 10 & Blazor Server**
 
 ## What it’s for
 - Centralize incident and request tracking.
@@ -41,32 +59,114 @@ ServiceRequestApp is a comprehensive IT Service Desk and Incident Management sys
 - Service catalog and service request handling.
 - Metric collection for reporting and SLA improvement.
 
-## Screenshots
+## 📸 Screenshots
+
+<details>
+<summary><b>🔐 Authentication & Login</b></summary>
 
 ### Login Page (English)
-![Login Page - English](screenshots/login-en.png)
+<img src="screenshots/login-en.png" alt="Login Page English" width="700"/>
 
 ### Login Page (Ukrainian)
-![Login Page - Ukrainian](screenshots/login-uk.png)
+<img src="screenshots/login-uk.png" alt="Login Page Ukrainian" width="700"/>
 
-### Dashboard
-![Dashboard](screenshots/dashboard.png)
+</details>
 
-## Project status
-- Repository is under active development; capabilities may evolve.
+<details open>
+<summary><b>📊 Dashboard & Tickets</b></summary>
 
-## Roadmap (example directions)
-- Advanced SLA policies and auto-escalations.
-- Integrations with email/chat (SMTP, Teams/Slack webhooks).
-- KPI dashboards (MTTR, MTBF, SLA compliance).
-- Expanded RBAC, auditing, logging.
-- Knowledge/FAQ modules for self-service.
+### Main Dashboard
+<img src="screenshots/dashboard.png" alt="Dashboard" width="700"/>
 
-## How to contribute
-- Review open issues and discussions.
-- Propose improvements or report problems.
-- Follow project style and quality conventions.
+### Ticket Details
+<img src="screenshots/ticket-info.png" alt="Ticket Info" width="700"/>
 
-## Contact
-- Open an issue in the repository for bugs, requests, or ideas.
-- Suggestions for integrations and new features are welcome.
+</details>
+
+<details>
+<summary><b>⚙️ Admin Panel</b></summary>
+
+### Admin Panel
+<img src="screenshots/admin-panel.png" alt="Admin Panel" width="700"/>
+
+### Product Management
+<img src="screenshots/admin-panel-product.png" alt="Product Management" width="700"/>
+
+### Tech Stack Management
+<img src="screenshots/admin-panel-techstack.png" alt="Tech Stack" width="700"/>
+
+### Developer Panel
+<img src="screenshots/panel-dev.png" alt="Developer Panel" width="700"/>
+
+</details>
+
+---
+
+## 🚦 Project Status
+
+> ⚠️ **Active Development**: This repository is under active development. Features and capabilities may evolve.
+
+### Current Version
+- **Phase**: Beta
+- **Framework**: .NET 10
+- **Database**: MySQL 8.0+
+
+---
+
+## 🗺️ Roadmap
+
+### 📅 Planned Features
+
+- [ ] **Advanced SLA Policies**: Automated escalations and SLA breach notifications
+- [ ] **Email Integration**: SMTP support for notifications
+- [ ] **Chat Integration**: Teams/Slack webhook integration
+- [ ] **KPI Dashboards**: MTTR, MTBF, SLA compliance metrics
+- [ ] **Enhanced RBAC**: Expanded role management and permissions
+- [ ] **Audit Logging**: Comprehensive system activity tracking
+- [ ] **Knowledge Base**: FAQ and self-service modules
+- [ ] **Mobile App**: Native mobile applications for iOS/Android
+- [ ] **API**: RESTful API for third-party integrations
+- [ ] **Reporting**: Advanced reporting and analytics engine
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions! Here's how you can help:
+
+1. 🐛 **Report Bugs**: Open an issue with detailed reproduction steps
+2. 💡 **Suggest Features**: Share your ideas for new functionality
+3. 🔧 **Submit Pull Requests**: Follow our coding conventions
+4. 📖 **Improve Documentation**: Help us make the docs better
+5. ⭐ **Star the Project**: Show your support!
+
+### Development Guidelines
+- Follow C# coding conventions
+- Write unit tests for new features
+- Update documentation for any changes
+- Use descriptive commit messages
+
+---
+
+## 📧 Contact & Support
+
+- 🐛 **Bug Reports**: [Open an Issue](https://github.com/Na3ikus/ServiceRequestApp/issues)
+- 💬 **Discussions**: [GitHub Discussions](https://github.com/Na3ikus/ServiceRequestApp/discussions)
+- 🌟 **Feature Requests**: Share your ideas via Issues
+- 📧 **Email**: For private inquiries
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+<p align="center">
+  <strong>Built with ❤️ using .NET 10 and Blazor</strong>
+</p>
+
+<p align="center">
+  <a href="#top">⬆️ Back to Top</a>
+</p>
