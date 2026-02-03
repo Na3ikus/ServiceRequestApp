@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using ServiceDeskSystem.Data.Entities;
 
-namespace ServiceDeskSystem.Data.DataSeeding.Tables;
+namespace ServiceDeskSystem.Data.DataSeeding;
 
 internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
 {
