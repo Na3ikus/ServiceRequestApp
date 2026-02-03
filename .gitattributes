@@ -3,6 +3,12 @@
 ###############################################################################
 * text=auto
 
+# Enforce UTF-8 for source and Blazor files
+*.cs     text working-tree-encoding=UTF-8
+*.razor  text working-tree-encoding=UTF-8
+*.cshtml text working-tree-encoding=UTF-8
+*.resx   text working-tree-encoding=UTF-8
+
 ###############################################################################
 # Set default behavior for command prompt diff.
 #
