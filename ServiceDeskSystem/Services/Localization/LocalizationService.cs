@@ -1,319 +1,20 @@
+using System.Text.Json;
+using Microsoft.Extensions.FileProviders;
+
 namespace ServiceDeskSystem.Services.Localization;
 
 internal sealed class LocalizationService : ILocalizationService
 {
-    private readonly Dictionary<string, Dictionary<string, string>> translations = new ()
-    {
-        ["en"] = new Dictionary<string, string>
-        {
-            ["nav.allTickets"] = "All Tickets",
-            ["nav.newTicket"] = "New Ticket",
-            ["nav.serviceDesk"] = "ServiceDesk",
-            ["login.title"] = "Sign in to your account",
-            ["login.username"] = "Username",
-            ["login.password"] = "Password",
-            ["login.signIn"] = "Sign In",
-            ["login.signingIn"] = "Signing in...",
-            ["login.enterUsername"] = "Enter your username",
-            ["login.enterPassword"] = "Enter your password",
-            ["dashboard.welcome"] = "Welcome back!",
-            ["dashboard.totalTickets"] = "Total Tickets",
-            ["dashboard.openTickets"] = "Open Tickets",
-            ["dashboard.criticalPriority"] = "Critical Priority",
-            ["dashboard.myTickets"] = "My Tickets",
-            ["tickets.title"] = "All Tickets",
-            ["tickets.subtitle"] = "Manage and track support requests",
-            ["tickets.noTickets"] = "No tickets yet",
-            ["tickets.createFirst"] = "Get started by creating your first ticket",
-            ["tickets.createTicket"] = "Create Ticket",
-            ["tickets.loading"] = "Loading tickets...",
-            ["table.id"] = "ID",
-            ["table.title"] = "Title",
-            ["table.status"] = "Status",
-            ["table.priority"] = "Priority",
-            ["table.product"] = "Product",
-            ["table.author"] = "Author",
-            ["table.created"] = "Created",
-            ["create.title"] = "Create New Ticket",
-            ["create.subtitle"] = "Submit a new support request or bug report",
-            ["create.ticketTitle"] = "Title",
-            ["create.description"] = "Description",
-            ["create.priority"] = "Priority",
-            ["create.product"] = "Product",
-            ["create.stepsToReproduce"] = "Steps to Reproduce",
-            ["create.environment"] = "Environment",
-            ["create.cancel"] = "Cancel",
-            ["create.submit"] = "Create Ticket",
-            ["create.creating"] = "Creating...",
-            ["create.selectPriority"] = "Select priority...",
-            ["create.selectProduct"] = "Select product...",
-            ["details.description"] = "Description",
-            ["details.comments"] = "Comments",
-            ["details.addComment"] = "Add a Comment",
-            ["details.sendComment"] = "Send Comment",
-            ["details.sending"] = "Sending...",
-            ["details.noComments"] = "No comments yet.",
-            ["details.writeComment"] = "Write your comment...",
-            ["details.details"] = "Details",
-            ["details.ticketId"] = "Ticket ID",
-            ["details.actions"] = "Actions",
-            ["details.startProgress"] = "Start Progress",
-            ["details.markResolved"] = "Mark Resolved",
-            ["details.closeTicket"] = "Close Ticket",
-            ["details.reopenTicket"] = "Reopen Ticket",
-            ["details.deleteTicket"] = "Delete Ticket",
-            ["details.backToTickets"] = "? Back to Tickets",
-            ["details.loadingTicket"] = "Loading ticket...",
-            ["priority.low"] = "Low",
-            ["priority.medium"] = "Medium",
-            ["priority.high"] = "High",
-            ["priority.critical"] = "Critical",
-            ["status.open"] = "Open",
-            ["status.inProgress"] = "In Progress",
-            ["status.resolved"] = "Resolved",
-            ["status.closed"] = "Closed",
-            ["common.logout"] = "Logout",
-            ["common.required"] = "required",
-            ["common.footer"] = "Service Desk System",
-            ["theme.light"] = "Light",
-            ["theme.dark"] = "Dark",
-            ["theme.toggle"] = "Toggle theme",
-            ["register.title"] = "Create your account",
-            ["register.firstName"] = "First Name",
-            ["register.lastName"] = "Last Name",
-            ["register.email"] = "Email (optional)",
-            ["register.enterFirstName"] = "Enter your first name",
-            ["register.enterLastName"] = "Enter your last name",
-            ["register.enterEmail"] = "Enter your email",
-            ["register.confirmPassword"] = "Confirm Password",
-            ["register.enterConfirmPassword"] = "Confirm your password",
-            ["register.signUp"] = "Sign Up",
-            ["register.signingUp"] = "Creating account...",
-            ["register.haveAccount"] = "Already have an account?",
-            ["register.signIn"] = "Sign In",
-            ["login.noAccount"] = "Don't have an account?",
-            ["login.signUp"] = "Sign Up",
-            ["login.accountDeactivated"] = "Account is deactivated. Please contact administrator.",
-            ["nav.admin"] = "Administration",
-            ["admin.title"] = "Administration Panel",
-            ["admin.subtitle"] = "Manage products and tech stacks",
-            ["admin.products"] = "Products",
-            ["admin.techStacks"] = "Tech Stacks",
-            ["admin.addProduct"] = "Add Product",
-            ["admin.addTechStack"] = "Add Tech Stack",
-            ["admin.editProduct"] = "Edit Product",
-            ["admin.editTechStack"] = "Edit Tech Stack",
-            ["admin.name"] = "Name",
-            ["admin.description"] = "Description",
-            ["admin.version"] = "Version",
-            ["admin.techStack"] = "Tech Stack",
-            ["admin.type"] = "Type",
-            ["admin.productsCount"] = "Products",
-            ["admin.actions"] = "Actions",
-            ["admin.cancel"] = "Cancel",
-            ["admin.save"] = "Save",
-            ["admin.saving"] = "Saving...",
-            ["admin.nameRequired"] = "Name is required",
-            ["admin.accessDenied"] = "Access denied. Administrator privileges required.",
-            ["admin.users"] = "Users",
-            ["admin.login"] = "Login",
-            ["admin.fullName"] = "Full Name",
-            ["admin.role"] = "Role",
-            ["admin.status"] = "Status",
-            ["admin.active"] = "Active",
-            ["admin.inactive"] = "Inactive",
-            ["admin.roleAdmin"] = "Administrator",
-            ["admin.roleUser"] = "User",
-            ["admin.roleDeveloper"] = "Developer",
-            ["admin.deleteUserConfirm"] = "Are you sure you want to delete this user?",
-            ["admin.cannotDeleteUserWithTickets"] = "Cannot delete user with assigned tickets",
-            ["admin.cannotDeleteAdmin"] = "Cannot delete administrator account",
-            ["admin.cannotDeactivateAdmin"] = "Cannot deactivate administrator account",
-            ["admin.cannotEditSelfRole"] = "You cannot change your own role",
-            ["admin.userDeleted"] = "User deleted successfully",
-            ["admin.userUpdated"] = "User updated successfully",
-            ["admin.productCreated"] = "Product created successfully",
-            ["admin.productUpdated"] = "Product updated successfully",
-            ["admin.productDeleted"] = "Product deleted successfully",
-            ["admin.techStackCreated"] = "Tech stack created successfully",
-            ["admin.techStackUpdated"] = "Tech stack updated successfully",
-            ["admin.techStackDeleted"] = "Tech stack deleted successfully",
-            ["admin.cannotDeleteTechStackWithProducts"] = "Cannot delete tech stack with associated products",
-            ["admin.cannotDeleteProductWithTickets"] = "Cannot delete product with existing tickets",
-            ["common.loading"] = "Loading...",
-            ["table.assignee"] = "Assigned To",
-            ["table.unassigned"] = "Unassigned",
-            ["nav.developer"] = "My Tickets",
-            ["developer.title"] = "My Tickets",
-            ["developer.subtitle"] = "Manage your assigned tickets",
-            ["developer.assignedTickets"] = "Assigned Tickets",
-            ["developer.inProgress"] = "In Progress",
-            ["developer.completed"] = "Completed",
-            ["developer.noTickets"] = "No assigned tickets",
-            ["developer.noTicketsDesc"] = "You haven't taken any tickets yet. Browse available tickets to get started.",
-            ["developer.browseTickets"] = "Browse Tickets",
-            ["developer.accessDenied"] = "Access denied. Developer privileges required.",
-            ["details.assignedTo"] = "Assigned To",
-            ["details.assignment"] = "Assignment",
-            ["details.takeTicket"] = "Take Ticket",
-            ["details.releaseTicket"] = "Release Ticket",
-        },
-        ["uk"] = new Dictionary<string, string>
-        {
-            ["nav.allTickets"] = "Усі заявки",
-            ["nav.newTicket"] = "Нова заявка",
-            ["nav.serviceDesk"] = "ServiceDesk",
-            ["login.title"] = "Увійдіть у свій акаунт",
-            ["login.username"] = "Ім'я користувача",
-            ["login.password"] = "Пароль",
-            ["login.signIn"] = "Увійти",
-            ["login.signingIn"] = "Вхід...",
-            ["login.enterUsername"] = "Введіть ім'я користувача",
-            ["login.enterPassword"] = "Введіть пароль",
-            ["dashboard.welcome"] = "З поверненням!",
-            ["dashboard.totalTickets"] = "Всього заявок",
-            ["dashboard.openTickets"] = "Відкриті заявки",
-            ["dashboard.criticalPriority"] = "Критичний пріоритет",
-            ["dashboard.myTickets"] = "Мої заявки",
-            ["tickets.title"] = "Усі заявки",
-            ["tickets.subtitle"] = "Керуйте та відстежуйте запити на підтримку",
-            ["tickets.noTickets"] = "Заявок ще немає",
-            ["tickets.createFirst"] = "Почніть зі створення першої заявки",
-            ["tickets.createTicket"] = "Створити заявку",
-            ["tickets.loading"] = "Завантаження заявок...",
-            ["table.id"] = "ID",
-            ["table.title"] = "Назва",
-            ["table.status"] = "Статус",
-            ["table.priority"] = "Пріоритет",
-            ["table.product"] = "Продукт",
-            ["table.author"] = "Автор",
-            ["table.created"] = "Створено",
-            ["create.title"] = "Створити нову заявку",
-            ["create.subtitle"] = "Подайте новий запит на підтримку або звіт про помилку",
-            ["create.ticketTitle"] = "Назва",
-            ["create.description"] = "Опис",
-            ["create.priority"] = "Пріоритет",
-            ["create.product"] = "Продукт",
-            ["create.stepsToReproduce"] = "Кроки для відтворення",
-            ["create.environment"] = "Середовище",
-            ["create.cancel"] = "Скасувати",
-            ["create.submit"] = "Створити заявку",
-            ["create.creating"] = "Створення...",
-            ["create.selectPriority"] = "Виберіть пріоритет...",
-            ["create.selectProduct"] = "Виберіть продукт...",
-            ["details.description"] = "Опис",
-            ["details.comments"] = "Коментарі",
-            ["details.addComment"] = "Додати коментар",
-            ["details.sendComment"] = "Надіслати",
-            ["details.sending"] = "Надсилання...",
-            ["details.noComments"] = "Коментарів ще немає.",
-            ["details.writeComment"] = "Напишіть коментар...",
-            ["details.details"] = "Деталі",
-            ["details.ticketId"] = "ID заявки",
-            ["details.actions"] = "Дії",
-            ["details.startProgress"] = "Розпочати роботу",
-            ["details.markResolved"] = "Позначити вирішеною",
-            ["details.closeTicket"] = "Закрити заявку",
-            ["details.reopenTicket"] = "Відкрити знову",
-            ["details.deleteTicket"] = "Видалити заявку",
-            ["details.backToTickets"] = "? Назад до заявок",
-            ["details.loadingTicket"] = "Завантаження заявки...",
-            ["priority.low"] = "Низький",
-            ["priority.medium"] = "Середній",
-            ["priority.high"] = "Високий",
-            ["priority.critical"] = "Критичний",
-            ["status.open"] = "Відкрита",
-            ["status.inProgress"] = "В роботі",
-            ["status.resolved"] = "Вирішена",
-            ["status.closed"] = "Закрита",
-            ["common.logout"] = "Вийти",
-            ["common.required"] = "обов'язково",
-            ["common.footer"] = "Система сервісних запитів",
-            ["theme.light"] = "Світла",
-            ["theme.dark"] = "Темна",
-            ["theme.toggle"] = "Змінити тему",
-            ["register.title"] = "Створіть обліковий запис",
-            ["register.firstName"] = "Ім'я",
-            ["register.lastName"] = "Прізвище",
-            ["register.email"] = "Email (необов'язково)",
-            ["register.enterFirstName"] = "Введіть ваше ім'я",
-            ["register.enterLastName"] = "Введіть ваше прізвище",
-            ["register.enterEmail"] = "Введіть ваш email",
-            ["register.confirmPassword"] = "Підтвердіть пароль",
-            ["register.enterConfirmPassword"] = "Підтвердіть ваш пароль",
-            ["register.signUp"] = "Зареєструватися",
-            ["register.signingUp"] = "Створення акаунту...",
-            ["register.haveAccount"] = "Вже є обліковий запис?",
-            ["register.signIn"] = "Увійти",
-            ["login.noAccount"] = "Немає облікового запису?",
-            ["login.signUp"] = "Зареєструватися",
-            ["nav.admin"] = "Адміністрування",
-            ["admin.title"] = "Панель адміністратора",
-            ["admin.subtitle"] = "Керування продуктами та технологіями",
-            ["admin.products"] = "Продукти",
-            ["admin.techStacks"] = "Технології",
-            ["admin.addProduct"] = "Додати продукт",
-            ["admin.addTechStack"] = "Додати технологію",
-            ["admin.editProduct"] = "Редагувати продукт",
-            ["admin.editTechStack"] = "Редагувати технологію",
-            ["admin.name"] = "Назва",
-            ["admin.description"] = "Опис",
-            ["admin.version"] = "Версія",
-            ["admin.techStack"] = "Технологія",
-            ["admin.type"] = "Тип",
-            ["admin.productsCount"] = "Продуктів",
-            ["admin.actions"] = "Дії",
-            ["admin.cancel"] = "Скасувати",
-            ["admin.save"] = "Зберегти",
-            ["admin.saving"] = "Збереження...",
-            ["admin.nameRequired"] = "Назва обов'язкова",
-            ["admin.accessDenied"] = "Доступ заборонено. Потрібні права адміністратора.",
-            ["admin.users"] = "Користувачі",
-            ["admin.login"] = "Логін",
-            ["admin.fullName"] = "Повне ім'я",
-            ["admin.role"] = "Роль",
-            ["admin.status"] = "Статус",
-            ["admin.active"] = "Активний",
-            ["admin.inactive"] = "Неактивний",
-            ["admin.roleAdmin"] = "Адміністратор",
-            ["admin.roleUser"] = "Користувач",
-            ["admin.roleDeveloper"] = "Розробник",
-            ["admin.deleteUserConfirm"] = "Ви впевнені, що хочете видалити цього користувача?",
-            ["admin.cannotDeleteUserWithTickets"] = "Неможливо видалити користувача з призначеними тікетами",
-            ["admin.cannotDeleteAdmin"] = "Неможливо видалити акаунт адміністратора",
-            ["admin.cannotDeactivateAdmin"] = "Неможливо деактивувати акаунт адміністратора",
-            ["admin.cannotEditSelfRole"] = "Ви не можете змінювати свою власну роль",
-            ["admin.userDeleted"] = "Користувача успішно видалено",
-            ["admin.userUpdated"] = "Користувача успішно оновлено",
-            ["admin.productCreated"] = "Продукт успішно створено",
-            ["admin.productUpdated"] = "Продукт успішно оновлено",
-            ["admin.productDeleted"] = "Продукт успішно видалено",
-            ["admin.techStackCreated"] = "Технологію успішно створено",
-            ["admin.techStackUpdated"] = "Технологію успішно оновлено",
-            ["admin.techStackDeleted"] = "Технологію успішно видалено",
-            ["admin.cannotDeleteTechStackWithProducts"] = "Неможливо видалити технологію з пов'язаними продуктами",
-            ["admin.cannotDeleteProductWithTickets"] = "Неможливо видалити продукт з існуючими тікетами",
-            ["common.loading"] = "Завантаження...",
-            ["table.assignee"] = "Хто взяв",
-            ["table.unassigned"] = "Не призначено",
-            ["nav.developer"] = "Мої тікети",
-            ["developer.title"] = "Мої тікети",
-            ["developer.subtitle"] = "Керуйте своїми призначеними тікетами",
-            ["developer.assignedTickets"] = "Призначені тікети",
-            ["developer.inProgress"] = "В роботі",
-            ["developer.completed"] = "Завершені",
-            ["developer.noTickets"] = "Немає призначених тікетів",
-            ["developer.noTicketsDesc"] = "Ви ще не взяли жодного тікету. Перегляньте доступні тікети для початку.",
-            ["developer.browseTickets"] = "Переглянути тікети",
-            ["developer.accessDenied"] = "Доступ заборонено. Потрібні права розробника.",
-            ["details.assignedTo"] = "Виконавець",
-            ["details.assignment"] = "Призначення",
-            ["details.takeTicket"] = "Взяти тікет",
-            ["details.releaseTicket"] = "Відпустити тікет",
-        },
-    };
-
+    private readonly Dictionary<string, Dictionary<string, string>> translations = new ();
+    private readonly IFileProvider? fileProvider;
     private string currentLanguage = "en";
+    private bool isLoaded;
+
+    public LocalizationService(IWebHostEnvironment? webHostEnvironment = null)
+    {
+        this.fileProvider = webHostEnvironment?.ContentRootFileProvider;
+        _ = Task.Run(async () => await this.LoadTranslationsAsync());
+    }
 
     public event EventHandler? LanguageChanged;
 
@@ -330,6 +31,11 @@ internal sealed class LocalizationService : ILocalizationService
 
     public string Translate(string key)
     {
+        if (!this.isLoaded)
+        {
+            return key;
+        }
+
         if (this.translations.TryGetValue(this.currentLanguage, out var langDict) &&
             langDict.TryGetValue(key, out var value))
         {
@@ -343,5 +49,69 @@ internal sealed class LocalizationService : ILocalizationService
         }
 
         return key;
+    }
+
+    private async Task LoadTranslationsAsync()
+    {
+        var languages = new[] { "en", "uk" };
+
+        foreach (var lang in languages)
+        {
+            var filePath = Path.Combine("Services", "Localization", "Language Pack", $"{lang}.json");
+            try
+            {
+                string json;
+                if (this.fileProvider != null)
+                {
+                    var fileInfo = this.fileProvider.GetFileInfo(filePath);
+                    if (fileInfo.Exists)
+                    {
+                        using var stream = fileInfo.CreateReadStream();
+                        using var reader = new StreamReader(stream);
+                        json = await reader.ReadToEndAsync();
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Warning: Localization file '{filePath}' not found.");
+                        continue;
+                    }
+                }
+                else
+                {
+                    var fullPath = Path.Combine(AppContext.BaseDirectory, filePath);
+                    if (File.Exists(fullPath))
+                    {
+                        json = await File.ReadAllTextAsync(fullPath);
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Warning: Localization file '{fullPath}' not found.");
+                        continue;
+                    }
+                }
+
+                if (string.IsNullOrWhiteSpace(json))
+                {
+                    Console.WriteLine($"Warning: Localization file '{filePath}' is empty. Skipping...");
+                    continue;
+                }
+
+                var dict = JsonSerializer.Deserialize<Dictionary<string, string>>(json);
+                if (dict != null)
+                {
+                    this.translations[lang] = dict;
+                }
+            }
+            catch (JsonException ex)
+            {
+                Console.WriteLine($"Error parsing localization file '{filePath}': {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error loading localization file '{filePath}': {ex.Message}");
+            }
+        }
+
+        this.isLoaded = true;
     }
 }

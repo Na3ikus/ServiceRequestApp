@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -16,6 +16,12 @@
 		<Compile Remove="Settings_console\**" />
 		<EmbeddedResource Remove="Settings_console\**" />
 		<None Remove="Settings_console\**" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Update="Services\Localization\Language Pack\*.json">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
 	</ItemGroup>
 
 	<ItemGroup>
