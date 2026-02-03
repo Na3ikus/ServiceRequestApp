@@ -41,6 +41,17 @@ ServiceRequestApp is a comprehensive IT Service Desk and Incident Management sys
 - Service catalog and service request handling.
 - Metric collection for reporting and SLA improvement.
 
+## Screenshots
+
+### Login Page (English)
+![Login Page - English](screenshots/login-en.png)
+
+### Login Page (Ukrainian)
+![Login Page - Ukrainian](screenshots/login-uk.png)
+
+### Dashboard
+![Dashboard](screenshots/dashboard.png)
+
 ## Project status
 - Repository is under active development; capabilities may evolve.
 
