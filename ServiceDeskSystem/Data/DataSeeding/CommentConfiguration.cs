@@ -1,14 +1,13 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using ServiceDeskSystem.Data.Entities;
 
 namespace ServiceDeskSystem.Data.DataSeeding;
 
-internal sealed class CommentConfiguration : IEntityTypeConfiguration<Comment>
+internal static class CommentConfiguration
 {
-    public void Configure(EntityTypeBuilder<Comment> builder)
+    public static void Seed(ModelBuilder modelBuilder)
     {
-        _ = builder.HasData(
+        modelBuilder.Entity<Comment>().HasData(
             new Comment
             {
                 Id = 3,

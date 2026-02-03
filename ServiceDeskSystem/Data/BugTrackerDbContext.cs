@@ -1,9 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using ServiceDeskSystem.Data.DataSeeding;
 using ServiceDeskSystem.Data.Entities;
 
 namespace ServiceDeskSystem.Data
 {
-    internal class BugTrackerDbContext : DbContext
+    internal class BugTrackerDbContext : DbContext, IDataSeed
     {
         public BugTrackerDbContext(DbContextOptions<BugTrackerDbContext> options)
                     : base(options)
@@ -98,7 +99,13 @@ namespace ServiceDeskSystem.Data
                 .HasForeignKey(a => a.TicketId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.ApplyConfigurationsFromAssembly(typeof(BugTrackerDbContext).Assembly);
+            PersonConfiguration.Seed(modelBuilder);
+            ContactTypeConfiguration.Seed(modelBuilder);
+            UserConfiguration.Seed(modelBuilder);
+            TechStackConfiguration.Seed(modelBuilder);
+            ProductConfiguration.Seed(modelBuilder);
+            TicketConfiguration.Seed(modelBuilder);
+            CommentConfiguration.Seed(modelBuilder);
         }
     }
 }

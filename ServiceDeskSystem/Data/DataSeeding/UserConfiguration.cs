@@ -1,14 +1,13 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using ServiceDeskSystem.Data.Entities;
 
 namespace ServiceDeskSystem.Data.DataSeeding;
 
-internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
+internal static class UserConfiguration
 {
-    public void Configure(EntityTypeBuilder<User> builder)
+    public static void Seed(ModelBuilder modelBuilder)
     {
-        builder.HasData(
+        modelBuilder.Entity<User>().HasData(
             new User
             {
                 Id = 1,
@@ -56,3 +55,4 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
             });
     }
 }
+

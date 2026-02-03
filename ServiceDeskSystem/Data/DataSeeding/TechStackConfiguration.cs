@@ -1,14 +1,13 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using ServiceDeskSystem.Data.Entities;
 
 namespace ServiceDeskSystem.Data.DataSeeding;
 
-internal sealed class TechStackConfiguration : IEntityTypeConfiguration<TechStack>
+internal static class TechStackConfiguration
 {
-    public void Configure(EntityTypeBuilder<TechStack> builder)
+    public static void Seed(ModelBuilder modelBuilder)
     {
-        builder.HasData(
+        modelBuilder.Entity<TechStack>().HasData(
             new TechStack { Id = 1, Name = "C# / .NET", Type = "Desktop Software" },
             new TechStack { Id = 2, Name = "ASP.NET Core / Blazor", Type = "Web Application" },
             new TechStack { Id = 3, Name = "Android / Kotlin", Type = "Mobile Application" },

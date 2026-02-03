@@ -1,14 +1,13 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using ServiceDeskSystem.Data.Entities;
 
 namespace ServiceDeskSystem.Data.DataSeeding;
 
-internal sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
+internal static class ProductConfiguration
 {
-    public void Configure(EntityTypeBuilder<Product> builder)
+    public static void Seed(ModelBuilder modelBuilder)
     {
-        builder.HasData(
+        modelBuilder.Entity<Product>().HasData(
             new Product
             {
                 Id = 3,

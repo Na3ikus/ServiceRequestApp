@@ -1,14 +1,13 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using ServiceDeskSystem.Data.Entities;
 
 namespace ServiceDeskSystem.Data.DataSeeding;
 
-internal sealed class ContactTypeConfiguration : IEntityTypeConfiguration<ContactType>
+internal static class ContactTypeConfiguration
 {
-    public void Configure(EntityTypeBuilder<ContactType> builder)
+    public static void Seed(ModelBuilder modelBuilder)
     {
-        builder.HasData(
+        modelBuilder.Entity<ContactType>().HasData(
             new ContactType { Id = 1, Name = "Email" },
             new ContactType { Id = 2, Name = "Phone" },
             new ContactType { Id = 3, Name = "Telegram" });

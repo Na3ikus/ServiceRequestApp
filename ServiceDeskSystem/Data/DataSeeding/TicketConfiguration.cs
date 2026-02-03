@@ -1,14 +1,13 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using ServiceDeskSystem.Data.Entities;
 
 namespace ServiceDeskSystem.Data.DataSeeding;
 
-internal sealed class TicketConfiguration : IEntityTypeConfiguration<Ticket>
+internal static class TicketConfiguration
 {
-    public void Configure(EntityTypeBuilder<Ticket> builder)
+    public static void Seed(ModelBuilder modelBuilder)
     {
-        _ = builder.HasData(
+        modelBuilder.Entity<Ticket>().HasData(
             new Ticket
             {
                 Id = 1,

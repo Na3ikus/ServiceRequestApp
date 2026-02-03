@@ -1,14 +1,13 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using ServiceDeskSystem.Data.Entities;
 
 namespace ServiceDeskSystem.Data.DataSeeding;
 
-internal sealed class PersonConfiguration : IEntityTypeConfiguration<Person>
+internal static class PersonConfiguration
 {
-    public void Configure(EntityTypeBuilder<Person> builder)
+    public static void Seed(ModelBuilder modelBuilder)
     {
-        builder.HasData(
+        modelBuilder.Entity<Person>().HasData(
             new Person
             {
                 Id = 2,
