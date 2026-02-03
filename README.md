@@ -1,4 +1,4 @@
-# 🎫 ServiceDesk - IT Service Management System
+#  ServiceDesk - IT Service Management System
 
 <p align="center">
   <img src="screenshots/login-uk.png" alt="ServiceDesk Login" width="600"/>
@@ -18,19 +18,19 @@
 
 ---
 
-## 📋 Overview
+##  Overview
 
 **ServiceDesk** is a powerful IT Service Management (ITSM) platform built with **.NET 10** and **Blazor Server**, designed to streamline incident tracking, service requests, and team collaboration. With multilingual support (English & Ukrainian), intuitive UI, and robust backend, it's perfect for IT departments of any size.
 
-### ✨ Key Highlights
+###  Key Highlights
 
-- 🎯 **Real-time incident & request tracking**
-- 🌐 **Multilingual interface** (English/Ukrainian)
-- 📊 **Interactive dashboards & analytics**
-- 🔐 **Role-based access control (RBAC)**
-- ⚡ **SLA management & escalations**
-- 🎨 **Modern UI with Tailwind CSS**
-- 🚀 **Built with .NET 10 & Blazor Server**
+-  **Real-time incident & request tracking**
+-  **Multilingual interface** (English/Ukrainian)
+-  **Interactive dashboards & analytics**
+-  **Role-based access control (RBAC)**
+-  **SLA management & escalations**
+-  **Modern UI with Tailwind CSS**
+-  **Built with .NET 10 & Blazor Server**
 
 ## What it’s for
 - Centralize incident and request tracking.
@@ -62,7 +62,7 @@
 ## 📸 Screenshots
 
 <details>
-<summary><b>🔐 Authentication & Login</b></summary>
+<summary><b> Authentication & Login</b></summary>
 
 ### Login Page (English)
 <img src="screenshots/login-en.png" alt="Login Page English" width="700"/>
@@ -73,7 +73,7 @@
 </details>
 
 <details open>
-<summary><b>📊 Dashboard & Tickets</b></summary>
+<summary><b> Dashboard & Tickets</b></summary>
 
 ### Main Dashboard
 <img src="screenshots/dashboard.png" alt="Dashboard" width="700"/>
@@ -84,7 +84,7 @@
 </details>
 
 <details>
-<summary><b>⚙️ Admin Panel</b></summary>
+<summary><b> Admin Panel</b></summary>
 
 ### Admin Panel
 <img src="screenshots/admin-panel.png" alt="Admin Panel" width="700"/>
@@ -102,9 +102,9 @@
 
 ---
 
-## 🚦 Project Status
+##  Project Status
 
-> ⚠️ **Active Development**: This repository is under active development. Features and capabilities may evolve.
+>  **Active Development**: This repository is under active development. Features and capabilities may evolve.
 
 ### Current Version
 - **Phase**: Beta
@@ -113,9 +113,9 @@
 
 ---
 
-## 🗺️ Roadmap
+##  Roadmap
 
-### 📅 Planned Features
+###  Planned Features
 
 - [ ] **Advanced SLA Policies**: Automated escalations and SLA breach notifications
 - [ ] **Email Integration**: SMTP support for notifications
@@ -130,15 +130,15 @@
 
 ---
 
-## 🤝 Contributing
+##  Contributing
 
 We welcome contributions! Here's how you can help:
 
-1. 🐛 **Report Bugs**: Open an issue with detailed reproduction steps
-2. 💡 **Suggest Features**: Share your ideas for new functionality
-3. 🔧 **Submit Pull Requests**: Follow our coding conventions
-4. 📖 **Improve Documentation**: Help us make the docs better
-5. ⭐ **Star the Project**: Show your support!
+1.  **Report Bugs**: Open an issue with detailed reproduction steps
+2.  **Suggest Features**: Share your ideas for new functionality
+3.  **Submit Pull Requests**: Follow our coding conventions
+4.  **Improve Documentation**: Help us make the docs better
+5.  **Star the Project**: Show your support!
 
 ### Development Guidelines
 - Follow C# coding conventions
@@ -148,25 +148,21 @@ We welcome contributions! Here's how you can help:
 
 ---
 
-## 📧 Contact & Support
+##  Contact & Support
 
-- 🐛 **Bug Reports**: [Open an Issue](https://github.com/Na3ikus/ServiceRequestApp/issues)
-- 💬 **Discussions**: [GitHub Discussions](https://github.com/Na3ikus/ServiceRequestApp/discussions)
-- 🌟 **Feature Requests**: Share your ideas via Issues
-- 📧 **Email**: For private inquiries
+-  **Bug Reports**: [Open an Issue](https://github.com/Na3ikus/ServiceRequestApp/issues)
+-  **Discussions**: [GitHub Discussions](https://github.com/Na3ikus/ServiceRequestApp/discussions)
+-  **Feature Requests**: Share your ideas via Issues
+-  **Email**: For private inquiries
 
 ---
 
-## 📄 License
+##  License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
 <p align="center">
-  <strong>Built with ❤️ using .NET 10 and Blazor</strong>
-</p>
-
-<p align="center">
-  <a href="#top">⬆️ Back to Top</a>
+  <a href="#top"> Back to Top</a>
 </p>
