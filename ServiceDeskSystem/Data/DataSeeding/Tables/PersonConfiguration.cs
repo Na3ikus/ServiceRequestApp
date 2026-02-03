@@ -11,24 +11,17 @@ internal sealed class PersonConfiguration : IEntityTypeConfiguration<Person>
         builder.HasData(
             new Person
             {
-                Id = 1,
-                FirstName = "System",
-                LastName = "Administrator",
-                MiddleName = null,
-            },
-            new Person
-            {
                 Id = 2,
-                FirstName = "Олександр",
-                LastName = "Коваленко",
-                MiddleName = "Петрович",
+                FirstName = "РћР»РµРєСЃР°РЅРґСЂ",
+                LastName = "РљРѕРІР°Р»РµРЅРєРѕ",
+                MiddleName = "РџРµС‚СЂРѕРІРёС‡",
             },
             new Person
             {
                 Id = 3,
-                FirstName = "Марія",
-                LastName = "Шевченко",
-                MiddleName = "Іванівна",
+                FirstName = "РњР°СЂС–СЏ",
+                LastName = "РЁРµРІС‡РµРЅРєРѕ",
+                MiddleName = "Р†РІР°РЅС–РІРЅР°",
             },
             new Person
             {
@@ -40,9 +33,16 @@ internal sealed class PersonConfiguration : IEntityTypeConfiguration<Person>
             new Person
             {
                 Id = 5,
-                FirstName = "Андрій",
-                LastName = "Бондаренко",
-                MiddleName = "Олегович",
+                FirstName = "РђРЅРґСЂС–Р№",
+                LastName = "Р‘РѕРЅРґР°СЂРµРЅРєРѕ",
+                MiddleName = "РћР»РµРіРѕРІРёС‡",
+            },
+            new Person
+            {
+                Id = 1,
+                FirstName = "System",
+                LastName = "Administrator",
+                MiddleName = null,
             });
     }
 }

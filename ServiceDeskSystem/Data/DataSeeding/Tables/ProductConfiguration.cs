@@ -11,25 +11,9 @@ internal sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
         builder.HasData(
             new Product
             {
-                Id = 1,
-                Name = "Бухгалтерія Pro",
-                Description = "Програма для ведення бухгалтерського обліку підприємства",
-                CurrentVersion = "3.2.1",
-                TechStackId = 1,
-            },
-            new Product
-            {
-                Id = 2,
-                Name = "Warehouse Manager",
-                Description = "Система управління складом та інвентаризацією",
-                CurrentVersion = "2.5.0",
-                TechStackId = 1,
-            },
-            new Product
-            {
                 Id = 3,
                 Name = "HR Portal",
-                Description = "Корпоративний портал для управління персоналом",
+                Description = "РљРѕСЂРїРѕСЂР°С‚РёРІРЅРёР№ РїРѕСЂС‚Р°Р» РґР»СЏ СѓРїСЂР°РІР»С–РЅРЅСЏ РїРµСЂСЃРѕРЅР°Р»РѕРј",
                 CurrentVersion = "1.8.3",
                 TechStackId = 2,
             },
@@ -37,7 +21,7 @@ internal sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
             {
                 Id = 4,
                 Name = "E-Commerce Platform",
-                Description = "Платформа для онлайн-продажів з інтеграцією платіжних систем",
+                Description = "РџР»Р°С‚С„РѕСЂРјР° РґР»СЏ РѕРЅР»Р°Р№РЅ-РїСЂРѕРґР°Р¶С–РІ Р· С–РЅС‚РµРіСЂР°С†С–С”СЋ РїР»Р°С‚С–Р¶РЅРёС… СЃРёСЃС‚РµРј",
                 CurrentVersion = "4.1.0",
                 TechStackId = 2,
             },
@@ -45,7 +29,7 @@ internal sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
             {
                 Id = 5,
                 Name = "Mobile CRM",
-                Description = "Мобільний додаток для роботи з клієнтською базою",
+                Description = "РњРѕР±С–Р»СЊРЅРёР№ РґРѕРґР°С‚РѕРє РґР»СЏ СЂРѕР±РѕС‚Рё Р· РєР»С–С”РЅС‚СЃСЊРєРѕСЋ Р±Р°Р·РѕСЋ",
                 CurrentVersion = "2.0.5",
                 TechStackId = 3,
             },
@@ -53,7 +37,7 @@ internal sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
             {
                 Id = 6,
                 Name = "POS Terminal v2",
-                Description = "Прошивка для касових терміналів",
+                Description = "РџСЂРѕС€РёРІРєР° РґР»СЏ РєР°СЃРѕРІРёС… С‚РµСЂРјС–РЅР°Р»С–РІ",
                 CurrentVersion = "1.4.2",
                 TechStackId = 4,
             },
@@ -61,15 +45,31 @@ internal sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
             {
                 Id = 7,
                 Name = "Smart Lock Controller",
-                Description = "Контролер системи контролю доступу",
+                Description = "РљРѕРЅС‚СЂРѕР»РµСЂ СЃРёСЃС‚РµРјРё РєРѕРЅС‚СЂРѕР»СЋ РґРѕСЃС‚СѓРїСѓ",
                 CurrentVersion = "2.1.0",
                 TechStackId = 4,
             },
             new Product
             {
+                Id = 1,
+                Name = "Р‘СѓС…РіР°Р»С‚РµСЂС–СЏ Pro",
+                Description = "РџСЂРѕРіСЂР°РјР° РґР»СЏ РІРµРґРµРЅРЅСЏ Р±СѓС…РіР°Р»С‚РµСЂСЃСЊРєРѕРіРѕ РѕР±Р»С–РєСѓ РїС–РґРїСЂРёС”РјСЃС‚РІР°",
+                CurrentVersion = "3.2.1",
+                TechStackId = 1,
+            },
+            new Product
+            {
+                Id = 2,
+                Name = "Warehouse Manager",
+                Description = "РЎРёСЃС‚РµРјР° СѓРїСЂР°РІР»С–РЅРЅСЏ СЃРєР»Р°РґРѕРј С‚Р° С–РЅРІРµРЅС‚Р°СЂРёР·Р°С†С–С”СЋ",
+                CurrentVersion = "2.5.0",
+                TechStackId = 1,
+            },
+            new Product
+            {
                 Id = 8,
                 Name = "Office Router Pro",
-                Description = "Корпоративний маршрутизатор з підтримкою VPN",
+                Description = "РљРѕСЂРїРѕСЂР°С‚РёРІРЅРёР№ РјР°СЂС€СЂСѓС‚РёР·Р°С‚РѕСЂ Р· РїС–РґС‚СЂРёРјРєРѕСЋ VPN",
                 CurrentVersion = "5.0.1",
                 TechStackId = 6,
             });

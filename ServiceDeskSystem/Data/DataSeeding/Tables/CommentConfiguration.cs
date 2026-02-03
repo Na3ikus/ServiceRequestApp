@@ -11,24 +11,6 @@ internal sealed class CommentConfiguration : IEntityTypeConfiguration<Comment>
         _ = builder.HasData(
             new Comment
             {
-                Id = 1,
-                Message = "Дякую за звернення. Відтворив проблему, почав аналіз.",
-                IsInternal = false,
-                CreatedAt = new DateTime(2024, 4, 15, 14, 0, 0, DateTimeKind.Utc),
-                TicketId = 1,
-                AuthorId = 2,
-            },
-            new Comment
-            {
-                Id = 2,
-                Message = "Проблема в парсингу дат - треба виправити формат для українського регіону.",
-                IsInternal = true,
-                CreatedAt = new DateTime(2024, 4, 15, 15, 30, 0, DateTimeKind.Utc),
-                TicketId = 1,
-                AuthorId = 2,
-            },
-            new Comment
-            {
                 Id = 3,
                 Message = "This is blocking our monthly inventory audit. Please prioritize!",
                 IsInternal = false,
@@ -48,7 +30,7 @@ internal sealed class CommentConfiguration : IEntityTypeConfiguration<Comment>
             new Comment
             {
                 Id = 5,
-                Message = "Виправлення готове, передано на тестування.",
+                Message = "Р’РёРїСЂР°РІР»РµРЅРЅСЏ РіРѕС‚РѕРІРµ, РїРµСЂРµРґР°РЅРѕ РЅР° С‚РµСЃС‚СѓРІР°РЅРЅСЏ.",
                 IsInternal = false,
                 CreatedAt = new DateTime(2024, 4, 8, 10, 0, 0, DateTimeKind.Utc),
                 TicketId = 5,
@@ -57,7 +39,7 @@ internal sealed class CommentConfiguration : IEntityTypeConfiguration<Comment>
             new Comment
             {
                 Id = 6,
-                Message = "Зв'язався з технічною підтримкою LiqPay. Очікую відповідь.",
+                Message = "Р—РІ'СЏР·Р°РІСЃСЏ Р· С‚РµС…РЅС–С‡РЅРѕСЋ РїС–РґС‚СЂРёРјРєРѕСЋ LiqPay. РћС‡С–РєСѓСЋ РІС–РґРїРѕРІС–РґСЊ.",
                 IsInternal = false,
                 CreatedAt = new DateTime(2024, 4, 19, 14, 0, 0, DateTimeKind.Utc),
                 TicketId = 7,
@@ -66,10 +48,28 @@ internal sealed class CommentConfiguration : IEntityTypeConfiguration<Comment>
             new Comment
             {
                 Id = 7,
-                Message = "LiqPay змінили API endpoint. Потрібно оновити конфігурацію.",
+                Message = "LiqPay Р·РјС–РЅРёР»Рё API endpoint. РџРѕС‚СЂС–Р±РЅРѕ РѕРЅРѕРІРёС‚Рё РєРѕРЅС„С–РіСѓСЂР°С†С–СЋ.",
                 IsInternal = true,
                 CreatedAt = new DateTime(2024, 4, 19, 16, 30, 0, DateTimeKind.Utc),
                 TicketId = 7,
+                AuthorId = 2,
+            },
+            new Comment
+            {
+                Id = 1,
+                Message = "Р”СЏРєСѓСЋ Р·Р° Р·РІРµСЂРЅРµРЅРЅСЏ. Р’С–РґС‚РІРѕСЂРёРІ РїСЂРѕР±Р»РµРјСѓ, РїРѕС‡Р°РІ Р°РЅР°Р»С–Р·.",
+                IsInternal = false,
+                CreatedAt = new DateTime(2024, 4, 15, 14, 0, 0, DateTimeKind.Utc),
+                TicketId = 1,
+                AuthorId = 2,
+            },
+            new Comment
+            {
+                Id = 2,
+                Message = "РџСЂРѕР±Р»РµРјР° РІ РїР°СЂСЃРёРЅРіСѓ РґР°С‚ - С‚СЂРµР±Р° РІРёРїСЂР°РІРёС‚Рё С„РѕСЂРјР°С‚ РґР»СЏ СѓРєСЂР°С—РЅСЃСЊРєРѕРіРѕ СЂРµРіС–РѕРЅСѓ.",
+                IsInternal = true,
+                CreatedAt = new DateTime(2024, 4, 15, 15, 30, 0, DateTimeKind.Utc),
+                TicketId = 1,
                 AuthorId = 2,
             },
             new Comment
@@ -93,7 +93,7 @@ internal sealed class CommentConfiguration : IEntityTypeConfiguration<Comment>
             new Comment
             {
                 Id = 10,
-                Message = "Проблема критична - офіс не може працювати. Потрібно відкотити прошивку!",
+                Message = "РџСЂРѕР±Р»РµРјР° РєСЂРёС‚РёС‡РЅР° - РѕС„С–СЃ РЅРµ РјРѕР¶Рµ РїСЂР°С†СЋРІР°С‚Рё. РџРѕС‚СЂС–Р±РЅРѕ РІС–РґРєРѕС‚РёС‚Рё РїСЂРѕС€РёРІРєСѓ!",
                 IsInternal = false,
                 CreatedAt = new DateTime(2024, 4, 22, 8, 30, 0, DateTimeKind.Utc),
                 TicketId = 12,
@@ -102,7 +102,7 @@ internal sealed class CommentConfiguration : IEntityTypeConfiguration<Comment>
             new Comment
             {
                 Id = 11,
-                Message = "Тимчасово відкотив до версії 2.0.8. Аналізую зміни в 2.1.0.",
+                Message = "РўРёРјС‡Р°СЃРѕРІРѕ РІС–РґРєРѕС‚РёРІ РґРѕ РІРµСЂСЃС–С— 2.0.8. РђРЅР°Р»С–Р·СѓСЋ Р·РјС–РЅРё РІ 2.1.0.",
                 IsInternal = false,
                 CreatedAt = new DateTime(2024, 4, 22, 9, 45, 0, DateTimeKind.Utc),
                 TicketId = 12,
