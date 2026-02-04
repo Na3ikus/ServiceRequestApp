@@ -131,6 +131,13 @@ internal sealed class TicketService(IDbContextFactory<BugTrackerDbContext> conte
         return tickets.Count();
     }
 
+    public async Task<List<Ticket>> GetUserTicketsAsync(int userId)
+    {
+        await using var repo = new RepositoryFacade(contextFactory);
+        var tickets = await repo.Tickets.GetAllWithIncludesAsync().ConfigureAwait(false);
+        return tickets.Where(t => t.AuthorId == userId).ToList();
+    }
+
     public async Task<bool> AssignDeveloperAsync(int ticketId, int developerId)
     {
         await using var repo = new RepositoryFacade(contextFactory);
