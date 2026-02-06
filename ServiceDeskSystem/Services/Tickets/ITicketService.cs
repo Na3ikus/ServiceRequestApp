@@ -14,6 +14,8 @@ internal interface ITicketService
 
     Task<Comment?> UpdateCommentAsync(int commentId, string newMessage);
 
+    Task<bool> DeleteCommentAsync(int commentId);
+
     Task<bool> UpdateTicketStatusAsync(int ticketId, string newStatus);
 
     Task<bool> DeleteTicketAsync(int ticketId);

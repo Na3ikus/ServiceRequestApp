@@ -13,9 +13,12 @@ namespace ServiceDeskSystem.Components.Pages.Tickets;
 public partial class TicketDetails : BaseComponent
 {
     private readonly TimeSpan refreshInterval = TimeSpan.FromSeconds(5);
+    private readonly List<ToastMessage> toasts = [];
     private Timer? refreshTimer;
     private bool isRefreshing;
     private bool authRestored;
+
+    internal IReadOnlyList<ToastMessage> Toasts => this.toasts;
 
     [Parameter]
     public int Id { get; set; }
@@ -39,6 +42,10 @@ public partial class TicketDetails : BaseComponent
 
     private string EditingCommentMessage { get; set; } = string.Empty;
 
+    private bool canReleaseTicket;
+
+    private bool canTakeTicket;
+
     private int CurrentUserId => this.AuthService.CurrentUser?.Id ?? 0;
 
     private string CurrentUserRole => this.AuthService.CurrentUser?.Role ?? string.Empty;
@@ -52,13 +59,43 @@ public partial class TicketDetails : BaseComponent
     private bool CanManageTicketStatus => this.AuthService.IsAuthenticated &&
         (this.IsAdmin || (this.IsDeveloper && this.Ticket?.DeveloperId == this.CurrentUserId));
 
-    private bool CanTakeTicket => this.AuthService.IsAuthenticated &&
-        this.Ticket?.DeveloperId is null &&
-        (this.IsAdmin || this.IsDeveloper);
+    private bool CanTakeTicket => this.canTakeTicket;
 
-    private bool CanReleaseTicket => this.AuthService.IsAuthenticated &&
-        this.Ticket?.DeveloperId is not null &&
-        (this.IsAdmin || this.Ticket.DeveloperId == this.CurrentUserId);
+    private bool CanReleaseTicket => this.canReleaseTicket;
+
+    private bool CanDeleteComment(Comment comment) => comment.AuthorId == this.CurrentUserId || this.IsAdmin;
+
+    private void UpdatePermissions()
+    {
+        // Update CanTakeTicket
+        this.canTakeTicket = this.AuthService.IsAuthenticated &&
+            this.Ticket?.DeveloperId is null &&
+            this.Ticket?.AuthorId != this.CurrentUserId &&
+            (this.IsAdmin || this.IsDeveloper);
+
+        // Update CanReleaseTicket
+        if (!this.AuthService.IsAuthenticated || this.Ticket?.DeveloperId is null)
+        {
+            this.canReleaseTicket = false;
+        }
+        else if (this.IsAdmin)
+        {
+            this.canReleaseTicket = true;
+        }
+        else
+        {
+            this.canReleaseTicket = this.Ticket.DeveloperId == this.CurrentUserId;
+        }
+    }
+
+    internal async Task RemoveToastAsync(ToastMessage toast)
+    {
+        toast.IsHiding = true;
+        await this.InvokeAsync(this.StateHasChanged);
+        await Task.Delay(300);
+        this.toasts.Remove(toast);
+        await this.InvokeAsync(this.StateHasChanged);
+    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -115,6 +152,8 @@ public partial class TicketDetails : BaseComponent
     private async Task LoadTicketAsync()
     {
         this.Ticket = await this.TicketService.GetTicketByIdAsync(this.Id);
+        this.UpdatePermissions();
+        this.StateHasChanged();
     }
 
     private void StartAutoRefresh()
@@ -210,6 +249,23 @@ public partial class TicketDetails : BaseComponent
 
     private bool CanEditComment(Comment comment) => comment.AuthorId == this.CurrentUserId || this.IsAdmin;
 
+    private async Task DeleteCommentAsync(int commentId)
+    {
+        var comment = this.Ticket?.Comments?.FirstOrDefault(c => c.Id == commentId);
+        if (comment is null || !this.CanDeleteComment(comment))
+        {
+            return;
+        }
+
+        var success = await this.TicketService.DeleteCommentAsync(commentId);
+        if (success && this.Ticket?.Comments is not null)
+        {
+            this.Ticket.Comments.Remove(comment);
+        }
+
+        await this.RefreshCommentsAsync();
+    }
+
     private async Task UpdateStatusAsync(string newStatus)
     {
         if (this.Ticket is null || !this.CanManageTicketStatus)
@@ -245,8 +301,23 @@ public partial class TicketDetails : BaseComponent
 
     private async Task AssignToMeAsync()
     {
-        if (this.Ticket is null || !this.CanTakeTicket)
+        if (this.Ticket is null)
         {
+            return;
+        }
+
+        // Перевірка: автор не може взяти свій тікет
+        if (this.Ticket.AuthorId == this.CurrentUserId)
+        {
+            await this.ShowToastAsync(this.L.Translate("details.cannotTakeOwnTicket"), ToastType.Warning);
+            return;
+        }
+
+        // Перевірка: тікет вже призначений комусь іншому
+        if (this.Ticket.DeveloperId is not null)
+        {
+            await this.ShowToastAsync(this.L.Translate("details.ticketAlreadyAssigned"), ToastType.Warning);
+            await this.LoadTicketAsync();
             return;
         }
 
@@ -271,8 +342,28 @@ public partial class TicketDetails : BaseComponent
         }
     }
 
+    private async Task ShowToastAsync(string message, ToastType type = ToastType.Info, int durationMs = 4000)
+    {
+        var toast = new ToastMessage { Message = message, Type = type };
+        this.toasts.Add(toast);
+        await this.InvokeAsync(this.StateHasChanged);
+
+        _ = Task.Run(async () =>
+        {
+            await Task.Delay(durationMs);
+
+            toast.IsHiding = true;
+            await this.InvokeAsync(this.StateHasChanged);
+
+            await Task.Delay(300);
+            this.toasts.Remove(toast);
+            await this.InvokeAsync(this.StateHasChanged);
+        });
+    }
+
     private void OnAuthStateChanged(object? sender, EventArgs e)
     {
+        this.UpdatePermissions();
         _ = this.InvokeAsync(this.StateHasChanged);
     }
 }

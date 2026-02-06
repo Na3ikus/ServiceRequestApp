@@ -24,9 +24,18 @@ public partial class TicketList : BaseComponent
 
     private List<Ticket>? tickets { get; set; }
 
+    private List<Ticket>? filteredTickets { get; set; }
+
+    private string searchQuery { get; set; } = string.Empty;
+
+    private string selectedPriority { get; set; } = "All";
+
+    private string selectedStatus { get; set; } = "All";
+
     protected override async Task OnInitializedAsync()
     {
         this.tickets = await this.TicketService.GetAllTicketsAsync();
+        this.ApplyFilters();
         this.StartAutoRefresh();
     }
 
@@ -78,6 +87,7 @@ public partial class TicketList : BaseComponent
             await this.InvokeAsync(async () =>
             {
                 this.tickets = await this.TicketService.GetAllTicketsAsync();
+                this.ApplyFilters();
                 this.StateHasChanged();
             });
         }
@@ -85,6 +95,68 @@ public partial class TicketList : BaseComponent
         {
             this.isRefreshing = false;
         }
+    }
+
+    private void ApplyFilters()
+    {
+        if (this.tickets is null)
+        {
+            this.filteredTickets = null;
+            return;
+        }
+
+        var query = this.tickets.AsEnumerable();
+
+        if (!string.IsNullOrWhiteSpace(this.searchQuery))
+        {
+            var search = this.searchQuery.ToLowerInvariant();
+            query = query.Where(t =>
+                t.Title.ToLowerInvariant().Contains(search) ||
+                t.Description.ToLowerInvariant().Contains(search) ||
+                t.Product?.Name.ToLowerInvariant().Contains(search) == true ||
+                t.Author?.Login.ToLowerInvariant().Contains(search) == true);
+        }
+
+        if (this.selectedPriority != "All")
+        {
+            query = query.Where(t => t.Priority == this.selectedPriority);
+        }
+
+        if (this.selectedStatus != "All")
+        {
+            if (this.selectedStatus == "Open/InProgress")
+            {
+                query = query.Where(t => t.Status == "Open" || t.Status == "In Progress");
+            }
+            else if (this.selectedStatus == "Closed/Resolved")
+            {
+                query = query.Where(t => t.Status == "Closed" || t.Status == "Resolved");
+            }
+            else
+            {
+                query = query.Where(t => t.Status == this.selectedStatus);
+            }
+        }
+
+        this.filteredTickets = query.ToList();
+    }
+
+    private void OnSearchChanged(Microsoft.AspNetCore.Components.ChangeEventArgs e)
+    {
+        this.searchQuery = e.Value?.ToString() ?? string.Empty;
+        this.ApplyFilters();
+    }
+
+    private void OnPriorityChanged(Microsoft.AspNetCore.Components.ChangeEventArgs e)
+    {
+        this.selectedPriority = e.Value?.ToString() ?? "All";
+        this.ApplyFilters();
+    }
+
+    private void OnStatusChanged(Microsoft.AspNetCore.Components.ChangeEventArgs e)
+    {
+        this.selectedStatus = e.Value?.ToString() ?? "All";
+        this.ApplyFilters();
     }
 
     private string GetStatusText(string status) => status switch

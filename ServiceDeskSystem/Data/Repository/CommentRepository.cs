@@ -13,14 +13,14 @@ namespace ServiceDeskSystem.Data.Repository
 
         protected override DbSet<Comment> DbSet => this.Context.Comments;
 
-        public Comment? GetByIdWithAuthor(long id)
+        public Comment? GetByIdWithAuthor(int id)
         {
             return this.Context.Comments
                 .Include(c => c.Author)
                 .FirstOrDefault(c => c.Id == id);
         }
 
-        public async Task<Comment?> GetByIdWithAuthorAsync(long id)
+        public async Task<Comment?> GetByIdWithAuthorAsync(int id)
         {
             return await this.Context.Comments
                 .Include(c => c.Author)

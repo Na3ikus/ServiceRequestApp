@@ -35,12 +35,12 @@ namespace ServiceDeskSystem.Data.Repository.Templates
             return await this.DbSet.Where(predicate).ToListAsync().ConfigureAwait(false);
         }
 
-        public virtual T? GetById(long id)
+        public virtual T? GetById(int id)
         {
             return this.DbSet.Find(id);
         }
 
-        public virtual async Task<T?> GetByIdAsync(long id)
+        public virtual async Task<T?> GetByIdAsync(int id)
         {
             return await this.DbSet.FindAsync(id).ConfigureAwait(false);
         }
@@ -66,7 +66,7 @@ namespace ServiceDeskSystem.Data.Repository.Templates
             return Task.CompletedTask;
         }
 
-        public virtual void Delete(long id)
+        public virtual void Delete(int id)
         {
             var entity = this.DbSet.Find(id);
             if (entity != null)
@@ -75,7 +75,7 @@ namespace ServiceDeskSystem.Data.Repository.Templates
             }
         }
 
-        public virtual async Task DeleteAsync(long id)
+        public virtual async Task DeleteAsync(int id)
         {
             var entity = await this.DbSet.FindAsync(id).ConfigureAwait(false);
             if (entity != null)

@@ -30,7 +30,7 @@ namespace ServiceDeskSystem.Data.Repository
                 .ConfigureAwait(false);
         }
 
-        public async Task<Product?> GetByIdWithTicketsAsync(long id)
+        public async Task<Product?> GetByIdWithTicketsAsync(int id)
         {
             return await this.Context.Products
                 .Include(p => p.Tickets)

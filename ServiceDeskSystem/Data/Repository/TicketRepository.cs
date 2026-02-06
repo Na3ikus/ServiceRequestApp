@@ -34,7 +34,7 @@ namespace ServiceDeskSystem.Data.Repository
                 .ConfigureAwait(false);
         }
 
-        public Ticket? GetByIdWithIncludes(long id)
+        public Ticket? GetByIdWithIncludes(int id)
         {
             return this.Context.Tickets
                 .Include(t => t.Author)
@@ -45,7 +45,7 @@ namespace ServiceDeskSystem.Data.Repository
                 .FirstOrDefault(t => t.Id == id);
         }
 
-        public async Task<Ticket?> GetByIdWithIncludesAsync(long id)
+        public async Task<Ticket?> GetByIdWithIncludesAsync(int id)
         {
             return await this.Context.Tickets
                 .Include(t => t.Author)

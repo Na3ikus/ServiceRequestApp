@@ -31,6 +31,21 @@ internal sealed class TicketService(IDbContextFactory<BugTrackerDbContext> conte
         return existing;
     }
 
+    public async Task<bool> DeleteCommentAsync(int commentId)
+    {
+        await using var repo = new RepositoryFacade(contextFactory);
+        var comment = await repo.Comments.GetByIdAsync(commentId).ConfigureAwait(false);
+
+        if (comment is null)
+        {
+            return false;
+        }
+
+        await repo.Comments.DeleteAsync(commentId).ConfigureAwait(false);
+        await repo.SaveChangesAsync().ConfigureAwait(false);
+        return true;
+    }
+
     public async Task<Ticket?> GetTicketByIdAsync(int id)
     {
         await using var repo = new RepositoryFacade(contextFactory);

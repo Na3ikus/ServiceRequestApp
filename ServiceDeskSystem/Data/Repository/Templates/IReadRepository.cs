@@ -11,7 +11,7 @@ namespace ServiceDeskSystem.Data.Repository.Templates
         IEnumerable<T> Find(Expression<Func<T, bool>> predicate);
         Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate);
 
-        T? GetById(long id);
-        Task<T?> GetByIdAsync(long id);
+        T? GetById(int id);
+        Task<T?> GetByIdAsync(int id);
     }
 }

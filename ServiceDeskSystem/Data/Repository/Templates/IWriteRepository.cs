@@ -11,7 +11,7 @@ namespace ServiceDeskSystem.Data.Repository.Templates
         void Update(T entity);
         Task UpdateAsync(T entity);
 
-        void Delete(long id);
-        Task DeleteAsync(long id);
+        void Delete(int id);
+        Task DeleteAsync(int id);
     }
 }

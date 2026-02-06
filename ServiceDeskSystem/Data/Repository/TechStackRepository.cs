@@ -30,7 +30,7 @@ namespace ServiceDeskSystem.Data.Repository
                 .ConfigureAwait(false);
         }
 
-        public async Task<TechStack?> GetByIdWithProductsAsync(long id)
+        public async Task<TechStack?> GetByIdWithProductsAsync(int id)
         {
             return await this.Context.TechStacks
                 .Include(t => t.Products)
