@@ -38,7 +38,8 @@ public partial class DeveloperDashboard : BaseComponent
 
     private string CurrentUserRole => this.AuthService.CurrentUser?.Role ?? string.Empty;
 
-    private bool IsDeveloper => string.Equals(this.CurrentUserRole, "Developer", StringComparison.OrdinalIgnoreCase);
+    private bool IsDeveloper => string.Equals(this.CurrentUserRole, "Developer", StringComparison.OrdinalIgnoreCase) || 
+                                string.Equals(this.CurrentUserRole, "Admin", StringComparison.OrdinalIgnoreCase);
     protected override async Task OnInitializedAsync()
     {
         this.AuthService.AuthStateChanged += this.OnAuthStateChanged;
