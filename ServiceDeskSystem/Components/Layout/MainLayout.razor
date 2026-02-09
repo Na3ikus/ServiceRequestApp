@@ -38,11 +38,11 @@ else
                         <div class="lang-toggle relative rounded-full flex items-center">
                             <div class="lang-toggle-slider @(L.CurrentLanguage == "uk" ? "slide-right" : "")"></div>
                             <button @onclick="@(() => L.SetLanguage("en"))"
-                                    class="lang-toggle-btn relative z-10 text-xs font-semibold rounded-full transition-colors duration-300 text-center @(L.CurrentLanguage == "en" ? "text-gray-800" : "text-white/70 hover:text-white")">
+                                    class="lang-toggle-btn relative z-10 text-xs font-semibold rounded-full transition-colors duration-300 text-center @(L.CurrentLanguage == "en" ? "text-gray-900 dark:text-gray-800" : "text-white/70 hover:text-white")">
                                 EN
                             </button>
                             <button @onclick="@(() => L.SetLanguage("uk"))"
-                                    class="lang-toggle-btn relative z-10 text-xs font-semibold rounded-full transition-colors duration-300 text-center @(L.CurrentLanguage == "uk" ? "text-gray-800" : "text-white/70 hover:text-white")">
+                                    class="lang-toggle-btn relative z-10 text-xs font-semibold rounded-full transition-colors duration-300 text-center @(L.CurrentLanguage == "uk" ? "text-gray-900 dark:text-gray-800" : "text-white/70 hover:text-white")">
                                 UK
                             </button>
                         </div>
@@ -115,6 +115,7 @@ else
     {
         if (firstRender && !authRestored)
         {
+            await Theme.InitializeAsync();
             await AuthService.EnsureRestoredAsync();
             authRestored = true;
             await InvokeAsync(StateHasChanged);

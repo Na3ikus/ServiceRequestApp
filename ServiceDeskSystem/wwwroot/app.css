@@ -656,6 +656,95 @@ h3[tabindex] {
 }
 
     .blazor-error-boundary::after {
+        content: "An error has occurred.";
+    }
+
+/* ================================
+   DARK MODE FIXES - Force light text colors
+   ================================ */
+
+/* Dashboard Stats labels */
+.dark .text-gray-400 {
+    color: rgb(229 231 235) !important; /* gray-200 */
+}
+
+/* Filter labels */
+.dark label.text-gray-700 {
+    color: rgb(255 255 255) !important; /* white */
+}
+
+/* Table headers */
+.dark thead th {
+    color: rgb(229 231 235) !important; /* gray-200 */
+}
+
+/* Table body text */
+.dark tbody td {
+    color: rgb(229 231 235) !important; /* gray-200 */
+}
+
+/* Ticket title */
+.dark .ticket-title {
+    color: rgb(255 255 255) !important; /* white */
+}
+
+/* Input fields placeholder and text */
+.dark input::placeholder {
+    color: rgb(156 163 175) !important; /* gray-400 */
+}
+
+.dark input {
+    color: rgb(255 255 255) !important; /* white */
+    background-color: rgb(55 65 81) !important; /* gray-700 */
+}
+
+.dark select {
+    color: rgb(255 255 255) !important; /* white */
+    background-color: rgb(55 65 81) !important; /* gray-700 */
+}
+
+/* All text in cards */
+.dark .bg-gray-800 p,
+.dark .bg-gray-800 h1,
+.dark .bg-gray-800 h2,
+.dark .bg-gray-800 h3,
+.dark .bg-gray-800 label,
+.dark .bg-gray-800 span {
+    color: rgb(229 231 235) !important; /* gray-200 */
+}
+
+/* Headers and titles */
+.dark h1,
+.dark h2,
+.dark h3 {
+    color: rgb(255 255 255) !important; /* white */
+}
+
+/* Ensure all text-gray-500 becomes light in dark mode */
+.dark .text-gray-500 {
+    color: rgb(209 213 219) !important; /* gray-300 */
+}
+
+.dark .text-gray-600 {
+    color: rgb(229 231 235) !important; /* gray-200 */
+}
+
+.dark .text-gray-700 {
+    color: rgb(243 244 246) !important; /* gray-100 */
+}
+
+.dark .text-gray-800 {
+    color: rgb(255 255 255) !important; /* white */
+}
+
+.dark .text-gray-900 {
+    color: rgb(255 255 255) !important; /* white */
+}
+    padding: 1rem 1rem 1rem 3.7rem;
+    color: white;
+}
+
+    .blazor-error-boundary::after {
         content: "An error has occurred."
     }
 
@@ -677,43 +766,100 @@ h3[tabindex] {
    ======================================== */
 
 .btn-take-ticket {
+    position: relative;
     width: 100%;
-    padding: 0.5rem 1rem;
-    background: linear-gradient(to right, #2563eb, #7c3aed);
+    padding: 0.875rem 1.5rem;
+    background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
     color: white;
-    border-radius: 0.5rem;
+    border-radius: 0.75rem;
     border: none;
     cursor: pointer;
-    transition: all 0.2s;
-    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    font-weight: 500;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.4), 
+                0 8px 10px -6px rgba(124, 58, 237, 0.3);
+    overflow: hidden;
+    font-weight: 600;
+    letter-spacing: 0.025em;
 }
 
 .btn-take-ticket:hover {
-    background: linear-gradient(to right, #1d4ed8, #6d28d9);
+    transform: translateY(-2px);
+    box-shadow: 0 20px 35px -5px rgba(37, 99, 235, 0.5), 
+                0 10px 15px -3px rgba(124, 58, 237, 0.4);
+}
+
+.btn-take-ticket:active {
+    transform: translateY(0);
+    box-shadow: 0 5px 15px -3px rgba(37, 99, 235, 0.4);
+}
+
+.dark .btn-take-ticket {
+    box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.6), 
+                0 8px 10px -6px rgba(124, 58, 237, 0.5);
+}
+
+.dark .btn-take-ticket:hover {
+    box-shadow: 0 20px 35px -5px rgba(37, 99, 235, 0.7), 
+                0 10px 15px -3px rgba(124, 58, 237, 0.6);
 }
 
 .btn-release-ticket {
+    position: relative;
     width: 100%;
-    padding: 0.5rem 1rem;
-    background-color: #f97316;
+    padding: 0.875rem 1.5rem;
+    background: linear-gradient(135deg, #f97316 0%, #dc2626 100%);
     color: white;
-    border-radius: 0.5rem;
+    border-radius: 0.75rem;
     border: none;
     cursor: pointer;
-    transition: background-color 0.2s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    font-weight: 500;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 10px 25px -5px rgba(249, 115, 22, 0.4), 
+                0 8px 10px -6px rgba(220, 38, 38, 0.3);
+    overflow: hidden;
+    font-weight: 600;
+    letter-spacing: 0.025em;
 }
 
 .btn-release-ticket:hover {
-    background-color: #ea580c;
+    transform: translateY(-2px);
+    box-shadow: 0 20px 35px -5px rgba(249, 115, 22, 0.5), 
+                0 10px 15px -3px rgba(220, 38, 38, 0.4);
+}
+
+.btn-release-ticket:active {
+    transform: translateY(0);
+    box-shadow: 0 5px 15px -3px rgba(249, 115, 22, 0.4);
+}
+
+.dark .btn-release-ticket {
+    box-shadow: 0 10px 25px -5px rgba(249, 115, 22, 0.6), 
+                0 8px 10px -6px rgba(220, 38, 38, 0.5);
+}
+
+.dark .btn-release-ticket:hover {
+    box-shadow: 0 20px 35px -5px rgba(249, 115, 22, 0.7), 
+                0 10px 15px -3px rgba(220, 38, 38, 0.6);
+}
+
+/* Ripple effect */
+.btn-take-ticket::before,
+.btn-release-ticket::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.btn-take-ticket:active::before,
+.btn-release-ticket:active::before {
+    width: 300px;
+    height: 300px;
+    transition: width 0s, height 0s;
 }
 

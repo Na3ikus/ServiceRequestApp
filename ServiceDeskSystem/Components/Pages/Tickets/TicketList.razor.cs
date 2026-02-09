@@ -26,7 +26,19 @@ public partial class TicketList : BaseComponent
 
     private List<Ticket>? filteredTickets { get; set; }
 
-    private string searchQuery { get; set; } = string.Empty;
+    private string _searchQuery = string.Empty;
+    private string searchQuery
+    {
+        get => this._searchQuery;
+        set
+        {
+            if (this._searchQuery != value)
+            {
+                this._searchQuery = value;
+                this.ApplyFilters();
+            }
+        }
+    }
 
     private string selectedPriority { get; set; } = "All";
 
@@ -145,22 +157,18 @@ public partial class TicketList : BaseComponent
         this.filteredTickets = query.ToList();
     }
 
-    private void OnSearchChanged(Microsoft.AspNetCore.Components.ChangeEventArgs e)
-    {
-        this.searchQuery = e.Value?.ToString() ?? string.Empty;
-        this.ApplyFilters();
-    }
-
     private void OnPriorityChanged(Microsoft.AspNetCore.Components.ChangeEventArgs e)
     {
         this.selectedPriority = e.Value?.ToString() ?? "All";
         this.ApplyFilters();
+        this.StateHasChanged();
     }
 
     private void OnStatusChanged(Microsoft.AspNetCore.Components.ChangeEventArgs e)
     {
         this.selectedStatus = e.Value?.ToString() ?? "All";
         this.ApplyFilters();
+        this.StateHasChanged();
     }
 
     private string GetStatusText(string status) => status switch

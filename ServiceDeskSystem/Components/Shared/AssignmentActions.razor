@@ -5,27 +5,46 @@
 <!-- Assignment Actions Component -->
 @if (ShowTakeButton || ShowReleaseButton)
 {
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-        <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">@L.Translate("details.assignment")</h3>
+    <div class="bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-850 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 border border-gray-100 dark:border-gray-700">
+        <div class="flex items-center gap-3 mb-5">
+            <div class="p-2 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+                </svg>
+            </div>
+            <h3 class="text-lg font-bold text-gray-800 dark:text-white">@L.Translate("details.assignment")</h3>
+        </div>
         
-        <div class="space-y-2">
+        <div class="space-y-3">
             @if (ShowTakeButton)
             {
-                <button @onclick="OnTakeTicket" class="btn-take-ticket">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
-                    </svg>
-                    @L.Translate("details.takeTicket")
+                <button @onclick="OnTakeTicket" class="btn-take-ticket group">
+                    <div class="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div class="relative flex items-center justify-center gap-2">
+                        <svg class="w-5 h-5 transform group-hover:scale-110 group-hover:rotate-12 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
+                        </svg>
+                        <span class="font-semibold">@L.Translate("details.takeTicket")</span>
+                        <svg class="w-4 h-4 transform translate-x-0 group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                        </svg>
+                    </div>
                 </button>
             }
 
             @if (ShowReleaseButton)
             {
-                <button @onclick="OnReleaseTicket" class="btn-release-ticket">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7a4 4 0 11-8 0 4 4 0 018 0zM9 14a6 6 0 00-6 6v1h12v-1a6 6 0 00-6-6zM21 12h-6"></path>
-                    </svg>
-                    @L.Translate("details.releaseTicket")
+                <button @onclick="OnReleaseTicket" class="btn-release-ticket group">
+                    <div class="absolute inset-0 bg-gradient-to-r from-orange-600 to-red-600 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div class="relative flex items-center justify-center gap-2">
+                        <svg class="w-5 h-5 transform group-hover:scale-110 group-hover:-rotate-12 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7a4 4 0 11-8 0 4 4 0 018 0zM9 14a6 6 0 00-6 6v1h12v-1a6 6 0 00-6-6zM21 12h-6"></path>
+                        </svg>
+                        <span class="font-semibold">@L.Translate("details.releaseTicket")</span>
+                        <svg class="w-4 h-4 transform translate-x-0 group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                        </svg>
+                    </div>
                 </button>
             }
         </div>
