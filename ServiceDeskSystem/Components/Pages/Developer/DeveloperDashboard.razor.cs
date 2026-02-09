@@ -144,9 +144,13 @@ public partial class DeveloperDashboard : BaseComponent
 
     private string GetStatusText(string status) => status switch
     {
+        "New" => this.L.Translate("status.new"),
         "Open" => this.L.Translate("status.open"),
         "In Progress" => this.L.Translate("status.inProgress"),
+        "Testing" => this.L.Translate("status.testing"),
+        "Code Review" => this.L.Translate("status.codeReview"),
         "Resolved" => this.L.Translate("status.resolved"),
+        "Done" => this.L.Translate("status.done"),
         "Closed" => this.L.Translate("status.closed"),
         _ => status,
     };

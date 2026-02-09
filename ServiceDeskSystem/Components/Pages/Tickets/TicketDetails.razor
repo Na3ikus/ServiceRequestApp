@@ -218,17 +218,17 @@
                                 <button @onclick="@(() => UpdateStatusAsync("Testing"))" 
                                         class="action-btn btn-testing">
                                     <span>🧪</span>
-                                    <span>Send to Testing</span>
+                                    <span>@L.Translate("details.sendToTesting")</span>
                                 </button>
                                 <button @onclick="@(() => UpdateStatusAsync("Code Review"))" 
                                         class="action-btn btn-review">
                                     <span>👀</span>
-                                    <span>Send to Code Review</span>
+                                    <span>@L.Translate("details.sendToCodeReview")</span>
                                 </button>
                                 <button @onclick="@(() => UpdateStatusAsync("Resolved"))" 
                                         class="action-btn btn-resolved">
                                     <span>✅</span>
-                                    <span>Mark as Resolved</span>
+                                    <span>@L.Translate("details.markResolved")</span>
                                 </button>
                             }
                             
@@ -238,17 +238,17 @@
                                 <button @onclick="@(() => UpdateStatusAsync("Code Review"))" 
                                         class="action-btn btn-review">
                                     <span>👀</span>
-                                    <span>Move to Code Review</span>
+                                    <span>@L.Translate("details.moveToCodeReview")</span>
                                 </button>
                                 <button @onclick="@(() => UpdateStatusAsync("Done"))" 
                                         class="action-btn btn-done">
                                     <span>✅</span>
-                                    <span>Testing Passed</span>
+                                    <span>@L.Translate("details.testingPassed")</span>
                                 </button>
                                 <button @onclick="@(() => UpdateStatusAsync("In Progress"))" 
                                         class="action-btn btn-return">
                                     <span>🔙</span>
-                                    <span>Return to Development</span>
+                                    <span>@L.Translate("details.returnToDevelopment")</span>
                                 </button>
                             }
                             
@@ -258,12 +258,12 @@
                                 <button @onclick="@(() => UpdateStatusAsync("Done"))" 
                                         class="action-btn btn-done">
                                     <span>✅</span>
-                                    <span>Approve Changes</span>
+                                    <span>@L.Translate("details.approveChanges")</span>
                                 </button>
                                 <button @onclick="@(() => UpdateStatusAsync("In Progress"))" 
                                         class="action-btn btn-return">
                                     <span>🔙</span>
-                                    <span>Request Changes</span>
+                                    <span>@L.Translate("details.requestChanges")</span>
                                 </button>
                             }
                             
@@ -273,12 +273,12 @@
                                 <button @onclick="@(() => UpdateStatusAsync("Closed"))" 
                                         class="action-btn btn-close">
                                     <span>🔒</span>
-                                    <span>Close Ticket</span>
+                                    <span>@L.Translate("details.closeTicketBtn")</span>
                                 </button>
                                 <button @onclick="@(() => UpdateStatusAsync("In Progress"))" 
                                         class="action-btn btn-return">
                                     <span>🔙</span>
-                                    <span>Reopen for Changes</span>
+                                    <span>@L.Translate("details.reopenForChanges")</span>
                                 </button>
                             }
                             
@@ -288,7 +288,7 @@
                                 <button @onclick="@(() => UpdateStatusAsync("Closed"))" 
                                         class="action-btn btn-close">
                                     <span>🔒</span>
-                                    <span>Close Ticket</span>
+                                    <span>@L.Translate("details.markAsClosed")</span>
                                 </button>
                             }
                             
@@ -298,7 +298,7 @@
                                 <button @onclick="@(() => UpdateStatusAsync("Closed"))" 
                                         class="action-btn btn-force-close">
                                     <span>⛔</span>
-                                    <span>Force Close</span>
+                                    <span>@L.Translate("details.forceClose")</span>
                                 </button>
                             }
                             
@@ -308,6 +308,7 @@
                                 <button @onclick="@(() => UpdateStatusAsync("Open"))" 
                                         class="action-btn btn-reopen">
                                     <span>🔓</span>
+                                    <span>@L.Translate("details.reopenTicket")</span>
                                     <span>Reopen Ticket</span>
                                 </button>
                             }
