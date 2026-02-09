@@ -171,6 +171,15 @@ public partial class TicketList : BaseComponent
         this.StateHasChanged();
     }
 
+    private void ClearFilters()
+    {
+        this.searchQuery = string.Empty;
+        this.selectedPriority = "All";
+        this.selectedStatus = "All";
+        this.ApplyFilters();
+        this.StateHasChanged();
+    }
+
     private string GetStatusText(string status) => status switch
     {
         "Open" => this.L.Translate("status.open"),

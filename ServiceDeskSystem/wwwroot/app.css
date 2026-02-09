@@ -96,6 +96,52 @@ a, .btn-link {
     flex-shrink: 0;
 }
 
+/* Filter section styles */
+.search-input {
+    transition: all 0.2s ease-in-out;
+}
+
+.search-input:hover {
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
+}
+
+.search-input:focus {
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+    transform: translateY(-1px);
+}
+
+.filter-select {
+    transition: all 0.2s ease-in-out;
+}
+
+.filter-select:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.filter-select:focus {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transform: translateY(-1px);
+}
+
+/* Label icon animation */
+.group label svg {
+    transition: all 0.2s ease-in-out;
+}
+
+.group:hover label svg {
+    transform: scale(1.15) rotate(5deg);
+}
+
+/* Filter label styling */
+.group label {
+    cursor: default;
+    user-select: none;
+}
+
+.group label span {
+    letter-spacing: 0.01em;
+}
+
 .theme-toggle {
     width: 40px;
     height: 40px;
