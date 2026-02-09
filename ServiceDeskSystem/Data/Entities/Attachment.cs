@@ -1,6 +1,6 @@
 namespace ServiceDeskSystem.Data.Entities;
 
-internal class Attachment
+public class Attachment
 {
     public int Id { get; set; }
 

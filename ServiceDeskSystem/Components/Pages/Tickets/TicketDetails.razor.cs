@@ -42,10 +42,6 @@ public partial class TicketDetails : BaseComponent
 
     private string EditingCommentMessage { get; set; } = string.Empty;
 
-    private bool canReleaseTicket;
-
-    private bool canTakeTicket;
-
     private int CurrentUserId => this.AuthService.CurrentUser?.Id ?? 0;
 
     private string CurrentUserRole => this.AuthService.CurrentUser?.Role ?? string.Empty;
@@ -54,39 +50,21 @@ public partial class TicketDetails : BaseComponent
 
     private bool IsDeveloper => string.Equals(this.CurrentUserRole, "Developer", StringComparison.OrdinalIgnoreCase);
 
+    /// <summary>
+    /// Combined check: user is admin or developer (both can take/release tickets).
+    /// </summary>
+    private bool IsAdminOrDeveloper => this.AuthService.IsAuthenticated && (this.IsAdmin || this.IsDeveloper);
+
     private bool CanManageTicket => this.Ticket is not null && this.AuthService.IsAuthenticated && (this.Ticket.AuthorId == this.CurrentUserId || this.IsAdmin);
 
+    /// <summary>
+    /// Can manage ticket status: ONLY the person who took the ticket (DeveloperId == CurrentUserId).
+    /// Admin cannot manage status unless they took the ticket themselves.
+    /// </summary>
     private bool CanManageTicketStatus => this.AuthService.IsAuthenticated &&
-        (this.IsAdmin || (this.IsDeveloper && this.Ticket?.DeveloperId == this.CurrentUserId));
-
-    private bool CanTakeTicket => this.canTakeTicket;
-
-    private bool CanReleaseTicket => this.canReleaseTicket;
+        this.Ticket?.DeveloperId == this.CurrentUserId;
 
     private bool CanDeleteComment(Comment comment) => comment.AuthorId == this.CurrentUserId || this.IsAdmin;
-
-    private void UpdatePermissions()
-    {
-        // Update CanTakeTicket
-        this.canTakeTicket = this.AuthService.IsAuthenticated &&
-            this.Ticket?.DeveloperId is null &&
-            this.Ticket?.AuthorId != this.CurrentUserId &&
-            (this.IsAdmin || this.IsDeveloper);
-
-        // Update CanReleaseTicket
-        if (!this.AuthService.IsAuthenticated || this.Ticket?.DeveloperId is null)
-        {
-            this.canReleaseTicket = false;
-        }
-        else if (this.IsAdmin)
-        {
-            this.canReleaseTicket = true;
-        }
-        else
-        {
-            this.canReleaseTicket = this.Ticket.DeveloperId == this.CurrentUserId;
-        }
-    }
 
     internal async Task RemoveToastAsync(ToastMessage toast)
     {
@@ -152,7 +130,6 @@ public partial class TicketDetails : BaseComponent
     private async Task LoadTicketAsync()
     {
         this.Ticket = await this.TicketService.GetTicketByIdAsync(this.Id);
-        this.UpdatePermissions();
         this.StateHasChanged();
     }
 
@@ -228,7 +205,9 @@ public partial class TicketDetails : BaseComponent
         }
 
         var comment = this.Ticket?.Comments?.FirstOrDefault(c => c.Id == commentId);
-        if (comment is null || (comment.AuthorId != this.CurrentUserId && !this.IsAdmin))
+
+        // Тільки автор може редагувати коментар (адмін НЕ може редагувати чужі)
+        if (comment is null || comment.AuthorId != this.CurrentUserId)
         {
             return;
         }
@@ -247,7 +226,10 @@ public partial class TicketDetails : BaseComponent
         await this.RefreshCommentsAsync();
     }
 
-    private bool CanEditComment(Comment comment) => comment.AuthorId == this.CurrentUserId || this.IsAdmin;
+    /// <summary>
+    /// Тільки автор може редагувати свій коментар. Адмін НЕ може редагувати чужі.
+    /// </summary>
+    private bool CanEditComment(Comment comment) => comment.AuthorId == this.CurrentUserId;
 
     private async Task DeleteCommentAsync(int commentId)
     {
@@ -330,7 +312,7 @@ public partial class TicketDetails : BaseComponent
 
     private async Task UnassignAsync()
     {
-        if (this.Ticket is null || !this.CanReleaseTicket)
+        if (this.Ticket is null)
         {
             return;
         }
@@ -363,7 +345,6 @@ public partial class TicketDetails : BaseComponent
 
     private void OnAuthStateChanged(object? sender, EventArgs e)
     {
-        this.UpdatePermissions();
         _ = this.InvokeAsync(this.StateHasChanged);
     }
 }

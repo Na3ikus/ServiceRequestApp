@@ -1,0 +1,158 @@
+@page "/admin-tickets"
+@using ServiceDeskSystem.Components.Common
+@inherits BaseComponent
+@rendermode InteractiveServer
+
+<!-- Created by Nazar "N1h3" Hutsol -->
+<div class="max-w-7xl mx-auto p-6">
+    @if (!IsAdmin)
+    {
+        <div class="bg-red-100 dark:bg-red-900/50 border border-red-400 dark:border-red-600 text-red-700 dark:text-red-300 px-6 py-4 rounded-xl">
+            <div class="flex items-center gap-3">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                </svg>
+                <span class="font-medium">@L.Translate("admin.accessDenied")</span>
+            </div>
+        </div>
+    }
+    else
+    {
+        <!-- Stats Cards - Horizontal Row -->
+        <div class="flex flex-row gap-6 mb-8">
+            <div class="flex-1 bg-white dark:bg-gray-800 rounded-2xl shadow-lg dark:shadow-gray-900/50 overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                <div class="p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">@L.Translate("adminTickets.assigned")</p>
+                            <p class="mt-2 text-3xl font-bold text-gray-900 dark:text-white">@assignedCount</p>
+                        </div>
+                        <div class="p-4 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl shadow-lg shadow-blue-500/30">
+                            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                <div class="h-1.5 bg-gradient-to-r from-blue-500 to-blue-600"></div>
+            </div>
+
+            <div class="flex-1 bg-white dark:bg-gray-800 rounded-2xl shadow-lg dark:shadow-gray-900/50 overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                <div class="p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">@L.Translate("adminTickets.inProgress")</p>
+                            <p class="mt-2 text-3xl font-bold text-gray-900 dark:text-white">@inProgressCount</p>
+                        </div>
+                        <div class="p-4 bg-gradient-to-br from-amber-500 to-orange-500 rounded-2xl shadow-lg shadow-amber-500/30">
+                            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                <div class="h-1.5 bg-gradient-to-r from-amber-500 to-orange-500"></div>
+            </div>
+
+            <div class="flex-1 bg-white dark:bg-gray-800 rounded-2xl shadow-lg dark:shadow-gray-900/50 overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                <div class="p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">@L.Translate("adminTickets.completed")</p>
+                            <p class="mt-2 text-3xl font-bold text-gray-900 dark:text-white">@completedCount</p>
+                        </div>
+                        <div class="p-4 bg-gradient-to-br from-emerald-500 to-green-600 rounded-2xl shadow-lg shadow-emerald-500/30">
+                            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                <div class="h-1.5 bg-gradient-to-r from-emerald-500 to-green-600"></div>
+            </div>
+        </div>
+
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-800 dark:text-white">@L.Translate("adminTickets.title")</h1>
+                <p class="text-gray-600 dark:text-gray-400">@L.Translate("adminTickets.subtitle")</p>
+            </div>
+        </div>
+
+        @if (tickets is null)
+        {
+            <div class="flex items-center justify-center h-64">
+                <div class="flex items-center gap-3 text-gray-500 dark:text-gray-400">
+                    <svg class="animate-spin h-6 w-6" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span class="text-lg">@L.Translate("common.loading")</span>
+                </div>
+            </div>
+        }
+        else if (!tickets.Any())
+        {
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-12 text-center">
+                <div class="w-20 h-20 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-700 dark:text-white mb-2">@L.Translate("adminTickets.noTickets")</h3>
+                <p class="text-gray-500 dark:text-gray-400 mb-6">@L.Translate("adminTickets.noTicketsDesc")</p>
+                <a href="/" class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                    </svg>
+                    @L.Translate("adminTickets.browseTickets")
+                </a>
+            </div>
+        }
+        else
+        {
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700">
+                            <tr>
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">@L.Translate("table.id")</th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">@L.Translate("table.title")</th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">@L.Translate("table.status")</th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">@L.Translate("table.priority")</th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">@L.Translate("table.product")</th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">@L.Translate("table.author")</th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">@L.Translate("table.created")</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                            @foreach (var ticket in tickets)
+                            {
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer transition-colors" @onclick="@(() => ViewTicket(ticket.Id))">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 font-mono">#@ticket.Id</td>
+                                    <td class="px-6 py-4">
+                                        <div class="text-sm font-medium text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 truncate max-w-xs">@ticket.Title</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="@GetStatusBadgeClass(ticket.Status) px-3 py-1 rounded-full text-xs font-semibold">
+                                            @GetStatusText(ticket.Status)
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="@GetPriorityBadgeClass(ticket.Priority) px-3 py-1 rounded-lg text-xs font-semibold">
+                                            @GetPriorityText(ticket.Priority)
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 truncate max-w-[120px]">@ticket.Product?.Name</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 truncate max-w-[100px]">@ticket.Author?.Login</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">@ticket.CreatedAt.ToString("MMM dd, yyyy")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+    }
+</div>

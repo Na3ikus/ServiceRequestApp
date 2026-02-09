@@ -1,6 +1,6 @@
 namespace ServiceDeskSystem.Data.Entities;
 
-internal class Person
+public class Person
 {
     public int Id { get; set; }
 

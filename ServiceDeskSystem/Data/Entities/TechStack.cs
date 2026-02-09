@@ -1,6 +1,6 @@
 namespace ServiceDeskSystem.Data.Entities;
 
-internal class TechStack
+public class TechStack
 {
     public int Id { get; set; }
 

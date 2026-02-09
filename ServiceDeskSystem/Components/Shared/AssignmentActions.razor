@@ -1,0 +1,66 @@
+@using ServiceDeskSystem.Data.Entities
+@using ServiceDeskSystem.Services.Localization
+@inject ILocalizationService L
+
+<!-- Assignment Actions Component -->
+@if (ShowTakeButton || ShowReleaseButton)
+{
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+        <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">@L.Translate("details.assignment")</h3>
+        
+        <div class="space-y-2">
+            @if (ShowTakeButton)
+            {
+                <button @onclick="OnTakeTicket" class="btn-take-ticket">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
+                    </svg>
+                    @L.Translate("details.takeTicket")
+                </button>
+            }
+
+            @if (ShowReleaseButton)
+            {
+                <button @onclick="OnReleaseTicket" class="btn-release-ticket">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7a4 4 0 11-8 0 4 4 0 018 0zM9 14a6 6 0 00-6 6v1h12v-1a6 6 0 00-6-6zM21 12h-6"></path>
+                    </svg>
+                    @L.Translate("details.releaseTicket")
+                </button>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public Ticket? Ticket { get; set; }
+
+    [Parameter]
+    public int CurrentUserId { get; set; }
+
+    [Parameter]
+    public bool IsAdminOrDeveloper { get; set; }
+
+    [Parameter]
+    public bool IsAdmin { get; set; }
+
+    [Parameter]
+    public EventCallback OnTakeTicket { get; set; }
+
+    [Parameter]
+    public EventCallback OnReleaseTicket { get; set; }
+
+    /// <summary>
+    /// Show Take button if: ticket is free AND user is admin or developer.
+    /// </summary>
+    private bool ShowTakeButton =>
+        Ticket?.DeveloperId is null && IsAdminOrDeveloper;
+
+    /// <summary>
+    /// Show Release button if: ticket is assigned to current user (admin can only release their own tickets).
+    /// </summary>
+    private bool ShowReleaseButton =>
+        Ticket?.DeveloperId is not null &&
+        Ticket.DeveloperId == CurrentUserId;
+}
