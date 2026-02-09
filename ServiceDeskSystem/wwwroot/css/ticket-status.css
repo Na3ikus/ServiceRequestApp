@@ -1,0 +1,142 @@
+
+/* ============================================= */
+/* VIBRANT TICKET STATUS BADGES */
+/* ============================================= */
+
+/* Override Tailwind classes with more vibrant colors */
+
+/* NEW Status - Vibrant Purple */
+.bg-purple-200 {
+    background-color: #e9d5ff !important;
+}
+
+.text-purple-900 {
+    color: #581c87 !important;
+}
+
+.dark .bg-purple-200 {
+    background-color: #581c87 !important;
+}
+
+.dark .text-purple-900 {
+    color: #f3e8ff !important;
+}
+
+/* OPEN Status - Vibrant Blue */
+.bg-blue-200 {
+    background-color: #bfdbfe !important;
+}
+
+.text-blue-900 {
+    color: #1e3a8a !important;
+}
+
+.dark .bg-blue-200 {
+    background-color: #1e3a8a !important;
+}
+
+.dark .text-blue-900 {
+    color: #dbeafe !important;
+}
+
+/* IN PROGRESS Status - Vibrant Yellow */
+.bg-yellow-200 {
+    background-color: #fef08a !important;
+}
+
+.text-yellow-900 {
+    color: #713f12 !important;
+}
+
+.dark .bg-yellow-200 {
+    background-color: #854d0e !important;
+}
+
+.dark .text-yellow-900 {
+    color: #fef9c3 !important;
+}
+
+/* RESOLVED Status - Vibrant Green */
+.bg-green-200 {
+    background-color: #bbf7d0 !important;
+}
+
+.text-green-900 {
+    color: #14532d !important;
+}
+
+.dark .bg-green-200 {
+    background-color: #166534 !important;
+}
+
+.dark .text-green-900 {
+    color: #dcfce7 !important;
+}
+
+/* CLOSED Status - Vibrant Gray */
+.bg-gray-200 {
+    background-color: #e5e7eb !important;
+}
+
+.text-gray-900 {
+    color: #111827 !important;
+}
+
+.dark .bg-gray-700 {
+    background-color: #374151 !important;
+}
+
+.dark .text-gray-200 {
+    color: #e5e7eb !important;
+}
+
+/* TESTING Status - Vibrant Cyan */
+.bg-cyan-200 {
+    background-color: #a5f3fc !important;
+}
+
+.text-cyan-900 {
+    color: #164e63 !important;
+}
+
+.dark .bg-cyan-200 {
+    background-color: #155e75 !important;
+}
+
+.dark .text-cyan-900 {
+    color: #cffafe !important;
+}
+
+/* CODE REVIEW Status - Vibrant Indigo */
+.bg-indigo-200 {
+    background-color: #c7d2fe !important;
+}
+
+.text-indigo-900 {
+    color: #312e81 !important;
+}
+
+.dark .bg-indigo-200 {
+    background-color: #3730a3 !important;
+}
+
+.dark .text-indigo-900 {
+    color: #e0e7ff !important;
+}
+
+/* DONE Status - Vibrant Emerald */
+.bg-emerald-200 {
+    background-color: #a7f3d0 !important;
+}
+
+.text-emerald-900 {
+    color: #064e3b !important;
+}
+
+.dark .bg-emerald-200 {
+    background-color: #065f46 !important;
+}
+
+.dark .text-emerald-900 {
+    color: #d1fae5 !important;
+}

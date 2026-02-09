@@ -1,0 +1,260 @@
+/* Ticket Details Scoped Styles */
+
+/* Action buttons base styles */
+.action-btn {
+    width: 100%;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border: none;
+    cursor: pointer;
+}
+
+.action-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.action-btn:active {
+    transform: translateY(0);
+}
+
+/* Status-specific button colors */
+.btn-start {
+    background-color: #eab308;
+    color: white;
+}
+
+.btn-start:hover {
+    background-color: #ca8a04;
+}
+
+.btn-testing {
+    background-color: #06b6d4;
+    color: white;
+}
+
+.btn-testing:hover {
+    background-color: #0891b2;
+}
+
+.btn-review {
+    background-color: #6366f1;
+    color: white;
+}
+
+.btn-review:hover {
+    background-color: #4f46e5;
+}
+
+.btn-resolved {
+    background-color: #10b981;
+    color: white;
+}
+
+.btn-resolved:hover {
+    background-color: #059669;
+}
+
+.btn-done {
+    background-color: #059669;
+    color: white;
+}
+
+.btn-done:hover {
+    background-color: #047857;
+}
+
+.btn-return {
+    background-color: #f97316;
+    color: white;
+}
+
+.btn-return:hover {
+    background-color: #ea580c;
+}
+
+.btn-close {
+    background-color: #6b7280;
+    color: white;
+}
+
+.btn-close:hover {
+    background-color: #4b5563;
+}
+
+.btn-force-close {
+    background-color: #ef4444;
+    color: white;
+    border: 2px solid #b91c1c;
+}
+
+.btn-force-close:hover {
+    background-color: #dc2626;
+}
+
+.btn-reopen {
+    background-color: #3b82f6;
+    color: white;
+}
+
+.btn-reopen:hover {
+    background-color: #2563eb;
+}
+
+/* Ticket header styles */
+.ticket-header {
+    display: flex;
+    align-items: start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.ticket-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    flex: 1;
+    min-width: 0;
+}
+
+/* Status badge */
+.status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+/* Priority badge */
+.priority-badge {
+    padding: 0.125rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+/* Comment section styles */
+.comment-item {
+    border-left: 4px solid #3b82f6;
+    padding-left: 1rem;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+}
+
+.comment-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.25rem;
+}
+
+.comment-author {
+    font-weight: 500;
+}
+
+.comment-date {
+    font-size: 0.75rem;
+    color: #6b7280;
+}
+
+.comment-actions {
+    margin-left: auto;
+    display: flex;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+}
+
+.comment-action-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+}
+
+.comment-action-btn:hover {
+    text-decoration: underline;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .ticket-title {
+        color: white;
+    }
+
+    .comment-date {
+        color: #9ca3af;
+    }
+
+    .comment-item {
+        border-left-color: #60a5fa;
+    }
+}
+
+/* Delete button in header */
+.ticket-delete-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background-color: #fee2e2;
+    color: #991b1b;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.ticket-delete-btn:hover {
+    background-color: #fecaca;
+}
+
+/* Assignment buttons */
+.btn-take-ticket {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    background-color: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-take-ticket:hover {
+    background-color: #2563eb;
+}
+
+.btn-release-ticket {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    background-color: #f97316;
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-release-ticket:hover {
+    background-color: #ea580c;
+}

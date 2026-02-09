@@ -1,0 +1,110 @@
+/* Global Ticket Styles */
+/* This file contains shared styles for ticket components */
+
+:root {
+    /* Status Colors - Light Mode */
+    --status-new-bg: rgb(243, 232, 255);
+    --status-new-text: rgb(107, 33, 168);
+    --status-open-bg: rgb(219, 234, 254);
+    --status-open-text: rgb(30, 58, 138);
+    --status-progress-bg: rgb(254, 240, 138);
+    --status-progress-text: rgb(113, 63, 18);
+    --status-resolved-bg: rgb(187, 247, 208);
+    --status-resolved-text: rgb(20, 83, 45);
+    --status-closed-bg: rgb(229, 231, 235);
+    --status-closed-text: rgb(31, 41, 55);
+    --status-testing-bg: rgb(207, 250, 254);
+    --status-testing-text: rgb(22, 78, 99);
+    --status-review-bg: rgb(224, 231, 255);
+    --status-review-text: rgb(49, 46, 129);
+    --status-done-bg: rgb(167, 243, 208);
+    --status-done-text: rgb(6, 78, 59);
+}
+
+/* Dark Mode Status Colors */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --status-new-bg: rgb(88, 28, 135);
+        --status-new-text: rgb(243, 232, 255);
+        --status-open-bg: rgb(30, 58, 138);
+        --status-open-text: rgb(191, 219, 254);
+        --status-progress-bg: rgb(113, 63, 18);
+        --status-progress-text: rgb(254, 240, 138);
+        --status-resolved-bg: rgb(20, 83, 45);
+        --status-resolved-text: rgb(187, 247, 208);
+        --status-closed-bg: rgb(55, 65, 81);
+        --status-closed-text: rgb(229, 231, 235);
+        --status-testing-bg: rgb(22, 78, 99);
+        --status-testing-text: rgb(207, 250, 254);
+        --status-review-bg: rgb(49, 46, 129);
+        --status-review-text: rgb(224, 231, 255);
+        --status-done-bg: rgb(6, 78, 59);
+        --status-done-text: rgb(167, 243, 208);
+    }
+}
+
+/* Enhanced status badges - more vibrant */
+.status-badge-enhanced {
+    padding: 0.375rem 0.875rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    white-space: nowrap;
+    flex-shrink: 0;
+    letter-spacing: 0.025em;
+    text-transform: capitalize;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+/* Priority badges - more vibrant */
+.priority-badge-enhanced {
+    padding: 0.25rem 0.625rem;
+    border-radius: 0.375rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.025em;
+    text-transform: uppercase;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+/* Hover effects for interactive elements */
+.ticket-card {
+    transition: all 0.2s ease-in-out;
+}
+
+.ticket-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Action button animations */
+@keyframes pulse-subtle {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.9;
+    }
+}
+
+.action-btn-pulse {
+    animation: pulse-subtle 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Status indicator dots */
+.status-dot {
+    display: inline-block;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    margin-right: 0.5rem;
+}
+
+.status-dot-new { background-color: var(--status-new-text); }
+.status-dot-open { background-color: var(--status-open-text); }
+.status-dot-progress { background-color: var(--status-progress-text); }
+.status-dot-resolved { background-color: var(--status-resolved-text); }
+.status-dot-closed { background-color: var(--status-closed-text); }
+.status-dot-testing { background-color: var(--status-testing-text); }
+.status-dot-review { background-color: var(--status-review-text); }
+.status-dot-done { background-color: var(--status-done-text); }

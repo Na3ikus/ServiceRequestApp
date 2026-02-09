@@ -51,11 +51,15 @@ public partial class TicketList : BaseComponent
 
     private static string GetStatusBadgeClass(string status) => status switch
     {
-        "Open" => "bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300",
-        "In Progress" => "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300",
-        "Resolved" => "bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300",
-        "Closed" => "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300",
-        _ => "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300",
+        "New" => "bg-purple-200 text-purple-900 dark:bg-purple-900 dark:text-purple-200 font-semibold",
+        "Open" => "bg-blue-200 text-blue-900 dark:bg-blue-900 dark:text-blue-200 font-semibold",
+        "In Progress" => "bg-yellow-200 text-yellow-900 dark:bg-yellow-900 dark:text-yellow-200 font-semibold",
+        "Resolved" => "bg-green-200 text-green-900 dark:bg-green-900 dark:text-green-200 font-semibold",
+        "Closed" => "bg-gray-200 text-gray-900 dark:bg-gray-700 dark:text-gray-200 font-semibold",
+        "Testing" => "bg-cyan-200 text-cyan-900 dark:bg-cyan-900 dark:text-cyan-200 font-semibold",
+        "Code Review" => "bg-indigo-200 text-indigo-900 dark:bg-indigo-900 dark:text-indigo-200 font-semibold",
+        "Done" => "bg-emerald-200 text-emerald-900 dark:bg-emerald-900 dark:text-emerald-200 font-semibold",
+        _ => "bg-gray-200 text-gray-900 dark:bg-gray-700 dark:text-gray-200 font-semibold",
     };
 
     private static string GetPriorityBadgeClass(string priority) => priority switch
