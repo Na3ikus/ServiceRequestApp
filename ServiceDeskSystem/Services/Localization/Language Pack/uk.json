@@ -158,8 +158,6 @@
   "admin.cannotDeleteTechStackWithProducts": "Неможливо видалити технологію з пов'язаними продуктами",
   "admin.cannotDeleteProductWithTickets": "Неможливо видалити продукт з існуючими тікетами",
   "common.loading": "Завантаження...",
-  "table.assignee": "Хто взяв",
-  "table.unassigned": "Не призначено",
   "nav.developer": "Мої тікети",
   "developer.title": "Мої тікети",
   "developer.subtitle": "Керуйте своїми призначеними тікетами",
@@ -169,9 +167,5 @@
   "developer.noTickets": "Немає призначених тікетів",
   "developer.noTicketsDesc": "Ви ще не взяли жодного тікету. Перегляньте доступні тікети для початку.",
   "developer.browseTickets": "Переглянути тікети",
-  "developer.accessDenied": "Доступ заборонено. Потрібні права розробника.",
-  "details.assignedTo": "Виконавець",
-  "details.assignment": "Призначення",
-  "details.takeTicket": "Взяти тікет",
-  "details.releaseTicket": "Відпустити тікет"
+  "developer.accessDenied": "Доступ заборонено. Потрібні права розробника."
 }

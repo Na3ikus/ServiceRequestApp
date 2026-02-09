@@ -158,8 +158,6 @@
   "admin.cannotDeleteTechStackWithProducts": "Cannot delete tech stack with associated products",
   "admin.cannotDeleteProductWithTickets": "Cannot delete product with existing tickets",
   "common.loading": "Loading...",
-  "table.assignee": "Assigned To",
-  "table.unassigned": "Unassigned",
   "nav.developer": "My Tickets",
   "developer.title": "My Tickets",
   "developer.subtitle": "Manage your assigned tickets",
@@ -169,9 +167,5 @@
   "developer.noTickets": "No assigned tickets",
   "developer.noTicketsDesc": "You haven't taken any tickets yet. Browse available tickets to get started.",
   "developer.browseTickets": "Browse Tickets",
-  "developer.accessDenied": "Access denied. Developer privileges required.",
-  "details.assignedTo": "Assigned To",
-  "details.assignment": "Assignment",
-  "details.takeTicket": "Take Ticket",
-  "details.releaseTicket": "Release Ticket"
+  "developer.accessDenied": "Access denied. Developer privileges required."
 }
