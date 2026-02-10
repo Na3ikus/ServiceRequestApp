@@ -183,5 +183,11 @@
   "developer.noTickets": "Немає призначених тікетів",
   "developer.noTicketsDesc": "Ви ще не взяли жодного тікету. Перегляньте доступні тікети для початку.",
   "developer.browseTickets": "Переглянути тікети",
-  "developer.accessDenied": "Доступ заборонено. Потрібні права розробника."
+  "developer.accessDenied": "Доступ заборонено. Потрібні права розробника.",
+  "search.title": "Пошук",
+  "search.subtitle": "Фільтруйте тікети за різними параметрами",
+  "search.label": "Пошук",
+  "search.priorityLabel": "Пріоритет",
+  "search.statusLabel": "Статус",
+  "search.clearFilters": "Очистити фільтри"
 }

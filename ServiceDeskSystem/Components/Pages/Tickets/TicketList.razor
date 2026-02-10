@@ -32,8 +32,8 @@
                     </svg>
                 </div>
                 <div>
-                    <h3 class="text-base font-semibold text-gray-800 dark:text-white">@L.Translate("tickets.search")</h3>
-                    <p class="text-xs text-gray-500 dark:text-gray-400">Фільтруйте тікети за різними параметрами</p>
+                    <h3 class="text-base font-semibold text-gray-800 dark:text-white">@L.Translate("search.title")</h3>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">@L.Translate("search.subtitle")</p>
                 </div>
             </div>
             @if (!string.IsNullOrEmpty(searchQuery) || selectedPriority != "All" || selectedStatus != "All")
@@ -42,7 +42,7 @@
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
-                    Очистити фільтри
+                    @L.Translate("search.clearFilters")
                 </button>
             }
         </div>
@@ -56,7 +56,7 @@
                     <svg class="w-5 h-5 text-blue-500 dark:text-blue-400 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                     </svg>
-                    <span class="text-base">Пошук</span>
+                    <span class="text-base">@L.Translate("search.label")</span>
                 </label>
                 <div class="relative">
                     <input type="text"
@@ -83,7 +83,7 @@
                         <svg class="w-5 h-5 text-orange-500 dark:text-orange-400 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
                         </svg>
-                        <span class="text-base">Пріоритет</span>
+                        <span class="text-base">@L.Translate("search.priorityLabel")</span>
                     </label>
                     <div class="relative">
                         <select @onchange="OnPriorityChanged"
@@ -104,7 +104,7 @@
                         <svg class="w-5 h-5 text-green-500 dark:text-green-400 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
-                        <span class="text-base">Статус</span>
+                        <span class="text-base">@L.Translate("search.statusLabel")</span>
                     </label>
                     <div class="relative">
                         <select @onchange="OnStatusChanged"

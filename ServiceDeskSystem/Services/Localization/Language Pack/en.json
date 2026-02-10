@@ -183,5 +183,11 @@
   "developer.noTickets": "No assigned tickets",
   "developer.noTicketsDesc": "You haven't taken any tickets yet. Browse available tickets to get started.",
   "developer.browseTickets": "Browse Tickets",
-  "developer.accessDenied": "Access denied. Developer privileges required."
+  "developer.accessDenied": "Access denied. Developer privileges required.",
+  "search.title": "Search",
+  "search.subtitle": "Filter tickets by various parameters",
+  "search.label": "Search",
+  "search.priorityLabel": "Priority",
+  "search.statusLabel": "Status",
+  "search.clearFilters": "Clear filters"
 }
