@@ -107,7 +107,7 @@
 >  **Active Development**: This repository is under active development. Features and capabilities may evolve.
 
 ### Current Version
-- **Phase**: Beta
+- **Phase**: Early Beta
 - **Framework**: .NET 10
 - **Database**: MySQL 8.0+
 
