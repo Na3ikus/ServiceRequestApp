@@ -1,0 +1,24 @@
+@page "/"
+@inject IAuthService AuthService
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+
+@code {
+    protected override void OnInitialized()
+    {
+        var userRole = AuthService.CurrentUser?.Role;
+
+        if (userRole == "User")
+        {
+            Navigation.NavigateTo("/my-tickets", replace: true);
+        }
+        else if (userRole == "Admin" || userRole == "Developer")
+        {
+            Navigation.NavigateTo("/tickets", replace: true);
+        }
+        else
+        {
+            Navigation.NavigateTo("/login", replace: true);
+        }
+    }
+}
