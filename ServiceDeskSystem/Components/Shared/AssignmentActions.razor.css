@@ -1,0 +1,82 @@
+/* Assignment Actions Component Scoped Styles */
+
+/* Take Ticket Button - Force Blue Color */
+.btn-take-ticket {
+    background-color: #2563eb !important;
+    color: white !important;
+    border: none !important;
+}
+
+.btn-take-ticket:hover {
+    background-color: #1d4ed8 !important;
+}
+
+/* Release Ticket Button - Force Red Color */
+.btn-release-ticket {
+    background-color: #dc2626 !important;
+    color: white !important;
+    border: none !important;
+}
+
+.btn-release-ticket:hover {
+    background-color: #b91c1c !important;
+}
+
+/* Override any Tailwind classes */
+button.btn-release-ticket[class*="bg-"] {
+    background-color: #dc2626 !important;
+}
+
+button.btn-release-ticket[class*="bg-"]:hover {
+    background-color: #b91c1c !important;
+}
+
+button.btn-take-ticket[class*="bg-"] {
+    background-color: #2563eb !important;
+}
+
+button.btn-take-ticket[class*="bg-"]:hover {
+    background-color: #1d4ed8 !important;
+}
+
+/* Force visibility in both themes */
+@media (prefers-color-scheme: light) {
+    .btn-release-ticket {
+        background-color: #dc2626 !important;
+        color: white !important;
+    }
+
+    .btn-release-ticket:hover {
+        background-color: #b91c1c !important;
+    }
+
+    .btn-take-ticket {
+        background-color: #2563eb !important;
+        color: white !important;
+    }
+
+    .btn-take-ticket:hover {
+        background-color: #1d4ed8 !important;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .btn-release-ticket {
+        background-color: #ef4444 !important;
+        color: white !important;
+    }
+
+    .btn-release-ticket:hover {
+        background-color: #dc2626 !important;
+    }
+
+    .btn-take-ticket {
+        background-color: #3b82f6 !important;
+        color: white !important;
+    }
+
+    .btn-take-ticket:hover {
+        background-color: #2563eb !important;
+    }
+}
+
