@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using ServiceDeskSystem.Infrastructure.Data.Entities;
+using ServiceDeskSystem.Domain.Entities;
 
 namespace ServiceDeskSystem.Infrastructure.Data.DataSeeding
 {

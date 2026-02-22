@@ -2,7 +2,7 @@ using ServiceDeskSystem.Domain.Entities;
 
 namespace ServiceDeskSystem.Application.Services.Admin;
 
-internal interface IAdminService
+public interface IAdminService
 {
     Task<List<TechStack>> GetAllTechStacksAsync();
 

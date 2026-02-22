@@ -2,7 +2,7 @@ using Microsoft.JSInterop;
 
 namespace ServiceDeskSystem.Application.Services.Theme;
 
-internal sealed class ThemeService : IThemeService, IAsyncDisposable
+public sealed class ThemeService : IThemeService, IAsyncDisposable
 {
     private readonly IJSRuntime jsRuntime;
     private string currentTheme = "light";

@@ -1,10 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using ServiceDeskSystem.Infrastructure.Data.DataSeeding;
-using ServiceDeskSystem.Infrastructure.Data.Entities;
+using ServiceDeskSystem.Domain.Entities;
 
 namespace ServiceDeskSystem.Infrastructure.Data
 {
-    internal class BugTrackerDbContext : DbContext, IDataSeed
+    public class BugTrackerDbContext : DbContext, IDataSeed
     {
         public BugTrackerDbContext(DbContextOptions<BugTrackerDbContext> options)
                     : base(options)

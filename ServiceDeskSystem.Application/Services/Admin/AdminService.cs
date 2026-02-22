@@ -1,11 +1,12 @@
+using ServiceDeskSystem.Infrastructure.Data.Repository;
 using Microsoft.EntityFrameworkCore;
-using ServiceDeskSystem.Data;
+using ServiceDeskSystem.Infrastructure.Data;
 using ServiceDeskSystem.Domain.Entities;
 using ServiceDeskSystem.Domain.Interfaces;
 
 namespace ServiceDeskSystem.Application.Services.Admin;
 
-internal sealed class AdminService(IDbContextFactory<BugTrackerDbContext> contextFactory) : IAdminService
+public sealed class AdminService(IDbContextFactory<BugTrackerDbContext> contextFactory) : IAdminService
 {
     public async Task<List<TechStack>> GetAllTechStacksAsync()
     {
@@ -194,3 +195,4 @@ internal sealed class AdminService(IDbContextFactory<BugTrackerDbContext> contex
         }
     }
 }
+

@@ -1,10 +1,11 @@
-using Microsoft.EntityFrameworkCore;
-using ServiceDeskSystem.Infrastructure.Data.Entities;
 using ServiceDeskSystem.Infrastructure.Data.Repository.Templates;
+using Microsoft.EntityFrameworkCore;
+using ServiceDeskSystem.Domain.Entities;
+using ServiceDeskSystem.Domain.Interfaces;
 
 namespace ServiceDeskSystem.Infrastructure.Data.Repository
 {
-    internal sealed class TicketRepository : TemplateRepository<Ticket>
+    public sealed class TicketRepository : TemplateRepository<Ticket>
     {
         public TicketRepository(BugTrackerDbContext context)
             : base(context)
@@ -69,3 +70,4 @@ namespace ServiceDeskSystem.Infrastructure.Data.Repository
         }
     }
 }
+

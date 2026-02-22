@@ -2,7 +2,7 @@ using ServiceDeskSystem.Domain.Entities;
 
 namespace ServiceDeskSystem.Application.Services.Auth;
 
-internal interface IAuthService
+public interface IAuthService
 {
     event EventHandler? AuthStateChanged;
 

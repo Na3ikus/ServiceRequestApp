@@ -1,9 +1,10 @@
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
+using ServiceDeskSystem.Domain.Interfaces;
 
 namespace ServiceDeskSystem.Infrastructure.Data.Repository.Templates
 {
-    internal abstract class TemplateRepository<T> : IReadRepository<T>, IWriteRepository<T>
+    public abstract class TemplateRepository<T> : IReadRepository<T>, IWriteRepository<T>
         where T : class
     {
         protected readonly BugTrackerDbContext Context;

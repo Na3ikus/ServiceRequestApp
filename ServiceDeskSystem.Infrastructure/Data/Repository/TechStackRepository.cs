@@ -1,10 +1,11 @@
-using Microsoft.EntityFrameworkCore;
-using ServiceDeskSystem.Infrastructure.Data.Entities;
 using ServiceDeskSystem.Infrastructure.Data.Repository.Templates;
+using Microsoft.EntityFrameworkCore;
+using ServiceDeskSystem.Domain.Entities;
+using ServiceDeskSystem.Domain.Interfaces;
 
 namespace ServiceDeskSystem.Infrastructure.Data.Repository
 {
-    internal sealed class TechStackRepository : TemplateRepository<TechStack>
+    public sealed class TechStackRepository : TemplateRepository<TechStack>
     {
         public TechStackRepository(BugTrackerDbContext context)
             : base(context)
@@ -39,3 +40,4 @@ namespace ServiceDeskSystem.Infrastructure.Data.Repository
         }
     }
 }
+

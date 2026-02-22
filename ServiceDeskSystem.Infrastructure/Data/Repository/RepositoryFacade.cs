@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ServiceDeskSystem.Infrastructure.Data.Repository
 {
-    internal sealed class RepositoryFacade : IAsyncDisposable
+    public sealed class RepositoryFacade : IAsyncDisposable
     {
         private readonly BugTrackerDbContext _context;
         private readonly Lazy<TicketRepository> _ticketRepository;

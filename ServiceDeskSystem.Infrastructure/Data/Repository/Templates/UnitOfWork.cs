@@ -1,6 +1,7 @@
+using ServiceDeskSystem.Domain.Interfaces;
 namespace ServiceDeskSystem.Infrastructure.Data.Repository.Templates
 {
-    internal sealed class UnitOfWork : IUnitOfWork
+    public sealed class UnitOfWork : IUnitOfWork
     {
         private readonly BugTrackerDbContext _context;
 
@@ -25,3 +26,4 @@ namespace ServiceDeskSystem.Infrastructure.Data.Repository.Templates
         }
     }
 }
+

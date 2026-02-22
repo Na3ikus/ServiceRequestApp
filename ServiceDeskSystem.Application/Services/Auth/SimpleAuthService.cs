@@ -1,14 +1,15 @@
+using ServiceDeskSystem.Infrastructure.Data.Repository;
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using Microsoft.EntityFrameworkCore;
-using ServiceDeskSystem.Data;
+using ServiceDeskSystem.Infrastructure.Data;
 using ServiceDeskSystem.Domain.Entities;
 using ServiceDeskSystem.Domain.Interfaces;
 
 namespace ServiceDeskSystem.Application.Services.Auth;
 
-internal sealed class SimpleAuthService(
+public sealed class SimpleAuthService(
     IDbContextFactory<BugTrackerDbContext> contextFactory,
-    ProtectedSessionStorage sessionStorage) : IAuthService
+    ProtectedSessionStorage? sessionStorage = null) : IAuthService
 {
     private bool initialized;
 
@@ -28,6 +29,11 @@ internal sealed class SimpleAuthService(
 
         try
         {
+            if (sessionStorage is null)
+            {
+                return;
+            }
+
             var stored = await sessionStorage.GetAsync<int>("authUserId").ConfigureAwait(false);
             if (stored.Success && stored.Value > 0)
             {
@@ -177,7 +183,10 @@ internal sealed class SimpleAuthService(
         this.CurrentUser = null;
         try
         {
-            await sessionStorage.DeleteAsync("authUserId").ConfigureAwait(false);
+            if (sessionStorage is not null)
+            {
+                await sessionStorage.DeleteAsync("authUserId").ConfigureAwait(false);
+            }
         }
         catch
         {
@@ -209,7 +218,10 @@ internal sealed class SimpleAuthService(
     {
         try
         {
-            await sessionStorage.SetAsync("authUserId", user.Id).ConfigureAwait(false);
+            if (sessionStorage is not null)
+            {
+                await sessionStorage.SetAsync("authUserId", user.Id).ConfigureAwait(false);
+            }
         }
         catch
         {
@@ -217,3 +229,4 @@ internal sealed class SimpleAuthService(
         }
     }
 }
+

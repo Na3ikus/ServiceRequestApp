@@ -1,11 +1,12 @@
+using ServiceDeskSystem.Infrastructure.Data.Repository;
 using Microsoft.EntityFrameworkCore;
-using ServiceDeskSystem.Data;
+using ServiceDeskSystem.Infrastructure.Data;
 using ServiceDeskSystem.Domain.Entities;
 using ServiceDeskSystem.Domain.Interfaces;
 
 namespace ServiceDeskSystem.Application.Services.Tickets;
 
-internal sealed class TicketService(IDbContextFactory<BugTrackerDbContext> contextFactory): ITicketService
+public sealed class TicketService(IDbContextFactory<BugTrackerDbContext> contextFactory): ITicketService
 {
     public async Task<List<Ticket>> GetAllTicketsAsync()
     {
@@ -213,3 +214,4 @@ internal sealed class TicketService(IDbContextFactory<BugTrackerDbContext> conte
         return tickets.Count();
     }
 }
+

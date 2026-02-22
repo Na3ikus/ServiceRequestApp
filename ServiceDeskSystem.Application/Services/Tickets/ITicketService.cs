@@ -2,7 +2,7 @@ using ServiceDeskSystem.Domain.Entities;
 
 namespace ServiceDeskSystem.Application.Services.Tickets;
 
-internal interface ITicketService
+public interface ITicketService
 {
     Task<List<Ticket>> GetAllTicketsAsync();
 
