@@ -6,7 +6,8 @@ module.exports = {
         "./Pages/**/*.razor",
         "./Pages/**/*.cshtml",
         "./**/*.razor",
-        "./**/*.html"
+        "./**/*.html",
+        "./**/*.cs"
     ],
     darkMode: 'class',
     theme: {

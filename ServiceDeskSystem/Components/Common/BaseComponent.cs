@@ -61,11 +61,11 @@ public abstract class BaseComponent : ComponentBase, IDisposable
 
     protected string GetPriorityBadgeClass(string priority) => priority switch
     {
-        "Critical" => "bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300",
-        "High" => "bg-orange-100 text-orange-800 dark:bg-orange-900/50 dark:text-orange-300",
-        "Medium" => "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300",
-        "Low" => "bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300",
-        _ => "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300",
+        "Critical" => "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
+        "High" => "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200",
+        "Medium" => "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
+        "Low" => "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
+        _ => "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200",
     };
 
     protected string GetStatusText(string status) => status switch
