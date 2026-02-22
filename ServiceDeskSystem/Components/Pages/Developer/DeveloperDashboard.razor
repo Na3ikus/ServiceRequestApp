@@ -24,7 +24,7 @@
         <!-- Stats Cards - Horizontal Row -->
         <div class="flex flex-row gap-6 mb-8">
             <div
-                class="flex-1 bg-white dark:bg-gray-800 rounded-2xl shadow-lg dark:shadow-gray-900/50 overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                class="flex-1 bg-white dark:bg-gray-800 rounded-2xl shadow-lg dark:shadow-gray-900/50 overflow-hidden hover:shadow-2xl hover:shadow-blue-500/20 dark:hover:shadow-blue-500/10 transition-all duration-300 hover:-translate-y-1">
                 <div class="p-6">
                     <div class="flex items-center justify-between">
                         <div>
@@ -46,7 +46,7 @@
             </div>
 
             <div
-                class="flex-1 bg-white dark:bg-gray-800 rounded-2xl shadow-lg dark:shadow-gray-900/50 overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                class="flex-1 bg-white dark:bg-gray-800 rounded-2xl shadow-lg dark:shadow-gray-900/50 overflow-hidden hover:shadow-2xl hover:shadow-amber-500/20 dark:hover:shadow-amber-500/10 transition-all duration-300 hover:-translate-y-1">
                 <div class="p-6">
                     <div class="flex items-center justify-between">
                         <div>
@@ -67,7 +67,7 @@
             </div>
 
             <div
-                class="flex-1 bg-white dark:bg-gray-800 rounded-2xl shadow-lg dark:shadow-gray-900/50 overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                class="flex-1 bg-white dark:bg-gray-800 rounded-2xl shadow-lg dark:shadow-gray-900/50 overflow-hidden hover:shadow-2xl hover:shadow-emerald-500/20 dark:hover:shadow-emerald-500/10 transition-all duration-300 hover:-translate-y-1">
                 <div class="p-6">
                     <div class="flex items-center justify-between">
                         <div>
@@ -113,8 +113,9 @@
         }
         else if (!tickets.Any())
         {
-            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-12 text-center">
-                <div class="w-20 h-20 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-6">
+            <div
+                class="bg-white dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-lg p-12 text-center border border-transparent dark:border-gray-700/50">
+                <div class="w-20 h-20 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-6">
                     <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4">
