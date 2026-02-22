@@ -7,7 +7,7 @@
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/ServiceDeskSystem/ServiceDeskSystem.csproj",
+                "${workspaceFolder}/ServiceDeskSystem.sln",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary;ForceNoAlign"
             ],
@@ -16,6 +16,18 @@
                 "kind": "build",
                 "isDefault": true
             }
+        },
+        {
+            "label": "build-api",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/ServiceDeskSystem.Api/ServiceDeskSystem.Api.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary;ForceNoAlign"
+            ],
+            "problemMatcher": "$msCompile"
         },
         {
             "label": "publish",

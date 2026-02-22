@@ -1,11 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using ServiceDeskSystem.Components;
-using ServiceDeskSystem.Data;
-using ServiceDeskSystem.Services.Admin;
-using ServiceDeskSystem.Services.Auth;
-using ServiceDeskSystem.Services.Localization;
-using ServiceDeskSystem.Services.Theme;
-using ServiceDeskSystem.Services.Tickets;
+using ServiceDeskSystem.Infrastructure.Data;
+using ServiceDeskSystem.Application.Services.Admin;
+using ServiceDeskSystem.Application.Services.Auth;
+using ServiceDeskSystem.Application.Services.Localization;
+using ServiceDeskSystem.Application.Services.Theme;
+using ServiceDeskSystem.Application.Services.Tickets;
 
 namespace ServiceDeskSystem;
 

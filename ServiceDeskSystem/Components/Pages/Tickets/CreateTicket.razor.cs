@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Components;
-using ServiceDeskSystem.Data.Entities;
-using ServiceDeskSystem.Services.Auth;
-using ServiceDeskSystem.Services.Tickets;
+using ServiceDeskSystem.Domain.Entities;
+using ServiceDeskSystem.Application.Services.Auth;
+using ServiceDeskSystem.Application.Services.Tickets;
 
 namespace ServiceDeskSystem.Components.Pages.Tickets;
 
@@ -85,3 +85,4 @@ public partial class CreateTicket
         public string? Environment { get; set; }
     }
 }
+

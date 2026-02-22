@@ -18,11 +18,6 @@
 		<None Remove="Settings_console\**" />
 	</ItemGroup>
 
-	<ItemGroup>
-		<None Update="Services\Localization\Language Pack\*.json">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
-	</ItemGroup>
 
 	<ItemGroup>
 		<AdditionalFiles Include="..\code-analysis.ruleset" Link="Properties\code-analysis.ruleset" />
@@ -40,6 +35,12 @@
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 			<PrivateAssets>all</PrivateAssets>
 		</PackageReference>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\ServiceDeskSystem.Domain\ServiceDeskSystem.Domain.csproj" />
+	  <ProjectReference Include="..\ServiceDeskSystem.Application\ServiceDeskSystem.Application.csproj" />
+	  <ProjectReference Include="..\ServiceDeskSystem.Infrastructure\ServiceDeskSystem.Infrastructure.csproj" />
 	</ItemGroup>
 
 </Project>

@@ -1,5 +1,5 @@
-@using ServiceDeskSystem.Data.Entities
-@using ServiceDeskSystem.Services.Localization
+@using ServiceDeskSystem.Domain.Entities
+@using ServiceDeskSystem.Application.Services.Localization
 @inject ILocalizationService L
 
 <!-- Assignment Actions Component -->
@@ -77,3 +77,4 @@
         Ticket?.DeveloperId is not null &&
         Ticket.DeveloperId == CurrentUserId;
 }
+

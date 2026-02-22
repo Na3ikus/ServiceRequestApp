@@ -19,4 +19,11 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Content Include="Services\Localization\LanguagePack\*.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>Localization\LanguagePack\%(Filename)%(Extension)</Link>
+    </Content>
+  </ItemGroup>
+
 </Project>

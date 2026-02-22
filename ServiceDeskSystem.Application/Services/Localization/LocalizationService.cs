@@ -11,9 +11,8 @@ public sealed class LocalizationService : ILocalizationService
     private string currentLanguage = "en";
     private bool isLoaded;
 
-    public LocalizationService(IWebHostEnvironment? webHostEnvironment = null)
+    public LocalizationService()
     {
-        this.fileProvider = webHostEnvironment?.ContentRootFileProvider;
         _ = Task.Run(async () => await this.LoadTranslationsAsync());
     }
 
@@ -58,49 +57,27 @@ public sealed class LocalizationService : ILocalizationService
 
         foreach (var lang in languages)
         {
-            var filePath = Path.Combine("Services", "Localization", "Language Pack", $"{lang}.json");
+            var filePath = Path.Combine(AppContext.BaseDirectory, "Localization", "LanguagePack", $"{lang}.json");
             try
             {
-                string json;
-                if (this.fileProvider != null)
+                if (File.Exists(filePath))
                 {
-                    var fileInfo = this.fileProvider.GetFileInfo(filePath);
-                    if (fileInfo.Exists)
+                    string json = await File.ReadAllTextAsync(filePath).ConfigureAwait(false);
+                    if (string.IsNullOrWhiteSpace(json))
                     {
-                        using var stream = fileInfo.CreateReadStream();
-                        using var reader = new StreamReader(stream);
-                        json = await reader.ReadToEndAsync();
-                    }
-                    else
-                    {
-                        Console.WriteLine($"Warning: Localization file '{filePath}' not found.");
+                        Console.WriteLine($"Warning: Localization file '{filePath}' is empty. Skipping...");
                         continue;
+                    }
+
+                    var dict = JsonSerializer.Deserialize<Dictionary<string, string>>(json);
+                    if (dict != null)
+                    {
+                        this.translations[lang] = dict;
                     }
                 }
                 else
                 {
-                    var fullPath = Path.Combine(AppContext.BaseDirectory, filePath);
-                    if (File.Exists(fullPath))
-                    {
-                        json = await File.ReadAllTextAsync(fullPath);
-                    }
-                    else
-                    {
-                        Console.WriteLine($"Warning: Localization file '{fullPath}' not found.");
-                        continue;
-                    }
-                }
-
-                if (string.IsNullOrWhiteSpace(json))
-                {
-                    Console.WriteLine($"Warning: Localization file '{filePath}' is empty. Skipping...");
-                    continue;
-                }
-
-                var dict = JsonSerializer.Deserialize<Dictionary<string, string>>(json);
-                if (dict != null)
-                {
-                    this.translations[lang] = dict;
+                    Console.WriteLine($"Warning: Localization file '{filePath}' not found.");
                 }
             }
             catch (JsonException ex)

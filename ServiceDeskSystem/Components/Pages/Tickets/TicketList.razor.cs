@@ -1,9 +1,9 @@
 using System.Threading;
 using Microsoft.AspNetCore.Components;
 using ServiceDeskSystem.Components.Common;
-using ServiceDeskSystem.Data.Entities;
-using ServiceDeskSystem.Services.Localization;
-using ServiceDeskSystem.Services.Tickets;
+using ServiceDeskSystem.Domain.Entities;
+using ServiceDeskSystem.Application.Services.Localization;
+using ServiceDeskSystem.Application.Services.Tickets;
 
 namespace ServiceDeskSystem.Components.Pages.Tickets;
 
@@ -202,3 +202,4 @@ public partial class TicketList : BaseComponent
         _ => priority,
     };
 }
+

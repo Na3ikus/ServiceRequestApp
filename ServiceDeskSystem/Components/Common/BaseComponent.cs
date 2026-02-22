@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Components;
-using ServiceDeskSystem.Services.Localization;
-using ServiceDeskSystem.Services.Theme;
+using ServiceDeskSystem.Application.Services.Localization;
+using ServiceDeskSystem.Application.Services.Theme;
 
 namespace ServiceDeskSystem.Components.Common;
 
@@ -48,3 +48,4 @@ public abstract class BaseComponent : ComponentBase, IDisposable
 
     private void OnStateChanged(object? sender, EventArgs e) => this.InvokeAsync(this.StateHasChanged);
 }
+

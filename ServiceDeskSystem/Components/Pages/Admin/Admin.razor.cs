@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Components;
 using ServiceDeskSystem.Components.Common;
-using ServiceDeskSystem.Data.Entities;
-using ServiceDeskSystem.Services.Admin;
-using ServiceDeskSystem.Services.Auth;
+using ServiceDeskSystem.Domain.Entities;
+using ServiceDeskSystem.Application.Services.Admin;
+using ServiceDeskSystem.Application.Services.Auth;
 
 namespace ServiceDeskSystem.Components.Pages.Admin;
 
@@ -342,3 +342,4 @@ public partial class Admin : BaseComponent
         });
     }
 }
+

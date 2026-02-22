@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Components;
 using ServiceDeskSystem.Components.Common;
-using ServiceDeskSystem.Services.Auth;
+using ServiceDeskSystem.Application.Services.Auth;
 
 namespace ServiceDeskSystem.Components.Pages.Auth;
 
@@ -61,3 +61,4 @@ public partial class Login : BaseComponent
         public string Password { get; set; } = string.Empty;
     }
 }
+
