@@ -1,8 +1,11 @@
 @echo off
+echo Building ServiceDeskSystem solution...
+dotnet build ServiceDeskSystem.sln
+
 echo Starting ServiceDeskSystem Web App and API concurrently...
 
 echo Starting API...
-start "ServiceDeskSystem API" cmd /c "dotnet run --project ServiceDeskSystem.Api/ServiceDeskSystem.Api.csproj"
+start "ServiceDeskSystem API" cmd /c "dotnet run --project ServiceDeskSystem.Api/ServiceDeskSystem.Api.csproj --no-build"
 
 echo Starting Web App...
-dotnet run --project ServiceDeskSystem/ServiceDeskSystem.csproj
+dotnet run --project ServiceDeskSystem/ServiceDeskSystem.csproj --no-build
