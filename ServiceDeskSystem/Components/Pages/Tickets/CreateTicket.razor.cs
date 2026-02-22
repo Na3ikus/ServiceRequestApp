@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Components;
-using ServiceDeskSystem.Domain.Entities;
 using ServiceDeskSystem.Application.Services.Auth;
 using ServiceDeskSystem.Application.Services.Tickets;
+using ServiceDeskSystem.Domain.Entities;
 
 namespace ServiceDeskSystem.Components.Pages.Tickets;
 
@@ -20,7 +20,7 @@ public partial class CreateTicket
     [Inject]
     private NavigationManager Navigation { get; set; } = null!;
 
-    private TicketCreateModel ticketModel { get; set; } = new ();
+    private TicketCreateModel ticketModel { get; set; } = new TicketCreateModel();
 
     private List<Product> products { get; set; } = [];
 
@@ -85,4 +85,3 @@ public partial class CreateTicket
         public string? Environment { get; set; }
     }
 }
-

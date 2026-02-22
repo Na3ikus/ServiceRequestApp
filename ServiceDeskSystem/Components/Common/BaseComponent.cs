@@ -46,8 +46,6 @@ public abstract class BaseComponent : ComponentBase, IDisposable
         this.disposed = true;
     }
 
-    private void OnStateChanged(object? sender, EventArgs e) => this.InvokeAsync(this.StateHasChanged);
-
     protected string GetStatusBadgeClass(string status) => status switch
     {
         "New" => "bg-purple-200 text-purple-900 dark:bg-purple-900 dark:text-purple-200 font-semibold",
@@ -91,4 +89,5 @@ public abstract class BaseComponent : ComponentBase, IDisposable
         "Critical" => this.L.Translate("priority.critical"),
         _ => priority,
     };
+    private void OnStateChanged(object? sender, EventArgs e) => this.InvokeAsync(this.StateHasChanged);
 }

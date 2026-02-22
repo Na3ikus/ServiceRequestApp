@@ -1,13 +1,10 @@
 using System.Text.Json;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.FileProviders;
 
 namespace ServiceDeskSystem.Application.Services.Localization;
 
 public sealed class LocalizationService : ILocalizationService
 {
     private readonly Dictionary<string, Dictionary<string, string>> translations = new();
-    private readonly IFileProvider? fileProvider;
     private string currentLanguage = "en";
     private bool isLoaded;
 

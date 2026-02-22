@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Components;
-using ServiceDeskSystem.Components.Common;
 using ServiceDeskSystem.Application.Services.Auth;
+using ServiceDeskSystem.Components.Common;
 
 namespace ServiceDeskSystem.Components.Pages.Auth;
 
@@ -10,7 +10,7 @@ namespace ServiceDeskSystem.Components.Pages.Auth;
 /// </summary>
 public partial class Register : BaseComponent
 {
-    private readonly RegisterModel registerModel = new ();
+    private readonly RegisterModel registerModel = new RegisterModel();
 
     [Inject]
     private IAuthService AuthService { get; set; } = null!;
@@ -94,4 +94,3 @@ public partial class Register : BaseComponent
         public string ConfirmPassword { get; set; } = string.Empty;
     }
 }
-

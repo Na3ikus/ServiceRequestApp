@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Components;
-using ServiceDeskSystem.Components.Common;
 using ServiceDeskSystem.Application.Services.Auth;
+using ServiceDeskSystem.Components.Common;
 
 namespace ServiceDeskSystem.Components.Pages.Auth;
 
@@ -10,7 +10,7 @@ namespace ServiceDeskSystem.Components.Pages.Auth;
 /// </summary>
 public partial class Login : BaseComponent
 {
-    private readonly LoginModel loginModel = new ();
+    private readonly LoginModel loginModel = new LoginModel();
 
     [Inject]
     private IAuthService AuthService { get; set; } = null!;
@@ -61,4 +61,3 @@ public partial class Login : BaseComponent
         public string Password { get; set; } = string.Empty;
     }
 }
-

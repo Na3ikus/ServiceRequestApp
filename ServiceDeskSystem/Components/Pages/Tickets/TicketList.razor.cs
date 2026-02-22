@@ -1,9 +1,9 @@
 using System.Threading;
 using Microsoft.AspNetCore.Components;
-using ServiceDeskSystem.Components.Common;
-using ServiceDeskSystem.Domain.Entities;
 using ServiceDeskSystem.Application.Services.Localization;
 using ServiceDeskSystem.Application.Services.Tickets;
+using ServiceDeskSystem.Components.Common;
+using ServiceDeskSystem.Domain.Entities;
 
 namespace ServiceDeskSystem.Components.Pages.Tickets;
 
@@ -15,6 +15,7 @@ public partial class TicketList : BaseComponent
     private readonly TimeSpan refreshInterval = TimeSpan.FromSeconds(5);
     private Timer? refreshTimer;
     private bool isRefreshing;
+    private string _searchQuery = string.Empty;
 
     [Inject]
     private ITicketService TicketService { get; set; } = null!;
@@ -26,7 +27,6 @@ public partial class TicketList : BaseComponent
 
     private List<Ticket>? filteredTickets { get; set; }
 
-    private string _searchQuery = string.Empty;
     private string searchQuery
     {
         get => this._searchQuery;
@@ -60,8 +60,6 @@ public partial class TicketList : BaseComponent
 
         base.Dispose(disposing);
     }
-
-
 
     private void ViewTicket(int id) => this.Navigation.NavigateTo($"/ticket/{id}");
 
@@ -158,7 +156,4 @@ public partial class TicketList : BaseComponent
         this.ApplyFilters();
         this.StateHasChanged();
     }
-
-
 }
-

@@ -1,9 +1,9 @@
 using System.Threading;
 using Microsoft.AspNetCore.Components;
-using ServiceDeskSystem.Components.Common;
-using ServiceDeskSystem.Domain.Entities;
 using ServiceDeskSystem.Application.Services.Auth;
 using ServiceDeskSystem.Application.Services.Tickets;
+using ServiceDeskSystem.Components.Common;
+using ServiceDeskSystem.Domain.Entities;
 
 namespace ServiceDeskSystem.Components.Pages.Developer;
 
@@ -70,7 +70,6 @@ public partial class DeveloperDashboard : BaseComponent
         base.Dispose(disposing);
     }
 
-
     private async Task LoadDataAsync()
     {
         if (!this.IsDeveloper || this.CurrentUserId == 0)
@@ -120,7 +119,4 @@ public partial class DeveloperDashboard : BaseComponent
     }
 
     private void ViewTicket(int id) => this.Navigation.NavigateTo($"/ticket/{id}");
-
-
 }
-

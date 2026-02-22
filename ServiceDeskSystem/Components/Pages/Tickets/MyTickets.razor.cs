@@ -1,10 +1,10 @@
 using System.Threading;
 using Microsoft.AspNetCore.Components;
-using ServiceDeskSystem.Components.Common;
-using ServiceDeskSystem.Domain.Entities;
 using ServiceDeskSystem.Application.Services.Auth;
 using ServiceDeskSystem.Application.Services.Localization;
 using ServiceDeskSystem.Application.Services.Tickets;
+using ServiceDeskSystem.Components.Common;
+using ServiceDeskSystem.Domain.Entities;
 
 namespace ServiceDeskSystem.Components.Pages.Tickets;
 
@@ -52,7 +52,6 @@ public partial class MyTickets : BaseComponent
         base.Dispose(disposing);
     }
 
-
     private void ViewTicket(int id) => this.Navigation.NavigateTo($"/ticket/{id}");
 
     private void StartAutoRefresh()
@@ -84,7 +83,4 @@ public partial class MyTickets : BaseComponent
             this.isRefreshing = false;
         }
     }
-
-
 }
-

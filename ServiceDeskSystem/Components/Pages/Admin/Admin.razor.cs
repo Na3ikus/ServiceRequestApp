@@ -1,16 +1,19 @@
 using Microsoft.AspNetCore.Components;
-using ServiceDeskSystem.Components.Common;
-using ServiceDeskSystem.Domain.Entities;
 using ServiceDeskSystem.Application.Services.Admin;
 using ServiceDeskSystem.Application.Services.Auth;
+using ServiceDeskSystem.Components.Common;
+using ServiceDeskSystem.Domain.Entities;
 
 namespace ServiceDeskSystem.Components.Pages.Admin;
 
 /// <summary>
 /// Admin panel page for managing products, tech stacks, and users.
 /// </summary>
+#pragma warning disable CA1724 // The type name Admin conflicts with the namespace name
 public partial class Admin : BaseComponent
 {
+#pragma warning restore CA1724
+
     private readonly List<ToastMessage> toasts = [];
 
     internal IReadOnlyList<ToastMessage> Toasts => this.toasts;
@@ -44,9 +47,9 @@ public partial class Admin : BaseComponent
 
     private string? errorMessage { get; set; }
 
-    private Product editingProduct { get; set; } = new ();
+    private Product editingProduct { get; set; } = new Product();
 
-    private TechStack editingTechStack { get; set; } = new ();
+    private TechStack editingTechStack { get; set; } = new TechStack();
 
     private bool IsAdmin => this.AuthService.CurrentUser?.Role == "Admin";
 
@@ -342,4 +345,3 @@ public partial class Admin : BaseComponent
         });
     }
 }
-
