@@ -5,6 +5,85 @@ window.kanban = {
     // Map of element -> AbortController for drag listeners, keyed by element reference
     _dragControllers: new WeakMap(),
 
+    // Auto-scroll state
+    _scrollRAF: null,
+    _scrollContainer: null,
+    _scrollSpeed: 0,
+
+    /**
+     * Initialize the kanban board container for horizontal auto-scroll during drag.
+     * Call once after the board renders. When dragging near the left/right edge
+     * of the scroll container the board will smoothly scroll in that direction.
+     * @param {HTMLElement} container - The scrollable kanban board wrapper element
+     */
+    initBoard: function (container) {
+        if (!container) return;
+
+        const EDGE_SIZE = 120;   // px from edge that triggers scroll
+        const MAX_SPEED = 18;    // max px per animation frame
+
+        const self = this;
+
+        container.addEventListener('dragover', function (e) {
+            const rect = container.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const width = rect.width;
+
+            if (x < EDGE_SIZE) {
+                // Near left edge
+                self._scrollSpeed = -MAX_SPEED * (1 - x / EDGE_SIZE);
+                self._scrollContainer = container;
+                self._ensureScrollLoop();
+            } else if (x > width - EDGE_SIZE) {
+                // Near right edge
+                self._scrollSpeed = MAX_SPEED * (1 - (width - x) / EDGE_SIZE);
+                self._scrollContainer = container;
+                self._ensureScrollLoop();
+            } else {
+                self._stopScroll();
+            }
+        });
+
+        container.addEventListener('dragleave', function (e) {
+            if (!container.contains(e.relatedTarget)) {
+                self._stopScroll();
+            }
+        });
+
+        container.addEventListener('drop', function () {
+            self._stopScroll();
+        });
+
+        container.addEventListener('dragend', function () {
+            self._stopScroll();
+        });
+    },
+
+    _ensureScrollLoop: function () {
+        if (this._scrollRAF) return; // already running
+        const self = this;
+
+        function loop() {
+            if (self._scrollContainer && self._scrollSpeed !== 0) {
+                self._scrollContainer.scrollLeft += self._scrollSpeed;
+                self._scrollRAF = requestAnimationFrame(loop);
+            } else {
+                self._scrollRAF = null;
+            }
+        }
+
+        self._scrollRAF = requestAnimationFrame(loop);
+    },
+
+    _stopScroll: function () {
+        this._scrollSpeed = 0;
+        this._scrollContainer = null;
+        if (this._scrollRAF) {
+            cancelAnimationFrame(this._scrollRAF);
+            this._scrollRAF = null;
+        }
+    },
+
     /**
      * Initialize drag-and-drop for a kanban column drop zone.
      * Drop zones are registered only once (firstRender), so no cleanup needed here.

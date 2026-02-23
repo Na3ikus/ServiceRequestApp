@@ -6,7 +6,7 @@
 @implements IAsyncDisposable
 
 <!-- Created by Nazar "N1h3" Hutsol -->
-<div class="kanban-board overflow-x-auto pb-4">
+<div class="kanban-board overflow-x-auto pb-4" @ref="boardContainer">
     <div class="flex gap-4 min-w-max h-full">
         @foreach (var column in Columns)
         {
@@ -69,6 +69,7 @@
 
     private readonly Dictionary<string, ElementReference> dropZoneRefs = new();
     private DotNetObjectReference<KanbanBoard>? dotnetRef;
+    private ElementReference boardContainer;
 
     [Parameter, EditorRequired]
     public List<Ticket> Tickets { get; set; } = [];
@@ -103,6 +104,10 @@
         if (firstRender)
         {
             dotnetRef = DotNetObjectReference.Create(this);
+
+            // Enable horizontal auto-scroll when dragging near board edges
+            await JSRuntime.InvokeVoidAsync("kanban.initBoard", boardContainer);
+
             foreach (var col in Columns)
             {
                 if (dropZoneRefs.TryGetValue(col.Status, out var el))
