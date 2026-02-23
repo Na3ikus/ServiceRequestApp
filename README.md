@@ -120,12 +120,12 @@
 - [ ] **Advanced SLA Policies**: Automated escalations and SLA breach notifications
 - [ ] **Email Integration**: SMTP support for notifications
 - [ ] **Chat Integration**: Teams/Slack webhook integration
-- [ ] **KPI Dashboards**: MTTR, MTBF, SLA compliance metrics
-- [ ] **Enhanced RBAC**: Expanded role management and permissions
+- [x] **KPI Dashboards**: MTTR, MTBF, SLA compliance metrics
+- [x] **Enhanced RBAC**: Expanded role management and permissions
 - [ ] **Audit Logging**: Comprehensive system activity tracking
 - [ ] **Knowledge Base**: FAQ and self-service modules
 - [ ] **Mobile App**: Native mobile applications for iOS/Android
-- [ ] **API**: RESTful API for third-party integrations
+- [x] **API**: RESTful API for third-party integrations
 - [ ] **Reporting**: Advanced reporting and analytics engine
 
 ---
