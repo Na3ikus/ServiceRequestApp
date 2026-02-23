@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Components;
 using ServiceDeskSystem.Application.Services.Auth;
 using ServiceDeskSystem.Components.Common;
+using ServiceDeskSystem.Components.Common.Base;
 
 namespace ServiceDeskSystem.Components.Pages.Auth;
 

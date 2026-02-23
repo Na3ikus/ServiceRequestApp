@@ -4,6 +4,7 @@ using ServiceDeskSystem.Application.Services.Auth;
 using ServiceDeskSystem.Application.Services.Localization;
 using ServiceDeskSystem.Application.Services.Tickets;
 using ServiceDeskSystem.Components.Common;
+using ServiceDeskSystem.Components.Common.Base;
 using ServiceDeskSystem.Domain.Entities;
 
 namespace ServiceDeskSystem.Components.Pages.Tickets;

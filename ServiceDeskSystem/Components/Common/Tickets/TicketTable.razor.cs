@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Components;
 using ServiceDeskSystem.Domain.Entities;
 
-namespace ServiceDeskSystem.Components.Common;
+namespace ServiceDeskSystem.Components.Common.Tickets;
 
 public partial class TicketTable
 {

@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Components;
 using ServiceDeskSystem.Application.Services.Localization;
 using ServiceDeskSystem.Application.Services.Theme;
 
-namespace ServiceDeskSystem.Components.Common;
+namespace ServiceDeskSystem.Components.Common.Base;
 
 /// <summary>
 /// Base component class with common functionality for localization, theming, and disposal.

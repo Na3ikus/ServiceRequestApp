@@ -3,15 +3,13 @@
 @inject IJSRuntime JSRuntime
 @inject NavigationManager Navigation
 
-@inherits ServiceDeskSystem.Components.Common.BaseComponent
+@inherits ServiceDeskSystem.Components.Common.Base.BaseComponent
 
 <!-- Created by Nazar "N1h3" Hutsol -->
 <div class="kanban-card @(CanDrag ? "cursor-grab active:cursor-grabbing" : "cursor-pointer") 
      bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700/60 
      p-4 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 hover:border-blue-300 dark:hover:border-blue-600/60"
-@ref="cardElement"
-draggable="@(CanDrag ? "true" : "false")"
-@onclick="HandleClick">
+@ref="cardElement" draggable="@(CanDrag ? "true" : "false")" @onclick="HandleClick">
 
     <!-- Header: ID + Priority -->
     <div class="flex items-start justify-between gap-2 mb-2">
@@ -30,8 +28,10 @@ draggable="@(CanDrag ? "true" : "false")"
     <div class="flex items-center justify-between gap-2 mt-auto">
         <!-- Author avatar -->
         <div class="flex items-center gap-1.5">
-            <div class="w-5 h-5 rounded-full bg-gradient-to-br from-gray-400 to-gray-600 flex items-center justify-center flex-shrink-0">
-                <span class="text-white text-[9px] font-bold">@(Ticket.Author?.Login?.Substring(0, 1).ToUpper() ?? "?")</span>
+            <div
+                class="w-5 h-5 rounded-full bg-gradient-to-br from-gray-400 to-gray-600 flex items-center justify-center flex-shrink-0">
+                <span class="text-white text-[9px] font-bold">@(Ticket.Author?.Login?.Substring(0, 1).ToUpper() ??
+                    "?")</span>
             </div>
             <span class="text-xs text-gray-500 dark:text-gray-400 truncate max-w-[70px]">@Ticket.Author?.Login</span>
         </div>
@@ -39,16 +39,19 @@ draggable="@(CanDrag ? "true" : "false")"
         <!-- Assignee or unassigned -->
         @if (Ticket.Developer is not null)
         {
-                <div class="flex items-center gap-1">
-                    <div class="w-5 h-5 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center flex-shrink-0">
-                        <span class="text-white text-[9px] font-bold">@(Ticket.Developer.Login?.Substring(0, 1).ToUpper() ?? "?")</span>
-                    </div>
-                    <span class="text-xs text-green-600 dark:text-green-400 truncate max-w-[70px]">@Ticket.Developer.Login</span>
+            <div class="flex items-center gap-1">
+                <div
+                    class="w-5 h-5 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center flex-shrink-0">
+                    <span class="text-white text-[9px] font-bold">@(Ticket.Developer.Login?.Substring(0, 1).ToUpper() ??
+                    "?")</span>
                 </div>
+                <span
+                    class="text-xs text-green-600 dark:text-green-400 truncate max-w-[70px]">@Ticket.Developer.Login</span>
+            </div>
         }
         else
         {
-                <span class="text-xs text-gray-400 dark:text-gray-500 italic">@L.Translate("table.unassigned")</span>
+            <span class="text-xs text-gray-400 dark:text-gray-500 italic">@L.Translate("table.unassigned")</span>
         }
     </div>
 </div>

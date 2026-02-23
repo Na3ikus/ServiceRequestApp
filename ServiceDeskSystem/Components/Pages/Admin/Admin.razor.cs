@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Components;
 using ServiceDeskSystem.Application.Services.Admin;
 using ServiceDeskSystem.Application.Services.Auth;
 using ServiceDeskSystem.Components.Common;
+using ServiceDeskSystem.Components.Common.Base;
 using ServiceDeskSystem.Domain.Entities;
 
 namespace ServiceDeskSystem.Components.Pages.Admin;
