@@ -1,9 +1,16 @@
 using Microsoft.EntityFrameworkCore;
 using ServiceDeskSystem.Application.Services.Admin;
+using ServiceDeskSystem.Application.Services.Admin.Interfaces;
 using ServiceDeskSystem.Application.Services.Auth;
+using ServiceDeskSystem.Application.Services.Auth.Interfaces;
+using ServiceDeskSystem.Application.Services.Comments;
+using ServiceDeskSystem.Application.Services.Comments.Interfaces;
 using ServiceDeskSystem.Application.Services.Localization;
+using ServiceDeskSystem.Application.Services.Localization.Interfaces;
 using ServiceDeskSystem.Application.Services.Theme;
+using ServiceDeskSystem.Application.Services.Theme.Interfaces;
 using ServiceDeskSystem.Application.Services.Tickets;
+using ServiceDeskSystem.Application.Services.Tickets.Interfaces;
 using ServiceDeskSystem.Components;
 using ServiceDeskSystem.Infrastructure.Data;
 
@@ -28,6 +35,9 @@ internal static class Program
             sp.GetRequiredService<IDbContextFactory<BugTrackerDbContext>>().CreateDbContext());
 
         builder.Services.AddScoped<ITicketService, TicketService>();
+        builder.Services.AddScoped<ITicketAssignmentService, TicketService>();
+        builder.Services.AddScoped<ITicketStatisticsService, TicketService>();
+        builder.Services.AddScoped<ICommentService, CommentService>();
         builder.Services.AddScoped<IAuthService, SimpleAuthService>();
         builder.Services.AddScoped<ILocalizationService, LocalizationService>();
         builder.Services.AddScoped<IThemeService, ThemeService>();

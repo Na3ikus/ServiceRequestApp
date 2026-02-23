@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Components;
 using ServiceDeskSystem.Application.Services.Auth;
+using ServiceDeskSystem.Application.Services.Auth.Interfaces;
 using ServiceDeskSystem.Components.Common;
 using ServiceDeskSystem.Components.Common.Base;
 

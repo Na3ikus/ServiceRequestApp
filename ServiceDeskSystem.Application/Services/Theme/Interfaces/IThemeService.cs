@@ -1,4 +1,4 @@
-namespace ServiceDeskSystem.Application.Services.Theme;
+namespace ServiceDeskSystem.Application.Services.Theme.Interfaces;
 
 public interface IThemeService
 {

@@ -1,7 +1,12 @@
 using Microsoft.AspNetCore.Components;
 using ServiceDeskSystem.Application.Services.Auth;
+using ServiceDeskSystem.Application.Services.Auth.Interfaces;
+using ServiceDeskSystem.Application.Services.Comments;
+using ServiceDeskSystem.Application.Services.Comments.Interfaces;
 using ServiceDeskSystem.Application.Services.Localization;
+using ServiceDeskSystem.Application.Services.Localization.Interfaces;
 using ServiceDeskSystem.Application.Services.Tickets;
+using ServiceDeskSystem.Application.Services.Tickets.Interfaces;
 using ServiceDeskSystem.Components.Common;
 using ServiceDeskSystem.Components.Common.Base;
 using ServiceDeskSystem.Domain.Entities;
@@ -26,6 +31,12 @@ public partial class TicketDetails : BaseComponent
 
     [Inject]
     private ITicketService TicketService { get; set; } = null!;
+
+    [Inject]
+    private ITicketAssignmentService TicketAssignmentService { get; set; } = null!;
+
+    [Inject]
+    private ICommentService CommentService { get; set; } = null!;
 
     [Inject]
     private IAuthService AuthService { get; set; } = null!;
@@ -159,7 +170,7 @@ public partial class TicketDetails : BaseComponent
             AuthorId = this.CurrentUserId,
         };
 
-        var addedComment = await this.TicketService.AddCommentAsync(comment);
+        var addedComment = await this.CommentService.AddCommentAsync(comment);
         this.Ticket.Comments.Add(addedComment);
 
         this.NewCommentMessage = string.Empty;
@@ -195,7 +206,7 @@ public partial class TicketDetails : BaseComponent
             return;
         }
 
-        var updated = await this.TicketService.UpdateCommentAsync(commentId, this.EditingCommentMessage.Trim());
+        var updated = await this.CommentService.UpdateCommentAsync(commentId, this.EditingCommentMessage.Trim());
         if (updated is not null && this.Ticket?.Comments is not null)
         {
             var existing = this.Ticket.Comments.FirstOrDefault(c => c.Id == commentId);
@@ -222,7 +233,7 @@ public partial class TicketDetails : BaseComponent
             return;
         }
 
-        var success = await this.TicketService.DeleteCommentAsync(commentId);
+        var success = await this.CommentService.DeleteCommentAsync(commentId);
         if (success && this.Ticket?.Comments is not null)
         {
             this.Ticket.Comments.Remove(comment);
@@ -287,7 +298,7 @@ public partial class TicketDetails : BaseComponent
             return;
         }
 
-        var success = await this.TicketService.AssignDeveloperAsync(this.Ticket.Id, this.CurrentUserId);
+        var success = await this.TicketAssignmentService.AssignDeveloperAsync(this.Ticket.Id, this.CurrentUserId);
         if (success)
         {
             await this.LoadTicketAsync();
@@ -302,7 +313,7 @@ public partial class TicketDetails : BaseComponent
             return;
         }
 
-        var success = await this.TicketService.UnassignDeveloperAsync(this.Ticket.Id);
+        var success = await this.TicketAssignmentService.UnassignDeveloperAsync(this.Ticket.Id);
         if (success)
         {
             await this.LoadTicketAsync();

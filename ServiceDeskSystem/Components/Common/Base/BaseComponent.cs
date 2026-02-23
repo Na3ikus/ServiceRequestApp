@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Components;
 using ServiceDeskSystem.Application.Services.Localization;
+using ServiceDeskSystem.Application.Services.Localization.Interfaces;
 using ServiceDeskSystem.Application.Services.Theme;
+using ServiceDeskSystem.Application.Services.Theme.Interfaces;
 
 namespace ServiceDeskSystem.Components.Common.Base;
 

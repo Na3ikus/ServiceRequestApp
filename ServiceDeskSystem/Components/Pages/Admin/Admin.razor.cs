@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Components;
 using ServiceDeskSystem.Application.Services.Admin;
+using ServiceDeskSystem.Application.Services.Admin.Interfaces;
 using ServiceDeskSystem.Application.Services.Auth;
+using ServiceDeskSystem.Application.Services.Auth.Interfaces;
 using ServiceDeskSystem.Components.Common;
 using ServiceDeskSystem.Components.Common.Base;
 using ServiceDeskSystem.Domain.Entities;

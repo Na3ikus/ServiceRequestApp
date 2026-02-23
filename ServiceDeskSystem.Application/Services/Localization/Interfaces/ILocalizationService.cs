@@ -1,4 +1,4 @@
-namespace ServiceDeskSystem.Application.Services.Localization;
+namespace ServiceDeskSystem.Application.Services.Localization.Interfaces;
 
 public interface ILocalizationService
 {

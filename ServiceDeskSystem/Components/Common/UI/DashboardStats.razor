@@ -1,5 +1,5 @@
 @using ServiceDeskSystem.Application.Services
-@inject ITicketService TicketService
+@inject ITicketStatisticsService TicketStatisticsService
 @inject IAuthService AuthService
 @inject ILocalizationService L
 @inject IThemeService Theme
@@ -102,13 +102,13 @@
         L.LanguageChanged += OnStateChanged;
         Theme.ThemeChanged += OnStateChanged;
 
-        totalTickets = await TicketService.GetTotalTicketsCountAsync();
-        openTickets = await TicketService.GetOpenTicketsCountAsync();
-        criticalTickets = await TicketService.GetCriticalTicketsCountAsync();
+        totalTickets = await TicketStatisticsService.GetTotalTicketsCountAsync();
+        openTickets = await TicketStatisticsService.GetOpenTicketsCountAsync();
+        criticalTickets = await TicketStatisticsService.GetCriticalTicketsCountAsync();
 
         if (AuthService.CurrentUser is not null)
         {
-            myTickets = await TicketService.GetUserTicketsCountAsync(AuthService.CurrentUser.Id);
+            myTickets = await TicketStatisticsService.GetUserTicketsCountAsync(AuthService.CurrentUser.Id);
         }
     }
 

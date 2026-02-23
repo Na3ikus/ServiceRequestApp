@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Components;
 using ServiceDeskSystem.Application.Services.Auth;
+using ServiceDeskSystem.Application.Services.Auth.Interfaces;
 using ServiceDeskSystem.Application.Services.Tickets;
+using ServiceDeskSystem.Application.Services.Tickets.Interfaces;
 using ServiceDeskSystem.Components.Common;
 using ServiceDeskSystem.Components.Common.Base;
 
@@ -53,7 +55,7 @@ public partial class Statistics : BaseComponent
 
     // Injected services (properties after fields per SA1201)
     [Inject]
-    private ITicketService TicketService { get; set; } = null!;
+    private ITicketStatisticsService TicketStatisticsService { get; set; } = null!;
 
     [Inject]
     private IAuthService AuthService { get; set; } = null!;
@@ -65,10 +67,6 @@ public partial class Statistics : BaseComponent
 
     private bool HasAccess => string.Equals(this.CurrentUserRole, "Developer", StringComparison.OrdinalIgnoreCase)
                            || string.Equals(this.CurrentUserRole, "Admin", StringComparison.OrdinalIgnoreCase);
-
-    /// <summary>Percentage for bar chart width (min 2% so bar is always visible).</summary>
-    private static int Pct(int value, int total) =>
-        total == 0 ? 0 : Math.Max(2, (int)Math.Round(value * 100.0 / total));
 
     protected override async Task OnInitializedAsync()
     {
@@ -82,11 +80,15 @@ public partial class Statistics : BaseComponent
         this.isLoading = false;
     }
 
+    /// <summary>Percentage for bar chart width (min 2% so bar is always visible).</summary>
+    private static int Pct(int value, int total) =>
+        total == 0 ? 0 : Math.Max(2, (int)Math.Round(value * 100.0 / total));
+
     private async Task LoadDataAsync()
     {
-        this.byStatus = await this.TicketService.GetTicketCountByStatusAsync();
-        this.byPriority = await this.TicketService.GetTicketCountByPriorityAsync();
-        this.topDevs = await this.TicketService.GetTopDevelopersAsync(5);
+        this.byStatus = await this.TicketStatisticsService.GetTicketCountByStatusAsync();
+        this.byPriority = await this.TicketStatisticsService.GetTicketCountByPriorityAsync();
+        this.topDevs = await this.TicketStatisticsService.GetTopDevelopersAsync(5);
 
         this.totalTickets = this.byStatus.Values.Sum();
         this.openTickets = this.byStatus.TryGetValue("Open", out var o) ? o : 0;

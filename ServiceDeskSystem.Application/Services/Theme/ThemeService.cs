@@ -1,4 +1,5 @@
 using Microsoft.JSInterop;
+using ServiceDeskSystem.Application.Services.Theme.Interfaces;
 
 namespace ServiceDeskSystem.Application.Services.Theme;
 
@@ -40,7 +41,7 @@ public sealed class ThemeService : IThemeService, IAsyncDisposable
         if ((theme == "light" || theme == "dark") && this.currentTheme != theme)
         {
             this.currentTheme = theme;
-            
+
             try
             {
                 await this.jsRuntime.InvokeVoidAsync("themeManager.setTheme", theme);
@@ -49,7 +50,7 @@ public sealed class ThemeService : IThemeService, IAsyncDisposable
             {
                 // Ignore JS interop errors during prerendering
             }
-            
+
             this.ThemeChanged?.Invoke(this, EventArgs.Empty);
         }
     }
@@ -58,7 +59,7 @@ public sealed class ThemeService : IThemeService, IAsyncDisposable
     {
         var newTheme = this.currentTheme == "light" ? "dark" : "light";
         this.currentTheme = newTheme;
-        
+
         try
         {
             await this.jsRuntime.InvokeVoidAsync("themeManager.setTheme", newTheme);
@@ -67,7 +68,7 @@ public sealed class ThemeService : IThemeService, IAsyncDisposable
         {
             // Ignore JS interop errors during prerendering
         }
-        
+
         this.ThemeChanged?.Invoke(this, EventArgs.Empty);
     }
 

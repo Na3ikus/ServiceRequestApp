@@ -1,7 +1,9 @@
 using System.Threading;
 using Microsoft.AspNetCore.Components;
 using ServiceDeskSystem.Application.Services.Auth;
+using ServiceDeskSystem.Application.Services.Auth.Interfaces;
 using ServiceDeskSystem.Application.Services.Tickets;
+using ServiceDeskSystem.Application.Services.Tickets.Interfaces;
 using ServiceDeskSystem.Components.Common;
 using ServiceDeskSystem.Components.Common.Base;
 using ServiceDeskSystem.Domain.Entities;
@@ -20,6 +22,9 @@ public partial class DeveloperDashboard : BaseComponent
 
     [Inject]
     private ITicketService TicketService { get; set; } = null!;
+
+    [Inject]
+    private ITicketStatisticsService TicketStatisticsService { get; set; } = null!;
 
     [Inject]
     private IAuthService AuthService { get; set; } = null!;
@@ -83,9 +88,9 @@ public partial class DeveloperDashboard : BaseComponent
         }
 
         this.tickets = await this.TicketService.GetDeveloperTicketsAsync(this.CurrentUserId);
-        this.assignedCount = await this.TicketService.GetDeveloperAssignedCountAsync(this.CurrentUserId);
-        this.inProgressCount = await this.TicketService.GetDeveloperInProgressCountAsync(this.CurrentUserId);
-        this.completedCount = await this.TicketService.GetDeveloperCompletedCountAsync(this.CurrentUserId);
+        this.assignedCount = await this.TicketStatisticsService.GetDeveloperAssignedCountAsync(this.CurrentUserId);
+        this.inProgressCount = await this.TicketStatisticsService.GetDeveloperInProgressCountAsync(this.CurrentUserId);
+        this.completedCount = await this.TicketStatisticsService.GetDeveloperCompletedCountAsync(this.CurrentUserId);
     }
 
     private void StartAutoRefresh()

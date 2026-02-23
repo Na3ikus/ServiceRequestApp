@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using ServiceDeskSystem.Infrastructure.Data;
 using ServiceDeskSystem.Domain.Entities;
 using ServiceDeskSystem.Domain.Interfaces;
+using ServiceDeskSystem.Application.Services.Auth.Interfaces;
 
 namespace ServiceDeskSystem.Application.Services.Auth;
 

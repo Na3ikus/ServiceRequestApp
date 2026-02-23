@@ -1,6 +1,6 @@
 using ServiceDeskSystem.Domain.Entities;
 
-namespace ServiceDeskSystem.Application.Services.Admin;
+namespace ServiceDeskSystem.Application.Services.Admin.Interfaces;
 
 public interface IAdminService
 {

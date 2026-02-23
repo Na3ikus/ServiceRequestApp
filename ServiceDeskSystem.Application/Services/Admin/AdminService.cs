@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using ServiceDeskSystem.Infrastructure.Data;
 using ServiceDeskSystem.Domain.Entities;
 using ServiceDeskSystem.Domain.Interfaces;
+using ServiceDeskSystem.Application.Services.Admin.Interfaces;
 
 namespace ServiceDeskSystem.Application.Services.Admin;
 

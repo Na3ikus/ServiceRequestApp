@@ -3,10 +3,12 @@ using Microsoft.EntityFrameworkCore;
 using ServiceDeskSystem.Infrastructure.Data;
 using ServiceDeskSystem.Domain.Entities;
 using ServiceDeskSystem.Domain.Interfaces;
+using ServiceDeskSystem.Application.Services.Tickets.Interfaces;
 
 namespace ServiceDeskSystem.Application.Services.Tickets;
 
-public sealed class TicketService(IDbContextFactory<BugTrackerDbContext> contextFactory) : ITicketService
+public sealed class TicketService(IDbContextFactory<BugTrackerDbContext> contextFactory)
+    : ITicketService, ITicketAssignmentService, ITicketStatisticsService
 {
     public async Task<List<Ticket>> GetAllTicketsAsync()
     {
@@ -15,37 +17,6 @@ public sealed class TicketService(IDbContextFactory<BugTrackerDbContext> context
         return tickets.ToList();
     }
 
-    public async Task<Comment?> UpdateCommentAsync(int commentId, string newMessage)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(newMessage);
-
-        await using var repo = new RepositoryFacade(contextFactory);
-        var existing = await repo.Comments.GetByIdWithAuthorAsync(commentId).ConfigureAwait(false);
-
-        if (existing is null)
-        {
-            return null;
-        }
-
-        existing.Message = newMessage;
-        await repo.SaveChangesAsync().ConfigureAwait(false);
-        return existing;
-    }
-
-    public async Task<bool> DeleteCommentAsync(int commentId)
-    {
-        await using var repo = new RepositoryFacade(contextFactory);
-        var comment = await repo.Comments.GetByIdAsync(commentId).ConfigureAwait(false);
-
-        if (comment is null)
-        {
-            return false;
-        }
-
-        await repo.Comments.DeleteAsync(commentId).ConfigureAwait(false);
-        await repo.SaveChangesAsync().ConfigureAwait(false);
-        return true;
-    }
 
     public async Task<Ticket?> GetTicketByIdAsync(int id)
     {

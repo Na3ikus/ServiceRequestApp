@@ -1,6 +1,6 @@
 using ServiceDeskSystem.Domain.Entities;
 
-namespace ServiceDeskSystem.Application.Services.Auth;
+namespace ServiceDeskSystem.Application.Services.Auth.Interfaces;
 
 public interface IAuthService
 {
