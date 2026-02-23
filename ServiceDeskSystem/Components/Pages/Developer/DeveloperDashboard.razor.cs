@@ -34,12 +34,16 @@ public partial class DeveloperDashboard : BaseComponent
 
     private int completedCount { get; set; }
 
+    private string viewMode { get; set; } = "Table";
+
     private int CurrentUserId => this.AuthService.CurrentUser?.Id ?? 0;
 
     private string CurrentUserRole => this.AuthService.CurrentUser?.Role ?? string.Empty;
 
     private bool IsDeveloper => string.Equals(this.CurrentUserRole, "Developer", StringComparison.OrdinalIgnoreCase) ||
                                 string.Equals(this.CurrentUserRole, "Admin", StringComparison.OrdinalIgnoreCase);
+
+    private bool IsAdmin => string.Equals(this.CurrentUserRole, "Admin", StringComparison.OrdinalIgnoreCase);
     protected override async Task OnInitializedAsync()
     {
         this.AuthService.AuthStateChanged += this.OnAuthStateChanged;
@@ -119,4 +123,26 @@ public partial class DeveloperDashboard : BaseComponent
     }
 
     private void ViewTicket(int id) => this.Navigation.NavigateTo($"/ticket/{id}");
+
+    private void SetViewMode(string mode)
+    {
+        this.viewMode = mode;
+        this.StateHasChanged();
+    }
+
+    private async Task HandleKanbanStatusChangedAsync((int TicketId, string NewStatus) args)
+    {
+        var ticket = this.tickets?.FirstOrDefault(t => t.Id == args.TicketId);
+        if (ticket is null)
+        {
+            return;
+        }
+
+        var success = await this.TicketService.UpdateTicketStatusAsync(args.TicketId, args.NewStatus);
+        if (success)
+        {
+            ticket.Status = args.NewStatus;
+            await this.InvokeAsync(this.StateHasChanged);
+        }
+    }
 }

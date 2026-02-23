@@ -189,5 +189,9 @@
   "search.label": "Search",
   "search.priorityLabel": "Priority",
   "search.statusLabel": "Status",
-  "search.clearFilters": "Clear filters"
+  "search.clearFilters": "Clear filters",
+  "kanban.viewTable": "Table",
+  "kanban.viewKanban": "Kanban",
+  "kanban.dropHere": "Drop ticket here",
+  "kanban.noTickets": "No tickets"
 }

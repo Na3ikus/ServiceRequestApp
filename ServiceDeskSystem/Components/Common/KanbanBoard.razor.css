@@ -1,0 +1,39 @@
+/* Kanban Board Scoped Styles */
+/* Created by Nazar "N1h3" Hutsol */
+
+.kanban-board {
+    width: 100%;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(148,163,184,0.4) transparent;
+}
+
+.kanban-board::-webkit-scrollbar {
+    height: 6px;
+}
+
+.kanban-board::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.kanban-board::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.4);
+    border-radius: 3px;
+}
+
+.kanban-column {
+    min-height: 500px;
+}
+
+/* Highlight drop zone when dragging over */
+:global(.kanban-drag-over) {
+    border-color: rgba(59, 130, 246, 0.6) !important;
+    background-color: rgba(59, 130, 246, 0.05) !important;
+    box-shadow: inset 0 0 0 2px rgba(59, 130, 246, 0.3);
+}
+
+/* Dimmed card while being dragged */
+:global(.kanban-dragging) {
+    opacity: 0.45;
+    transform: rotate(2deg) scale(0.97);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}

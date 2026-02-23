@@ -1,5 +1,6 @@
 using System.Threading;
 using Microsoft.AspNetCore.Components;
+using ServiceDeskSystem.Application.Services.Auth;
 using ServiceDeskSystem.Application.Services.Localization;
 using ServiceDeskSystem.Application.Services.Tickets;
 using ServiceDeskSystem.Components.Common;
@@ -21,11 +22,20 @@ public partial class TicketList : BaseComponent
     private ITicketService TicketService { get; set; } = null!;
 
     [Inject]
+    private IAuthService AuthService { get; set; } = null!;
+
+    [Inject]
     private NavigationManager Navigation { get; set; } = null!;
 
     private List<Ticket>? tickets { get; set; }
 
     private List<Ticket>? filteredTickets { get; set; }
+
+    private string viewMode { get; set; } = "Table";
+
+    private int currentUserId => this.AuthService.CurrentUser?.Id ?? 0;
+
+    private bool isAdmin => string.Equals(this.AuthService.CurrentUser?.Role, "Admin", StringComparison.OrdinalIgnoreCase);
 
     private string searchQuery
     {
@@ -62,6 +72,28 @@ public partial class TicketList : BaseComponent
     }
 
     private void ViewTicket(int id) => this.Navigation.NavigateTo($"/ticket/{id}");
+
+    private void SetViewMode(string mode)
+    {
+        this.viewMode = mode;
+        this.StateHasChanged();
+    }
+
+    private async Task HandleKanbanStatusChangedAsync((int TicketId, string NewStatus) args)
+    {
+        var ticket = this.tickets?.FirstOrDefault(t => t.Id == args.TicketId);
+        if (ticket is null)
+        {
+            return;
+        }
+
+        var success = await this.TicketService.UpdateTicketStatusAsync(args.TicketId, args.NewStatus);
+        if (success)
+        {
+            ticket.Status = args.NewStatus;
+            await this.InvokeAsync(this.StateHasChanged);
+        }
+    }
 
     private void StartAutoRefresh()
     {

@@ -189,5 +189,9 @@
   "search.label": "Пошук",
   "search.priorityLabel": "Пріоритет",
   "search.statusLabel": "Статус",
-  "search.clearFilters": "Очистити фільтри"
+  "search.clearFilters": "Очистити фільтри",
+  "kanban.viewTable": "Таблиця",
+  "kanban.viewKanban": "Канбан",
+  "kanban.dropHere": "Перетягніть тікет сюди",
+  "kanban.noTickets": "Немає тікетів"
 }
