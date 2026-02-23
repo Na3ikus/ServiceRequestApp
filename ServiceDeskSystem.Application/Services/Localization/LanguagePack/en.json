@@ -212,5 +212,15 @@
   "profile.firstName": "First Name",
   "profile.lastName": "Last Name",
   "profile.middleName": "Middle Name",
-  "profile.bio": "Bio (About Details)"
+  "profile.bio": "Bio (About Details)",
+  "profile.bioPlaceholder": "Tell us a little about yourself...",
+  "profile.saved": "Saved",
+  "profile.contacts.title": "Contacts",
+  "profile.contacts.add": "Add Contact",
+  "profile.contacts.selectType": "Select type",
+  "profile.contacts.valuePlaceholder": "Value...",
+  "profile.contacts.delete": "Delete",
+  "profile.contacts.noContacts": "No contacts added.",
+  "profile.saving": "Saving...",
+  "profile.saveChanges": "Save changes"
 }

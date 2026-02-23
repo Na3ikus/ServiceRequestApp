@@ -2,17 +2,18 @@ using Microsoft.AspNetCore.Components;
 using ServiceDeskSystem.Application.Services.Auth.Interfaces;
 using ServiceDeskSystem.Application.Services.Profile.Interfaces;
 using ServiceDeskSystem.Application.Services.Profile.Models;
+using ServiceDeskSystem.Components.Common.Base;
 
 namespace ServiceDeskSystem.Components.Pages.Profile;
 
-public partial class UserProfile : ComponentBase
+public partial class UserProfile : BaseComponent
 {
     private bool isLoading = true;
     private bool isSaving;
     private bool isSaved;
     private string? errorMessage;
     private UpdateProfileRequest? model;
-    private List<ContactTypeDto> contactTypes = new();
+    private List<ContactTypeDto> contactTypes = new List<ContactTypeDto>();
 
     [Inject]
     public IAuthService AuthService { get; set; } = null!;

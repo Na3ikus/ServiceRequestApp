@@ -212,5 +212,15 @@
   "profile.firstName": "Ім'я",
   "profile.lastName": "Прізвище",
   "profile.middleName": "По батькові",
-  "profile.bio": "Опис (Про себе)"
+  "profile.bio": "Опис (Про себе)",
+  "profile.bioPlaceholder": "Розкажіть трохи про себе...",
+  "profile.saved": "Збережено",
+  "profile.contacts.title": "Контакти",
+  "profile.contacts.add": "Додати контакт",
+  "profile.contacts.selectType": "Оберіть тип",
+  "profile.contacts.valuePlaceholder": "Значення...",
+  "profile.contacts.delete": "Видалити",
+  "profile.contacts.noContacts": "Немає доданих контактів.",
+  "profile.saving": "Збереження...",
+  "profile.saveChanges": "Зберегти зміни"
 }
