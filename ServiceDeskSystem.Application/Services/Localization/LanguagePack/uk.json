@@ -193,5 +193,18 @@
   "kanban.viewTable": "Таблиця",
   "kanban.viewKanban": "Канбан",
   "kanban.dropHere": "Перетягніть тікет сюди",
-  "kanban.noTickets": "Немає тікетів"
+  "kanban.noTickets": "Немає тікетів",
+  "nav.statistics": "Статистика",
+  "stats.title": "Статистика",
+  "stats.subtitle": "Аналітика та огляд продуктивності",
+  "stats.total": "Всього тікетів",
+  "stats.open": "Відкриті",
+  "stats.critical": "Критичні",
+  "stats.resolved": "Вирішені",
+  "stats.byStatus": "Тікети за статусом",
+  "stats.byPriority": "Тікети за пріоритетом",
+  "stats.topDevs": "Топ розробників",
+  "stats.tickets": "тікетів",
+  "stats.noData": "Даних ще немає",
+  "stats.accessDenied": "Доступ заборонено. Потрібні права розробника або адміністратора."
 }

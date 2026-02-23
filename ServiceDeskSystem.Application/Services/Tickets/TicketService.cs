@@ -6,7 +6,7 @@ using ServiceDeskSystem.Domain.Interfaces;
 
 namespace ServiceDeskSystem.Application.Services.Tickets;
 
-public sealed class TicketService(IDbContextFactory<BugTrackerDbContext> contextFactory): ITicketService
+public sealed class TicketService(IDbContextFactory<BugTrackerDbContext> contextFactory) : ITicketService
 {
     public async Task<List<Ticket>> GetAllTicketsAsync()
     {
@@ -212,6 +212,37 @@ public sealed class TicketService(IDbContextFactory<BugTrackerDbContext> context
         await using var repo = new RepositoryFacade(contextFactory);
         var tickets = await repo.Tickets.FindAsync(t => t.DeveloperId == developerId && (t.Status == "Resolved" || t.Status == "Closed")).ConfigureAwait(false);
         return tickets.Count();
+    }
+
+    public async Task<Dictionary<string, int>> GetTicketCountByStatusAsync()
+    {
+        await using var repo = new RepositoryFacade(contextFactory);
+        var tickets = await repo.Tickets.GetAllAsync().ConfigureAwait(false);
+        return tickets
+            .GroupBy(t => t.Status)
+            .ToDictionary(g => g.Key, g => g.Count());
+    }
+
+    public async Task<Dictionary<string, int>> GetTicketCountByPriorityAsync()
+    {
+        await using var repo = new RepositoryFacade(contextFactory);
+        var tickets = await repo.Tickets.GetAllAsync().ConfigureAwait(false);
+        return tickets
+            .GroupBy(t => t.Priority)
+            .ToDictionary(g => g.Key, g => g.Count());
+    }
+
+    public async Task<List<(string Login, int Count)>> GetTopDevelopersAsync(int top = 5)
+    {
+        await using var repo = new RepositoryFacade(contextFactory);
+        var tickets = await repo.Tickets.GetAllWithIncludesAsync().ConfigureAwait(false);
+        return tickets
+            .Where(t => t.Developer != null && (t.Status == "Resolved" || t.Status == "Closed" || t.Status == "Done"))
+            .GroupBy(t => t.Developer!.Login ?? "?")
+            .Select(g => (Login: g.Key, Count: g.Count()))
+            .OrderByDescending(x => x.Count)
+            .Take(top)
+            .ToList();
     }
 }
 

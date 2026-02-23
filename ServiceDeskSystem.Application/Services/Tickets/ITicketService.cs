@@ -43,4 +43,10 @@ public interface ITicketService
     Task<int> GetDeveloperInProgressCountAsync(int developerId);
 
     Task<int> GetDeveloperCompletedCountAsync(int developerId);
+
+    Task<Dictionary<string, int>> GetTicketCountByStatusAsync();
+
+    Task<Dictionary<string, int>> GetTicketCountByPriorityAsync();
+
+    Task<List<(string Login, int Count)>> GetTopDevelopersAsync(int top = 5);
 }

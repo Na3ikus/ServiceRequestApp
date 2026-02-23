@@ -193,5 +193,18 @@
   "kanban.viewTable": "Table",
   "kanban.viewKanban": "Kanban",
   "kanban.dropHere": "Drop ticket here",
-  "kanban.noTickets": "No tickets"
+  "kanban.noTickets": "No tickets",
+  "nav.statistics": "Statistics",
+  "stats.title": "Statistics",
+  "stats.subtitle": "Analytics and performance overview",
+  "stats.total": "Total Tickets",
+  "stats.open": "Open",
+  "stats.critical": "Critical",
+  "stats.resolved": "Resolved",
+  "stats.byStatus": "Tickets by Status",
+  "stats.byPriority": "Tickets by Priority",
+  "stats.topDevs": "Top Developers",
+  "stats.tickets": "tickets",
+  "stats.noData": "No data yet",
+  "stats.accessDenied": "Access denied. Developer or Administrator privileges required."
 }
