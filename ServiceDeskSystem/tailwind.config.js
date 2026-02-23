@@ -10,6 +10,10 @@ module.exports = {
         "./**/*.cs"
     ],
     darkMode: 'class',
+    safelist: [
+        'hover:bg-blue-100',
+        'hover:bg-blue-50/50'
+    ],
     theme: {
         extend: {},
     },
