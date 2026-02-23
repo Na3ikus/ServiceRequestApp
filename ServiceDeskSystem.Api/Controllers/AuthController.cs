@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using ServiceDeskSystem.Api.Models;
 using ServiceDeskSystem.Application.Services.Auth;
+using ServiceDeskSystem.Application.Services.Auth.Interfaces;
 using ServiceDeskSystem.Domain.Entities;
 
 namespace ServiceDeskSystem.Api.Controllers;

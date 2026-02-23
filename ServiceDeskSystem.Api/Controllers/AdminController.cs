@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ServiceDeskSystem.Api.Models;
 using ServiceDeskSystem.Application.Services.Admin;
+using ServiceDeskSystem.Application.Services.Admin.Interfaces;
 using ServiceDeskSystem.Domain.Entities;
 
 namespace ServiceDeskSystem.Api.Controllers;

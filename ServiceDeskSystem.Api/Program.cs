@@ -3,8 +3,13 @@ using Microsoft.OpenApi.Models;
 using Serilog;
 using ServiceDeskSystem.Api.Middleware;
 using ServiceDeskSystem.Application.Services.Admin;
+using ServiceDeskSystem.Application.Services.Admin.Interfaces;
 using ServiceDeskSystem.Application.Services.Auth;
+using ServiceDeskSystem.Application.Services.Auth.Interfaces;
+using ServiceDeskSystem.Application.Services.Comments;
+using ServiceDeskSystem.Application.Services.Comments.Interfaces;
 using ServiceDeskSystem.Application.Services.Tickets;
+using ServiceDeskSystem.Application.Services.Tickets.Interfaces;
 using ServiceDeskSystem.Infrastructure.Data;
 
 namespace ServiceDeskSystem.Api;
@@ -40,6 +45,9 @@ public static class Program
 
             // ───────── Services DI ─────────
             builder.Services.AddScoped<ITicketService, TicketService>();
+            builder.Services.AddScoped<ITicketAssignmentService, TicketService>();
+            builder.Services.AddScoped<ITicketStatisticsService, TicketService>();
+            builder.Services.AddScoped<ICommentService, CommentService>();
             builder.Services.AddScoped<IAuthService, SimpleAuthService>();
             builder.Services.AddScoped<IAdminService, AdminService>();
 

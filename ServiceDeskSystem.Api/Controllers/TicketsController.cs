@@ -2,6 +2,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ServiceDeskSystem.Api.Models;
 using ServiceDeskSystem.Application.Services.Tickets;
+using ServiceDeskSystem.Application.Services.Tickets.Interfaces;
+using ServiceDeskSystem.Application.Services.Comments;
+using ServiceDeskSystem.Application.Services.Comments.Interfaces;
 using ServiceDeskSystem.Domain.Entities;
 
 namespace ServiceDeskSystem.Api.Controllers;
@@ -11,6 +14,9 @@ namespace ServiceDeskSystem.Api.Controllers;
 // [Authorize] // TODO: ввімкнути після налаштування JWT
 public sealed class TicketsController(
     ITicketService ticketService,
+    ITicketAssignmentService assignmentService,
+    ICommentService commentService,
+    ITicketStatisticsService statisticsService,
     ILogger<TicketsController> logger) : ControllerBase
 {
     [HttpGet]
@@ -75,7 +81,7 @@ public sealed class TicketsController(
     public async Task<IActionResult> AssignDeveloper(int id, [FromBody] AssignDeveloperRequest request)
     {
         logger.LogInformation("Assigning developer {DeveloperId} to ticket {TicketId}", request.DeveloperId, id);
-        var success = await ticketService.AssignDeveloperAsync(id, request.DeveloperId).ConfigureAwait(false);
+        var success = await assignmentService.AssignDeveloperAsync(id, request.DeveloperId).ConfigureAwait(false);
 
         if (!success)
         {
@@ -89,7 +95,7 @@ public sealed class TicketsController(
     public async Task<IActionResult> UnassignDeveloper(int id)
     {
         logger.LogInformation("Unassigning developer from ticket {TicketId}", id);
-        var success = await ticketService.UnassignDeveloperAsync(id).ConfigureAwait(false);
+        var success = await assignmentService.UnassignDeveloperAsync(id).ConfigureAwait(false);
 
         if (!success)
         {
@@ -110,7 +116,7 @@ public sealed class TicketsController(
             Message = request.Message,
         };
 
-        var created = await ticketService.AddCommentAsync(comment).ConfigureAwait(false);
+        var created = await commentService.AddCommentAsync(comment).ConfigureAwait(false);
         return CreatedAtAction(nameof(GetById), new { id }, created);
     }
 
@@ -118,7 +124,7 @@ public sealed class TicketsController(
     public async Task<IActionResult> UpdateComment(int commentId, [FromBody] UpdateCommentRequest request)
     {
         logger.LogInformation("Updating comment {CommentId}", commentId);
-        var updated = await ticketService.UpdateCommentAsync(commentId, request.Message).ConfigureAwait(false);
+        var updated = await commentService.UpdateCommentAsync(commentId, request.Message).ConfigureAwait(false);
 
         if (updated is null)
         {
@@ -132,7 +138,7 @@ public sealed class TicketsController(
     public async Task<IActionResult> DeleteComment(int commentId)
     {
         logger.LogInformation("Deleting comment {CommentId}", commentId);
-        var success = await ticketService.DeleteCommentAsync(commentId).ConfigureAwait(false);
+        var success = await commentService.DeleteCommentAsync(commentId).ConfigureAwait(false);
 
         if (!success)
         {
@@ -146,9 +152,9 @@ public sealed class TicketsController(
     public async Task<IActionResult> GetStats()
     {
         logger.LogInformation("Fetching ticket statistics");
-        var total = await ticketService.GetTotalTicketsCountAsync().ConfigureAwait(false);
-        var open = await ticketService.GetOpenTicketsCountAsync().ConfigureAwait(false);
-        var critical = await ticketService.GetCriticalTicketsCountAsync().ConfigureAwait(false);
+        var total = await statisticsService.GetTotalTicketsCountAsync().ConfigureAwait(false);
+        var open = await statisticsService.GetOpenTicketsCountAsync().ConfigureAwait(false);
+        var critical = await statisticsService.GetCriticalTicketsCountAsync().ConfigureAwait(false);
 
         return Ok(new TicketStatsDto(total, open, critical));
     }

@@ -11,23 +11,23 @@ namespace ServiceDeskSystem.Infrastructure.Data
         {
         }
 
-        public DbSet<Person> People { get; set; }
+        public DbSet<Person> People { get; set; } = null!;
 
-        public DbSet<ContactType> ContactTypes { get; set; }
+        public DbSet<ContactType> ContactTypes { get; set; } = null!;
 
-        public DbSet<ContactInfo> ContactInfos { get; set; }
+        public DbSet<ContactInfo> ContactInfos { get; set; } = null!;
 
-        public DbSet<User> Users { get; set; }
+        public DbSet<User> Users { get; set; } = null!;
 
-        public DbSet<TechStack> TechStacks { get; set; }
+        public DbSet<TechStack> TechStacks { get; set; } = null!;
 
-        public DbSet<Product> Products { get; set; }
+        public DbSet<Product> Products { get; set; } = null!;
 
-        public DbSet<Ticket> Tickets { get; set; }
+        public DbSet<Ticket> Tickets { get; set; } = null!;
 
-        public DbSet<Comment> Comments { get; set; }
+        public DbSet<Comment> Comments { get; set; } = null!;
 
-        public DbSet<Attachment> Attachments { get; set; }
+        public DbSet<Attachment> Attachments { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
