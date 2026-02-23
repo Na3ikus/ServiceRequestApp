@@ -64,17 +64,17 @@
                                 }
                             </button>
 
-                            <div class="flex items-center gap-3 pl-3 border-l border-gray-200 dark:border-gray-600">
+                            <NavLink href="profile" class="flex items-center gap-3 pl-3 border-l border-gray-200 dark:border-gray-600 hover:opacity-80 transition-opacity cursor-pointer">
                                 <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg">
                                     <span class="text-white font-semibold text-sm">
                                         @(AuthService.CurrentUser?.Login?.Substring(0, 1).ToUpper() ?? "U")
                                     </span>
                                 </div>
-                                <div class="hidden sm:block">
+                                <div class="hidden sm:block text-left">
                                     <p class="text-sm font-medium text-gray-800 dark:text-white">@AuthService.CurrentUser?.Login</p>
                                     <p class="text-xs text-gray-500 dark:text-gray-400">@AuthService.CurrentUser?.Role</p>
                                 </div>
-                            </div>
+                            </NavLink>
 
                             <button @onclick="HandleLogout"
                                     class="logout-btn flex items-center gap-2 px-4 py-2 text-sm text-gray-600 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors">

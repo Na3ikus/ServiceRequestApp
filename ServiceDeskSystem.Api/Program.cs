@@ -4,6 +4,8 @@ using Serilog;
 using ServiceDeskSystem.Api.Middleware;
 using ServiceDeskSystem.Application.Services.Admin;
 using ServiceDeskSystem.Application.Services.Admin.Interfaces;
+using ServiceDeskSystem.Application.Services.Profile;
+using ServiceDeskSystem.Application.Services.Profile.Interfaces;
 using ServiceDeskSystem.Application.Services.Auth;
 using ServiceDeskSystem.Application.Services.Auth.Interfaces;
 using ServiceDeskSystem.Application.Services.Comments;
@@ -45,6 +47,7 @@ public static class Program
 
             // ───────── Services DI ─────────
             builder.Services.AddScoped<ITicketService, TicketService>();
+            builder.Services.AddScoped<IProfileService, ProfileService>();
             builder.Services.AddScoped<ITicketAssignmentService, TicketService>();
             builder.Services.AddScoped<ITicketStatisticsService, TicketService>();
             builder.Services.AddScoped<ICommentService, CommentService>();
@@ -107,6 +110,10 @@ public static class Program
             app.MapControllers();
 
             await app.RunAsync().ConfigureAwait(false);
+        }
+        catch (HostAbortedException)
+        {
+            // This exception is thrown normally by EF Core tools.
         }
         catch (Exception ex)
         {

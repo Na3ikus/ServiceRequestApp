@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ServiceDeskSystem.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using ServiceDeskSystem.Infrastructure.Data;
 namespace ServiceDeskSystem.Infrastructure.Migrations
 {
     [DbContext(typeof(BugTrackerDbContext))]
-    partial class BugTrackerDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260223223036_AddBioToPerson")]
+    partial class AddBioToPerson
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -285,7 +288,6 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                         new
                         {
                             Id = 2,
-                            Bio = "Senior .NET Developer з досвідом понад 5 років.",
                             FirstName = "Олександр",
                             LastName = "Коваленко",
                             MiddleName = "Петрович"
@@ -293,7 +295,6 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                         new
                         {
                             Id = 3,
-                            Bio = "Менеджер з персоналу (HR). Завжди на зв'язку для вирішення питань співробітників.",
                             FirstName = "Марія",
                             LastName = "Шевченко",
                             MiddleName = "Іванівна"
@@ -301,14 +302,12 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                         new
                         {
                             Id = 4,
-                            Bio = "Project Manager overseeing the new internal portal development.",
                             FirstName = "John",
                             LastName = "Smith"
                         },
                         new
                         {
                             Id = 5,
-                            Bio = "QA Engineer, спеціаліст з автоматизованого тестування.",
                             FirstName = "Андрій",
                             LastName = "Бондаренко",
                             MiddleName = "Олегович"
@@ -316,7 +315,6 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                         new
                         {
                             Id = 1,
-                            Bio = "Головний адміністратор системи Service Desk.",
                             FirstName = "System",
                             LastName = "Administrator"
                         });

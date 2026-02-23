@@ -14,6 +14,7 @@ internal static class PersonConfiguration
                 FirstName = "Олександр",
                 LastName = "Коваленко",
                 MiddleName = "Петрович",
+                Bio = "Senior .NET Developer з досвідом понад 5 років.",
             },
             new Person
             {
@@ -21,6 +22,7 @@ internal static class PersonConfiguration
                 FirstName = "Марія",
                 LastName = "Шевченко",
                 MiddleName = "Іванівна",
+                Bio = "Менеджер з персоналу (HR). Завжди на зв'язку для вирішення питань співробітників.",
             },
             new Person
             {
@@ -28,6 +30,7 @@ internal static class PersonConfiguration
                 FirstName = "John",
                 LastName = "Smith",
                 MiddleName = null,
+                Bio = "Project Manager overseeing the new internal portal development.",
             },
             new Person
             {
@@ -35,6 +38,7 @@ internal static class PersonConfiguration
                 FirstName = "Андрій",
                 LastName = "Бондаренко",
                 MiddleName = "Олегович",
+                Bio = "QA Engineer, спеціаліст з автоматизованого тестування.",
             },
             new Person
             {
@@ -42,6 +46,7 @@ internal static class PersonConfiguration
                 FirstName = "System",
                 LastName = "Administrator",
                 MiddleName = null,
+                Bio = "Головний адміністратор системи Service Desk.",
             });
     }
 }

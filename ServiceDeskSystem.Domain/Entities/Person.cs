@@ -10,6 +10,8 @@ public class Person
 
     public string? MiddleName { get; set; }
 
+    public string? Bio { get; set; }
+
     public User? User { get; set; }
 
     public ICollection<ContactInfo> ContactInfos { get; set; } = new List<ContactInfo>();

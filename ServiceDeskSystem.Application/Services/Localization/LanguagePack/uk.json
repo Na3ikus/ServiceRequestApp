@@ -206,5 +206,11 @@
   "stats.topDevs": "Топ розробників",
   "stats.tickets": "тікетів",
   "stats.noData": "Даних ще немає",
-  "stats.accessDenied": "Доступ заборонено. Потрібні права розробника або адміністратора."
+  "stats.accessDenied": "Доступ заборонено. Потрібні права розробника або адміністратора.",
+  "nav.myProfile": "Мій профіль",
+  "profile.title": "Мій профіль",
+  "profile.firstName": "Ім'я",
+  "profile.lastName": "Прізвище",
+  "profile.middleName": "По батькові",
+  "profile.bio": "Опис (Про себе)"
 }

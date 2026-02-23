@@ -42,6 +42,7 @@ internal static class Program
         builder.Services.AddScoped<ILocalizationService, LocalizationService>();
         builder.Services.AddScoped<IThemeService, ThemeService>();
         builder.Services.AddScoped<IAdminService, AdminService>();
+        builder.Services.AddScoped<ServiceDeskSystem.Application.Services.Profile.Interfaces.IProfileService, ServiceDeskSystem.Application.Services.Profile.ProfileService>();
 
         var app = builder.Build();
 

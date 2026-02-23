@@ -206,5 +206,11 @@
   "stats.topDevs": "Top Developers",
   "stats.tickets": "tickets",
   "stats.noData": "No data yet",
-  "stats.accessDenied": "Access denied. Developer or Administrator privileges required."
+  "stats.accessDenied": "Access denied. Developer or Administrator privileges required.",
+  "nav.myProfile": "My Profile",
+  "profile.title": "My Profile",
+  "profile.firstName": "First Name",
+  "profile.lastName": "Last Name",
+  "profile.middleName": "Middle Name",
+  "profile.bio": "Bio (About Details)"
 }
