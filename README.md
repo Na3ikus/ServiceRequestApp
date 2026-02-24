@@ -151,7 +151,6 @@ We welcome contributions! Here's how you can help:
 ##  Contact & Support
 
 -  **Bug Reports**: [Open an Issue](https://github.com/Na3ikus/ServiceRequestApp/issues)
--  **Discussions**: [GitHub Discussions](https://github.com/Na3ikus/ServiceRequestApp/discussions)
 -  **Feature Requests**: Share your ideas via Issues
 -  **Email**: For private inquiries
 
