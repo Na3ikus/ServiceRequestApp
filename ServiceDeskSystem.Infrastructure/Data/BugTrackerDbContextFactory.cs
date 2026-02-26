@@ -6,6 +6,7 @@ namespace ServiceDeskSystem.Infrastructure.Data
 {
     public class BugTrackerDbContextFactory : IDesignTimeDbContextFactory<BugTrackerDbContext>
     {
+        // Rework the test connection, into a connection from a file.
         public BugTrackerDbContext CreateDbContext(string[] args)
         {
             var optionsBuilder = new DbContextOptionsBuilder<BugTrackerDbContext>();
