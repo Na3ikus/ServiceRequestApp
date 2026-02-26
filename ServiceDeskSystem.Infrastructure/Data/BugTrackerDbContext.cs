@@ -16,7 +16,7 @@ namespace ServiceDeskSystem.Infrastructure.Data
         public DbSet<ContactType> ContactTypes { get; set; } = null!;
 
         public DbSet<ContactInfo> ContactInfos { get; set; } = null!;
-
+            
         public DbSet<User> Users { get; set; } = null!;
 
         public DbSet<TechStack> TechStacks { get; set; } = null!;
