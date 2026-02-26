@@ -1,18 +1,6 @@
-using Microsoft.EntityFrameworkCore;
-using ServiceDeskSystem.Application.Services.Admin;
-using ServiceDeskSystem.Application.Services.Admin.Interfaces;
-using ServiceDeskSystem.Application.Services.Auth;
-using ServiceDeskSystem.Application.Services.Auth.Interfaces;
-using ServiceDeskSystem.Application.Services.Comments;
-using ServiceDeskSystem.Application.Services.Comments.Interfaces;
-using ServiceDeskSystem.Application.Services.Localization;
-using ServiceDeskSystem.Application.Services.Localization.Interfaces;
-using ServiceDeskSystem.Application.Services.Theme;
-using ServiceDeskSystem.Application.Services.Theme.Interfaces;
-using ServiceDeskSystem.Application.Services.Tickets;
-using ServiceDeskSystem.Application.Services.Tickets.Interfaces;
+using ServiceDeskSystem.Application;
 using ServiceDeskSystem.Components;
-using ServiceDeskSystem.Infrastructure.Data;
+using ServiceDeskSystem.Infrastructure;
 
 namespace ServiceDeskSystem;
 
@@ -25,24 +13,8 @@ internal static class Program
         builder.Services.AddRazorComponents()
             .AddInteractiveServerComponents();
 
-        var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-            ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-
-        builder.Services.AddDbContextFactory<BugTrackerDbContext>(options =>
-            options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
-
-        builder.Services.AddScoped(sp =>
-            sp.GetRequiredService<IDbContextFactory<BugTrackerDbContext>>().CreateDbContext());
-
-        builder.Services.AddScoped<ITicketService, TicketService>();
-        builder.Services.AddScoped<ITicketAssignmentService, TicketService>();
-        builder.Services.AddScoped<ITicketStatisticsService, TicketService>();
-        builder.Services.AddScoped<ICommentService, CommentService>();
-        builder.Services.AddScoped<IAuthService, SimpleAuthService>();
-        builder.Services.AddScoped<ILocalizationService, LocalizationService>();
-        builder.Services.AddScoped<IThemeService, ThemeService>();
-        builder.Services.AddScoped<IAdminService, AdminService>();
-        builder.Services.AddScoped<ServiceDeskSystem.Application.Services.Profile.Interfaces.IProfileService, ServiceDeskSystem.Application.Services.Profile.ProfileService>();
+        builder.Services.AddInfrastructureServices(builder.Configuration);
+        builder.Services.AddApplicationServices();
 
         var app = builder.Build();
 
