@@ -23,16 +23,58 @@
     }
     else if (isLoading)
     {
-        <div class="flex items-center justify-center h-64">
-            <div class="flex items-center gap-3 text-gray-500 dark:text-gray-400">
-                <svg class="animate-spin h-6 w-6" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none">
-                    </circle>
-                    <path class="opacity-75" fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                    </path>
-                </svg>
-                <span class="text-lg">@L.Translate("common.loading")</span>
+        <div class="animate-pulse">
+            <!-- Page Header -->
+            <div class="mb-8">
+                <div class="h-8 bg-gray-200 dark:bg-gray-700 rounded w-48 mb-2"></div>
+                <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-64"></div>
+            </div>
+
+            <!-- Top Summary Cards -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                @for (int i = 0; i < 4; i++)
+                {
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-5 border border-transparent dark:border-gray-700/50">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <div class="h-3 bg-gray-200 dark:bg-gray-700 rounded w-16 mb-3"></div>
+                                <div class="h-8 bg-gray-200 dark:bg-gray-700 rounded w-12"></div>
+                            </div>
+                            <div class="h-12 w-12 bg-gray-200 dark:bg-gray-700 rounded-xl"></div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- Charts Row -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                @for (int i = 0; i < 2; i++)
+                {
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border border-transparent dark:border-gray-700/50">
+                        <div class="h-5 bg-gray-200 dark:bg-gray-700 rounded w-32 mb-5"></div>
+                        <div class="w-full h-64 bg-gray-200 dark:bg-gray-700 rounded-full mx-auto" style="max-width: 256px;"></div>
+                    </div>
+                }
+            </div>
+            
+            <!-- Top Developers -->
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border border-transparent dark:border-gray-700/50">
+                <div class="h-5 bg-gray-200 dark:bg-gray-700 rounded w-32 mb-5"></div>
+                <div class="space-y-4">
+                    @for (int i = 0; i < 3; i++)
+                    {
+                        <div class="flex items-center gap-4">
+                            <div class="h-8 w-8 bg-gray-200 dark:bg-gray-700 rounded text-center"></div>
+                            <div class="flex-1">
+                                <div class="flex justify-between items-center mb-1">
+                                    <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24"></div>
+                                    <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+                                </div>
+                                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5"></div>
+                            </div>
+                        </div>
+                    }
+                </div>
             </div>
         </div>
     }
@@ -54,7 +96,7 @@
                         <div>
                             <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">
                                 @L.Translate("stats.total")</p>
-                            <p class="text-3xl font-bold text-gray-900 dark:text-white">@totalTickets</p>
+                            <p class="text-3xl font-bold text-gray-900 dark:text-white" id="totalCount">@totalTickets</p>
                         </div>
                         <div
                             class="p-3 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg shadow-blue-500/30">
@@ -76,7 +118,7 @@
                         <div>
                             <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">
                                 @L.Translate("stats.open")</p>
-                            <p class="text-3xl font-bold text-gray-900 dark:text-white">@openTickets</p>
+                            <p class="text-3xl font-bold text-gray-900 dark:text-white" id="openCount">@openTickets</p>
                         </div>
                         <div
                             class="p-3 bg-gradient-to-br from-amber-500 to-orange-500 rounded-xl shadow-lg shadow-amber-500/30">
@@ -98,7 +140,7 @@
                         <div>
                             <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">
                                 @L.Translate("stats.critical")</p>
-                            <p class="text-3xl font-bold text-gray-900 dark:text-white">@criticalTickets</p>
+                            <p class="text-3xl font-bold text-gray-900 dark:text-white" id="criticalCount">@criticalTickets</p>
                         </div>
                         <div class="p-3 bg-gradient-to-br from-red-500 to-rose-600 rounded-xl shadow-lg shadow-red-500/30">
                             <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -119,7 +161,7 @@
                         <div>
                             <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">
                                 @L.Translate("stats.resolved")</p>
-                            <p class="text-3xl font-bold text-gray-900 dark:text-white">@resolvedTickets</p>
+                            <p class="text-3xl font-bold text-gray-900 dark:text-white" id="resolvedCount">@resolvedTickets</p>
                         </div>
                         <div
                             class="p-3 bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl shadow-lg shadow-emerald-500/30">
@@ -141,22 +183,8 @@
             <div
                 class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border border-transparent dark:border-gray-700/50">
                 <h2 class="text-base font-semibold text-gray-700 dark:text-white mb-5">@L.Translate("stats.byStatus")</h2>
-                <div class="space-y-3">
-                    @foreach (var (status, color) in StatusOrder)
-                    {
-                        var count = byStatus.TryGetValue(status, out var v) ? v : 0;
-                        var pct = Pct(count, totalTickets);
-                        <div>
-                            <div class="flex justify-between items-center mb-1">
-                                <span class="text-sm text-gray-600 dark:text-gray-300">@GetStatusText(status)</span>
-                                <span class="text-sm font-bold text-gray-800 dark:text-white">@count</span>
-                            </div>
-                            <div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2.5 overflow-hidden">
-                                <div class="h-2.5 rounded-full bg-gradient-to-r @color transition-all duration-700"
-                                    style="width: @(pct)%"></div>
-                            </div>
-                        </div>
-                    }
+                <div class="relative w-full h-64">
+                    <canvas id="statusChart"></canvas>
                 </div>
             </div>
 
@@ -164,22 +192,8 @@
             <div
                 class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border border-transparent dark:border-gray-700/50">
                 <h2 class="text-base font-semibold text-gray-700 dark:text-white mb-5">@L.Translate("stats.byPriority")</h2>
-                <div class="space-y-3">
-                    @foreach (var (priority, color) in PriorityOrder)
-                    {
-                        var count = byPriority.TryGetValue(priority, out var v) ? v : 0;
-                        var pct = Pct(count, totalTickets);
-                        <div>
-                            <div class="flex justify-between items-center mb-1">
-                                <span class="text-sm text-gray-600 dark:text-gray-300">@GetPriorityText(priority)</span>
-                                <span class="text-sm font-bold text-gray-800 dark:text-white">@count</span>
-                            </div>
-                            <div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2.5 overflow-hidden">
-                                <div class="h-2.5 rounded-full bg-gradient-to-r @color transition-all duration-700"
-                                    style="width: @(pct)%"></div>
-                            </div>
-                        </div>
-                    }
+                <div class="relative w-full h-64">
+                    <canvas id="priorityChart"></canvas>
                 </div>
             </div>
         </div>
