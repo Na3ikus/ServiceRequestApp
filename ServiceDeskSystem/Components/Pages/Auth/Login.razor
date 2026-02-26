@@ -6,48 +6,60 @@
 
 <div class="min-h-screen bg-gradient-to-br from-slate-800 via-slate-900 to-black flex items-center justify-center p-4">
     <div class="absolute inset-0 overflow-hidden pointer-events-none">
-        <div class="absolute -top-40 -right-40 w-80 h-80 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"></div>
-        <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse" style="animation-delay: 1s;"></div>
+        <div class="absolute -top-40 -right-40 w-96 h-96 bg-blue-500 rounded-full mix-blend-screen filter blur-[100px] opacity-30 animate-pulse"
+            style="animation-duration: 4s;"></div>
+        <div class="absolute -bottom-40 -left-40 w-96 h-96 bg-purple-500 rounded-full mix-blend-screen filter blur-[100px] opacity-30 animate-pulse"
+            style="animation-duration: 5s; animation-delay: 1s;"></div>
     </div>
 
     <div class="w-full max-w-md relative z-10">
         <div class="flex justify-center mb-6">
             <!-- Created by Nazar "N1h3" Hutsol -->
-            <div class="relative flex items-center bg-slate-700/50 backdrop-blur-sm rounded-full border border-slate-600/50" style="padding: 6px;">
+            <div class="relative flex items-center bg-slate-700/50 backdrop-blur-sm rounded-full border border-slate-600/50"
+                style="padding: 6px;">
                 <div class="lang-toggle-slider-gradient @(L.CurrentLanguage == "uk" ? "slide-right" : "")"></div>
                 <button @onclick="@(() => L.SetLanguage("en"))"
-                        class="relative z-10 py-2 text-sm font-semibold rounded-full transition-colors duration-300 text-center @(L.CurrentLanguage == "en" ? "text-white" : "text-slate-400 hover:text-white")" style="width: 100px;">
+                    class="relative z-10 py-2 text-sm font-semibold rounded-full transition-colors duration-300 text-center @(L.CurrentLanguage == "en" ? "text-white" : "text-slate-400 hover:text-white")"
+                    style="width: 100px;">
                     English
                 </button>
                 <button @onclick="@(() => L.SetLanguage("uk"))"
-                        class="relative z-10 py-2 text-sm font-semibold rounded-full transition-colors duration-300 text-center @(L.CurrentLanguage == "uk" ? "text-white" : "text-slate-400 hover:text-white")" style="width: 100px;">
+                    class="relative z-10 py-2 text-sm font-semibold rounded-full transition-colors duration-300 text-center @(L.CurrentLanguage == "uk" ? "text-white" : "text-slate-400 hover:text-white")"
+                    style="width: 100px;">
                     Українська
                 </button>
             </div>
         </div>
 
         <div class="text-center mb-8">
-            <div class="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-2xl shadow-blue-500/25">
+            <div
+                class="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-2xl shadow-blue-500/25">
                 <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z">
+                    </path>
                 </svg>
             </div>
-            <h1 tabindex="-1" class="text-3xl font-bold text-white mb-2 outline-none">@L.Translate("nav.serviceDesk")</h1>
+            <h1 tabindex="-1" class="text-3xl font-bold text-white mb-2 outline-none">@L.Translate("nav.serviceDesk")
+            </h1>
             <p class="text-slate-400">@L.Translate("login.title")</p>
         </div>
 
-        <div class="bg-white/10 backdrop-blur-xl rounded-2xl shadow-2xl p-8 border border-white/20">
+        <div
+            class="bg-slate-800/60 backdrop-blur-2xl rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.5)] p-8 sm:p-10 border border-slate-700/50">
             <EditForm Model="loginModel" OnValidSubmit="HandleLoginAsync" FormName="LoginForm">
                 <DataAnnotationsValidator />
 
-                @if (!string.IsNullOrEmpty(errorMessage))
+                @if (!string.IsNullOrEmpty(ErrorMessage))
                 {
-                    <div class="mb-6 p-4 bg-red-500/20 border border-red-500/30 rounded-xl backdrop-blur-sm">
-                        <div class="flex items-center gap-2 text-red-200">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    <div
+                        class="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl backdrop-blur-md shadow-[0_0_15px_rgba(239,68,68,0.1)]">
+                        <div class="flex items-center gap-3 text-red-400">
+                            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                             </svg>
-                            <span class="text-sm font-medium">@errorMessage</span>
+                            <span class="text-sm font-medium">@ErrorMessage</span>
                         </div>
                     </div>
                 }
@@ -59,15 +71,15 @@
                         </label>
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                <svg class="h-5 w-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                <svg class="h-5 w-5 text-slate-400" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                                 </svg>
                             </div>
-                            <InputText id="username"
-                                       @bind-Value="loginModel.Username"
-                                       @oninput="@((e) => loginModel.Username = e.Value?.ToString()?.Trim() ?? string.Empty)"
-                                       placeholder="@L.Translate("login.enterUsername")"
-                                       class="w-full pl-12 pr-4 py-3.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder-slate-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" />
+                            <input id="username" type="text" @bind="loginModel.Username" @bind:event="oninput"
+                                placeholder="@L.Translate("login.enterUsername")"
+                                class="w-full pl-12 pr-4 py-3.5 bg-slate-900/50 border border-slate-700/50 rounded-xl text-white placeholder-slate-500 hover:border-slate-600 focus:bg-slate-900/80 focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500/50 transition-all duration-300 outline-none" />
                         </div>
                         <ValidationMessage For="@(() => loginModel.Username)" class="text-red-400 text-sm mt-1" />
                     </div>
@@ -76,29 +88,52 @@
                         <label for="password" class="block text-sm font-medium text-slate-300 mb-2">
                             @L.Translate("login.password")
                         </label>
-                        <div class="relative">
+                        <div class="relative group">
                             <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                <svg class="h-5 w-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                                <svg class="h-5 w-5 text-slate-400 group-focus-within:text-blue-400 transition-colors duration-300"
+                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z">
+                                    </path>
                                 </svg>
                             </div>
-                            <InputText id="password"
-                                       type="password"
-                                       @bind-Value="loginModel.Password"
-                                       placeholder="@L.Translate("login.enterPassword")"
-                                       class="w-full pl-12 pr-4 py-3.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder-slate-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" />
+                            <input id="password" type="@(ShowPassword ? "text" : "password")"
+                            @bind="loginModel.Password" placeholder="@L.Translate("login.enterPassword")"
+                                class="w-full pl-12 pr-12 py-3.5 bg-slate-900/50 border border-slate-700/50 rounded-xl text-white placeholder-slate-500 hover:border-slate-600 focus:bg-slate-900/80 focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500/50 transition-all duration-300 outline-none" />
+
+                            <button type="button" @onclick="TogglePasswordVisibility"
+                                class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-white focus:outline-none transition-colors duration-200">
+                                @if (ShowPassword)
+                                {
+                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                                    </svg>
+                                }
+                                else
+                                {
+                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                    </svg>
+                                }
+                            </button>
                         </div>
                         <ValidationMessage For="@(() => loginModel.Password)" class="text-red-400 text-sm mt-1" />
                     </div>
 
-                    <button type="submit"
-                            disabled="@isLoading"
-                            class="w-full py-3.5 px-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-blue-500/25">
-                        @if (isLoading)
+                    <button type="submit" disabled="@IsLoading"
+                        class="w-full py-4 px-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-bold rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(59,130,246,0.25)] hover:shadow-[0_0_30px_rgba(59,130,246,0.6)] transform hover:-translate-y-0.5 active:translate-y-0">
+                        @if (IsLoading)
                         {
                             <svg class="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
-                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"
+                                    fill="none"></circle>
+                                <path class="opacity-75" fill="currentColor"
+                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                </path>
                             </svg>
                             <span>@L.Translate("login.signingIn")</span>
                         }
@@ -121,7 +156,7 @@
         </div>
 
         <p class="text-center text-slate-500 text-sm mt-6">
-        @L.Translate("common.footer") &copy; @DateTime.Now.Year
+            @L.Translate("common.footer") &copy; @DateTime.Now.Year
         </p>
     </div>
 </div>

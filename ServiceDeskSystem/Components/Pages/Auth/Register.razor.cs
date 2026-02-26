@@ -20,11 +20,15 @@ public partial class Register : BaseComponent
     [Inject]
     private NavigationManager Navigation { get; set; } = null!;
 
-    private string? errorMessage { get; set; }
+    private string? ErrorMessage { get; set; }
 
-    private string? successMessage { get; set; }
+    private string? SuccessMessage { get; set; }
 
-    private bool isLoading { get; set; }
+    private bool IsLoading { get; set; }
+
+    private bool ShowPassword { get; set; }
+
+    private bool ShowConfirmPassword { get; set; }
 
     protected override void OnInitialized()
     {
@@ -34,18 +38,28 @@ public partial class Register : BaseComponent
         }
     }
 
+    private void TogglePasswordVisibility()
+    {
+        this.ShowPassword = !this.ShowPassword;
+    }
+
+    private void ToggleConfirmPasswordVisibility()
+    {
+        this.ShowConfirmPassword = !this.ShowConfirmPassword;
+    }
+
     private async Task HandleRegisterAsync()
     {
-        this.errorMessage = null;
-        this.successMessage = null;
-        this.isLoading = true;
+        this.ErrorMessage = null;
+        this.SuccessMessage = null;
+        this.IsLoading = true;
 
         if (this.registerModel.Password != this.registerModel.ConfirmPassword)
         {
-            this.errorMessage = this.L.CurrentLanguage == "uk"
+            this.ErrorMessage = this.L.CurrentLanguage == "uk"
                 ? "Паролі не співпадають."
                 : "Passwords do not match.";
-            this.isLoading = false;
+            this.IsLoading = false;
             return;
         }
 
@@ -58,7 +72,7 @@ public partial class Register : BaseComponent
 
         if (success)
         {
-            this.successMessage = this.L.CurrentLanguage == "uk"
+            this.SuccessMessage = this.L.CurrentLanguage == "uk"
                 ? "Реєстрація успішна! Перенаправляємо на сторінку входу..."
                 : "Registration successful! Redirecting to login...";
 
@@ -67,10 +81,25 @@ public partial class Register : BaseComponent
         }
         else
         {
-            this.errorMessage = error ?? "Registration failed. Please try again.";
+            if (error == "Username already exists.")
+            {
+                this.ErrorMessage = this.L.CurrentLanguage == "uk"
+                    ? "Користувач з таким логіном вже існує."
+                    : error;
+            }
+            else if (error == "Email address is already registered.")
+            {
+                this.ErrorMessage = this.L.CurrentLanguage == "uk"
+                    ? "Ця електронна адреса вже зареєстрована."
+                    : error;
+            }
+            else
+            {
+                this.ErrorMessage = error ?? "Registration failed. Please try again.";
+            }
         }
 
-        this.isLoading = false;
+        this.IsLoading = false;
     }
 
     private sealed class RegisterModel
@@ -83,6 +112,7 @@ public partial class Register : BaseComponent
 
         [Required(ErrorMessage = "Username is required")]
         [MinLength(3, ErrorMessage = "Username must be at least 3 characters")]
+        [RegularExpression(@"^\S+$", ErrorMessage = "Username cannot contain spaces")]
         public string Username { get; set; } = string.Empty;
 
         [EmailAddress(ErrorMessage = "Invalid email address")]

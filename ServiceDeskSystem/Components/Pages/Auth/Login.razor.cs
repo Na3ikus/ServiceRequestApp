@@ -20,9 +20,11 @@ public partial class Login : BaseComponent
     [Inject]
     private NavigationManager Navigation { get; set; } = null!;
 
-    private string? errorMessage { get; set; }
+    private string? ErrorMessage { get; set; }
 
-    private bool isLoading { get; set; }
+    private bool IsLoading { get; set; }
+
+    private bool ShowPassword { get; set; }
 
     protected override void OnInitialized()
     {
@@ -32,10 +34,15 @@ public partial class Login : BaseComponent
         }
     }
 
+    private void TogglePasswordVisibility()
+    {
+        this.ShowPassword = !this.ShowPassword;
+    }
+
     private async Task HandleLoginAsync()
     {
-        this.errorMessage = null;
-        this.isLoading = true;
+        this.ErrorMessage = null;
+        this.IsLoading = true;
 
         this.loginModel.Username = this.loginModel.Username.Trim();
         this.loginModel.Password = this.loginModel.Password.Trim();
@@ -48,10 +55,25 @@ public partial class Login : BaseComponent
         }
         else
         {
-            this.errorMessage = error ?? "Login failed. Please try again.";
+            if (error == "Invalid username or password.")
+            {
+                this.ErrorMessage = this.L.CurrentLanguage == "uk"
+                    ? "Невірний логін або пароль."
+                    : error;
+            }
+            else if (error == "Account is deactivated. Please contact administrator.")
+            {
+                this.ErrorMessage = this.L.CurrentLanguage == "uk"
+                    ? "Акаунт деактивовано. Будь ласка, зверніться до адміністратора."
+                    : error;
+            }
+            else
+            {
+                this.ErrorMessage = error ?? "Login failed. Please try again.";
+            }
         }
 
-        this.isLoading = false;
+        this.IsLoading = false;
     }
 
     private sealed class LoginModel
