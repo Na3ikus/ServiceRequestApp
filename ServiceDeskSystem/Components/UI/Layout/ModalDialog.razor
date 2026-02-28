@@ -1,0 +1,27 @@
+@namespace ServiceDeskSystem.Components.UI.Layout
+
+@if (IsVisible)
+{
+    <div class="modal-overlay" @onclick="OnClose">
+        <div class="modal-content animate-fade-in" @onclick:stopPropagation>
+            @* Close button *@
+            <button @onclick="OnClose"
+                class="absolute top-4 right-4 z-10 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+
+            <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4 pr-10">@Title</h3>
+
+            @ChildContent
+
+            @if (FooterContent is not null)
+            {
+                <div class="flex justify-end gap-3 mt-6">
+                    @FooterContent
+                </div>
+            }
+        </div>
+    </div>
+}

@@ -1,0 +1,18 @@
+@namespace ServiceDeskSystem.Components.UI.Controls
+
+<div
+    class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg dark:shadow-gray-900/50 overflow-hidden hover:shadow-2xl hover:shadow-@(ShadowColor)-500/20 dark:hover:shadow-@(ShadowColor)-500/10 transition-all duration-300 hover:-translate-y-1">
+    <div class="p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">@Label</p>
+                <p class="mt-2 text-3xl font-bold text-gray-900 dark:text-white">@Value</p>
+            </div>
+            <div
+                class="p-4 bg-gradient-to-br from-@(GradientFrom) to-@(GradientTo) rounded-2xl shadow-lg shadow-@(ShadowColor)-500/30">
+                @IconContent
+            </div>
+        </div>
+    </div>
+    <div class="h-1.5 bg-gradient-to-r from-@(GradientFrom) to-@(GradientTo)"></div>
+</div>

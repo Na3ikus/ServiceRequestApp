@@ -1,8 +1,3 @@
-@inject ILocalizationService L
-@inject IThemeService Theme
-@inject IAuthService AuthService
-@implements IDisposable
-
 <!-- Created by Nazar "N1h3" Hutsol -->
 <nav
     class="bg-gradient-to-b from-slate-800 to-slate-900 dark:from-slate-900 dark:to-neutral-950 text-white h-full flex flex-col transition-colors duration-200">
@@ -137,19 +132,4 @@
     </div>
 </nav>
 
-@code {
-    protected override void OnInitialized()
-    {
-        L.LanguageChanged += OnStateChanged;
-        Theme.ThemeChanged += OnStateChanged;
-    }
-
-    private void OnStateChanged(object? sender, EventArgs e) => InvokeAsync(StateHasChanged);
-
-    public void Dispose()
-    {
-        L.LanguageChanged -= OnStateChanged;
-        Theme.ThemeChanged -= OnStateChanged;
-    }
-}
 

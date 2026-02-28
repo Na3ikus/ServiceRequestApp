@@ -1,10 +1,4 @@
 @inherits LayoutComponentBase
-@using ServiceDeskSystem.Application.Services
-@inject IAuthService AuthService
-@inject ILocalizationService L
-@inject IThemeService Theme
-@inject NavigationManager Navigation
-@implements IDisposable
 
 <!-- Created by Nazar "N1h3" Hutsol -->
 <div class="@(Theme.IsDarkMode ? "dark" : "")">
@@ -101,39 +95,4 @@
     <span class="dismiss">🗙</span>
 </div>
 
-@code {
-    private bool authRestored;
 
-    protected override void OnInitialized()
-    {
-        L.LanguageChanged += OnStateChanged;
-        Theme.ThemeChanged += OnStateChanged;
-        AuthService.AuthStateChanged += OnStateChanged;
-    }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender && !authRestored)
-        {
-            await Theme.InitializeAsync();
-            await AuthService.EnsureRestoredAsync();
-            authRestored = true;
-            await InvokeAsync(StateHasChanged);
-        }
-    }
-
-    private void OnStateChanged(object? sender, EventArgs e) => InvokeAsync(StateHasChanged);
-
-    private void HandleLogout()
-    {
-        AuthService.Logout();
-        Navigation.NavigateTo("/login");
-    }
-
-    public void Dispose()
-    {
-        L.LanguageChanged -= OnStateChanged;
-        Theme.ThemeChanged -= OnStateChanged;
-        AuthService.AuthStateChanged -= OnStateChanged;
-    }
-}
