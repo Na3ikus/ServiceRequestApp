@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Components;
 using ServiceDeskSystem.Application.Services.Auth.Interfaces;
 using ServiceDeskSystem.Application.Services.Profile.Interfaces;
 using ServiceDeskSystem.Application.Services.Profile.Models;
-using ServiceDeskSystem.Components.Common.Base;
+using ServiceDeskSystem.Components.UI.Base;
 
 namespace ServiceDeskSystem.Components.Pages.Profile;
 

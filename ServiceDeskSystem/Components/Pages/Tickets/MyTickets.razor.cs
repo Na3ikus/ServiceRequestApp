@@ -6,8 +6,8 @@ using ServiceDeskSystem.Application.Services.Localization;
 using ServiceDeskSystem.Application.Services.Localization.Interfaces;
 using ServiceDeskSystem.Application.Services.Tickets;
 using ServiceDeskSystem.Application.Services.Tickets.Interfaces;
-using ServiceDeskSystem.Components.Common;
-using ServiceDeskSystem.Components.Common.Base;
+using ServiceDeskSystem.Components.Features;
+using ServiceDeskSystem.Components.UI.Base;
 using ServiceDeskSystem.Domain.Entities;
 
 namespace ServiceDeskSystem.Components.Pages.Tickets;

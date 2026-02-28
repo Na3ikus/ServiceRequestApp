@@ -2,8 +2,8 @@ using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Components;
 using ServiceDeskSystem.Application.Services.Auth;
 using ServiceDeskSystem.Application.Services.Auth.Interfaces;
-using ServiceDeskSystem.Components.Common;
-using ServiceDeskSystem.Components.Common.Base;
+using ServiceDeskSystem.Components.Features;
+using ServiceDeskSystem.Components.UI.Base;
 
 namespace ServiceDeskSystem.Components.Pages.Auth;
 

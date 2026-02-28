@@ -4,8 +4,8 @@ using ServiceDeskSystem.Application.Services.Auth;
 using ServiceDeskSystem.Application.Services.Auth.Interfaces;
 using ServiceDeskSystem.Application.Services.Tickets;
 using ServiceDeskSystem.Application.Services.Tickets.Interfaces;
-using ServiceDeskSystem.Components.Common;
-using ServiceDeskSystem.Components.Common.Base;
+using ServiceDeskSystem.Components.Features;
+using ServiceDeskSystem.Components.UI.Base;
 
 namespace ServiceDeskSystem.Components.Pages.Statistics;
 

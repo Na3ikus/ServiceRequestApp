@@ -4,7 +4,7 @@ using ServiceDeskSystem.Application.Services.Localization.Interfaces;
 using ServiceDeskSystem.Application.Services.Theme;
 using ServiceDeskSystem.Application.Services.Theme.Interfaces;
 
-namespace ServiceDeskSystem.Components.Common.Base;
+namespace ServiceDeskSystem.Components.UI.Base;
 
 /// <summary>
 /// Base component class with common functionality for localization, theming, and disposal.
