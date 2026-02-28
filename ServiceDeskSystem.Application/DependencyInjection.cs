@@ -21,6 +21,14 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {
+        services.AddCoreServices();
+        services.AddUIServices();
+
+        return services;
+    }
+
+    public static IServiceCollection AddCoreServices(this IServiceCollection services)
+    {
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly()));
 
         services.AddScoped<ITicketService, TicketService>();
@@ -28,10 +36,16 @@ public static class DependencyInjection
         services.AddScoped<ITicketStatisticsService, TicketService>();
         services.AddScoped<ICommentService, CommentService>();
         services.AddScoped<IAuthService, SimpleAuthService>();
-        services.AddScoped<ILocalizationService, LocalizationService>();
-        services.AddScoped<IThemeService, ThemeService>();
         services.AddScoped<IAdminService, AdminService>();
         services.AddScoped<IProfileService, ProfileService>();
+
+        return services;
+    }
+
+    public static IServiceCollection AddUIServices(this IServiceCollection services)
+    {
+        services.AddScoped<ILocalizationService, LocalizationService>();
+        services.AddScoped<IThemeService, ThemeService>();
 
         return services;
     }

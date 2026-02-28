@@ -1,18 +1,8 @@
-using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using ServiceDeskSystem.Api.Middleware;
-using ServiceDeskSystem.Application.Services.Admin;
-using ServiceDeskSystem.Application.Services.Admin.Interfaces;
-using ServiceDeskSystem.Application.Services.Profile;
-using ServiceDeskSystem.Application.Services.Profile.Interfaces;
-using ServiceDeskSystem.Application.Services.Auth;
-using ServiceDeskSystem.Application.Services.Auth.Interfaces;
-using ServiceDeskSystem.Application.Services.Comments;
-using ServiceDeskSystem.Application.Services.Comments.Interfaces;
-using ServiceDeskSystem.Application.Services.Tickets;
-using ServiceDeskSystem.Application.Services.Tickets.Interfaces;
-using ServiceDeskSystem.Infrastructure.Data;
+using ServiceDeskSystem.Application;
+using ServiceDeskSystem.Infrastructure;
 
 namespace ServiceDeskSystem.Api;
 
@@ -35,24 +25,9 @@ public static class Program
             var builder = WebApplication.CreateBuilder(args);
             builder.Host.UseSerilog();
 
-            // ───────── Database ─────────
-            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-                ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-
-            builder.Services.AddDbContextFactory<BugTrackerDbContext>(options =>
-                options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
-
-            builder.Services.AddScoped(sp =>
-                sp.GetRequiredService<IDbContextFactory<BugTrackerDbContext>>().CreateDbContext());
-
-            // ───────── Services DI ─────────
-            builder.Services.AddScoped<ITicketService, TicketService>();
-            builder.Services.AddScoped<IProfileService, ProfileService>();
-            builder.Services.AddScoped<ITicketAssignmentService, TicketService>();
-            builder.Services.AddScoped<ITicketStatisticsService, TicketService>();
-            builder.Services.AddScoped<ICommentService, CommentService>();
-            builder.Services.AddScoped<IAuthService, SimpleAuthService>();
-            builder.Services.AddScoped<IAdminService, AdminService>();
+            // ───────── Architecture Layers DI ─────────
+            builder.Services.AddInfrastructureServices(builder.Configuration);
+            builder.Services.AddCoreServices();
 
             // ───────── Swagger ─────────
             builder.Services.AddEndpointsApiExplorer();
