@@ -22,6 +22,8 @@
 
 **ServiceDesk** is a powerful IT Service Management (ITSM) platform built with **.NET 10** and **Blazor Server**, designed to streamline incident tracking, service requests, and team collaboration. With multilingual support (English & Ukrainian), intuitive UI, and robust backend, it's perfect for IT departments of any size.
 
+**Цей проект використовує локальну базу MySQL. Налаштування підключення знаходяться в appsettings.Development.json. Для роботи в Docker використовуйте змінні оточення.**
+
 ###  Key Highlights
 
 -  **Real-time incident & request tracking**
