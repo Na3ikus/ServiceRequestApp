@@ -18,6 +18,7 @@ namespace ServiceDeskSystem.Infrastructure.Data.Repository
         {
             return this.Context.Products
                 .Include(p => p.TechStack)
+                .Include(p => p.Tickets)
                 .OrderBy(p => p.Name)
                 .ToList();
         }
@@ -26,6 +27,7 @@ namespace ServiceDeskSystem.Infrastructure.Data.Repository
         {
             return await this.Context.Products
                 .Include(p => p.TechStack)
+                .Include(p => p.Tickets)
                 .OrderBy(p => p.Name)
                 .ToListAsync()
                 .ConfigureAwait(false);

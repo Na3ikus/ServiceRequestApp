@@ -134,15 +134,22 @@ public partial class Admin : BaseComponent
 
     private async Task DeleteProduct(Product product)
     {
-        var success = await this.AdminService.DeleteProductAsync(product.Id);
-        if (success)
+        try
         {
-            await this.ShowToastAsync(this.L.Translate("admin.productDeleted"), ToastType.Success);
-            await this.LoadDataAsync();
+            var success = await this.AdminService.DeleteProductAsync(product.Id);
+            if (success)
+            {
+                await this.ShowToastAsync(this.L.Translate("admin.productDeleted"), ToastType.Success);
+                await this.LoadDataAsync();
+            }
+            else
+            {
+                await this.ShowToastAsync(this.L.Translate("admin.cannotDeleteProductWithTickets"), ToastType.Error);
+            }
         }
-        else
+        catch (Exception ex)
         {
-            await this.ShowToastAsync(this.L.Translate("admin.cannotDeleteProductWithTickets"), ToastType.Error);
+            await this.ShowToastAsync($"Error deleting product: {ex.Message}", ToastType.Error);
         }
     }
 
@@ -185,17 +192,24 @@ public partial class Admin : BaseComponent
 
     private async Task DeleteTechStack(TechStack techStack)
     {
-        if (techStack.Products.Count > 0)
+        try
         {
-            await this.ShowToastAsync(this.L.Translate("admin.cannotDeleteTechStackWithProducts"), ToastType.Error);
-            return;
-        }
+            if (techStack.Products.Count > 0)
+            {
+                await this.ShowToastAsync(this.L.Translate("admin.cannotDeleteTechStackWithProducts"), ToastType.Error);
+                return;
+            }
 
-        var success = await this.AdminService.DeleteTechStackAsync(techStack.Id);
-        if (success)
+            var success = await this.AdminService.DeleteTechStackAsync(techStack.Id);
+            if (success)
+            {
+                await this.ShowToastAsync(this.L.Translate("admin.techStackDeleted"), ToastType.Success);
+                await this.LoadTechStacksAsync();
+            }
+        }
+        catch (Exception ex)
         {
-            await this.ShowToastAsync(this.L.Translate("admin.techStackDeleted"), ToastType.Success);
-            await this.LoadTechStacksAsync();
+            await this.ShowToastAsync($"Error deleting tech stack: {ex.Message}", ToastType.Error);
         }
     }
 
@@ -262,22 +276,29 @@ public partial class Admin : BaseComponent
 
     private async Task DeleteUser(User user)
     {
-        if (user.Role == "Admin")
+        try
         {
-            await this.ShowToastAsync(this.L.Translate("admin.cannotDeleteAdmin"), ToastType.Error);
-            return;
-        }
+            if (user.Role == "Admin")
+            {
+                await this.ShowToastAsync(this.L.Translate("admin.cannotDeleteAdmin"), ToastType.Error);
+                return;
+            }
 
-        var success = await this.AdminService.DeleteUserAsync(user.Id);
-        if (success)
-        {
-            await this.ShowToastAsync(this.L.Translate("admin.userDeleted"), ToastType.Success);
-            this.users?.Remove(user);
-            await this.InvokeAsync(this.StateHasChanged);
+            var success = await this.AdminService.DeleteUserAsync(user.Id);
+            if (success)
+            {
+                await this.ShowToastAsync(this.L.Translate("admin.userDeleted"), ToastType.Success);
+                this.users?.Remove(user);
+                await this.InvokeAsync(this.StateHasChanged);
+            }
+            else
+            {
+                await this.ShowToastAsync(this.L.Translate("admin.cannotDeleteUserWithTickets"), ToastType.Error);
+            }
         }
-        else
+        catch (Exception ex)
         {
-            await this.ShowToastAsync(this.L.Translate("admin.cannotDeleteUserWithTickets"), ToastType.Error);
+            await this.ShowToastAsync($"Error deleting user: {ex.Message}", ToastType.Error);
         }
     }
 
