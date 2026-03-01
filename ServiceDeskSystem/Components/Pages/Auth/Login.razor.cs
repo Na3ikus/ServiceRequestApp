@@ -43,6 +43,7 @@ public partial class Login : BaseComponent
     {
         this.ErrorMessage = null;
         this.IsLoading = true;
+        await Task.Yield(); // Force UI update to show the loading spinner immediately
 
         this.loginModel.Username = this.loginModel.Username.Trim();
         this.loginModel.Password = this.loginModel.Password.Trim();
