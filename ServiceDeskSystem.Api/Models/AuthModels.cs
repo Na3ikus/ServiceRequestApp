@@ -1,13 +1,33 @@
+using System.ComponentModel;
+
 namespace ServiceDeskSystem.Api.Models;
 
-public sealed record LoginRequest(string Username, string Password);
+public sealed class LoginRequest
+{
+    [DefaultValue("")]
+    public string Username { get; set; } = string.Empty;
 
-public sealed record RegisterRequest(
-    string Username,
-    string Password,
-    string FirstName,
-    string LastName,
-    string? Email);
+    [DefaultValue("")]
+    public string Password { get; set; } = string.Empty;
+}
+
+public sealed class RegisterRequest
+{
+    [DefaultValue("")]
+    public string Username { get; set; } = string.Empty;
+
+    [DefaultValue("")]
+    public string Password { get; set; } = string.Empty;
+
+    [DefaultValue("")]
+    public string FirstName { get; set; } = string.Empty;
+
+    [DefaultValue("")]
+    public string LastName { get; set; } = string.Empty;
+
+    [DefaultValue("")]
+    public string? Email { get; set; }
+}
 
 public sealed record LoginResponse(string Token, UserDto User);
 

@@ -14,5 +14,6 @@ public class Product
 
     public TechStack TechStack { get; set; } = null!;
 
+    [System.Text.Json.Serialization.JsonIgnore]
     public ICollection<Ticket> Tickets { get; set; } = new List<Ticket>();
 }

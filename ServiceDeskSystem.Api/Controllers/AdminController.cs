@@ -9,7 +9,7 @@ namespace ServiceDeskSystem.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-// [Authorize(Roles = "Admin")] // TODO: ввімкнути після налаштування JWT
+[Authorize(Roles = "Admin")]
 public sealed class AdminController(
     IAdminService adminService,
     ILogger<AdminController> logger) : ControllerBase

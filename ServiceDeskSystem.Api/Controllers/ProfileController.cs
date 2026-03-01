@@ -4,6 +4,7 @@ using ServiceDeskSystem.Api.Models; // For ApiErrorResponse if needed
 using ServiceDeskSystem.Application.Services.Auth.Interfaces;
 using ServiceDeskSystem.Application.Services.Profile.Interfaces;
 using ServiceDeskSystem.Application.Services.Profile.Models;
+using ServiceDeskSystem.Api.Services;
 
 namespace ServiceDeskSystem.Api.Controllers;
 
@@ -12,17 +13,17 @@ namespace ServiceDeskSystem.Api.Controllers;
 [Route("api/[controller]")]
 public sealed class ProfileController(
     IProfileService profileService,
-    IAuthService authService,
+    ICurrentUserService currentUserService,
     ILogger<ProfileController> logger) : ControllerBase
 {
     [HttpGet]
     public async Task<IActionResult> GetProfile()
     {
-        var user = authService.CurrentUser;
-        if (user is null)
+        var userId = currentUserService.UserId;
+        if (userId is null)
             return Unauthorized(new ApiErrorResponse(401, "User not authenticated."));
 
-        var profile = await profileService.GetProfileAsync(user.Id).ConfigureAwait(false);
+        var profile = await profileService.GetProfileAsync(userId.Value).ConfigureAwait(false);
         if (profile is null)
             return NotFound(new ApiErrorResponse(404, "Profile not found."));
 
@@ -32,15 +33,15 @@ public sealed class ProfileController(
     [HttpPut]
     public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileRequest request)
     {
-        var user = authService.CurrentUser;
-        if (user is null)
+        var userId = currentUserService.UserId;
+        if (userId is null)
             return Unauthorized(new ApiErrorResponse(401, "User not authenticated."));
 
-        var (success, errorMessage) = await profileService.UpdateProfileAsync(user.Id, request).ConfigureAwait(false);
+        var (success, errorMessage) = await profileService.UpdateProfileAsync(userId.Value, request).ConfigureAwait(false);
 
         if (!success)
         {
-            logger.LogWarning("Profile update failed for user {UserId}: {Error}", user.Id, errorMessage);
+            logger.LogWarning("Profile update failed for user {UserId}: {Error}", userId.Value, errorMessage);
             return BadRequest(new ApiErrorResponse(400, errorMessage ?? "Failed to update profile."));
         }
 

@@ -8,5 +8,6 @@ public class TechStack
 
     public string Type { get; set; } = string.Empty;
 
+    [System.Text.Json.Serialization.JsonIgnore]
     public ICollection<Product> Products { get; set; } = new List<Product>();
 }

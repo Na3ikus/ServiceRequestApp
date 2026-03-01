@@ -23,9 +23,8 @@ public static class ApplicationBuilderExtensions
         app.UseCors("AllowAll");
         app.UseSerilogRequestLogging();
 
-        // TODO: JWT Authentication буде додано пізніше
-        // app.UseAuthentication();
-        // app.UseAuthorization();
+        app.UseAuthentication();
+        app.UseAuthorization();
 
         app.MapControllers();
 

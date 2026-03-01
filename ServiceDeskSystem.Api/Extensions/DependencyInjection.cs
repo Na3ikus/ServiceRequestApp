@@ -1,10 +1,13 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.Text;
 
 namespace ServiceDeskSystem.Api.Extensions;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddApiConfiguration(this IServiceCollection services)
+    public static IServiceCollection AddApiConfiguration(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen(options =>
@@ -16,6 +19,44 @@ public static class DependencyInjection
                 Description = "REST API for the Service Desk System",
             });
         });
+
+        services.AddAuthentication(options =>
+        {
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        })
+        .AddJwtBearer(options =>
+        {
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                ValidIssuer = configuration["Jwt:Issuer"],
+                ValidAudience = configuration["Jwt:Audience"],
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"] ?? string.Empty))
+            };
+
+            // Add cookie extraction fallback
+            options.Events = new JwtBearerEvents
+            {
+                OnMessageReceived = context =>
+                {
+                    var token = context.Request.Cookies["AccessToken"];
+                    if (!string.IsNullOrEmpty(token))
+                    {
+                        context.Token = token;
+                    }
+                    return Task.CompletedTask;
+                }
+            };
+        });
+
+        services.AddAuthorization();
+        services.AddHttpContextAccessor();
+        services.AddScoped<ServiceDeskSystem.Api.Services.IJwtTokenService, ServiceDeskSystem.Api.Services.JwtTokenService>();
+        services.AddScoped<ServiceDeskSystem.Api.Services.ICurrentUserService, ServiceDeskSystem.Api.Services.CurrentUserService>();
 
         services.AddControllers()
             .AddJsonOptions(options =>

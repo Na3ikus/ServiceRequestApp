@@ -4,6 +4,8 @@ using ServiceDeskSystem.Api.Models;
 using ServiceDeskSystem.Application.Services.Auth;
 using ServiceDeskSystem.Application.Services.Auth.Interfaces;
 using ServiceDeskSystem.Domain.Entities;
+using ServiceDeskSystem.Api.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ServiceDeskSystem.Api.Controllers;
 
@@ -11,6 +13,7 @@ namespace ServiceDeskSystem.Api.Controllers;
 [Route("api/[controller]")]
 public sealed class AuthController(
     IAuthService authService,
+    IJwtTokenService jwtTokenService,
     ILogger<AuthController> logger) : ControllerBase
 {
     [HttpPost("login")]
@@ -27,11 +30,41 @@ public sealed class AuthController(
         }
 
         var user = authService.CurrentUser!;
+        var token = jwtTokenService.GenerateToken(user);
+
+        // Append token as HttpOnly Cookie
+        Response.Cookies.Append("AccessToken", token, new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,   // Ideally true in prod, but keeping it true helps modern browsers
+            SameSite = SameSiteMode.Strict,
+            Expires = null   // Session cookie: cleared when browser closes
+        });
 
         logger.LogInformation("User {Username} logged in successfully", request.Username);
 
-        // TODO: Повернути JWT токен після налаштування автентифікації
         return Ok(new { Message = "Login successful.", User = MapToDto(user) });
+    }
+
+    [HttpPost("logout")]
+    public IActionResult Logout()
+    {
+        Response.Cookies.Delete("AccessToken", new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Strict
+        });
+
+        return Ok(new { Message = "Logout successful." });
+    }
+
+    [HttpGet("validate")]
+    [Authorize]
+    public IActionResult ValidateToken()
+    {
+        // If the request reaches here, the token is valid (handled by [Authorize] + JWT middleware).
+        return Ok(new { IsValid = true, Message = "Session is active." });
     }
 
     [HttpPost("register")]
@@ -53,12 +86,22 @@ public sealed class AuthController(
     }
 
     [HttpGet("me")]
-    public IActionResult GetCurrentUser()
+    [Authorize]
+    public async Task<IActionResult> GetCurrentUser(
+        [FromServices] Microsoft.EntityFrameworkCore.IDbContextFactory<ServiceDeskSystem.Infrastructure.Data.BugTrackerDbContext> contextFactory,
+        [FromServices] ICurrentUserService currentUserService)
     {
-        var user = authService.CurrentUser;
+        var userId = currentUserService.UserId;
+        if (userId == null)
+        {
+            return Unauthorized(new ApiErrorResponse(401, "User not authenticated by token."));
+        }
+
+        await using var repo = new ServiceDeskSystem.Infrastructure.Data.Repository.RepositoryFacade(contextFactory);
+        var user = await repo.Users.GetByIdAsync(userId.Value).ConfigureAwait(false);
         if (user is null)
         {
-            return Unauthorized(new ApiErrorResponse(401, "User not authenticated."));
+            return Unauthorized(new ApiErrorResponse(401, "User not found."));
         }
 
         return Ok(MapToDto(user));

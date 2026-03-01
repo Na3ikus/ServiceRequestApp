@@ -12,6 +12,7 @@ public class Person
 
     public string? Bio { get; set; }
 
+    [System.Text.Json.Serialization.JsonIgnore]
     public User? User { get; set; }
 
     public ICollection<ContactInfo> ContactInfos { get; set; } = new List<ContactInfo>();

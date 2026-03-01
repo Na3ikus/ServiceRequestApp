@@ -20,7 +20,7 @@ public static class Program
             // ───────── DI ─────────
             builder.Services.AddInfrastructureServices(builder.Configuration);
             builder.Services.AddCoreServices();
-            builder.Services.AddApiConfiguration();
+            builder.Services.AddApiConfiguration(builder.Configuration);
 
             // ───────── Pipeline ─────────
             var app = builder.Build();

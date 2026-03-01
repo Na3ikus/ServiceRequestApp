@@ -6,17 +6,19 @@ using ServiceDeskSystem.Application.Services.Tickets.Interfaces;
 using ServiceDeskSystem.Application.Services.Comments;
 using ServiceDeskSystem.Application.Services.Comments.Interfaces;
 using ServiceDeskSystem.Domain.Entities;
+using ServiceDeskSystem.Api.Services;
 
 namespace ServiceDeskSystem.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-// [Authorize] // TODO: ввімкнути після налаштування JWT
+[Authorize]
 public sealed class TicketsController(
     ITicketService ticketService,
     ITicketAssignmentService assignmentService,
     ICommentService commentService,
     ITicketStatisticsService statisticsService,
+    ICurrentUserService currentUserService,
     ILogger<TicketsController> logger) : ControllerBase
 {
     [HttpGet]
@@ -44,12 +46,21 @@ public sealed class TicketsController(
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] Ticket ticket)
     {
-        logger.LogInformation("Creating new ticket: {Title}", ticket.Title);
+        var authorId = currentUserService.UserId;
+        if (authorId is null)
+        {
+            return Unauthorized(new ApiErrorResponse(401, "User not authenticated or extracted properly from token."));
+        }
+
+        ticket.AuthorId = authorId.Value;
+        logger.LogInformation("Creating new ticket: {Title} by AuthorId: {AuthorId}", ticket.Title, ticket.AuthorId);
+
         var created = await ticketService.CreateTicketAsync(ticket).ConfigureAwait(false);
         return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
     }
 
     [HttpPut("{id:int}/status")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> UpdateStatus(int id, [FromBody] UpdateStatusRequest request)
     {
         logger.LogInformation("Updating ticket {TicketId} status to {Status}", id, request.Status);
@@ -64,6 +75,7 @@ public sealed class TicketsController(
     }
 
     [HttpDelete("{id:int}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Delete(int id)
     {
         logger.LogInformation("Deleting ticket {TicketId}", id);
@@ -78,6 +90,7 @@ public sealed class TicketsController(
     }
 
     [HttpPut("{id:int}/assign")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> AssignDeveloper(int id, [FromBody] AssignDeveloperRequest request)
     {
         logger.LogInformation("Assigning developer {DeveloperId} to ticket {TicketId}", request.DeveloperId, id);
@@ -92,6 +105,7 @@ public sealed class TicketsController(
     }
 
     [HttpPut("{id:int}/unassign")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> UnassignDeveloper(int id)
     {
         logger.LogInformation("Unassigning developer from ticket {TicketId}", id);
@@ -108,11 +122,17 @@ public sealed class TicketsController(
     [HttpPost("{id:int}/comments")]
     public async Task<IActionResult> AddComment(int id, [FromBody] CreateCommentRequest request)
     {
-        logger.LogInformation("Adding comment to ticket {TicketId}", id);
+        var authorId = currentUserService.UserId;
+        if (authorId is null)
+        {
+            return Unauthorized(new ApiErrorResponse(401, "User not authenticated."));
+        }
+
+        logger.LogInformation("Adding comment to ticket {TicketId} by {AuthorId}", id, authorId.Value);
         var comment = new Comment
         {
             TicketId = id,
-            AuthorId = request.AuthorId,
+            AuthorId = authorId.Value,
             Message = request.Message,
         };
 
@@ -135,6 +155,7 @@ public sealed class TicketsController(
     }
 
     [HttpDelete("comments/{commentId:int}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteComment(int commentId)
     {
         logger.LogInformation("Deleting comment {CommentId}", commentId);
