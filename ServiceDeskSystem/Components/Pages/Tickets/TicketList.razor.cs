@@ -90,6 +90,11 @@ public partial class TicketList : BaseComponent
             return;
         }
 
+        if (!this.isAdmin && ticket.DeveloperId != this.currentUserId)
+        {
+            return;
+        }
+
         var success = await this.TicketService.UpdateTicketStatusAsync(args.TicketId, args.NewStatus);
         if (success)
         {

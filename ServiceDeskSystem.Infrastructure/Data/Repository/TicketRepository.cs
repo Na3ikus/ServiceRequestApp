@@ -63,6 +63,7 @@ namespace ServiceDeskSystem.Infrastructure.Data.Repository
             return await this.Context.Tickets
                 .Include(t => t.Author)
                 .Include(t => t.Product)
+                .Include(t => t.Developer)
                 .Where(t => t.DeveloperId == developerId)
                 .OrderByDescending(t => t.CreatedAt)
                 .ToListAsync()

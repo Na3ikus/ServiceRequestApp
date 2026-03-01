@@ -144,6 +144,11 @@ public partial class DeveloperDashboard : BaseComponent
             return;
         }
 
+        if (!this.IsAdmin && ticket.DeveloperId != this.CurrentUserId)
+        {
+            return;
+        }
+
         var success = await this.TicketService.UpdateTicketStatusAsync(args.TicketId, args.NewStatus);
         if (success)
         {
