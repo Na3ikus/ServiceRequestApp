@@ -3,6 +3,9 @@ using ServiceDeskSystem.Domain.Entities;
 
 namespace ServiceDeskSystem.Components.Features.Tickets;
 
+/// <summary>
+/// Displays a table of tickets with configurable columns.
+/// </summary>
 public partial class TicketTable
 {
     [Parameter]

@@ -6,6 +6,9 @@ using ServiceDeskSystem.Components.UI.Base;
 
 namespace ServiceDeskSystem.Components.Pages.Profile;
 
+/// <summary>
+/// User profile page component.
+/// </summary>
 public partial class UserProfile : BaseComponent
 {
     private bool isLoading = true;

@@ -29,7 +29,7 @@ public partial class CreateTicket
 
     private bool isSubmitting { get; set; }
 
-    private string? productValidationError;
+    private string? productValidationError { get; set; }
 
     private bool IsProductRequired => this.ticketModel.TicketType != TicketConstants.Types.Project;
 
