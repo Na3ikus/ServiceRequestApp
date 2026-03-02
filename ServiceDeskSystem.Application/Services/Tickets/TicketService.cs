@@ -1,6 +1,7 @@
 using ServiceDeskSystem.Infrastructure.Data.Repository;
 using Microsoft.EntityFrameworkCore;
 using ServiceDeskSystem.Infrastructure.Data;
+using ServiceDeskSystem.Domain.Constants;
 using ServiceDeskSystem.Domain.Entities;
 using ServiceDeskSystem.Domain.Interfaces;
 using ServiceDeskSystem.Application.Services.Tickets.Interfaces;
@@ -30,7 +31,17 @@ public sealed class TicketService(IDbContextFactory<BugTrackerDbContext> context
 
         await using var repo = new RepositoryFacade(contextFactory);
         ticket.CreatedAt = DateTime.UtcNow;
-        ticket.Status = "Open";
+        ticket.Status = TicketConstants.Statuses.Open;
+
+        if (string.IsNullOrWhiteSpace(ticket.Type))
+        {
+            ticket.Type = TicketConstants.Types.Support;
+        }
+
+        if (ticket.Type != TicketConstants.Types.Project && !ticket.ProductId.HasValue)
+        {
+            throw new ArgumentException("Product is required for non-project tickets.", nameof(ticket));
+        }
 
         await repo.Tickets.CreateAsync(ticket).ConfigureAwait(false);
         await repo.SaveChangesAsync().ConfigureAwait(false);
@@ -100,14 +111,14 @@ public sealed class TicketService(IDbContextFactory<BugTrackerDbContext> context
     public async Task<int> GetOpenTicketsCountAsync()
     {
         await using var repo = new RepositoryFacade(contextFactory);
-        var tickets = await repo.Tickets.FindAsync(t => t.Status == "Open").ConfigureAwait(false);
+        var tickets = await repo.Tickets.FindAsync(t => t.Status == TicketConstants.Statuses.Open).ConfigureAwait(false);
         return tickets.Count();
     }
 
     public async Task<int> GetCriticalTicketsCountAsync()
     {
         await using var repo = new RepositoryFacade(contextFactory);
-        var tickets = await repo.Tickets.FindAsync(t => t.Priority == "Critical").ConfigureAwait(false);
+        var tickets = await repo.Tickets.FindAsync(t => t.Priority == TicketConstants.Priorities.Critical).ConfigureAwait(false);
         return tickets.Count();
     }
 

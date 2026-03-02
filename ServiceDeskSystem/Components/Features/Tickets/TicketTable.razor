@@ -46,7 +46,7 @@
                                 </td>
                         @if (ShowProduct)
                         {
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300 truncate max-w-[120px]">@ticket.Product?.Name</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300 truncate max-w-[120px]">@(ticket.Product?.Name ?? L.Translate("table.noProduct"))</td>
                         }
                         @if (ShowAuthor)
                         {

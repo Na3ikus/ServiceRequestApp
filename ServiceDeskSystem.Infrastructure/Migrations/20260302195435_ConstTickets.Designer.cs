@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ServiceDeskSystem.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using ServiceDeskSystem.Infrastructure.Data;
 namespace ServiceDeskSystem.Infrastructure.Migrations
 {
     [DbContext(typeof(BugTrackerDbContext))]
-    partial class BugTrackerDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260302195435_ConstTickets")]
+    partial class ConstTickets
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -510,7 +513,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<int?>("ProductId")
+                    b.Property<int>("ProductId")
                         .HasColumnType("int");
 
                     b.Property<string>("Status")
@@ -554,7 +557,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                             Status = "In Progress",
                             StepsToReproduce = "1. Відкрити розділ Звіти\n2. Вибрати 'Звіт ПДВ'\n3. Встановити період: 01.01.2024 - 31.03.2024\n4. Натиснути 'Сформувати'",
                             Title = "Помилка при формуванні звіту ПДВ",
-                            Type = "Bug"
+                            Type = ""
                         },
                         new
                         {
@@ -569,7 +572,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                             Status = "New",
                             StepsToReproduce = "1. Відкрити будь-який документ\n2. Натиснути Експорт -> Excel\n3. Зберегти файл",
                             Title = "Не працює експорт в Excel",
-                            Type = "Bug"
+                            Type = ""
                         },
                         new
                         {
@@ -585,7 +588,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                             Status = "Code Review",
                             StepsToReproduce = "1. Perform physical inventory count\n2. Sync data from handheld scanners\n3. Compare totals in system",
                             Title = "Inventory count mismatch after sync",
-                            Type = "Bug"
+                            Type = ""
                         },
                         new
                         {
@@ -601,7 +604,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                             Status = "In Progress",
                             StepsToReproduce = "1. Open product search\n2. Enter partial product name\n3. Wait for results",
                             Title = "Slow search performance",
-                            Type = "Support"
+                            Type = ""
                         },
                         new
                         {
@@ -617,7 +620,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                             Status = "Testing",
                             StepsToReproduce = "1. Увійти в особистий кабінет\n2. Перейти в розділ 'Відпустки'\n3. Перевірити баланс днів",
                             Title = "Не відображаються дні відпустки",
-                            Type = "Bug"
+                            Type = ""
                         },
                         new
                         {
@@ -632,7 +635,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                             Status = "New",
                             StepsToReproduce = "1. Go to Reports section\n2. Select Attendance Report\n3. Click Generate PDF",
                             Title = "PDF generation fails for reports",
-                            Type = "Bug"
+                            Type = ""
                         },
                         new
                         {
@@ -648,7 +651,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                             Status = "In Progress",
                             StepsToReproduce = "1. Додати товар в кошик\n2. Перейти до оформлення\n3. Вибрати оплату LiqPay\n4. Спробувати оплатити",
                             Title = "Помилка оплати через LiqPay",
-                            Type = "Bug"
+                            Type = ""
                         },
                         new
                         {
@@ -664,7 +667,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                             Status = "Done",
                             StepsToReproduce = "1. Browse as guest\n2. Add items to cart\n3. Click Login\n4. Enter credentials\n5. Check cart",
                             Title = "Cart items disappear after login",
-                            Type = "Bug"
+                            Type = ""
                         },
                         new
                         {
@@ -679,7 +682,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                             Status = "New",
                             StepsToReproduce = "1. Assign task to user\n2. Wait for notification\n3. Check device - no notification received",
                             Title = "Push notifications not working",
-                            Type = "Bug"
+                            Type = ""
                         },
                         new
                         {
@@ -695,7 +698,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                             Status = "In Progress",
                             StepsToReproduce = "1. Відкрити налаштування\n2. Натиснути 'Синхронізувати контакти'\n3. Дочекатися завершення",
                             Title = "Синхронізація контактів зависає",
-                            Type = "Bug"
+                            Type = ""
                         },
                         new
                         {
@@ -710,7 +713,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                             Status = "New",
                             StepsToReproduce = "Це запит на нову функцію, а не баг.",
                             Title = "Запит на додавання темної теми",
-                            Type = "Project"
+                            Type = ""
                         });
                 });
 
@@ -756,7 +759,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                             Id = 1,
                             IsActive = true,
                             Login = "admin",
-                            PasswordHash = "kJOL24z9kdYsvj2p50HqhQ==:bA2nX8+cuPsjalxUErx+bwQIAHWvRAdff6t356Om6CM=",
+                            PasswordHash = "zLmaYVUr+qteJF+dCyl92g==:wYnbkJ0KYKV0AtftHau5jlWl9AkrYMSEUsd2p+qyuZw=",
                             PersonId = 1,
                             Role = "Admin"
                         },
@@ -765,7 +768,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                             Id = 2,
                             IsActive = true,
                             Login = "o.kovalenko",
-                            PasswordHash = "VaPgxY0WNokXod5c5Xgunw==:FEIdsZCzjWowxLgKT0pZuOTD/Z6lM+hiATOELRUnGwU=",
+                            PasswordHash = "1X8jQfnUKpIDN2Yh+Y2ecA==:35A6JcwRe3mnrQPLpz/L9o2uE7E+8LaAOqejB+IQNfE=",
                             PersonId = 2,
                             Role = "Developer"
                         },
@@ -774,7 +777,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                             Id = 3,
                             IsActive = true,
                             Login = "m.shevchenko",
-                            PasswordHash = "Nb6ZfgCqLqw4mff67MpV7g==:jnjXnUvh/18mKptEb+5MpxnLEK9CVkWu9y9KkHoVv4g=",
+                            PasswordHash = "vxgaKmod5l0XW9aoYLF6Qw==:X8dFbDCbJOY8VOVBf5zjDuiP6csC4H6FHkKbSwZcbPs=",
                             PersonId = 3,
                             Role = "User"
                         },
@@ -783,7 +786,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                             Id = 4,
                             IsActive = true,
                             Login = "j.smith",
-                            PasswordHash = "xFbLj/N68PcRjmRRa1YdZw==:Dj136CX/iqZSJHU423o0Y4pRMag1aSzeRR1xK3HRvXQ=",
+                            PasswordHash = "SoelECj5lSjCqJXV8LTarw==:oZWJunpQqb3rvxjRKwbYrMM1wN3L4TfKs+mNw4IYlns=",
                             PersonId = 4,
                             Role = "User"
                         },
@@ -792,7 +795,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                             Id = 5,
                             IsActive = true,
                             Login = "a.bondarenko",
-                            PasswordHash = "kNvEUNOKv7qz7IX3M9Qusw==:YHE7W0qbJzwaCM+FoC1fAKpZ7/HxWcPuB8DHQipo9GM=",
+                            PasswordHash = "7oOaRxKY+/r2j3Z8pEny7w==:EYYPkSQpAJj47PHh3uEI4Tt3vitkc8Mmai2Ekvs9Fkc=",
                             PersonId = 5,
                             Role = "Developer"
                         });
@@ -874,7 +877,8 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                     b.HasOne("ServiceDeskSystem.Domain.Entities.Product", "Product")
                         .WithMany("Tickets")
                         .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("Author");
 

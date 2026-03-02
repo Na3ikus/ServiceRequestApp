@@ -4,6 +4,7 @@ using ServiceDeskSystem.Application.Services.Auth;
 using ServiceDeskSystem.Application.Services.Auth.Interfaces;
 using ServiceDeskSystem.Application.Services.Tickets;
 using ServiceDeskSystem.Application.Services.Tickets.Interfaces;
+using ServiceDeskSystem.Domain.Constants;
 using ServiceDeskSystem.Domain.Entities;
 
 namespace ServiceDeskSystem.Components.Pages.Tickets;
@@ -28,17 +29,26 @@ public partial class CreateTicket
 
     private bool isSubmitting { get; set; }
 
+    private string? productValidationError;
+
+    private bool IsProductRequired => this.ticketModel.TicketType != TicketConstants.Types.Project;
+
     private int CurrentUserId => this.AuthService.CurrentUser?.Id ?? 0;
 
     protected override async Task OnInitializedAsync()
     {
         this.products = await this.TicketService.GetProductsAsync();
+        this.ticketModel.Priority = TicketConstants.Priorities.Medium;
+        this.ticketModel.TicketType = TicketConstants.Types.Support;
     }
 
     private async Task HandleSubmitAsync()
     {
-        if (this.ticketModel.ProductId == 0)
+        this.productValidationError = null;
+
+        if (this.IsProductRequired && !this.ticketModel.ProductId.HasValue)
         {
+            this.productValidationError = "Please select a product";
             return;
         }
 
@@ -48,6 +58,7 @@ public partial class CreateTicket
         {
             Title = this.ticketModel.Title,
             Description = this.ticketModel.Description,
+            Type = this.ticketModel.TicketType,
             Priority = this.ticketModel.Priority,
             ProductId = this.ticketModel.ProductId,
             StepsToReproduce = this.ticketModel.StepsToReproduce ?? string.Empty,
@@ -66,6 +77,16 @@ public partial class CreateTicket
         this.Navigation.NavigateTo("/");
     }
 
+    private void OnTicketTypeChanged()
+    {
+        this.productValidationError = null;
+
+        if (!this.IsProductRequired)
+        {
+            this.ticketModel.ProductId = null;
+        }
+    }
+
     private sealed class TicketCreateModel
     {
         [Required(ErrorMessage = "Title is required")]
@@ -79,8 +100,10 @@ public partial class CreateTicket
         [Required(ErrorMessage = "Priority is required")]
         public string Priority { get; set; } = string.Empty;
 
-        [Range(1, int.MaxValue, ErrorMessage = "Please select a product")]
-        public int ProductId { get; set; }
+        [Required(ErrorMessage = "Ticket type is required")]
+        public string TicketType { get; set; } = string.Empty;
+
+        public int? ProductId { get; set; }
 
         public string? StepsToReproduce { get; set; }
 

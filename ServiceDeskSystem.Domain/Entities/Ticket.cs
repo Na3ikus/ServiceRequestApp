@@ -10,6 +10,8 @@ public class Ticket
 
     public string StepsToReproduce { get; set; } = string.Empty;
 
+    public string Type { get; set; } = string.Empty;
+
     public string Priority { get; set; } = string.Empty;
 
     public string Status { get; set; } = string.Empty;
@@ -20,9 +22,9 @@ public class Ticket
 
     public DateTime CreatedAt { get; set; }
 
-    public int ProductId { get; set; }
+    public int? ProductId { get; set; }
 
-    public Product Product { get; set; } = null!;
+    public Product? Product { get; set; }
 
     public int AuthorId { get; set; }
 

@@ -1,13 +1,23 @@
 @page "/create-ticket"
 @inherits BaseComponent
 @rendermode InteractiveServer
+@using ServiceDeskSystem.Domain.Constants
 
 <!-- Created by Nazar "N1h3" Hutsol -->
 <div class="ticket-create-page max-w-3xl mx-auto p-6">
 <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-8 transition-colors duration-200">
-    <div class="mb-6">
-        <h1 class="text-2xl font-bold text-gray-800 dark:text-white">@L.Translate("create.title")</h1>
-        <p class="text-gray-600 dark:text-gray-400 mt-1">@L.Translate("create.subtitle")</p>
+    <div class="mb-6 p-4 rounded-xl border border-slate-200 dark:border-slate-500 bg-slate-50 dark:bg-slate-700/70 shadow-sm">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg bg-blue-600 dark:bg-blue-500 text-white flex items-center justify-center shadow-sm ring-1 ring-white/20">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+            </div>
+            <div>
+                <h1 class="text-2xl font-bold text-slate-800 dark:text-slate-100">@L.Translate("create.title")</h1>
+                <p class="text-slate-600 dark:text-slate-200/90 mt-1">@L.Translate("create.subtitle")</p>
+            </div>
+        </div>
     </div>
 
         <EditForm Model="ticketModel" OnValidSubmit="HandleSubmitAsync" FormName="CreateTicketForm">
@@ -39,8 +49,26 @@
                     <ValidationMessage For="@(() => ticketModel.Description)" class="text-red-500 text-sm mt-1" />
                 </div>
 
-                <!-- Priority and Product Row -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Type, Priority and Product Row -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <!-- Type -->
+                    <div>
+                        <label for="type" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            @L.Translate("create.ticketType") <span class="text-red-500">*</span>
+                        </label>
+                        <InputSelect id="type"
+                                     @bind-Value="ticketModel.TicketType"
+                                     @bind-Value:after="OnTicketTypeChanged"
+                                     class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors">
+                            <option value="">@L.Translate("create.selectTicketType")</option>
+                            @foreach (var type in TicketConstants.Types.All)
+                            {
+                                <option value="@type">@L.Translate($"ticketType.{type.ToLowerInvariant()}")</option>
+                            }
+                        </InputSelect>
+                        <ValidationMessage For="@(() => ticketModel.TicketType)" class="text-red-500 text-sm mt-1" />
+                    </div>
+
                     <!-- Priority -->
                     <div>
                         <label for="priority" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -50,10 +78,10 @@
                                      @bind-Value="ticketModel.Priority"
                                      class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors">
                             <option value="">@L.Translate("create.selectPriority")</option>
-                            <option value="Low">@L.Translate("priority.low")</option>
-                            <option value="Medium">@L.Translate("priority.medium")</option>
-                            <option value="High">@L.Translate("priority.high")</option>
-                            <option value="Critical">@L.Translate("priority.critical")</option>
+                            @foreach (var priority in TicketConstants.Priorities.All)
+                            {
+                                <option value="@priority">@L.Translate($"priority.{priority.ToLowerInvariant()}")</option>
+                            }
                         </InputSelect>
                         <ValidationMessage For="@(() => ticketModel.Priority)" class="text-red-500 text-sm mt-1" />
                     </div>
@@ -61,18 +89,29 @@
                     <!-- Product -->
                     <div>
                         <label for="product" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                            @L.Translate("create.product") <span class="text-red-500">*</span>
+                            @L.Translate("create.product")
+                            @if (IsProductRequired)
+                            {
+                                <span class="text-red-500">*</span>
+                            }
+                            else
+                            {
+                                <span class="text-gray-500 dark:text-gray-400"> (@L.Translate("create.optional"))</span>
+                            }
                         </label>
                         <InputSelect id="product" 
                                      @bind-Value="ticketModel.ProductId"
                                      class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors">
-                            <option value="0">@L.Translate("create.selectProduct")</option>
+                            <option value="">@L.Translate("create.selectProduct")</option>
                             @foreach (var product in products)
                             {
                                 <option value="@product.Id">@product.Name</option>
                             }
                         </InputSelect>
-                        <ValidationMessage For="@(() => ticketModel.ProductId)" class="text-red-500 text-sm mt-1" />
+                        @if (!string.IsNullOrWhiteSpace(productValidationError))
+                        {
+                            <div class="text-red-500 text-sm mt-1">@productValidationError</div>
+                        }
                     </div>
                 </div>
 
