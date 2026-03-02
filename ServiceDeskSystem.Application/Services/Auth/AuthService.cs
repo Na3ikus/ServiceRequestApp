@@ -4,14 +4,18 @@ using Microsoft.EntityFrameworkCore;
 using ServiceDeskSystem.Infrastructure.Data;
 using ServiceDeskSystem.Domain.Entities;
 using ServiceDeskSystem.Domain.Interfaces;
+using System.Security.Cryptography;
 using ServiceDeskSystem.Application.Services.Auth.Interfaces;
 
 namespace ServiceDeskSystem.Application.Services.Auth;
 
-public sealed class SimpleAuthService(
+public sealed class AuthService(
     IDbContextFactory<BugTrackerDbContext> contextFactory,
     ProtectedSessionStorage? sessionStorage = null) : IAuthService
 {
+    private const int Pbkdf2Iterations = 100_000;
+    private const int MinPasswordLength = 8;
+
     private bool initialized;
 
     public event EventHandler? AuthStateChanged;
@@ -102,9 +106,9 @@ public sealed class SimpleAuthService(
             return (false, "First name and last name are required.");
         }
 
-        if (password.Length < 6)
+        if (password.Length < MinPasswordLength)
         {
-            return (false, "Password must be at least 6 characters long.");
+            return (false, $"Password must be at least {MinPasswordLength} characters long.");
         }
 
         var dbContext = await contextFactory.CreateDbContextAsync().ConfigureAwait(false);
@@ -119,9 +123,10 @@ public sealed class SimpleAuthService(
                 return (false, "Username already exists.");
             }
 
+            ContactType? emailContactType = null;
             if (!string.IsNullOrWhiteSpace(email))
             {
-                var emailContactType = await dbContext.ContactTypes
+                emailContactType = await dbContext.ContactTypes
                     .FirstOrDefaultAsync(ct => ct.Name == "Email")
                     .ConfigureAwait(false);
 
@@ -144,20 +149,13 @@ public sealed class SimpleAuthService(
                 LastName = lastName,
             };
 
-            if (!string.IsNullOrWhiteSpace(email))
+            if (!string.IsNullOrWhiteSpace(email) && emailContactType is not null)
             {
-                var emailContactType = await dbContext.ContactTypes
-                    .FirstOrDefaultAsync(ct => ct.Name == "Email")
-                    .ConfigureAwait(false);
-
-                if (emailContactType is not null)
+                person.ContactInfos.Add(new ContactInfo
                 {
-                    person.ContactInfos.Add(new ContactInfo
-                    {
-                        ContactTypeId = emailContactType.Id,
-                        Value = email,
-                    });
-                }
+                    ContactTypeId = emailContactType.Id,
+                    Value = email,
+                });
             }
 
             dbContext.People.Add(person);
@@ -166,7 +164,7 @@ public sealed class SimpleAuthService(
             var user = new User
             {
                 Login = username,
-                PasswordHash = ComputeSimpleHash(password),
+                PasswordHash = ComputeSecureHash(password),
                 Role = "User",
                 PersonId = person.Id,
                 IsActive = true,
@@ -179,7 +177,7 @@ public sealed class SimpleAuthService(
         }
     }
 
-    public async void Logout()
+    public async Task LogoutAsync()
     {
         this.CurrentUser = null;
         try
@@ -199,20 +197,37 @@ public sealed class SimpleAuthService(
 
     private static bool VerifyPassword(string password, string storedHash)
     {
-        if (password == storedHash)
+        var parts = storedHash.Split(':');
+        if (parts.Length != 2)
         {
-            return true;
+            return false;
         }
 
-        var hash = ComputeSimpleHash(password);
-        return hash == storedHash;
+        var salt = Convert.FromBase64String(parts[0]);
+        var storedHashBytes = Convert.FromBase64String(parts[1]);
+
+        var computedHash = Rfc2898DeriveBytes.Pbkdf2(
+            password,
+            salt,
+            Pbkdf2Iterations,
+            HashAlgorithmName.SHA256,
+            32);
+
+        return CryptographicOperations.FixedTimeEquals(computedHash, storedHashBytes);
     }
 
-    private static string ComputeSimpleHash(string input)
+    private static string ComputeSecureHash(string password)
     {
-        var bytes = System.Text.Encoding.UTF8.GetBytes(input);
-        var hashBytes = System.Security.Cryptography.SHA256.HashData(bytes);
-        return Convert.ToBase64String(hashBytes);
+        var salt = RandomNumberGenerator.GetBytes(16);
+
+        var hash = Rfc2898DeriveBytes.Pbkdf2(
+            password,
+            salt,
+            Pbkdf2Iterations,
+            HashAlgorithmName.SHA256,
+            32);
+
+        return Convert.ToBase64String(salt) + ":" + Convert.ToBase64String(hash);
     }
 
     private async Task SaveToSessionAsync(User user)

@@ -16,5 +16,5 @@ public interface IAuthService
 
     Task<(bool Success, string? ErrorMessage)> RegisterClientAsync(string username, string password, string firstName, string lastName, string? email);
 
-    void Logout();
+    Task LogoutAsync();
 }

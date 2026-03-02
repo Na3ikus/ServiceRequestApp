@@ -35,7 +35,7 @@ public static class DependencyInjection
         services.AddScoped<ITicketAssignmentService, TicketService>();
         services.AddScoped<ITicketStatisticsService, TicketService>();
         services.AddScoped<ICommentService, CommentService>();
-        services.AddScoped<IAuthService, SimpleAuthService>();
+        services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IAdminService, AdminService>();
         services.AddScoped<IProfileService, ProfileService>();
 

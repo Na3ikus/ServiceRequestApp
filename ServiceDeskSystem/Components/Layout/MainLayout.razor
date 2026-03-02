@@ -124,9 +124,9 @@
 
     private void OnStateChanged(object? sender, EventArgs e) => InvokeAsync(StateHasChanged);
 
-    private void HandleLogout()
+    private async Task HandleLogout()
     {
-        AuthService.Logout();
+        await AuthService.LogoutAsync();
         Navigation.NavigateTo("/login");
     }
 
