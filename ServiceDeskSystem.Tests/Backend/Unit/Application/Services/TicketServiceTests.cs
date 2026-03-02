@@ -6,7 +6,7 @@ using ServiceDeskSystem.Application.Services.Tickets;
 using ServiceDeskSystem.Domain.Entities;
 using ServiceDeskSystem.Infrastructure.Data;
 
-namespace ServiceDeskSystem.Tests.Application.Services;
+namespace ServiceDeskSystem.Tests.Backend.Unit.Application.Services;
 
 [TestFixture]
 public class TicketServiceTests

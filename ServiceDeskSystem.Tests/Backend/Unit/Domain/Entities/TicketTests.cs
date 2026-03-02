@@ -2,7 +2,7 @@ using FluentAssertions;
 using NUnit.Framework;
 using ServiceDeskSystem.Domain.Entities;
 
-namespace ServiceDeskSystem.Tests.Domain.Entities;
+namespace ServiceDeskSystem.Tests.Backend.Unit.Domain.Entities;
 
 [TestFixture]
 public class TicketTests

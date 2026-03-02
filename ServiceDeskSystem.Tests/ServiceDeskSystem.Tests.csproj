@@ -9,6 +9,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Bogus" Version="35.6.5" />
+    <PackageReference Include="bunit" Version="1.33.3" />
     <PackageReference Include="coverlet.collector" Version="6.0.4" />
     <PackageReference Include="FluentAssertions" Version="8.8.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="10.0.3" />
@@ -27,6 +29,7 @@
     <ProjectReference Include="..\ServiceDeskSystem.Domain\ServiceDeskSystem.Domain.csproj" />
     <ProjectReference Include="..\ServiceDeskSystem.Application\ServiceDeskSystem.Application.csproj" />
     <ProjectReference Include="..\ServiceDeskSystem.Infrastructure\ServiceDeskSystem.Infrastructure.csproj" />
+    <ProjectReference Include="..\ServiceDeskSystem\ServiceDeskSystem.csproj" />
   </ItemGroup>
 
 </Project>

@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
 using ServiceDeskSystem.Infrastructure.Data;
 
-namespace ServiceDeskSystem.Tests.Infrastructure.Data;
+namespace ServiceDeskSystem.Tests.Backend.Integration.Infrastructure.Data;
 
 [TestFixture]
 public class DatabaseConnectionTests
