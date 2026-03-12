@@ -1,21 +1,21 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace ServiceDeskSystem.Infrastructure.Data
 {
     public class BugTrackerDbContextFactory : IDesignTimeDbContextFactory<BugTrackerDbContext>
     {
-        // Rework the test connection, into a connection from a config. file.
         public BugTrackerDbContext CreateDbContext(string[] args)
         {
+            var connectionString =
+                Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection")
+                ?? "Server=localhost;Database=BugTrackerDB;User=root;Password=changeme;";
+
             var optionsBuilder = new DbContextOptionsBuilder<BugTrackerDbContext>();
-            optionsBuilder.UseMySql(
-                "Server=localhost;Database=BugTrackerDB;User=root;Password=123456789;",
-                ServerVersion.AutoDetect("Server=127.0.0.1;Database=BugTrackerDB;User=root;Password=123456789;")
-            );
+            optionsBuilder.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
 
             return new BugTrackerDbContext(optionsBuilder.Options);
         }
     }
 }
+

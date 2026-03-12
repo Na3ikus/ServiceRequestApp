@@ -1,0 +1,66 @@
+services:
+  db:
+    image: mysql:9
+    container_name: servicedeskdb
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - servicedesknetwork
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: servicedesk-api
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__DefaultConnection: "server=db;port=3306;database=${MYSQL_DATABASE};user=${DB_USER};password=${DB_PASSWORD};"
+      Jwt__Key: ${JWT_KEY}
+      Jwt__Issuer: ServiceDeskSystem.Api
+      Jwt__Audience: ServiceDeskSystem.Clients
+    ports:
+      - "5182:8080"
+    networks:
+      - servicedesknetwork
+    depends_on:
+      db:
+        condition: service_healthy
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+    container_name: servicedesk-web
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__DefaultConnection: "server=db;port=3306;database=${MYSQL_DATABASE};user=${DB_USER};password=${DB_PASSWORD};"
+    ports:
+      - "5034:8080"
+    networks:
+      - servicedesknetwork
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  mysql_data:
+
+networks:
+  servicedesknetwork:
+    driver: bridge

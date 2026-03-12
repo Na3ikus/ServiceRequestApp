@@ -1,0 +1,28 @@
+# Stage 1: Build
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+ARG BUILD_CONFIGURATION=Release
+WORKDIR /src
+
+# Restore — copy only csproj files first for layer caching
+COPY ["ServiceDeskSystem/ServiceDeskSystem.csproj", "ServiceDeskSystem/"]
+COPY ["ServiceDeskSystem.Application/ServiceDeskSystem.Application.csproj", "ServiceDeskSystem.Application/"]
+COPY ["ServiceDeskSystem.Domain/ServiceDeskSystem.Domain.csproj", "ServiceDeskSystem.Domain/"]
+COPY ["ServiceDeskSystem.Infrastructure/ServiceDeskSystem.Infrastructure.csproj", "ServiceDeskSystem.Infrastructure/"]
+RUN dotnet restore "./ServiceDeskSystem/ServiceDeskSystem.csproj"
+
+# Copy source and build
+COPY . .
+WORKDIR "/src/ServiceDeskSystem"
+RUN dotnet build "./ServiceDeskSystem.csproj" -c $BUILD_CONFIGURATION -o /app/build
+
+# Stage 2: Publish
+FROM build AS publish
+ARG BUILD_CONFIGURATION=Release
+RUN dotnet publish "./ServiceDeskSystem.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+
+# Stage 3: Runtime
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
+WORKDIR /app
+EXPOSE 8080
+COPY --from=publish /app/publish .
+ENTRYPOINT ["dotnet", "ServiceDeskSystem.dll"]
