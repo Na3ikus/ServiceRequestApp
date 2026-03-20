@@ -229,6 +229,9 @@
   "profile.contacts.valuePlaceholder": "Значення...",
   "profile.contacts.delete": "Видалити",
   "profile.contacts.noContacts": "Немає доданих контактів.",
+  "profile.warning": "Увага:",
+  "profile.validation.firstNameRequired": "Поле Ім'я не може бути порожнім.",
+  "profile.validation.contactValueRequired": "Значення контакту не може бути порожнім.",
   "profile.saving": "Збереження...",
   "profile.saveChanges": "Зберегти зміни"
 }

@@ -15,6 +15,7 @@ public partial class UserProfile : BaseComponent
     private bool isSaving;
     private bool isSaved;
     private string? errorMessage;
+    private string? warningMessage;
     private UpdateProfileRequest? model;
     private List<ContactTypeDto> contactTypes = new List<ContactTypeDto>();
 
@@ -86,42 +87,50 @@ public partial class UserProfile : BaseComponent
 
     private async Task HandleValidSubmit()
     {
-        if (this.model == null)
+        this.warningMessage = null;
+        this.errorMessage = null;
+        this.isSaved = false;
+
+        if (this.model is null)
         {
             return;
         }
 
-        this.isSaving = true;
-        this.isSaved = false;
-        this.errorMessage = null;
+        if (string.IsNullOrWhiteSpace(this.model.FirstName))
+        {
+            this.warningMessage = "profile.validation.firstNameRequired";
+            return;
+        }
 
+        if (this.model.Contacts.Any(c => string.IsNullOrWhiteSpace(c.Value)))
+        {
+            this.warningMessage = "profile.validation.contactValueRequired";
+            return;
+        }
+
+        var user = this.AuthService.CurrentUser;
+        if (user is null)
+        {
+            this.errorMessage = "Не авторизовано";
+            return;
+        }
+
+        this.isSaving = true;
         try
         {
-            var user = this.AuthService.CurrentUser;
-            if (user != null)
+            var result = await this.ProfileService.UpdateProfileAsync(user.Id, this.model);
+            if (result.Success)
             {
-                var (success, error) = await this.ProfileService.UpdateProfileAsync(user.Id, this.model);
-                if (success)
-                {
-                    this.isSaved = true;
-
-                    // Reset saved message after 3 seconds
-                    _ = Task.Run(async () =>
-                    {
-                        await Task.Delay(3000);
-                        this.isSaved = false;
-                        await this.InvokeAsync(this.StateHasChanged);
-                    });
-                }
-                else
-                {
-                    this.errorMessage = error;
-                }
+                this.isSaved = true;
+            }
+            else
+            {
+                this.errorMessage = result.ErrorMessage ?? "Не вдалося зберегти профіль.";
             }
         }
         catch (Exception ex)
         {
-            this.errorMessage = $"Помилка збереження: {ex.Message}";
+            this.errorMessage = ex.Message;
         }
         finally
         {

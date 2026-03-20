@@ -229,6 +229,9 @@
   "profile.contacts.valuePlaceholder": "Value...",
   "profile.contacts.delete": "Delete",
   "profile.contacts.noContacts": "No contacts added.",
+  "profile.warning": "Warning:",
+  "profile.validation.firstNameRequired": "First name cannot be empty.",
+  "profile.validation.contactValueRequired": "Contact value cannot be empty.",
   "profile.saving": "Saving...",
   "profile.saveChanges": "Save changes"
 }
