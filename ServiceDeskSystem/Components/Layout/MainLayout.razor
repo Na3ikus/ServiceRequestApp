@@ -11,7 +11,7 @@
     @if (!authRestored)
     {
         <div class="flex items-center justify-center h-screen bg-gray-100">
-            <div class="text-gray-500">Loading...</div>
+            <div class="text-gray-500">@L.Translate("common.loading")</div>
         </div>
     }
     else if (!AuthService.IsAuthenticated)
