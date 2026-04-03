@@ -63,7 +63,7 @@ public partial class CreateTicket
             ProductId = this.ticketModel.ProductId,
             StepsToReproduce = this.ticketModel.StepsToReproduce ?? string.Empty,
             Environment = this.ticketModel.Environment ?? string.Empty,
-            AffectedVersion = string.Empty,
+            AffectedVersion = this.ticketModel.AffectedVersion ?? string.Empty,
             AuthorId = this.CurrentUserId,
         };
 
@@ -108,5 +108,7 @@ public partial class CreateTicket
         public string? StepsToReproduce { get; set; }
 
         public string? Environment { get; set; }
+
+        public string? AffectedVersion { get; set; }
     }
 }

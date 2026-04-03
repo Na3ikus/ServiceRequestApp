@@ -28,7 +28,7 @@
             <div class="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
                 <div class="text-white">
                     <h1 class="text-3xl sm:text-4xl font-extrabold mb-2 tracking-tight">
-                        @L.Translate("home.welcomeBack") @currentUser.Person.FirstName! 👋
+                        @L.Translate("home.welcomeBack") @(currentUser.Person?.FirstName ?? "User")
                     </h1>
                     <p class="text-blue-100 text-base sm:text-lg max-w-2xl font-medium">
                         @L.Translate("home.subtitle")
@@ -69,11 +69,11 @@
         <div class="mt-8 bg-white dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-lg border border-transparent dark:border-gray-700/50 p-6 sm:p-8 hover:shadow-xl transition-shadow duration-300">
             <div class="flex items-center justify-between mb-6 border-b border-gray-100 dark:border-gray-700/50 pb-4">
                 <h2 class="text-xl font-bold text-gray-800 dark:text-white flex items-center gap-3">
-                    <div class="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+                    <span class="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg inline-flex">
                         <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
-                    </div>
+                    </span>
                     @L.Translate("home.recentActivity")
                 </h2>
                 
