@@ -6,19 +6,36 @@
 
 <!-- Created by Nazar "N1h3" Hutsol -->
 <div class="max-w-7xl mx-auto p-4 sm:p-6">
-<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-    <div>
-        <h1 class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-white">@L.Translate("nav.myTickets")</h1>
-        <p class="text-sm text-gray-600 dark:text-gray-400">@L.Translate("myTickets.subtitle")</p>
+    <!-- Header Hero -->
+    <div class="relative overflow-hidden bg-gradient-to-br from-indigo-600 via-blue-700 to-indigo-800 rounded-3xl shadow-lg p-6 sm:p-8 mb-8 border border-white/10 dark:border-gray-800 group">
+        <!-- Background Decoration -->
+        <div class="absolute top-0 right-0 -mr-10 -mt-10 w-48 h-48 rounded-full bg-white/10 blur-2xl pointer-events-none group-hover:scale-110 transition-transform duration-700"></div>
+        <div class="absolute bottom-0 left-0 -ml-10 -mb-10 w-64 h-64 rounded-full bg-blue-500/20 blur-2xl pointer-events-none group-hover:scale-110 transition-transform duration-700"></div>
+        
+        <div class="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+            <div class="text-white">
+                <h1 class="text-2xl sm:text-3xl font-extrabold mb-1 tracking-tight flex items-center gap-3">
+                    <div class="p-2 bg-white/10 rounded-lg backdrop-blur-sm">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                        </svg>
+                    </div>
+                    @L.Translate("nav.myTickets")
+                </h1>
+                <p class="text-indigo-100 text-sm sm:text-base">
+                    @L.Translate("myTickets.subtitle")
+                </p>
+            </div>
+            
+            <a href="create-ticket"
+                class="px-5 py-2.5 bg-white text-indigo-700 hover:bg-indigo-50 rounded-xl font-bold font-inter shadow-lg hover:shadow-xl transition-all flex items-center gap-2 transform hover:-translate-y-0.5 text-sm sm:text-base shrink-0 w-fit">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+                <span class="hidden sm:inline">@L.Translate("nav.newTicket")</span>
+            </a>
+        </div>
     </div>
-    <a href="create-ticket"
-       class="new-ticket-btn px-4 sm:px-5 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg shadow-blue-500/25 flex items-center gap-2 font-medium text-sm sm:text-base w-fit">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-        </svg>
-        @L.Translate("nav.newTicket")
-    </a>
-</div>
 
 @if (tickets is null)
 {

@@ -8,39 +8,56 @@
 <div class="max-w-7xl mx-auto p-4 sm:p-6">
     <DashboardStats />
 
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-        <div>
-            <h1 class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-white">@L.Translate("tickets.title")</h1>
-            <p class="text-sm text-gray-600 dark:text-gray-400">@L.Translate("tickets.subtitle")</p>
-        </div>
-        <div class="flex items-center gap-2 sm:gap-3 flex-wrap">
-            <!-- View Mode Toggle -->
-            <div class="flex items-center bg-gray-100 dark:bg-gray-800 rounded-xl p-1 border border-gray-200 dark:border-gray-700/50">
-                <button @onclick="@(() => SetViewMode("Table"))"
-                    class="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200
-                           @(viewMode == "Table" ? "bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm" : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300")">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18M10 4v16M4 4h16a1 1 0 011 1v14a1 1 0 01-1 1H4a1 1 0 01-1-1V5a1 1 0 011-1z"></path>
-                    </svg>
-                    <span class="hidden sm:inline">@L.Translate("kanban.viewTable")</span>
-                </button>
-                <button @onclick="@(() => SetViewMode("Kanban"))"
-                    class="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200
-                           @(viewMode == "Kanban" ? "bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm" : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300")">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"></path>
-                    </svg>
-                    <span class="hidden sm:inline">@L.Translate("kanban.viewKanban")</span>
-                </button>
+    <!-- Header Hero -->
+    <div class="relative overflow-hidden bg-gradient-to-br from-indigo-600 via-blue-700 to-indigo-800 rounded-3xl shadow-lg p-6 sm:p-8 mb-8 border border-white/10 dark:border-gray-800 group">
+        <!-- Background Decoration -->
+        <div class="absolute top-0 right-0 -mr-10 -mt-10 w-48 h-48 rounded-full bg-white/10 blur-2xl pointer-events-none group-hover:scale-110 transition-transform duration-700"></div>
+        <div class="absolute bottom-0 left-0 -ml-10 -mb-10 w-64 h-64 rounded-full bg-blue-500/20 blur-2xl pointer-events-none group-hover:scale-110 transition-transform duration-700"></div>
+        
+        <div class="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+            <div class="text-white">
+                <h1 class="text-2xl sm:text-3xl font-extrabold mb-1 tracking-tight flex items-center gap-3">
+                    <div class="p-2 bg-white/10 rounded-lg backdrop-blur-sm">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                        </svg>
+                    </div>
+                    @L.Translate("tickets.title")
+                </h1>
+                <p class="text-indigo-100 text-sm sm:text-base">
+                    @L.Translate("tickets.subtitle")
+                </p>
             </div>
+            
+            <div class="flex items-center gap-3 flex-wrap">
+                <!-- View Mode Toggle -->
+                <div class="flex items-center bg-black/20 backdrop-blur-md rounded-xl p-1 border border-white/10">
+                    <button @onclick="@(() => SetViewMode("Table"))"
+                        class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200
+                               @(viewMode == "Table" ? "bg-white !text-blue-700 shadow-sm" : "text-white/70 hover:text-white hover:bg-white/10")">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18M10 4v16M4 4h16a1 1 0 011 1v14a1 1 0 01-1 1H4a1 1 0 01-1-1V5a1 1 0 011-1z"></path>
+                        </svg>
+                        <span class="hidden sm:inline">@L.Translate("kanban.viewTable")</span>
+                    </button>
+                    <button @onclick="@(() => SetViewMode("Kanban"))"
+                        class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200
+                               @(viewMode == "Kanban" ? "bg-white !text-blue-700 shadow-sm" : "text-white/70 hover:text-white hover:bg-white/10")">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"></path>
+                        </svg>
+                        <span class="hidden sm:inline">@L.Translate("kanban.viewKanban")</span>
+                    </button>
+                </div>
 
-            <a href="create-ticket"
-                class="new-ticket-btn px-4 sm:px-5 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg shadow-blue-500/25 flex items-center gap-2 font-medium text-sm sm:text-base">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                </svg>
-                <span class="hidden sm:inline">@L.Translate("nav.newTicket")</span>
-            </a>
+                <a href="create-ticket"
+                    class="px-5 py-2.5 bg-white text-indigo-700 hover:bg-indigo-50 rounded-xl font-bold font-inter shadow-lg hover:shadow-xl transition-all flex items-center gap-2 transform hover:-translate-y-0.5 text-sm sm:text-base">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    <span class="hidden sm:inline">@L.Translate("nav.newTicket")</span>
+                </a>
+            </div>
         </div>
     </div>
 
@@ -164,18 +181,18 @@
     {
         <div class="animate-pulse space-y-6">
             <!-- Filters Skeleton -->
-            <div class="bg-white dark:bg-gray-800/80 rounded-2xl p-4">
-                <div class="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/4 mb-4"></div>
+            <div class="bg-white dark:bg-gray-800/80 rounded-2xl p-4 sm:p-6 shadow-sm">
+                <div class="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/3 sm:w-1/4 mb-4"></div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="h-10 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
-                    <div class="h-10 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
+                    <div class="h-10 bg-gray-200 dark:bg-gray-700 rounded-xl w-full"></div>
+                    <div class="h-10 bg-gray-200 dark:bg-gray-700 rounded-xl w-full"></div>
                 </div>
             </div>
 
             <!-- Table Skeleton -->
-            <div class="bg-white dark:bg-gray-800/80 rounded-2xl p-6">
+            <div class="bg-white dark:bg-gray-800/80 rounded-2xl p-4 sm:p-6 shadow-sm">
                 <!-- Table Header Skeleton -->
-                <div class="flex gap-4 mb-4 border-b border-gray-200 dark:border-gray-700 pb-4">
+                <div class="hidden sm:flex gap-4 mb-4 border-b border-gray-200 dark:border-gray-700 pb-4">
                     <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
                     <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4"></div>
                     <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24"></div>
@@ -187,12 +204,16 @@
                 <div class="space-y-4">
                     @for (int i = 0; i < 5; i++)
                     {
-                        <div class="flex gap-4 items-center">
-                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
-                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4"></div>
-                            <div class="h-6 bg-gray-200 dark:bg-gray-700 rounded-full w-24"></div>
-                            <div class="h-6 bg-gray-200 dark:bg-gray-700 rounded-lg w-24"></div>
-                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24"></div>
+                        <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 sm:items-center p-3 sm:p-0 rounded-lg sm:rounded-none bg-gray-50 dark:bg-gray-700/30 sm:bg-transparent dark:sm:bg-transparent">
+                            <div class="flex justify-between sm:justify-start sm:w-16">
+                                <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-12"></div>
+                                <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-20 sm:hidden"></div>
+                            </div>
+                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 sm:w-1/4"></div>
+                            <div class="flex sm:contents gap-2 mt-2 sm:mt-0">
+                                <div class="h-6 bg-gray-200 dark:bg-gray-700 rounded-full w-24"></div>
+                                <div class="h-6 bg-gray-200 dark:bg-gray-700 rounded-lg w-24"></div>
+                            </div>
                         </div>
                     }
                 </div>
@@ -203,8 +224,8 @@
     {
         @if (!tickets.Any())
         {
-            <div class="bg-white dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-lg p-12 text-center">
-                <div class="w-20 h-20 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-6">
+            <div class="bg-white dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-lg p-8 sm:p-12 text-center border border-transparent dark:border-gray-700/50">
+                <div class="w-20 h-20 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-6">
                     <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2">
@@ -234,8 +255,8 @@
     {
         @if (filteredTickets is null || !filteredTickets.Any())
         {
-            <div class="bg-white dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-lg p-12 text-center">
-                <div class="w-20 h-20 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-6">
+            <div class="bg-white dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-lg p-8 sm:p-12 text-center border border-transparent dark:border-gray-700/50">
+                <div class="w-20 h-20 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-6">
                     <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2">

@@ -134,71 +134,100 @@
                 </div>
 
                 <!-- Comments Section -->
-                <div class="bg-white dark:bg-gray-800/80 backdrop-blur-sm rounded-lg shadow-md border border-transparent dark:border-gray-700/50 p-6">
-                        <h2 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">
-                            @L.Translate("details.comments") (@(Ticket.Comments?.Count ?? 0))
+                <div class="bg-white dark:bg-gray-800/80 backdrop-blur-sm rounded-lg shadow-md border border-transparent dark:border-gray-700/50 p-4 sm:p-6">
+                    <h2 class="text-lg font-semibold text-gray-800 dark:text-white mb-5 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                        </svg>
+                        @L.Translate("details.comments")
+                        <span class="text-sm font-normal text-gray-400 dark:text-gray-500">(@(Ticket.Comments?.Count ?? 0))</span>
                     </h2>
 
-                    <div class="space-y-4 mb-6">
-                        @if (Ticket.Comments is not null && Ticket.Comments.Any())
-                        {
+                    @if (Ticket.Comments is not null && Ticket.Comments.Any())
+                    {
+                        <div class="relative pl-6 mb-6">
+                            <!-- Timeline vertical line -->
+                            <div class="absolute left-[9px] top-2 bottom-2 w-0.5 bg-gradient-to-b from-blue-400 via-blue-300 to-transparent dark:from-blue-500 dark:via-blue-700 dark:to-transparent"></div>
+
                             @foreach (var comment in Ticket.Comments.OrderBy(c => c.CreatedAt))
                             {
-                                <div class="border-l-4 border-blue-500 dark:border-blue-400 pl-4 py-2">
-                                    <div class="flex items-center gap-2 mb-1">
-                                        <span class="font-medium text-gray-800 dark:text-white">@comment.Author?.Login</span>
-                                        <span class="text-xs text-gray-500 dark:text-gray-400">@comment.CreatedAt.ToString("MMM dd, yyyy HH:mm")</span>
-                            @if (CanEditComment(comment))
+                                <div class="relative mb-5 last:mb-0">
+                                    <!-- Timeline dot -->
+                                    <div class="absolute -left-6 top-1 w-[18px] h-[18px] rounded-full border-2 border-blue-400 dark:border-blue-500 bg-white dark:bg-gray-800 flex items-center justify-center">
+                                        <div class="w-2 h-2 rounded-full bg-blue-400 dark:bg-blue-500"></div>
+                                    </div>
+
+                                    <div class="bg-gray-50 dark:bg-gray-700/40 rounded-xl p-3 sm:p-4 border border-gray-100 dark:border-gray-700/50 transition-colors hover:border-blue-200 dark:hover:border-blue-800/50">
+                                        <div class="flex flex-wrap items-center gap-2 mb-2">
+                                            <div class="w-6 h-6 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
+                                                <span class="text-white text-[10px] font-bold">@(comment.Author?.Login?.Substring(0, 1).ToUpper() ?? "?")</span>
+                                            </div>
+                                            <span class="font-medium text-sm text-gray-800 dark:text-white">@comment.Author?.Login</span>
+                                            <span class="text-xs text-gray-400 dark:text-gray-500">@comment.CreatedAt.ToString("MMM dd, yyyy HH:mm")</span>
+
+                                            @if (CanEditComment(comment) || CanDeleteComment(comment))
                                             {
-                                                <div class="ml-auto flex gap-2 text-xs">
-                                                    @if (EditingCommentId == comment.Id)
+                                                <div class="ml-auto flex items-center gap-1">
+                                                    @if (CanEditComment(comment))
                                                     {
-                                                        <button class="text-green-600 dark:text-green-400 hover:underline" @onclick="() => SaveCommentEditAsync(comment.Id)">@L.Translate("details.commentSave")</button>
-                                                        <button class="text-gray-500 dark:text-gray-400 hover:underline" @onclick="CancelEdit">@L.Translate("details.commentCancel")</button>
+                                                        @if (EditingCommentId == comment.Id)
+                                                        {
+                                                            <button class="px-2 py-0.5 text-xs rounded bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 hover:bg-green-200 dark:hover:bg-green-900/50 transition-colors" @onclick="() => SaveCommentEditAsync(comment.Id)">@L.Translate("details.commentSave")</button>
+                                                            <button class="px-2 py-0.5 text-xs rounded bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-500 transition-colors" @onclick="CancelEdit">@L.Translate("details.commentCancel")</button>
+                                                        }
+                                                        else
+                                                        {
+                                                            <button class="p-1 rounded text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors" @onclick="() => BeginEdit(comment)" title="@L.Translate("details.commentEdit")">
+                                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                                            </button>
+                                                        }
                                                     }
-                                                    else
+                                                    @if (CanDeleteComment(comment))
                                                     {
-                                                        <button class="text-blue-600 dark:text-blue-400 hover:underline" @onclick="() => BeginEdit(comment)">@L.Translate("details.commentEdit")</button>
+                                                        <button class="p-1 rounded text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors" @onclick="() => DeleteCommentAsync(comment.Id)" @onclick:stopPropagation="true" title="@L.Translate("details.commentDelete")">
+                                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                                        </button>
                                                     }
                                                 </div>
                                             }
-                            @if (CanDeleteComment(comment))
-                                            {
-                                                <button class="ml-2 text-red-600 dark:text-red-400 hover:underline text-xs" @onclick="() => DeleteCommentAsync(comment.Id)" @onclick:stopPropagation="true">@L.Translate("details.commentDelete")</button>
-                                            }
-                                    </div>
+                                        </div>
+
                                         @if (EditingCommentId == comment.Id)
                                         {
-                                            <textarea @bind="EditingCommentMessage"
-                                                      @bind:event="oninput"
-                                                      rows="3"
-                                                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none bg-white dark:bg-gray-700 text-gray-900 dark:text-white"></textarea>
+                                            <textarea @bind="EditingCommentMessage" @bind:event="oninput" rows="3"
+                                                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"></textarea>
                                         }
                                         else
                                         {
-                                            <p class="text-gray-600 dark:text-gray-400">@comment.Message</p>
+                                            <p class="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-wrap">@comment.Message</p>
                                         }
+                                    </div>
                                 </div>
                             }
-                        }
-                        else
-                        {
-                            <p class="text-gray-500 dark:text-gray-400 italic">@L.Translate("details.noComments")</p>
-                        }
-                    </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-8 mb-4">
+                            <svg class="w-12 h-12 mx-auto text-gray-300 dark:text-gray-600 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                            </svg>
+                            <p class="text-gray-400 dark:text-gray-500 text-sm">@L.Translate("details.noComments")</p>
+                        </div>
+                    }
 
                     <!-- Add Comment Form -->
                     <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
-                        <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">@L.Translate("details.addComment")</h3>
-                        <textarea @bind="NewCommentMessage"
-                                  @bind:event="oninput"
-                                  rows="3" 
+                        <textarea @bind="NewCommentMessage" @bind:event="oninput" rows="3" 
                                   placeholder="@L.Translate("details.writeComment")"
-                                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"></textarea>
+                                  class="w-full px-3 py-2.5 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none bg-gray-50 dark:bg-gray-700/50 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 text-sm transition-colors"></textarea>
                         <div class="flex justify-end mt-2">
                             <button @onclick="AddCommentAsync" 
                                     disabled="@(string.IsNullOrWhiteSpace(NewCommentMessage) || IsSubmitting)"
-                                    class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors">
+                                    class="px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white text-sm font-medium rounded-lg hover:from-blue-700 hover:to-blue-800 disabled:from-gray-400 disabled:to-gray-400 disabled:cursor-not-allowed transition-all shadow-sm flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                                </svg>
                                 @if (IsSubmitting)
                                 {
                                     <span>@L.Translate("details.sending")</span>

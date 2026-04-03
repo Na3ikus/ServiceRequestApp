@@ -1,24 +1,223 @@
 @page "/"
 @inject IAuthService AuthService
+@inject ITicketService TicketService
+@inject ILocalizationService L
 @inject NavigationManager Navigation
 @rendermode InteractiveServer
+@implements IDisposable
+
+<!-- Created by Nazar "N1h3" Hutsol -->
+<div class="max-w-7xl mx-auto p-4 sm:p-6 animate-fade-in">
+    @if (isLoading)
+    {
+        <div class="flex items-center justify-center min-h-[400px]">
+            <svg class="animate-spin h-8 w-8 text-blue-600" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+        </div>
+    }
+    else if (currentUser != null)
+    {
+        <!-- Welcome Hero -->
+        <div class="relative overflow-hidden bg-gradient-to-br from-blue-600 via-blue-700 to-purple-700 rounded-3xl shadow-xl p-8 sm:p-10 mb-8 border border-white/10 dark:border-gray-800 group">
+            <!-- Background Decoration -->
+            <div class="absolute top-0 right-0 -mr-20 -mt-20 w-64 h-64 rounded-full bg-white/10 blur-3xl pointer-events-none group-hover:scale-110 transition-transform duration-700"></div>
+            <div class="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 rounded-full bg-purple-500/20 blur-3xl pointer-events-none group-hover:scale-110 transition-transform duration-700"></div>
+            
+            <div class="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+                <div class="text-white">
+                    <h1 class="text-3xl sm:text-4xl font-extrabold mb-2 tracking-tight">
+                        @L.Translate("home.welcomeBack") @currentUser.Person.FirstName! 👋
+                    </h1>
+                    <p class="text-blue-100 text-base sm:text-lg max-w-2xl font-medium">
+                        @L.Translate("home.subtitle")
+                    </p>
+                </div>
+                
+                <!-- Quick Actions -->
+                <div class="flex flex-wrap gap-3 shrink-0">
+                    <a href="create-ticket" class="px-5 py-3 bg-white text-blue-700 hover:bg-blue-50 rounded-xl font-bold font-inter shadow-lg hover:shadow-2xl transition-all flex items-center gap-2 transform hover:-translate-y-1">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                        @L.Translate("nav.newTicket")
+                    </a>
+                    
+                    @if (currentUser.Role == "Admin" || currentUser.Role == "Developer")
+                    {
+                        <a href="tickets" class="px-5 py-3 bg-blue-800/50 text-white hover:bg-blue-800/70 backdrop-blur-sm border border-white/20 rounded-xl font-bold font-inter shadow-lg transition-all flex items-center gap-2 transform hover:-translate-y-1">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>
+                            @L.Translate("nav.allTickets")
+                        </a>
+                    }
+                    else
+                    {
+                        <a href="my-tickets" class="px-5 py-3 bg-blue-800/50 text-white hover:bg-blue-800/70 backdrop-blur-sm border border-white/20 rounded-xl font-bold font-inter shadow-lg transition-all flex items-center gap-2 transform hover:-translate-y-1">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                            @L.Translate("nav.myTickets")
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+
+        @if (currentUser.Role == "Admin" || currentUser.Role == "Developer")
+        {
+            <DashboardStats />
+        }
+
+        <!-- Recent Activity Feed -->
+        <div class="mt-8 bg-white dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-lg border border-transparent dark:border-gray-700/50 p-6 sm:p-8 hover:shadow-xl transition-shadow duration-300">
+            <div class="flex items-center justify-between mb-6 border-b border-gray-100 dark:border-gray-700/50 pb-4">
+                <h2 class="text-xl font-bold text-gray-800 dark:text-white flex items-center gap-3">
+                    <div class="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+                        <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    @L.Translate("home.recentActivity")
+                </h2>
+                
+                @if (recentTickets != null && recentTickets.Any())
+                {
+                    var viewAllLink = currentUser.Role == "User" ? "/my-tickets" : "/tickets";
+                    <a href="@viewAllLink" class="text-sm font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors flex items-center gap-1 group/link">
+                        @L.Translate("home.viewAll")
+                        <svg class="w-4 h-4 transform group-hover/link:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </a>
+                }
+            </div>
+
+            @if (recentTickets == null)
+            {
+                <div class="animate-pulse space-y-4">
+                    @for (int i = 0; i < 3; i++)
+                    {
+                        <div class="h-20 bg-gray-100 dark:bg-gray-700/50 rounded-xl"></div>
+                    }
+                </div>
+            }
+            else if (!recentTickets.Any())
+            {
+                <div class="text-center py-10">
+                    <div class="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4 border border-gray-200 dark:border-gray-700/50 shadow-inner">
+                        <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
+                        </svg>
+                    </div>
+                    <p class="text-gray-500 dark:text-gray-400 font-medium">@L.Translate("home.noRecentActivity")</p>
+                </div>
+            }
+            else
+            {
+                <div class="space-y-4">
+                    @foreach (var ticket in recentTickets)
+                    {
+                        <a href="@($"/ticket/{ticket.Id}")" class="block group/card">
+                            <div class="flex items-center gap-4 p-4 rounded-xl border border-gray-100 dark:border-gray-700/50 bg-gray-50/50 dark:bg-gray-800/30 hover:bg-white dark:hover:bg-gray-700/50 hover:shadow-lg hover:border-blue-200 dark:hover:border-blue-500/30 transition-all duration-300 transform group-hover/card:-translate-y-0.5">
+                                <div class="w-10 h-10 rounded-full flex shrink-0 items-center justify-center shadow-sm @GetPriorityColorClass(ticket.Priority)">
+                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path>
+                                    </svg>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center justify-between gap-2 mb-1">
+                                        <p class="text-sm font-semibold text-gray-900 dark:text-white truncate group-hover/card:text-blue-600 dark:group-hover/card:text-blue-400 transition-colors">
+                                            @ticket.Title
+                                        </p>
+                                        <span class="text-xs font-mono font-medium text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded-full whitespace-nowrap border border-gray-200 dark:border-gray-600">#@ticket.Id</span>
+                                    </div>
+                                    <div class="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400 font-medium">
+                                        <span class="flex items-center gap-1.5 px-2 py-0.5 rounded bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 shadow-sm">
+                                            <span class="w-2 h-2 rounded-full @GetStatusDotColor(ticket.Status)"></span>
+                                            @ticket.Status
+                                        </span>
+                                        <span class="text-gray-300 dark:text-gray-600">&bull;</span>
+                                        <span class="flex items-center gap-1.5 whitespace-nowrap">
+                                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                            </svg>
+                                            <span class="hidden sm:inline text-gray-400">@L.Translate("table.created"):</span>
+                                            <span class="text-gray-700 dark:text-gray-300">@ticket.CreatedAt.ToString("dd MMM yyyy, HH:mm")</span>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="shrink-0 text-gray-300 dark:text-gray-600 group-hover/card:text-blue-500 transition-colors transform group-hover/card:translate-x-1 duration-200">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                </div>
+                            </div>
+                        </a>
+                    }
+                </div>
+            }
+        </div>
+    }
+</div>
 
 @code {
-    protected override void OnInitialized()
-    {
-        var userRole = AuthService.CurrentUser?.Role;
+    private User? currentUser;
+    private List<Ticket>? recentTickets;
+    private bool isLoading = true;
 
-        if (userRole == "User")
-        {
-            Navigation.NavigateTo("/my-tickets", replace: true);
-        }
-        else if (userRole == "Admin" || userRole == "Developer")
-        {
-            Navigation.NavigateTo("/tickets", replace: true);
-        }
-        else
+    protected override async Task OnInitializedAsync()
+    {
+        L.LanguageChanged += OnStateChanged;
+        
+        currentUser = AuthService.CurrentUser;
+        
+        if (currentUser == null)
         {
             Navigation.NavigateTo("/login", replace: true);
+            return;
+        }
+
+        try
+        {
+            if (currentUser.Role == "User")
+            {
+                var myTickets = await TicketService.GetUserTicketsAsync(currentUser.Id);
+                recentTickets = myTickets.OrderByDescending(t => t.CreatedAt).Take(5).ToList();
+            }
+            else if (currentUser.Role == "Developer")
+            {
+                var devTickets = await TicketService.GetDeveloperTicketsAsync(currentUser.Id);
+                recentTickets = devTickets.OrderByDescending(t => t.CreatedAt).Take(5).ToList();
+            }
+            else // Admin
+            {
+                var allTickets = await TicketService.GetAllTicketsAsync();
+                recentTickets = allTickets.OrderByDescending(t => t.CreatedAt).Take(5).ToList();
+            }
+        }
+        finally
+        {
+            isLoading = false;
         }
     }
+    
+    private void OnStateChanged(object? sender, EventArgs e) => InvokeAsync(StateHasChanged);
+
+    public void Dispose()
+    {
+        L.LanguageChanged -= OnStateChanged;
+    }
+
+    private string GetPriorityColorClass(string priority) => priority switch
+    {
+        "Critical" => "bg-gradient-to-br from-red-500 to-rose-600",
+        "High" => "bg-gradient-to-br from-orange-400 to-red-500",
+        "Medium" => "bg-gradient-to-br from-amber-400 to-orange-500",
+        "Low" => "bg-gradient-to-br from-green-400 to-emerald-500",
+        _ => "bg-gradient-to-br from-gray-400 to-gray-500"
+    };
+
+    private string GetStatusDotColor(string status) => status switch
+    {
+        "Open" => "bg-blue-500",
+        "In Progress" => "bg-amber-500",
+        "Testing" => "bg-cyan-500",
+        "Code Review" => "bg-indigo-500",
+        "Resolved" => "bg-green-500",
+        "Closed" => "bg-gray-500",
+        _ => "bg-purple-500"
+    };
 }

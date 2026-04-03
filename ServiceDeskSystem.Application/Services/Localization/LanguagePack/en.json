@@ -1,4 +1,5 @@
 {
+  "nav.home": "Home",
   "nav.allTickets": "All Tickets",
   "nav.myTickets": "My Tickets",
   "nav.newTicket": "New Ticket",
@@ -123,6 +124,11 @@
   "common.logout": "Logout",
   "common.required": "required",
   "common.footer": "Service Desk System",
+  "home.welcomeBack": "Welcome back,",
+  "home.subtitle": "Here's what's happening in your workspace.",
+  "home.recentActivity": "Recent Activity",
+  "home.viewAll": "View All",
+  "home.noRecentActivity": "There has been no recent activity.",
   "theme.light": "Light",
   "theme.dark": "Dark",
   "theme.toggle": "Toggle theme",
