@@ -151,13 +151,38 @@ a, .btn-link {
 }
 
 .logout-btn {
-    min-width: 120px;
+    min-width: auto;
     justify-content: center;
 }
 
+@media (min-width: 640px) {
+    .logout-btn {
+        min-width: 120px;
+    }
+}
+
 .new-ticket-btn {
-    min-width: 180px;
+    min-width: auto;
     justify-content: center;
+}
+
+@media (min-width: 640px) {
+    .new-ticket-btn {
+        min-width: 180px;
+    }
+}
+
+/* iOS safe area support */
+@supports (padding: env(safe-area-inset-bottom)) {
+    .flex.h-screen {
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+}
+
+/* Better touch scrolling */
+.overflow-y-auto,
+.overflow-x-auto {
+    -webkit-overflow-scrolling: touch;
 }
 
 /* Ticket list table layout stability */
@@ -786,13 +811,6 @@ h3[tabindex] {
 .dark .text-gray-900 {
     color: rgb(255 255 255) !important; /* white */
 }
-    padding: 1rem 1rem 1rem 3.7rem;
-    color: white;
-}
-
-    .blazor-error-boundary::after {
-        content: "An error has occurred."
-    }
 
 .darker-border-checkbox.form-check-input {
     border-color: #929292;

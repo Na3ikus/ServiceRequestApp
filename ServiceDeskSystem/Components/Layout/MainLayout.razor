@@ -21,20 +21,38 @@
     }
     else
     {
-        <div class="flex h-screen bg-gray-100 dark:bg-gray-900 transition-colors duration-200">
-            <aside class="w-64 flex-shrink-0">
+        <div class="flex h-screen bg-gray-100 dark:bg-gray-900 transition-colors duration-200 overflow-hidden relative">
+            
+            <!-- Mobile Overlay Backdrop -->
+            @if (isSidebarOpen)
+            {
+                <div class="fixed inset-0 bg-gray-900/60 dark:bg-black/60 backdrop-blur-sm z-40 lg:hidden transition-opacity duration-300" 
+                     @onclick="CloseSidebar"></div>
+            }
+
+            <!-- Sidebar -->
+            <aside class="fixed inset-y-0 left-0 z-50 w-64 transform transition-transform duration-300 ease-in-out lg:static lg:translate-x-0 @(isSidebarOpen ? "translate-x-0" : "-translate-x-full") shadow-2xl lg:shadow-none flex-shrink-0">
                 <NavMenu />
             </aside>
 
-            <div class="flex-1 flex flex-col overflow-hidden">
+            <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
                 <header class="sticky top-0 z-30 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md shadow-sm border-b border-gray-200/50 dark:border-gray-700/50 transition-colors duration-200">
-                    <div class="flex items-center justify-between px-6 py-4">
-                        <div>
-                            <h2 class="text-lg font-semibold text-gray-800 dark:text-white">@L.Translate("dashboard.welcome")</h2>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">@DateTime.Now.ToString("dddd, MMMM dd, yyyy")</p>
+                    <div class="flex items-center justify-between px-4 lg:px-6 py-4">
+                        <div class="flex items-center gap-4">
+                            <!-- Mobile Hamburger Button -->
+                            <button @onclick="ToggleSidebar" class="p-2 -ml-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700 lg:hidden focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                                </svg>
+                            </button>
+                            
+                            <div class="hidden sm:block">
+                                <h2 class="text-lg font-semibold text-gray-800 dark:text-white leading-tight">@L.Translate("dashboard.welcome")</h2>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">@DateTime.Now.ToString("dddd, MMMM dd, yyyy")</p>
+                            </div>
                         </div>
 
-                        <div class="header-actions flex items-center gap-3">
+                        <div class="header-actions flex items-center gap-2 sm:gap-3">
                             <div class="lang-toggle relative rounded-full flex items-center">
                                 <div class="lang-toggle-slider @(L.CurrentLanguage == "uk" ? "slide-right" : "")"></div>
                                 <button @onclick="@(() => L.SetLanguage("en"))"
@@ -103,12 +121,14 @@
 
 @code {
     private bool authRestored;
+    private bool isSidebarOpen = false;
 
     protected override void OnInitialized()
     {
         L.LanguageChanged += OnStateChanged;
         Theme.ThemeChanged += OnStateChanged;
         AuthService.AuthStateChanged += OnStateChanged;
+        Navigation.LocationChanged += OnLocationChanged;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -123,6 +143,19 @@
     }
 
     private void OnStateChanged(object? sender, EventArgs e) => InvokeAsync(StateHasChanged);
+    
+    private void OnLocationChanged(object? sender, Microsoft.AspNetCore.Components.Routing.LocationChangedEventArgs e)
+    {
+        if (isSidebarOpen)
+        {
+            isSidebarOpen = false;
+            InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private void ToggleSidebar() => isSidebarOpen = !isSidebarOpen;
+    
+    private void CloseSidebar() => isSidebarOpen = false;
 
     private async Task HandleLogout()
     {
@@ -135,5 +168,6 @@
         L.LanguageChanged -= OnStateChanged;
         Theme.ThemeChanged -= OnStateChanged;
         AuthService.AuthStateChanged -= OnStateChanged;
+        Navigation.LocationChanged -= OnLocationChanged;
     }
 }

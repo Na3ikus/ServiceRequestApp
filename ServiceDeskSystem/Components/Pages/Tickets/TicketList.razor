@@ -5,41 +5,41 @@
 @rendermode InteractiveServer
 
 <!-- Created by Nazar "N1h3" Hutsol -->
-<div class="max-w-7xl mx-auto p-6">
+<div class="max-w-7xl mx-auto p-4 sm:p-6">
     <DashboardStats />
 
-    <div class="flex items-center justify-between mb-6">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
-            <h1 class="text-2xl font-bold text-gray-800 dark:text-white">@L.Translate("tickets.title")</h1>
-            <p class="text-gray-600 dark:text-gray-400">@L.Translate("tickets.subtitle")</p>
+            <h1 class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-white">@L.Translate("tickets.title")</h1>
+            <p class="text-sm text-gray-600 dark:text-gray-400">@L.Translate("tickets.subtitle")</p>
         </div>
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-2 sm:gap-3 flex-wrap">
             <!-- View Mode Toggle -->
             <div class="flex items-center bg-gray-100 dark:bg-gray-800 rounded-xl p-1 border border-gray-200 dark:border-gray-700/50">
                 <button @onclick="@(() => SetViewMode("Table"))"
-                    class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200
+                    class="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200
                            @(viewMode == "Table" ? "bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm" : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300")">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18M10 4v16M4 4h16a1 1 0 011 1v14a1 1 0 01-1 1H4a1 1 0 01-1-1V5a1 1 0 011-1z"></path>
                     </svg>
-                    <span>@L.Translate("kanban.viewTable")</span>
+                    <span class="hidden sm:inline">@L.Translate("kanban.viewTable")</span>
                 </button>
                 <button @onclick="@(() => SetViewMode("Kanban"))"
-                    class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200
+                    class="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200
                            @(viewMode == "Kanban" ? "bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm" : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300")">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"></path>
                     </svg>
-                    <span>@L.Translate("kanban.viewKanban")</span>
+                    <span class="hidden sm:inline">@L.Translate("kanban.viewKanban")</span>
                 </button>
             </div>
 
             <a href="create-ticket"
-                class="new-ticket-btn px-5 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg shadow-blue-500/25 flex items-center gap-2 font-medium">
+                class="new-ticket-btn px-4 sm:px-5 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg shadow-blue-500/25 flex items-center gap-2 font-medium text-sm sm:text-base">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                 </svg>
-                @L.Translate("nav.newTicket")
+                <span class="hidden sm:inline">@L.Translate("nav.newTicket")</span>
             </a>
         </div>
     </div>
