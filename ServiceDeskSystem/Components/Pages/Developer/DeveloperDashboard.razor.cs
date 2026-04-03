@@ -1,8 +1,7 @@
 using System.Threading;
 using Microsoft.AspNetCore.Components;
-using ServiceDeskSystem.Application.Services.Auth;
+using Microsoft.JSInterop;
 using ServiceDeskSystem.Application.Services.Auth.Interfaces;
-using ServiceDeskSystem.Application.Services.Tickets;
 using ServiceDeskSystem.Application.Services.Tickets.Interfaces;
 using ServiceDeskSystem.Components.Features;
 using ServiceDeskSystem.Components.UI.Base;
@@ -15,8 +14,12 @@ namespace ServiceDeskSystem.Components.Pages.Developer;
 /// </summary>
 public partial class DeveloperDashboard : BaseComponent
 {
-    private readonly TimeSpan refreshInterval = TimeSpan.FromSeconds(5);
-    private Timer? refreshTimer;
+    private static readonly TimeSpan BaseRefreshInterval = TimeSpan.FromSeconds(12);
+    private static readonly TimeSpan MaxRefreshJitter = TimeSpan.FromSeconds(3);
+
+    private readonly Random refreshJitter = new();
+    private CancellationTokenSource? refreshLoopCts;
+    private Task? refreshLoopTask;
     private bool isRefreshing;
     private bool authRestored;
 
@@ -31,6 +34,9 @@ public partial class DeveloperDashboard : BaseComponent
 
     [Inject]
     private NavigationManager Navigation { get; set; } = null!;
+
+    [Inject]
+    private IJSRuntime JS { get; set; } = null!;
 
     private List<Ticket>? tickets { get; set; }
 
@@ -74,7 +80,8 @@ public partial class DeveloperDashboard : BaseComponent
         if (disposing)
         {
             this.AuthService.AuthStateChanged -= this.OnAuthStateChanged;
-            this.refreshTimer?.Dispose();
+            this.refreshLoopCts?.Cancel();
+            this.refreshLoopCts?.Dispose();
         }
 
         base.Dispose(disposing);
@@ -87,15 +94,67 @@ public partial class DeveloperDashboard : BaseComponent
             return;
         }
 
-        this.tickets = await this.TicketService.GetDeveloperTicketsAsync(this.CurrentUserId);
-        this.assignedCount = await this.TicketStatisticsService.GetDeveloperAssignedCountAsync(this.CurrentUserId);
-        this.inProgressCount = await this.TicketStatisticsService.GetDeveloperInProgressCountAsync(this.CurrentUserId);
-        this.completedCount = await this.TicketStatisticsService.GetDeveloperCompletedCountAsync(this.CurrentUserId);
+        var ticketsTask = this.TicketService.GetDeveloperTicketsAsync(this.CurrentUserId);
+        var statsTask = this.TicketStatisticsService.GetDeveloperDashboardStatsAsync(this.CurrentUserId);
+
+        await Task.WhenAll(ticketsTask, statsTask);
+
+        this.tickets = await ticketsTask;
+        var stats = await statsTask;
+
+        this.assignedCount = stats.AssignedCount;
+        this.inProgressCount = stats.InProgressCount;
+        this.completedCount = stats.CompletedCount;
     }
 
     private void StartAutoRefresh()
     {
-        this.refreshTimer ??= new Timer(async _ => await this.RefreshAsync(), null, this.refreshInterval, this.refreshInterval);
+        if (this.refreshLoopTask is not null)
+        {
+            return;
+        }
+
+        this.refreshLoopCts = new CancellationTokenSource();
+        this.refreshLoopTask = this.RunRefreshLoopAsync(this.refreshLoopCts.Token);
+    }
+
+    private async Task RunRefreshLoopAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                var delay = BaseRefreshInterval + TimeSpan.FromMilliseconds(this.refreshJitter.Next(0, (int)MaxRefreshJitter.TotalMilliseconds + 1));
+                await Task.Delay(delay, cancellationToken);
+
+                if (!await this.IsPageVisibleAsync())
+                {
+                    continue;
+                }
+
+                await this.RefreshAsync();
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            // Expected on component disposal.
+        }
+    }
+
+    private async Task<bool> IsPageVisibleAsync()
+    {
+        try
+        {
+            return await this.JS.InvokeAsync<bool>("dashboardVisibility.isVisible");
+        }
+        catch (JSException)
+        {
+            return true;
+        }
+        catch (InvalidOperationException)
+        {
+            return true;
+        }
     }
 
     private async Task RefreshAsync()

@@ -1,5 +1,7 @@
 namespace ServiceDeskSystem.Application.Services.Tickets.Interfaces;
 
+using ServiceDeskSystem.Application.Services.Tickets.Models;
+
 /// <summary>
 /// Provides read-only analytics and aggregate counts for tickets.
 /// Isolated so this layer can be replaced with dedicated caching or DB views independently.
@@ -19,6 +21,8 @@ public interface ITicketStatisticsService
     Task<int> GetDeveloperInProgressCountAsync(int developerId);
 
     Task<int> GetDeveloperCompletedCountAsync(int developerId);
+
+    Task<DeveloperDashboardStatsDto> GetDeveloperDashboardStatsAsync(int developerId);
 
     Task<Dictionary<string, int>> GetTicketCountByStatusAsync();
 

@@ -5,6 +5,7 @@ using ServiceDeskSystem.Domain.Constants;
 using ServiceDeskSystem.Domain.Entities;
 using ServiceDeskSystem.Domain.Interfaces;
 using ServiceDeskSystem.Application.Services.Tickets.Interfaces;
+using ServiceDeskSystem.Application.Services.Tickets.Models;
 
 namespace ServiceDeskSystem.Application.Services.Tickets;
 
@@ -103,37 +104,49 @@ public sealed class TicketService(IDbContextFactory<BugTrackerDbContext> context
 
     public async Task<int> GetTotalTicketsCountAsync()
     {
-        await using var repo = new RepositoryFacade(contextFactory);
-        var tickets = await repo.Tickets.GetAllAsync().ConfigureAwait(false);
-        return tickets.Count();
+        await using var context = contextFactory.CreateDbContext();
+        return await context.Tickets.AsNoTracking().CountAsync().ConfigureAwait(false);
     }
 
     public async Task<int> GetOpenTicketsCountAsync()
     {
-        await using var repo = new RepositoryFacade(contextFactory);
-        var tickets = await repo.Tickets.FindAsync(t => t.Status == TicketConstants.Statuses.Open).ConfigureAwait(false);
-        return tickets.Count();
+        await using var context = contextFactory.CreateDbContext();
+        return await context.Tickets
+            .AsNoTracking()
+            .CountAsync(t => t.Status == TicketConstants.Statuses.Open)
+            .ConfigureAwait(false);
     }
 
     public async Task<int> GetCriticalTicketsCountAsync()
     {
-        await using var repo = new RepositoryFacade(contextFactory);
-        var tickets = await repo.Tickets.FindAsync(t => t.Priority == TicketConstants.Priorities.Critical).ConfigureAwait(false);
-        return tickets.Count();
+        await using var context = contextFactory.CreateDbContext();
+        return await context.Tickets
+            .AsNoTracking()
+            .CountAsync(t => t.Priority == TicketConstants.Priorities.Critical)
+            .ConfigureAwait(false);
     }
 
     public async Task<int> GetUserTicketsCountAsync(int userId)
     {
-        await using var repo = new RepositoryFacade(contextFactory);
-        var tickets = await repo.Tickets.FindAsync(t => t.AuthorId == userId).ConfigureAwait(false);
-        return tickets.Count();
+        await using var context = contextFactory.CreateDbContext();
+        return await context.Tickets
+            .AsNoTracking()
+            .CountAsync(t => t.AuthorId == userId)
+            .ConfigureAwait(false);
     }
 
     public async Task<List<Ticket>> GetUserTicketsAsync(int userId)
     {
-        await using var repo = new RepositoryFacade(contextFactory);
-        var tickets = await repo.Tickets.GetAllWithIncludesAsync().ConfigureAwait(false);
-        return tickets.Where(t => t.AuthorId == userId).ToList();
+        await using var context = contextFactory.CreateDbContext();
+        return await context.Tickets
+            .AsNoTracking()
+            .Include(t => t.Author)
+            .Include(t => t.Product)
+            .Include(t => t.Developer)
+            .Where(t => t.AuthorId == userId)
+            .OrderByDescending(t => t.CreatedAt)
+            .ToListAsync()
+            .ConfigureAwait(false);
     }
 
     public async Task<bool> AssignDeveloperAsync(int ticketId, int developerId)
@@ -177,41 +190,70 @@ public sealed class TicketService(IDbContextFactory<BugTrackerDbContext> context
 
     public async Task<int> GetDeveloperAssignedCountAsync(int developerId)
     {
-        await using var repo = new RepositoryFacade(contextFactory);
-        var tickets = await repo.Tickets.FindAsync(t => t.DeveloperId == developerId).ConfigureAwait(false);
-        return tickets.Count();
+        await using var context = contextFactory.CreateDbContext();
+        return await context.Tickets
+            .AsNoTracking()
+            .CountAsync(t => t.DeveloperId == developerId)
+            .ConfigureAwait(false);
     }
 
     public async Task<int> GetDeveloperInProgressCountAsync(int developerId)
     {
-        await using var repo = new RepositoryFacade(contextFactory);
-        var tickets = await repo.Tickets.FindAsync(t => t.DeveloperId == developerId && t.Status == "In Progress").ConfigureAwait(false);
-        return tickets.Count();
+        await using var context = contextFactory.CreateDbContext();
+        return await context.Tickets
+            .AsNoTracking()
+            .CountAsync(t => t.DeveloperId == developerId && t.Status == TicketConstants.Statuses.InProgress)
+            .ConfigureAwait(false);
     }
 
     public async Task<int> GetDeveloperCompletedCountAsync(int developerId)
     {
-        await using var repo = new RepositoryFacade(contextFactory);
-        var tickets = await repo.Tickets.FindAsync(t => t.DeveloperId == developerId && (t.Status == "Resolved" || t.Status == "Closed")).ConfigureAwait(false);
-        return tickets.Count();
+        await using var context = contextFactory.CreateDbContext();
+        return await context.Tickets
+            .AsNoTracking()
+            .CountAsync(t => t.DeveloperId == developerId &&
+                             (t.Status == TicketConstants.Statuses.Resolved || t.Status == TicketConstants.Statuses.Closed))
+            .ConfigureAwait(false);
+    }
+
+    public async Task<DeveloperDashboardStatsDto> GetDeveloperDashboardStatsAsync(int developerId)
+    {
+        await using var context = contextFactory.CreateDbContext();
+
+        var stats = await context.Tickets
+            .AsNoTracking()
+            .Where(t => t.DeveloperId == developerId)
+            .GroupBy(_ => 1)
+            .Select(g => new DeveloperDashboardStatsDto(
+                g.Count(),
+                g.Count(t => t.Status == TicketConstants.Statuses.InProgress),
+                g.Count(t => t.Status == TicketConstants.Statuses.Resolved || t.Status == TicketConstants.Statuses.Closed)))
+            .SingleOrDefaultAsync()
+            .ConfigureAwait(false);
+
+        return stats ?? new DeveloperDashboardStatsDto(0, 0, 0);
     }
 
     public async Task<Dictionary<string, int>> GetTicketCountByStatusAsync()
     {
-        await using var repo = new RepositoryFacade(contextFactory);
-        var tickets = await repo.Tickets.GetAllAsync().ConfigureAwait(false);
-        return tickets
+        await using var context = contextFactory.CreateDbContext();
+        return await context.Tickets
+            .AsNoTracking()
             .GroupBy(t => t.Status)
-            .ToDictionary(g => g.Key, g => g.Count());
+            .Select(g => new { g.Key, Count = g.Count() })
+            .ToDictionaryAsync(x => x.Key, x => x.Count)
+            .ConfigureAwait(false);
     }
 
     public async Task<Dictionary<string, int>> GetTicketCountByPriorityAsync()
     {
-        await using var repo = new RepositoryFacade(contextFactory);
-        var tickets = await repo.Tickets.GetAllAsync().ConfigureAwait(false);
-        return tickets
+        await using var context = contextFactory.CreateDbContext();
+        return await context.Tickets
+            .AsNoTracking()
             .GroupBy(t => t.Priority)
-            .ToDictionary(g => g.Key, g => g.Count());
+            .Select(g => new { g.Key, Count = g.Count() })
+            .ToDictionaryAsync(x => x.Key, x => x.Count)
+            .ConfigureAwait(false);
     }
 
     public async Task<List<(string Login, int Count)>> GetTopDevelopersAsync(int top = 5)
