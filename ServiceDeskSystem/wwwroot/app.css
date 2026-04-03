@@ -16,6 +16,56 @@ a, .btn-link {
   box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
 
+
+/* Shared button system */
+.ui-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: 0.75rem;
+    border: 1px solid transparent;
+    font-size: 0.95rem;
+    font-weight: 600;
+    line-height: 1.35;
+    padding: 0.625rem 1rem;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    background-color: var(--ui-btn-bg, #f9fafb);
+    color: var(--ui-btn-text, #1f2937);
+    border-color: var(--ui-btn-border, #d1d5db);
+}
+
+.ui-btn:hover {
+    background-color: var(--ui-btn-bg-hover, var(--ui-btn-bg, #f3f4f6));
+}
+
+.ui-btn--block {
+    width: 100%;
+}
+
+.ui-btn:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.35);
+}
+
+.ui-btn--neutral { --ui-btn-bg: #f9fafb; --ui-btn-bg-hover: #f3f4f6; --ui-btn-text: #1f2937; --ui-btn-border: #d1d5db; }
+.ui-btn--warning { --ui-btn-bg: #fef3c7; --ui-btn-bg-hover: #fde68a; --ui-btn-text: #78350f; --ui-btn-border: #fcd34d; }
+.ui-btn--info { --ui-btn-bg: #cffafe; --ui-btn-bg-hover: #a5f3fc; --ui-btn-text: #0c4a6e; --ui-btn-border: #67e8f9; }
+.ui-btn--violet { --ui-btn-bg: #e0e7ff; --ui-btn-bg-hover: #c7d2fe; --ui-btn-text: #312e81; --ui-btn-border: #c7d2fe; }
+.ui-btn--success { --ui-btn-bg: #d1fae5; --ui-btn-bg-hover: #a7f3d0; --ui-btn-text: #065f46; --ui-btn-border: #a7f3d0; }
+.ui-btn--orange { --ui-btn-bg: #ffedd5; --ui-btn-bg-hover: #fed7aa; --ui-btn-text: #9a3412; --ui-btn-border: #fdba74; }
+.ui-btn--danger { --ui-btn-bg: #fee2e2; --ui-btn-bg-hover: #fecaca; --ui-btn-text: #991b1b; --ui-btn-border: #fca5a5; }
+.ui-btn--primary-soft { --ui-btn-bg: #dbeafe; --ui-btn-bg-hover: #bfdbfe; --ui-btn-text: #1e3a8a; --ui-btn-border: #93c5fd; }
+
+.dark .ui-btn--neutral { --ui-btn-bg: rgba(107, 114, 128, 0.18); --ui-btn-bg-hover: rgba(107, 114, 128, 0.3); --ui-btn-text: #e5e7eb; --ui-btn-border: rgba(156, 163, 175, 0.4); }
+.dark .ui-btn--warning { --ui-btn-bg: rgba(234, 179, 8, 0.2); --ui-btn-bg-hover: rgba(234, 179, 8, 0.3); --ui-btn-text: #fde68a; --ui-btn-border: rgba(234, 179, 8, 0.45); }
+.dark .ui-btn--info { --ui-btn-bg: rgba(6, 182, 212, 0.2); --ui-btn-bg-hover: rgba(6, 182, 212, 0.3); --ui-btn-text: #a5f3fc; --ui-btn-border: rgba(6, 182, 212, 0.45); }
+.dark .ui-btn--violet { --ui-btn-bg: rgba(99, 102, 241, 0.2); --ui-btn-bg-hover: rgba(99, 102, 241, 0.3); --ui-btn-text: #c7d2fe; --ui-btn-border: rgba(99, 102, 241, 0.45); }
+.dark .ui-btn--success { --ui-btn-bg: rgba(16, 185, 129, 0.2); --ui-btn-bg-hover: rgba(16, 185, 129, 0.3); --ui-btn-text: #a7f3d0; --ui-btn-border: rgba(16, 185, 129, 0.45); }
+.dark .ui-btn--orange { --ui-btn-bg: rgba(249, 115, 22, 0.2); --ui-btn-bg-hover: rgba(249, 115, 22, 0.3); --ui-btn-text: #fdba74; --ui-btn-border: rgba(249, 115, 22, 0.45); }
+.dark .ui-btn--danger { --ui-btn-bg: rgba(239, 68, 68, 0.2); --ui-btn-bg-hover: rgba(239, 68, 68, 0.3); --ui-btn-text: #fca5a5; --ui-btn-border: rgba(239, 68, 68, 0.45); }
+.dark .ui-btn--primary-soft { --ui-btn-bg: rgba(59, 130, 246, 0.2); --ui-btn-bg-hover: rgba(59, 130, 246, 0.3); --ui-btn-text: #93c5fd; --ui-btn-border: rgba(59, 130, 246, 0.45); }
 /* Language toggle - slider moves with transform */
 .lang-toggle-slider {
     position: absolute;
@@ -67,6 +117,8 @@ a, .btn-link {
     text-align: center;
     padding: 0;
     background: transparent;
+    letter-spacing: 0.02em;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.25);
 }
 
 /* Ticket details layout stability */

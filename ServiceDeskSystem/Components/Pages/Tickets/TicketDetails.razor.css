@@ -5,44 +5,32 @@
     width: 100%;
     padding: 0.625rem 1.25rem;
     border-radius: 0.75rem;
-    font-weight: 500;
+    font-weight: 600;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 0.625rem;
     border: 1px solid transparent;
     cursor: pointer;
-    font-size: 0.875rem;
+    font-size: 0.95rem;
 }
 
 /* Status-specific button colors */
-.btn-start {
-    background-color: #fef08a; /* yellow-200 */
-    color: #854d0e; /* yellow-800 */
-    border-color: #fde047; /* yellow-300 */
-}
+.btn-start { background-color: #fef3c7; color: #78350f; border-color: #fcd34d; }
 
 @media (prefers-color-scheme: dark) {
     .btn-start { background-color: rgba(234, 179, 8, 0.15); color: #fde047; border-color: rgba(234, 179, 8, 0.3); }
-    .btn-start:hover { background-color: rgba(234, 179, 8, 0.25); }
+    .btn-start:hover { background-color: rgba(234, 179, 8, 0.3); }
 }
 
-.btn-testing {
-    background-color: #a5f3fc;
-    color: #164e63;
-    border-color: #67e8f9;
-}
+.btn-testing { background-color: #cffafe; color: #0c4a6e; border-color: #67e8f9; }
 
 @media (prefers-color-scheme: dark) {
     .btn-testing { background-color: rgba(6, 182, 212, 0.15); color: #67e8f9; border-color: rgba(6, 182, 212, 0.3); }
     .btn-testing:hover { background-color: rgba(6, 182, 212, 0.25); }
 }
 
-.btn-review {
-    background-color: #e0e7ff;
-    color: #3730a3;
-    border-color: #c7d2fe;
-}
+.btn-review { background-color: #e0e7ff; color: #312e81; border-color: #c7d2fe; }
 
 @media (prefers-color-scheme: dark) {
     .btn-review { background-color: rgba(99, 102, 241, 0.15); color: #a5b4fc; border-color: rgba(99, 102, 241, 0.3); }
@@ -60,44 +48,28 @@
     .btn-resolved:hover, .btn-done:hover { background-color: rgba(16, 185, 129, 0.25); }
 }
 
-.btn-return {
-    background-color: #ffedd5;
-    color: #9a3412;
-    border-color: #fed7aa;
-}
+.btn-return { background-color: #ffedd5; color: #9a3412; border-color: #fdba74; }
 
 @media (prefers-color-scheme: dark) {
     .btn-return { background-color: rgba(249, 115, 22, 0.15); color: #fdba74; border-color: rgba(249, 115, 22, 0.3); }
     .btn-return:hover { background-color: rgba(249, 115, 22, 0.25); }
 }
 
-.btn-close {
-    background-color: #f3f4f6;
-    color: #374151;
-    border-color: #e5e7eb;
-}
+.btn-close { background-color: #f9fafb; color: #1f2937; border-color: #d1d5db; }
 
 @media (prefers-color-scheme: dark) {
     .btn-close { background-color: rgba(107, 114, 128, 0.15); color: #d1d5db; border-color: rgba(107, 114, 128, 0.3); }
     .btn-close:hover { background-color: rgba(107, 114, 128, 0.25); }
 }
 
-.btn-force-close {
-    background-color: #fee2e2;
-    color: #991b1b;
-    border-color: #fecaca;
-}
+.btn-force-close { background-color: #fee2e2; color: #991b1b; border-color: #fca5a5; }
 
 @media (prefers-color-scheme: dark) {
     .btn-force-close { background-color: rgba(239, 68, 68, 0.15); color: #fca5a5; border-color: rgba(239, 68, 68, 0.3); }
     .btn-force-close:hover { background-color: rgba(239, 68, 68, 0.25); }
 }
 
-.btn-reopen {
-    background-color: #dbeafe;
-    color: #1e3a8a;
-    border-color: #bfdbfe;
-}
+.btn-reopen { background-color: #dbeafe; color: #1e3a8a; border-color: #93c5fd; }
 
 @media (prefers-color-scheme: dark) {
     .btn-reopen { background-color: rgba(59, 130, 246, 0.15); color: #93c5fd; border-color: rgba(59, 130, 246, 0.3); }
@@ -124,8 +96,8 @@
 .status-badge {
     padding: 0.25rem 0.75rem;
     border-radius: 9999px;
-    font-size: 0.875rem;
-    font-weight: 500;
+    font-size: 0.95rem;
+    font-weight: 600;
     white-space: nowrap;
     flex-shrink: 0;
 }
@@ -135,7 +107,7 @@
     padding: 0.125rem 0.5rem;
     border-radius: 0.25rem;
     font-size: 0.75rem;
-    font-weight: 500;
+    font-weight: 600;
 }
 
 /* Comment section styles */
@@ -154,7 +126,7 @@
 }
 
 .comment-author {
-    font-weight: 500;
+    font-weight: 600;
 }
 
 .comment-date {
@@ -206,8 +178,8 @@
     border: none;
     border-radius: 0.5rem;
     cursor: pointer;
-    font-size: 0.875rem;
-    font-weight: 500;
+    font-size: 0.95rem;
+    font-weight: 600;
     transition: all 0.2s;
 }
 
@@ -227,7 +199,7 @@
     color: white;
     border: none;
     border-radius: 0.5rem;
-    font-weight: 500;
+    font-weight: 600;
     cursor: pointer;
     transition: all 0.2s;
 }
@@ -247,7 +219,7 @@
     color: white;
     border: none;
     border-radius: 0.5rem;
-    font-weight: 500;
+    font-weight: 600;
     cursor: pointer;
     transition: all 0.2s;
 }

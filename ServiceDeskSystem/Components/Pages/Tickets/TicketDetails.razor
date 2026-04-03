@@ -369,7 +369,7 @@
                             @if (Ticket.Status == "New" || Ticket.Status == "Open")
                             {
                                 <button @onclick="@(() => UpdateStatusAsync("In Progress"))" 
-                                        class="action-btn btn-animate btn-start">
+                                        class="action-btn ui-btn ui-btn--block ui-btn--warning btn-animate">
                                     <span>🚀</span>
                                     <span>@L.Translate("details.startProgress")</span>
                                 </button>
@@ -379,17 +379,17 @@
                             @if (Ticket.Status == "In Progress")
                             {
                                 <button @onclick="@(() => UpdateStatusAsync("Testing"))" 
-                                        class="action-btn btn-animate btn-testing">
+                                        class="action-btn ui-btn ui-btn--block ui-btn--info btn-animate">
                                     <span>🧪</span>
                                     <span>@L.Translate("details.sendToTesting")</span>
                                 </button>
                                 <button @onclick="@(() => UpdateStatusAsync("Code Review"))" 
-                                        class="action-btn btn-animate btn-review">
+                                        class="action-btn ui-btn ui-btn--block ui-btn--violet btn-animate">
                                     <span>👀</span>
                                     <span>@L.Translate("details.sendToCodeReview")</span>
                                 </button>
                                 <button @onclick="@(() => UpdateStatusAsync("Resolved"))" 
-                                        class="action-btn btn-animate btn-resolved">
+                                        class="action-btn ui-btn ui-btn--block ui-btn--success btn-animate">
                                     <span>✅</span>
                                     <span>@L.Translate("details.markResolved")</span>
                                 </button>
@@ -399,17 +399,17 @@
                             @if (Ticket.Status == "Testing")
                             {
                                 <button @onclick="@(() => UpdateStatusAsync("Code Review"))" 
-                                        class="action-btn btn-animate btn-review">
+                                        class="action-btn ui-btn ui-btn--block ui-btn--violet btn-animate">
                                     <span>👀</span>
                                     <span>@L.Translate("details.moveToCodeReview")</span>
                                 </button>
                                 <button @onclick="@(() => UpdateStatusAsync("Done"))" 
-                                        class="action-btn btn-animate btn-done">
+                                        class="action-btn ui-btn ui-btn--block ui-btn--success btn-animate">
                                     <span>✅</span>
                                     <span>@L.Translate("details.testingPassed")</span>
                                 </button>
                                 <button @onclick="@(() => UpdateStatusAsync("In Progress"))" 
-                                        class="action-btn btn-animate btn-return">
+                                        class="action-btn ui-btn ui-btn--block ui-btn--orange btn-animate">
                                     <span>🔙</span>
                                     <span>@L.Translate("details.returnToDevelopment")</span>
                                 </button>
@@ -419,12 +419,12 @@
                             @if (Ticket.Status == "Code Review")
                             {
                                 <button @onclick="@(() => UpdateStatusAsync("Done"))" 
-                                        class="action-btn btn-animate btn-done">
+                                        class="action-btn ui-btn ui-btn--block ui-btn--success btn-animate">
                                     <span>✅</span>
                                     <span>@L.Translate("details.approveChanges")</span>
                                 </button>
                                 <button @onclick="@(() => UpdateStatusAsync("In Progress"))" 
-                                        class="action-btn btn-animate btn-return">
+                                        class="action-btn ui-btn ui-btn--block ui-btn--orange btn-animate">
                                     <span>🔙</span>
                                     <span>@L.Translate("details.requestChanges")</span>
                                 </button>
@@ -434,12 +434,12 @@
                             @if (Ticket.Status == "Resolved")
                             {
                                 <button @onclick="@(() => UpdateStatusAsync("Closed"))" 
-                                        class="action-btn btn-animate btn-close">
+                                        class="action-btn ui-btn ui-btn--block ui-btn--neutral btn-animate">
                                     <span>🔒</span>
                                     <span>@L.Translate("details.closeTicketBtn")</span>
                                 </button>
                                 <button @onclick="@(() => UpdateStatusAsync("In Progress"))" 
-                                        class="action-btn btn-animate btn-return">
+                                        class="action-btn ui-btn ui-btn--block ui-btn--orange btn-animate">
                                     <span>🔙</span>
                                     <span>@L.Translate("details.reopenForChanges")</span>
                                 </button>
@@ -449,7 +449,7 @@
                             @if (Ticket.Status == "Done")
                             {
                                 <button @onclick="@(() => UpdateStatusAsync("Closed"))" 
-                                        class="action-btn btn-animate btn-close">
+                                        class="action-btn ui-btn ui-btn--block ui-btn--neutral btn-animate">
                                     <span>🔒</span>
                                     <span>@L.Translate("details.markAsClosed")</span>
                                 </button>
@@ -459,7 +459,7 @@
                             @if (Ticket.Status != "Closed" && Ticket.Status != "Done" && Ticket.Status != "Resolved")
                             {
                                 <button @onclick="@(() => UpdateStatusAsync("Closed"))" 
-                                        class="action-btn btn-animate btn-force-close">
+                                        class="action-btn ui-btn ui-btn--block ui-btn--danger btn-animate">
                                     <span>⛔</span>
                                     <span>@L.Translate("details.forceClose")</span>
                                 </button>
@@ -469,7 +469,7 @@
                             @if (Ticket.Status == "Closed")
                             {
                                 <button @onclick="@(() => UpdateStatusAsync("Open"))" 
-                                        class="action-btn btn-animate btn-reopen">
+                                        class="action-btn ui-btn ui-btn--block ui-btn--primary-soft btn-animate">
                                     <span>🔓</span>
                                     <span>@L.Translate("details.reopenTicket")</span>
                                 </button>
@@ -481,7 +481,7 @@
                 <!-- Navigation -->
                 <div class="bg-white dark:bg-gray-800/80 backdrop-blur-sm rounded-lg shadow-md border border-transparent dark:border-gray-700/50 p-6">
                     <button @onclick="GoBack" 
-                            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                            class="ui-btn ui-btn--block ui-btn--neutral">
                         @L.Translate("details.backToTickets")
                     </button>
                 </div>
