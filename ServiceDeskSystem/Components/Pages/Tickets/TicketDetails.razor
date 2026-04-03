@@ -81,7 +81,7 @@
                             <h1 class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-white flex-1 min-w-0 break-words">@Ticket.Title</h1>
                             <div class="flex items-center gap-2 flex-shrink-0">
                                 <span class="@GetStatusBadgeClass(Ticket.Status) px-3 py-1 rounded-full text-sm font-medium whitespace-nowrap">
-                                    @Ticket.Status
+                                    @GetStatusText(Ticket.Status)
                                 </span>
                                 @if (CanManageTicket)
                                 {
@@ -110,7 +110,7 @@
                             @Ticket.CreatedAt.ToString("MMM dd, yyyy HH:mm")
                         </span>
                         <span class="ticket-priority-badge @GetPriorityBadgeClass(Ticket.Priority) px-2 py-0.5 rounded text-xs font-medium">
-                            @Ticket.Priority
+                            @GetPriorityText(Ticket.Priority)
                         </span>
                     </div>
 
@@ -255,8 +255,8 @@
                         <div>
                             <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">@L.Translate("table.priority")</dt>
                             <dd>
-                        <span class="ticket-priority-badge @GetPriorityBadgeClass(Ticket.Priority) px-2 py-0.5 rounded text-xs font-medium">
-                                    @Ticket.Priority
+                                <span class="ticket-priority-badge @GetPriorityBadgeClass(Ticket.Priority) px-2 py-0.5 rounded text-xs font-medium">
+                                    @GetPriorityText(Ticket.Priority)
                                 </span>
                             </dd>
                         </div>

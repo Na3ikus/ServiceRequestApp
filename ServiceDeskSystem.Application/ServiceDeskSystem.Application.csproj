@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
     <ProjectReference Include="..\ServiceDeskSystem.Domain\ServiceDeskSystem.Domain.csproj" />
@@ -21,10 +21,20 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="Services\Localization\LanguagePack\*.json">
+    <Content Include="Services\Localization\LanguagePack\**\*.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Link>Localization\LanguagePack\%(Filename)%(Extension)</Link>
+      <Link>Localization\LanguagePack\%(RecursiveDir)%(Filename)%(Extension)</Link>
     </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="Services\Localization\LanguagePack\en.json" />
+    <Content Remove="Services\Localization\LanguagePack\uk.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Services\Localization\LanguagePack\en.json" />
+    <None Remove="Services\Localization\LanguagePack\uk.json" />
   </ItemGroup>
 
 </Project>

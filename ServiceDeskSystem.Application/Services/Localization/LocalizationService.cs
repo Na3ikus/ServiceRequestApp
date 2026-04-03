@@ -55,36 +55,41 @@ public sealed class LocalizationService : ILocalizationService
 
         foreach (var lang in languages)
         {
-            var filePath = Path.Combine(AppContext.BaseDirectory, "Localization", "LanguagePack", $"{lang}.json");
+            var directoryPath = Path.Combine(AppContext.BaseDirectory, "Localization", "LanguagePack", lang);
+            this.translations[lang] = new Dictionary<string, string>();
+
             try
             {
-                if (File.Exists(filePath))
+                if (Directory.Exists(directoryPath))
                 {
-                    string json = await File.ReadAllTextAsync(filePath).ConfigureAwait(false);
-                    if (string.IsNullOrWhiteSpace(json))
+                    var files = Directory.GetFiles(directoryPath, "*.json", SearchOption.AllDirectories);
+                    
+                    foreach (var filePath in files)
                     {
-                        Console.WriteLine($"Warning: Localization file '{filePath}' is empty. Skipping...");
-                        continue;
-                    }
+                        var json = await File.ReadAllTextAsync(filePath).ConfigureAwait(false);
+                        if (string.IsNullOrWhiteSpace(json))
+                        {
+                            continue;
+                        }
 
-                    var dict = JsonSerializer.Deserialize<Dictionary<string, string>>(json);
-                    if (dict != null)
-                    {
-                        this.translations[lang] = dict;
+                        var dict = JsonSerializer.Deserialize<Dictionary<string, string>>(json);
+                        if (dict != null)
+                        {
+                            foreach (var kvp in dict)
+                            {
+                                this.translations[lang][kvp.Key] = kvp.Value;
+                            }
+                        }
                     }
                 }
                 else
                 {
-                    Console.WriteLine($"Warning: Localization file '{filePath}' not found.");
+                    Console.WriteLine($"Warning: Localization directory '{directoryPath}' not found.");
                 }
-            }
-            catch (JsonException ex)
-            {
-                Console.WriteLine($"Error parsing localization file '{filePath}': {ex.Message}");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error loading localization file '{filePath}': {ex.Message}");
+                Console.WriteLine($"Error loading localization for '{lang}': {ex.Message}");
             }
         }
 
