@@ -18,7 +18,7 @@
         <div class="space-y-3 relative z-10 flex flex-col">
             @if (ShowTakeButton)
             {
-                <button @onclick="OnTakeTicket" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl transition-all shadow-sm backdrop-blur-md whitespace-nowrap group text-sm font-medium border bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-500/10 dark:hover:bg-blue-500/20 dark:text-blue-400 dark:border-blue-500/30">
+                <button @onclick="OnTakeTicket" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl btn-animate shadow-sm backdrop-blur-md whitespace-nowrap group text-sm font-medium border bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-500/10 dark:hover:bg-blue-500/20 dark:text-blue-400 dark:border-blue-500/30">
                     <svg class="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
                     </svg>
@@ -28,7 +28,7 @@
 
             @if (ShowReleaseButton)
             {
-                <button @onclick="OnReleaseTicket" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl transition-all shadow-sm backdrop-blur-md whitespace-nowrap group text-sm font-medium border bg-red-50 hover:bg-red-100 text-red-700 border-red-200 dark:bg-red-500/10 dark:hover:bg-red-500/20 dark:text-red-400 dark:border-red-500/30">
+                <button @onclick="OnReleaseTicket" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl btn-animate shadow-sm backdrop-blur-md whitespace-nowrap group text-sm font-medium border bg-red-50 hover:bg-red-100 text-red-700 border-red-200 dark:bg-red-500/10 dark:hover:bg-red-500/20 dark:text-red-400 dark:border-red-500/30">
                     <svg class="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7a4 4 0 11-8 0 4 4 0 018 0zM9 14a6 6 0 00-6 6v1h12v-1a6 6 0 00-6-6zM21 12h-6"></path>
                     </svg>
