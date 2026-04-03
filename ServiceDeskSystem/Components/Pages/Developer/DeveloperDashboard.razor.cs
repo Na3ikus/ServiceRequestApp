@@ -17,7 +17,7 @@ public partial class DeveloperDashboard : BaseComponent
     private static readonly TimeSpan BaseRefreshInterval = TimeSpan.FromSeconds(12);
     private static readonly TimeSpan MaxRefreshJitter = TimeSpan.FromSeconds(3);
 
-    private readonly Random refreshJitter = new();
+    private readonly Random refreshJitter = new ();
     private CancellationTokenSource? refreshLoopCts;
     private Task? refreshLoopTask;
     private bool isRefreshing;
