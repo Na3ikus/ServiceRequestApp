@@ -30,9 +30,30 @@
 
             @if (isLoading)
             {
-                    <div class="flex justify-center py-10">
-                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                <div class="animate-pulse space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- First Name Skeleton -->
+                        <div>
+                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16 mb-2"></div>
+                            <div class="h-10 bg-gray-200 dark:bg-gray-700 rounded-lg w-full"></div>
+                        </div>
+                        <!-- Last Name Skeleton -->
+                        <div>
+                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-20 mb-2"></div>
+                            <div class="h-10 bg-gray-200 dark:bg-gray-700 rounded-lg w-full"></div>
+                        </div>
+                        <!-- Middle Name Skeleton -->
+                        <div class="md:col-span-2">
+                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24 mb-2"></div>
+                            <div class="h-10 bg-gray-200 dark:bg-gray-700 rounded-lg w-full"></div>
+                        </div>
+                        <!-- Bio Skeleton -->
+                        <div class="md:col-span-2">
+                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-12 mb-2"></div>
+                            <div class="h-24 bg-gray-200 dark:bg-gray-700 rounded-lg w-full"></div>
+                        </div>
                     </div>
+                </div>
             }
             else if (errorMessage != null)
             {
