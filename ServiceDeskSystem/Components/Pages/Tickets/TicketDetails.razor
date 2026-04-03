@@ -284,29 +284,29 @@
                     </h3>
                     
                     <div class="space-y-4 relative z-10">
-                        <div class="flex items-start justify-between gap-4 p-2.5 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
+                        <div class="flex items-center justify-between gap-4 p-2.5 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
                             <span class="text-sm font-medium text-gray-500 dark:text-gray-400">@L.Translate("table.product")</span>
-                            <span class="text-sm font-medium text-gray-800 dark:text-gray-200 text-right">@(Ticket.Product?.Name ?? L.Translate("table.noProduct"))</span>
+                            <span class="text-sm font-medium text-gray-800 dark:text-gray-200 text-right max-w-[190px] break-words whitespace-normal leading-5">@(Ticket.Product?.Name ?? L.Translate("table.noProduct"))</span>
                         </div>
                         
-                        <div class="flex items-start justify-between gap-4 p-2.5 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
+                        <div class="flex items-center justify-between gap-4 p-2.5 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
                             <span class="text-sm font-medium text-gray-500 dark:text-gray-400">@L.Translate("table.priority")</span>
-                            <span class="ticket-priority-badge @GetPriorityBadgeClass(Ticket.Priority) px-2.5 py-0.5 rounded-md text-xs font-semibold shadow-sm">
+                            <span class="ticket-priority-badge @GetPriorityBadgeClass(Ticket.Priority) inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-semibold shadow-sm leading-5">
                                 @GetPriorityText(Ticket.Priority)
                             </span>
                         </div>
                         
-                        <div class="flex items-start justify-between gap-4 p-2.5 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
+                        <div class="flex items-center justify-between gap-4 p-2.5 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
                             <span class="text-sm font-medium text-gray-500 dark:text-gray-400">@L.Translate("details.ticketId")</span>
-                            <span class="text-sm font-mono font-semibold text-gray-800 dark:text-gray-200 bg-gray-100 dark:bg-gray-700/50 px-2.5 py-0.5 rounded-md shadow-inner text-right">#@Ticket.Id</span>
+                            <span class="inline-flex items-center text-sm font-mono font-semibold text-gray-800 dark:text-gray-200 bg-gray-100 dark:bg-gray-700/50 px-2.5 py-0.5 rounded-md shadow-inner text-right leading-5">#@Ticket.Id</span>
                         </div>
                         
-                        <div class="flex items-start justify-between gap-4 p-2.5 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
+                        <div class="flex items-center justify-between gap-4 p-2.5 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
                             <span class="text-sm font-medium text-gray-500 dark:text-gray-400">@L.Translate("details.assignedTo")</span>
                             <div class="text-right">
                                 @if (Ticket.Developer is not null)
                                 {
-                                    <span class="inline-flex items-center gap-1.5 text-sm font-medium text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 px-2.5 py-1 rounded-md">
+                                    <span class="inline-flex items-center gap-1.5 text-sm font-medium text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 px-2.5 py-1 rounded-md leading-5">
                                         <div class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
                                         @Ticket.Developer.Login
                                     </span>
@@ -320,25 +320,25 @@
 
                         @if (!string.IsNullOrWhiteSpace(Ticket.Environment))
                         {
-                            <div class="flex items-start justify-between gap-4 p-2.5 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors border-t border-gray-100 dark:border-gray-700/30 mt-2 pt-4">
+                            <div class="flex items-center justify-between gap-4 p-2.5 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors border-t border-gray-100 dark:border-gray-700/30 mt-2 pt-4">
                                 <span class="text-sm font-medium text-gray-500 dark:text-gray-400">@L.Translate("details.environment")</span>
-                                <span class="text-sm text-gray-800 dark:text-gray-200 text-right flex items-center gap-1.5">
+                                <span class="text-sm text-gray-800 dark:text-gray-200 text-right inline-flex items-center justify-end gap-1.5 max-w-[190px] leading-5">
                                     <svg class="w-3.5 h-3.5 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
                                     </svg>
-                                    <span class="truncate max-w-[120px]" title="@Ticket.Environment">@Ticket.Environment</span>
+                                    <span class="break-words whitespace-normal" title="@Ticket.Environment">@Ticket.Environment</span>
                                 </span>
                             </div>
                         }
                         @if (!string.IsNullOrWhiteSpace(Ticket.AffectedVersion))
                         {
-                            <div class="flex items-start justify-between gap-4 p-2.5 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
+                            <div class="flex items-center justify-between gap-4 p-2.5 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
                                 <span class="text-sm font-medium text-gray-500 dark:text-gray-400">@L.Translate("details.affectedVersion")</span>
-                                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300 text-xs font-semibold shadow-sm text-right">
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300 text-xs font-semibold shadow-sm text-right leading-5">
                                     <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
                                     </svg>
-                                    <span class="truncate max-w-[100px]" title="@Ticket.AffectedVersion">@Ticket.AffectedVersion</span>
+                                    <span class="break-words whitespace-normal max-w-[160px]" title="@Ticket.AffectedVersion">@Ticket.AffectedVersion</span>
                                 </span>
                             </div>
                         }

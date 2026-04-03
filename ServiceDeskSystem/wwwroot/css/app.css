@@ -1105,6 +1105,14 @@ video {
   max-width: 120px;
 }
 
+.max-w-\[160px\] {
+  max-width: 160px;
+}
+
+.max-w-\[190px\] {
+  max-width: 190px;
+}
+
 .max-w-\[70px\] {
   max-width: 70px;
 }
@@ -1316,6 +1324,10 @@ video {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.whitespace-normal {
+  white-space: normal;
 }
 
 .whitespace-nowrap {
@@ -2219,6 +2231,10 @@ video {
 
 .italic {
   font-style: italic;
+}
+
+.leading-5 {
+  line-height: 1.25rem;
 }
 
 .leading-6 {
