@@ -4,9 +4,9 @@
 
 <!-- Created by Nazar "N1h3" Hutsol -->
 <div class="space-y-4">
-    @foreach (var ticket in Tickets)
+    @foreach (var (ticket, index) in Tickets.Select((t, i) => (t, i)))
     {
-        <div class="block group/card cursor-pointer" @onclick="@(() => OnTicketClick.InvokeAsync(ticket.Id))">
+        <div class="block group/card cursor-pointer ticket-row-enter" style="animation-delay: @(index * 40)ms" @onclick="@(() => OnTicketClick.InvokeAsync(ticket.Id))">
             <div class="flex sm:items-center flex-col sm:flex-row gap-4 p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/80 shadow-sm hover:shadow-lg hover:border-blue-300 dark:hover:border-blue-500/50 transition-all duration-300 transform group-hover/card:-translate-y-0.5">
                 
                 <!-- Icon & Title Section -->
@@ -94,24 +94,3 @@
     }
 </div>
 
-@code {
-    private string GetPriorityColorClass(string priority) => priority switch
-    {
-        "Critical" => "bg-gradient-to-br from-red-500 to-rose-600",
-        "High" => "bg-gradient-to-br from-orange-400 to-red-500",
-        "Medium" => "bg-gradient-to-br from-amber-400 to-orange-500",
-        "Low" => "bg-gradient-to-br from-green-400 to-emerald-500",
-        _ => "bg-gradient-to-br from-gray-400 to-gray-500"
-    };
-
-    private string GetStatusDotColor(string status) => status switch
-    {
-        "Open" => "bg-blue-500",
-        "In Progress" => "bg-amber-500",
-        "Testing" => "bg-cyan-500",
-        "Code Review" => "bg-indigo-500",
-        "Resolved" => "bg-green-500",
-        "Closed" => "bg-gray-500",
-        _ => "bg-purple-500"
-    };
-}

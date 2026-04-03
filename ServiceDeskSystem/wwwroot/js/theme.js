@@ -6,11 +6,18 @@ window.themeManager = {
     
     setTheme: function (theme) {
         localStorage.setItem('theme', theme);
+        
+        document.documentElement.classList.add('theme-transitioning');
+        
         if (theme === 'dark') {
             document.documentElement.classList.add('dark');
         } else {
             document.documentElement.classList.remove('dark');
         }
+        
+        setTimeout(() => {
+            document.documentElement.classList.remove('theme-transitioning');
+        }, 150);
     },
     
     initialize: function () {

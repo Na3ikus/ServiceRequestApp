@@ -820,6 +820,201 @@ h3[tabindex] {
     color: var(--bs-secondary-color);
     text-align: end;
 }
+.toast-error {
+    background-color: #ef4444;
+    color: #1a1a1a;
+}
+
+.dark .toast-error {
+    background-color: #dc2626;
+    color: #fff;
+}
+
+.toast-warning {
+    background-color: #f59e0b;
+    color: #1a1a1a;
+}
+
+.dark .toast-warning {
+    background-color: #d97706;
+    color: #fff;
+}
+
+.toast-info {
+    background-color: #3b82f6;
+    color: #1a1a1a;
+}
+
+.dark .toast-info {
+    background-color: #2563eb;
+    color: #fff;
+}
+
+.toast-icon {
+    flex-shrink: 0;
+    width: 1.5rem;
+    height: 1.5rem;
+}
+
+.toast-message {
+    flex: 1;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.toast-close {
+    flex-shrink: 0;
+    width: 1.25rem;
+    height: 1.25rem;
+    cursor: pointer;
+    opacity: 0.8;
+    transition: opacity 0.2s;
+}
+
+.toast-close:hover {
+    opacity: 1;
+}
+
+h1:focus,
+h2:focus,
+h3:focus,
+p:focus,
+div:focus,
+span:focus,
+section:focus {
+    outline: none !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+h1:focus-visible,
+h2:focus-visible,
+h3:focus-visible {
+    outline: none !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+h1[tabindex],
+h2[tabindex],
+h3[tabindex] {
+    outline: none !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.valid.modified:not([type=checkbox]) {
+    outline: none;
+}
+
+.invalid {
+    outline: 1px solid #e50000;
+}
+
+.validation-message {
+    color: #e50000;
+}
+
+.blazor-error-boundary {
+    background: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTYiIGhlaWdodD0iNDkiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIG92ZXJmbG93PSJoaWRkZW4iPjxkZWZzPjxjbGlwUGF0aCBpZD0iY2xpcDAiPjxyZWN0IHg9IjIzNSIgeT0iNTEiIHdpZHRoPSI1NiIgaGVpZ2h0PSI0OSIvPjwvY2xpcFBhdGg+PC9kZWZzPjxnIGNsaXAtcGF0aD0idXJsKCNjbGlwMCkiIHRyYW5zZm9ybT0idHJhbnNsYXRlKC0yMzUgLTUxKSI+PHBhdGggZD0iTTI2My41MDYgNTFDMjY0LjcxNyA1MSAyNjUuODEzIDUxLjQ4MzcgMjY2LjYwNiA1Mi4yNjU4TDI2Ny4wNTIgNTIuNzk4NyAyNjcuNTM5IDUzLjYyODMgMjkwLjE4NSA5Mi4xODMxIDI5MC41NDUgOTIuNzk1IDI5MC42NTYgOTIuOTk2QzI5MC44NzcgOTMuNTEzIDI5MSA5NC4wODE1IDI5MSA5NC42NzgyIDI5MSA5Ny4wNjUxIDI4OS4wMzggOTkgMjg2LjYxNyA5OUwyNDAuMzgzIDk5QzIzNy45NjMgOTkgMjM2IDk3LjA2NTEgMjM2IDk0LjY3ODIgMjM2IDk0LjM3OTkgMjM2LjAzMSA5NC4wODg2IDIzNi4wODkgOTMuODA3MkwyMzYuMzM4IDkzLjAxNjIgMjM2Ljg1OCA5Mi4xMzE0IDI1OS40NzMgNTMuNjI5NCAyNTkuOTYxIDUyLjc5ODUgMjYwLjQwNyA1Mi4yNjU4QzI2MS4yIDUxLjQ4MzcgMjYyLjI5NiA1MSAyNjMuNTA2IDUxWk0yNjMuNTg2IDY2LjAxODNDMjYwLjczNyA2Ni4wMTgzIDI1OS4zMTMgNjcuMTI0NSAyNTkuMzEzIDY5LjMzNyAyNTkuMzEzIDY5LjYxMDIgMjU5LjMzMiA2OS44NjA4IDI1OS4zNzEgNzAuMDg4N0wyNjEuNzk1IDg0LjAxNjEgMjY1LjM4IDg0LjAxNjEgMjY3LjgyMSA2OS43NDc1QzI2Ny44NiA2OS43MzA5IDI2Ny44NzkgNjkuNTg3NyAyNjcuODc5IDY5LjMxNzkgMjY3Ljg3OSA2Ny4xMTgyIDI2Ni40NDggNjYuMDE4MyAyNjMuNTg2IDY2LjAxODNaTTI2My41NzYgODYuMDU0N0MyNjEuMDQ5IDg2LjA1NDcgMjU5Ljc4NiA4Ny4zMDA1IDI1OS43ODYgODkuNzkyMSAyNTkuNzg2IDkyLjI4MzcgMjYxLjA0OSA5My41Mjk1IDI2My41NzYgOTMuNTI5NSAyNjYuMTE2IDkzLjUyOTUgMjY3LjM4NyA5Mi4yODM3IDI2Ny4zODcgODkuNzkyMSAyNjcuMzg3IDg3LjMwMDUgMjY2LjExNiA4Ni4wNTQ3IDI2My41NzYgODYuMDU0N1oiIGZpbGw9IiNGRkU1MDAiIGZpbGwtcnVsZT0iZXZlbm9kZCIvPjwvZz48L3N2Zz4=) no-repeat 1rem/1.8rem, #b32121;
+    padding: 1rem 1rem 1rem 3.7rem;
+    color: white;
+}
+
+    .blazor-error-boundary::after {
+        content: "An error has occurred.";
+    }
+
+/* ================================
+   DARK MODE FIXES - Force light text colors
+   ================================ */
+
+/* Dashboard Stats labels */
+.dark .text-gray-400 {
+    color: rgb(229 231 235) !important; /* gray-200 */
+}
+
+/* Filter labels */
+.dark label.text-gray-700 {
+    color: rgb(255 255 255) !important; /* white */
+}
+
+/* Table headers */
+.dark thead th {
+    color: rgb(229 231 235) !important; /* gray-200 */
+}
+
+/* Table body text */
+.dark tbody td {
+    color: rgb(229 231 235) !important; /* gray-200 */
+}
+
+/* Ticket title */
+.dark .ticket-title {
+    color: rgb(255 255 255) !important; /* white */
+}
+
+/* Input fields placeholder and text */
+.dark input::placeholder {
+    color: rgb(156 163 175) !important; /* gray-400 */
+}
+
+.dark input {
+    color: rgb(255 255 255) !important; /* white */
+    background-color: rgb(55 65 81) !important; /* gray-700 */
+}
+
+.dark select {
+    color: rgb(255 255 255) !important; /* white */
+    background-color: rgb(55 65 81) !important; /* gray-700 */
+}
+
+/* All text in cards */
+.dark .bg-gray-800 p,
+.dark .bg-gray-800 h1,
+.dark .bg-gray-800 h2,
+.dark .bg-gray-800 h3,
+.dark .bg-gray-800 label,
+.dark .bg-gray-800 span {
+    color: rgb(229 231 235) !important; /* gray-200 */
+}
+
+/* Headers and titles */
+.dark h1,
+.dark h2,
+.dark h3 {
+    color: rgb(255 255 255) !important; /* white */
+}
+
+/* Ensure all text-gray-500 becomes light in dark mode */
+.dark .text-gray-500 {
+    color: rgb(209 213 219) !important; /* gray-300 */
+}
+
+.dark .text-gray-600 {
+    color: rgb(229 231 235) !important; /* gray-200 */
+}
+
+.dark .text-gray-700 {
+    color: rgb(243 244 246) !important; /* gray-100 */
+}
+
+.dark .text-gray-800 {
+    color: rgb(255 255 255) !important; /* white */
+}
+
+.dark .text-gray-900 {
+    color: rgb(255 255 255) !important; /* white */
+}
+
+.darker-border-checkbox.form-check-input {
+    border-color: #929292;
+}
+
+.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
+    color: var(--bs-secondary-color);
+    text-align: end;
+}
 
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
     text-align: start;
@@ -839,4 +1034,26 @@ h3[tabindex] {
 
 .btn-animate:active {
     transform: translateY(1px) scale(0.96);
+}
+
+/* Theme transitioning fix */
+.theme-transitioning * {
+    transition: none !important;
+}
+
+/* Ticket table row staggered entrance animation */
+@keyframes rowFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.ticket-row-enter {
+    animation: rowFadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    opacity: 0; /* Starts hidden until animation */
 }

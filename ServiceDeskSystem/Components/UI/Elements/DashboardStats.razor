@@ -1,9 +1,3 @@
-@using ServiceDeskSystem.Application.Services
-@inject ITicketStatisticsService TicketStatisticsService
-@inject IAuthService AuthService
-@inject ILocalizationService L
-@inject IThemeService Theme
-@implements IDisposable
 
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
     <div
@@ -13,7 +7,7 @@
                 <div>
                     <p class="text-sm font-medium text-gray-500 dark:text-gray-200 uppercase tracking-wide">
                         @L.Translate("dashboard.totalTickets")</p>
-                    <p class="mt-2 text-3xl font-bold text-gray-900 dark:text-white">@totalTickets</p>
+                    <p class="mt-2 text-3xl font-bold text-gray-900 dark:text-white">@displayTotalTickets</p>
                 </div>
                 <div class="p-4 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl shadow-lg shadow-blue-500/30">
                     <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -34,7 +28,7 @@
                 <div>
                     <p class="text-sm font-medium text-gray-500 dark:text-gray-200 uppercase tracking-wide">
                         @L.Translate("dashboard.openTickets")</p>
-                    <p class="mt-2 text-3xl font-bold text-gray-900 dark:text-white">@openTickets</p>
+                    <p class="mt-2 text-3xl font-bold text-gray-900 dark:text-white">@displayOpenTickets</p>
                 </div>
                 <div
                     class="p-4 bg-gradient-to-br from-amber-500 to-orange-500 rounded-2xl shadow-lg shadow-amber-500/30">
@@ -55,7 +49,7 @@
                 <div>
                     <p class="text-sm font-medium text-gray-500 dark:text-gray-200 uppercase tracking-wide">
                         @L.Translate("dashboard.criticalPriority")</p>
-                    <p class="mt-2 text-3xl font-bold text-gray-900 dark:text-white">@criticalTickets</p>
+                    <p class="mt-2 text-3xl font-bold text-gray-900 dark:text-white">@displayCriticalTickets</p>
                 </div>
                 <div class="p-4 bg-gradient-to-br from-red-500 to-rose-600 rounded-2xl shadow-lg shadow-red-500/30">
                     <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -76,7 +70,7 @@
                 <div>
                     <p class="text-sm font-medium text-gray-500 dark:text-gray-200 uppercase tracking-wide">
                         @L.Translate("dashboard.myTickets")</p>
-                    <p class="mt-2 text-3xl font-bold text-gray-900 dark:text-white">@myTickets</p>
+                    <p class="mt-2 text-3xl font-bold text-gray-900 dark:text-white">@displayMyTickets</p>
                 </div>
                 <div
                     class="p-4 bg-gradient-to-br from-emerald-500 to-green-600 rounded-2xl shadow-lg shadow-emerald-500/30">
@@ -90,33 +84,3 @@
         <div class="h-1.5 bg-gradient-to-r from-emerald-500 to-green-600"></div>
     </div>
 </div>
-
-@code {
-    private int totalTickets;
-    private int openTickets;
-    private int criticalTickets;
-    private int myTickets;
-
-    protected override async Task OnInitializedAsync()
-    {
-        L.LanguageChanged += OnStateChanged;
-        Theme.ThemeChanged += OnStateChanged;
-
-        totalTickets = await TicketStatisticsService.GetTotalTicketsCountAsync();
-        openTickets = await TicketStatisticsService.GetOpenTicketsCountAsync();
-        criticalTickets = await TicketStatisticsService.GetCriticalTicketsCountAsync();
-
-        if (AuthService.CurrentUser is not null)
-        {
-            myTickets = await TicketStatisticsService.GetUserTicketsCountAsync(AuthService.CurrentUser.Id);
-        }
-    }
-
-    private void OnStateChanged(object? sender, EventArgs e) => InvokeAsync(StateHasChanged);
-
-    public void Dispose()
-    {
-        L.LanguageChanged -= OnStateChanged;
-        Theme.ThemeChanged -= OnStateChanged;
-    }
-}
