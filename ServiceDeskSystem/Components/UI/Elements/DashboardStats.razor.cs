@@ -6,6 +6,9 @@ using ServiceDeskSystem.Application.Services.Tickets.Interfaces;
 
 namespace ServiceDeskSystem.Components.UI.Elements;
 
+/// <summary>
+/// Dashboard statistics component that displays ticket counts with animated transitions.
+/// </summary>
 public partial class DashboardStats : ComponentBase, IDisposable
 {
     protected int displayTotalTickets;
@@ -13,11 +16,12 @@ public partial class DashboardStats : ComponentBase, IDisposable
     protected int displayCriticalTickets;
     protected int displayMyTickets;
 
+    private readonly CancellationTokenSource animationCts = new ();
+
     private int totalTickets;
     private int openTickets;
     private int criticalTickets;
     private int myTickets;
-    private readonly CancellationTokenSource animationCts = new();
 
     [Inject]
     protected ITicketStatisticsService TicketStatisticsService { get; set; } = null!;

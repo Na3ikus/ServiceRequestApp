@@ -1,3 +1,4 @@
+using System.Security.Cryptography;
 using System.Threading;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
@@ -17,7 +18,6 @@ public partial class DeveloperDashboard : BaseComponent
     private static readonly TimeSpan BaseRefreshInterval = TimeSpan.FromSeconds(12);
     private static readonly TimeSpan MaxRefreshJitter = TimeSpan.FromSeconds(3);
 
-    private readonly Random refreshJitter = new ();
     private CancellationTokenSource? refreshLoopCts;
     private Task? refreshLoopTask;
     private bool isRefreshing;
@@ -124,7 +124,7 @@ public partial class DeveloperDashboard : BaseComponent
         {
             while (!cancellationToken.IsCancellationRequested)
             {
-                var delay = BaseRefreshInterval + TimeSpan.FromMilliseconds(this.refreshJitter.Next(0, (int)MaxRefreshJitter.TotalMilliseconds + 1));
+                var delay = BaseRefreshInterval + TimeSpan.FromMilliseconds(milliseconds: RandomNumberGenerator.GetInt32(0, (int)MaxRefreshJitter.TotalMilliseconds + 1));
                 await Task.Delay(delay, cancellationToken);
 
                 if (!await this.IsPageVisibleAsync())
