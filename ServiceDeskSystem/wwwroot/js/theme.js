@@ -36,7 +36,7 @@ window.themeManager = {
             document.documentElement.classList.remove('theme-transitioning');
             this._isTransitioning = false;
             this._transitionTimer = null;
-        }, 400);
+        }, 220);
     },
     
     initialize: function () {

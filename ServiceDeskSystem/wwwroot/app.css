@@ -1130,22 +1130,44 @@ h3[tabindex] {
     transform: translateY(1px) scale(0.96);
 }
 
-/* Smooth theme transition — animate colors/backgrounds during switch */
-.theme-transitioning,
-.theme-transitioning *,
-.theme-transitioning *::before,
-.theme-transitioning *::after {
-    transition: color 0.3s ease, background-color 0.3s ease,
-                border-color 0.3s ease, box-shadow 0.3s ease,
-                fill 0.3s ease, stroke 0.3s ease !important;
+/* Smooth theme transition (optimized to avoid jank on large pages) */
+.theme-transitioning body,
+.theme-transitioning main,
+.theme-transitioning header,
+.theme-transitioning aside,
+.theme-transitioning section,
+.theme-transitioning article,
+.theme-transitioning div,
+.theme-transitioning button,
+.theme-transitioning a,
+.theme-transitioning input,
+.theme-transitioning textarea,
+.theme-transitioning select,
+.theme-transitioning svg,
+.theme-transitioning path {
+    transition: color 0.18s ease, background-color 0.18s ease, border-color 0.18s ease !important;
 }
 
-/* Exclude gradient elements from theme transition to prevent blink/flash */
+/* Keep complex effects out of transition to prevent visual tearing */
 .theme-transitioning [class*="bg-gradient"],
 .theme-transitioning [class*="from-"],
+.theme-transitioning [class*="to-"],
+.theme-transitioning [class*="via-"],
 .theme-transitioning .brand-icon,
 .theme-transitioning .brand-icon-svg {
     transition: none !important;
+}
+
+/* Prevent sidebar logo flicker during theme switch */
+.theme-transitioning .sidebar-brand,
+.theme-transitioning .brand-link,
+.theme-transitioning .brand-title,
+.theme-transitioning .brand-icon,
+.theme-transitioning .brand-icon *,
+.theme-transitioning .sidebar-root,
+.theme-transitioning .sidebar-root * {
+    transition: none !important;
+    animation: none !important;
 }
 
 /* Ticket table row staggered entrance animation */
