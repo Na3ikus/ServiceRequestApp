@@ -1130,8 +1130,21 @@ h3[tabindex] {
     transform: translateY(1px) scale(0.96);
 }
 
-/* Theme transitioning fix */
-.theme-transitioning * {
+/* Smooth theme transition — animate colors/backgrounds during switch */
+.theme-transitioning,
+.theme-transitioning *,
+.theme-transitioning *::before,
+.theme-transitioning *::after {
+    transition: color 0.3s ease, background-color 0.3s ease,
+                border-color 0.3s ease, box-shadow 0.3s ease,
+                fill 0.3s ease, stroke 0.3s ease !important;
+}
+
+/* Exclude gradient elements from theme transition to prevent blink/flash */
+.theme-transitioning [class*="bg-gradient"],
+.theme-transitioning [class*="from-"],
+.theme-transitioning .brand-icon,
+.theme-transitioning .brand-icon-svg {
     transition: none !important;
 }
 
@@ -1150,4 +1163,26 @@ h3[tabindex] {
 .ticket-row-enter {
     animation: rowFadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     opacity: 0; /* Starts hidden until animation */
+}
+
+/* ============================
+   Login Light Theme Styles
+   ============================ */
+
+/* Light theme background with warm mesh gradient */
+.login-light-bg {
+    background: linear-gradient(135deg, #f0f4ff 0%, #faf5ff 25%, #fff1f2 50%, #f0f9ff 75%, #f5f3ff 100%);
+}
+
+/* Animated gradient border for the login card in light mode */
+.login-card-border-light {
+    background: linear-gradient(135deg, rgba(99,102,241,0.3), rgba(168,85,247,0.25), rgba(244,114,182,0.2), rgba(59,130,246,0.25));
+    background-size: 300% 300%;
+    animation: loginBorderShimmer 6s ease-in-out infinite;
+    border-radius: 25px;
+}
+
+@keyframes loginBorderShimmer {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
 }

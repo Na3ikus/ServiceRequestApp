@@ -28,9 +28,20 @@ public partial class Login : BaseComponent
 
     protected override void OnInitialized()
     {
+        base.OnInitialized();
+
         if (this.AuthService.IsAuthenticated)
         {
             this.Navigation.NavigateTo("/");
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await this.Theme.InitializeAsync();
+            this.StateHasChanged();
         }
     }
 

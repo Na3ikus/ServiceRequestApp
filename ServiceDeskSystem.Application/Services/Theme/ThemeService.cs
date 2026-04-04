@@ -55,8 +55,17 @@ public sealed class ThemeService : IThemeService, IAsyncDisposable
         }
     }
 
+    private bool toggling;
+
     public async void ToggleTheme()
     {
+        if (this.toggling)
+        {
+            return;
+        }
+
+        this.toggling = true;
+
         var newTheme = this.currentTheme == "light" ? "dark" : "light";
         this.currentTheme = newTheme;
 
@@ -67,6 +76,10 @@ public sealed class ThemeService : IThemeService, IAsyncDisposable
         catch
         {
             // Ignore JS interop errors during prerendering
+        }
+        finally
+        {
+            this.toggling = false;
         }
 
         this.ThemeChanged?.Invoke(this, EventArgs.Empty);
