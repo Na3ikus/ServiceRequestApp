@@ -126,7 +126,7 @@
 - [x] **Enhanced RBAC**: Expanded role management and permissions
 - [ ] **Audit Logging**: Comprehensive system activity tracking
 - [ ] **Knowledge Base**: FAQ and self-service modules
-- [ ] **Mobile App**: Native mobile applications for iOS/Android
+- [x] **Mobile adaptiaon**: Native mobile web-app for phones
 - [x] **API**: RESTful API for third-party integrations
 - [ ] **Reporting**: Advanced reporting and analytics engine
 
