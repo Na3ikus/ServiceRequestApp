@@ -235,6 +235,47 @@ a, .btn-link {
 .overflow-y-auto,
 .overflow-x-auto {
     -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: rgb(148 163 184 / 0.7) rgb(15 23 42 / 0.08);
+}
+
+.dark .overflow-y-auto,
+.dark .overflow-x-auto {
+    scrollbar-color: rgb(148 163 184 / 0.75) rgb(15 23 42 / 0.6);
+}
+
+.overflow-y-auto::-webkit-scrollbar,
+.overflow-x-auto::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-track,
+.overflow-x-auto::-webkit-scrollbar-track {
+    background: rgb(148 163 184 / 0.16);
+    border-radius: 999px;
+}
+
+.dark .overflow-y-auto::-webkit-scrollbar-track,
+.dark .overflow-x-auto::-webkit-scrollbar-track {
+    background: rgb(15 23 42 / 0.68);
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb,
+.overflow-x-auto::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, rgb(99 102 241 / 0.92), rgb(59 130 246 / 0.9));
+    border-radius: 999px;
+    border: 2px solid rgb(255 255 255 / 0.45);
+}
+
+.dark .overflow-y-auto::-webkit-scrollbar-thumb,
+.dark .overflow-x-auto::-webkit-scrollbar-thumb {
+    border-color: rgb(15 23 42 / 0.65);
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb:hover,
+.overflow-x-auto::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, rgb(129 140 248), rgb(59 130 246));
 }
 
 /* Ticket list table layout stability */
@@ -563,9 +604,10 @@ a, .btn-link {
     margin-right: auto;
 }
 
-/* Prevent horizontal scrollbar jumps */
-html {
-    overflow-y: scroll;
+/* Keep single scroll container (main content) to avoid double scrollbar */
+html,
+body {
+    overflow: hidden;
 }
 
 /* Smooth page transitions */
