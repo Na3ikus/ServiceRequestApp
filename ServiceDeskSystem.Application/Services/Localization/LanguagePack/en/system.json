@@ -49,6 +49,10 @@
   "search.priorityLabel": "Priority",
   "search.statusLabel": "Status",
   "search.clearFilters": "Clear filters",
+  "notifications.title": "Notifications",
+  "notifications.markAllRead": "Mark all read",
+  "notifications.empty": "No notifications yet",
+  "notifications.delete": "Delete notification",
   "db.connectionLost": "No connection to the database",
   "db.connectionRestored": "Database connection restored"
 }

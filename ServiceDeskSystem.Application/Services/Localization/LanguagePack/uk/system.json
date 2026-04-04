@@ -49,6 +49,10 @@
   "search.priorityLabel": "Пріоритет",
   "search.statusLabel": "Статус",
   "search.clearFilters": "Очистити фільтри",
+  "notifications.title": "Сповіщення",
+  "notifications.markAllRead": "Позначити все прочитаним",
+  "notifications.empty": "Поки що немає сповіщень",
+  "notifications.delete": "Видалити сповіщення",
   "db.connectionLost": "Немає зв'язку до БД",
   "db.connectionRestored": "Зв'язок з БД відновлено"
 }

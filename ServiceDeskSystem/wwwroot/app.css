@@ -1553,6 +1553,22 @@ h3[tabindex] {
     overflow: hidden;
 }
 
+.notification-dropdown-enter {
+    transform-origin: top right;
+    animation: notificationDropdownEnter 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes notificationDropdownEnter {
+    from {
+        opacity: 0;
+        transform: translateY(-8px) scale(0.97);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
 .notification-item {
     display: flex;
     align-items: center;
@@ -1634,4 +1650,40 @@ h3[tabindex] {
 
 .dark .notification-time {
     color: #94a3b8;
+}
+
+.notification-wrapper.has-new .theme-toggle {
+    animation: notificationButtonHeartbeat 0.9s ease-in-out 2;
+}
+
+.notification-wrapper.has-new .notification-badge {
+    animation: notificationBadgePulse 0.9s ease-in-out 2;
+}
+
+@keyframes notificationButtonHeartbeat {
+    0%,
+    100% {
+        transform: scale(1);
+    }
+    25% {
+        transform: scale(1.06);
+    }
+    45% {
+        transform: scale(0.98);
+    }
+    70% {
+        transform: scale(1.04);
+    }
+}
+
+@keyframes notificationBadgePulse {
+    0%,
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.55);
+    }
+    50% {
+        transform: scale(1.15);
+        box-shadow: 0 0 0 8px rgba(239, 68, 68, 0);
+    }
 }

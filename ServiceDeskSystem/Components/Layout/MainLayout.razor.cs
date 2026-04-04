@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Routing;
 using Microsoft.JSInterop;
 using System.Net.Http.Json;
+using System.Globalization;
 using ServiceDeskSystem.Application.Services.Auth.Interfaces;
 using ServiceDeskSystem.Application.Services.Localization.Interfaces;
 using ServiceDeskSystem.Application.Services.Notifications.Interfaces;
@@ -17,6 +18,8 @@ namespace ServiceDeskSystem.Components.Layout;
 public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDisposable
 {
     private static readonly TimeSpan DatabaseMonitorInterval = TimeSpan.FromSeconds(15);
+    private static readonly TimeSpan NotificationMonitorInterval = TimeSpan.FromSeconds(5);
+    private static readonly TimeSpan NotificationPulseDuration = TimeSpan.FromSeconds(2);
     private readonly List<ToastMessage> toasts = [];
     private readonly List<UserNotificationDto> notifications = [];
 
@@ -26,15 +29,21 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
     private bool isSidebarCollapsed;
     private bool hotkeyRegistered;
     private bool databaseConnectionLost;
+    private bool hasNewNotificationPulse;
     private bool disposed;
+    private int? lastPolledUnreadCount;
     private DotNetObjectReference<MainLayout>? dotNetRef;
     private CancellationTokenSource? databaseMonitorCts;
     private Task? databaseMonitorTask;
+    private CancellationTokenSource? notificationMonitorCts;
+    private Task? notificationMonitorTask;
+    private CancellationTokenSource? notificationPulseCts;
 
     internal IReadOnlyList<ToastMessage> Toasts => this.toasts;
     internal IReadOnlyList<UserNotificationDto> Notifications => this.notifications;
     internal int UnreadNotificationsCount { get; private set; }
     internal bool IsNotificationsOpen => this.isNotificationsOpen;
+    internal bool HasNewNotificationPulse => this.hasNewNotificationPulse;
 
     [Inject]
     private IAuthService AuthService { get; set; } = null!;
@@ -80,6 +89,8 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
     public async ValueTask DisposeAsync()
     {
         await this.StopDatabaseMonitorAsync();
+        await this.StopNotificationMonitorAsync();
+        await this.UnregisterNotificationOutsideClickAsync();
 
         if (!this.disposed && this.hotkeyRegistered)
         {
@@ -127,6 +138,7 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
         this.authRestored = true;
         this.StartDatabaseMonitor();
         await this.LoadNotificationsAsync();
+        this.StartNotificationMonitor();
         await this.InvokeAsync(this.StateHasChanged);
     }
 
@@ -150,6 +162,14 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
             this.databaseMonitorCts?.Cancel();
             this.databaseMonitorCts?.Dispose();
             this.databaseMonitorCts = null;
+
+            this.notificationMonitorCts?.Cancel();
+            this.notificationMonitorCts?.Dispose();
+            this.notificationMonitorCts = null;
+
+            this.notificationPulseCts?.Cancel();
+            this.notificationPulseCts?.Dispose();
+            this.notificationPulseCts = null;
         }
 
         this.disposed = true;
@@ -159,6 +179,8 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
 
     private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
     {
+        _ = this.UnregisterNotificationOutsideClickAsync();
+        this.StopNotificationPulse();
         this.isNotificationsOpen = false;
 
         if (!this.isSidebarOpen)
@@ -183,74 +205,13 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
     private async Task HandleLogout()
     {
         await this.AuthService.LogoutAsync();
+        await this.UnregisterNotificationOutsideClickAsync();
         this.notifications.Clear();
         this.UnreadNotificationsCount = 0;
+        this.lastPolledUnreadCount = 0;
+        this.StopNotificationPulse();
         this.isNotificationsOpen = false;
         this.Navigation.NavigateTo("/login");
-    }
-
-    private async Task ToggleNotificationsAsync()
-    {
-        this.isNotificationsOpen = !this.isNotificationsOpen;
-
-        if (this.isNotificationsOpen)
-        {
-            await this.LoadNotificationsAsync();
-
-            var userId = this.AuthService.CurrentUser?.Id;
-            if (userId is not null && this.UnreadNotificationsCount > 0)
-            {
-                await this.NotificationService.MarkAllAsReadAsync(userId.Value);
-                await this.LoadNotificationsAsync();
-            }
-        }
-    }
-
-    private async Task DeleteNotificationAsync(int notificationId)
-    {
-        var userId = this.AuthService.CurrentUser?.Id;
-        if (userId is null)
-        {
-            return;
-        }
-
-        await this.NotificationService.DeleteAsync(notificationId, userId.Value);
-        await this.LoadNotificationsAsync();
-    }
-
-    private async Task MarkNotificationsAsReadAsync()
-    {
-        var userId = this.AuthService.CurrentUser?.Id;
-        if (userId is null)
-        {
-            return;
-        }
-
-        await this.NotificationService.MarkAllAsReadAsync(userId.Value);
-        await this.LoadNotificationsAsync();
-    }
-
-    private async Task OpenNotificationAsync(UserNotificationDto notification)
-    {
-        this.isNotificationsOpen = false;
-        this.Navigation.NavigateTo($"/ticket/{notification.TicketId}");
-        await this.LoadNotificationsAsync();
-    }
-
-    private async Task LoadNotificationsAsync()
-    {
-        var userId = this.AuthService.CurrentUser?.Id;
-        if (userId is null)
-        {
-            this.notifications.Clear();
-            this.UnreadNotificationsCount = 0;
-            return;
-        }
-
-        var latest = await this.NotificationService.GetRecentForUserAsync(userId.Value, 8);
-        this.notifications.Clear();
-        this.notifications.AddRange(latest);
-        this.UnreadNotificationsCount = await this.NotificationService.GetUnreadCountAsync(userId.Value);
     }
 
     private void StartDatabaseMonitor()
@@ -363,5 +324,23 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
     private sealed class DatabaseHealthResponse
     {
         public bool IsAvailable { get; init; }
+    }
+
+    private string GetHeaderDateText()
+    {
+        var culture = this.L.CurrentLanguage == "uk"
+            ? CultureInfo.GetCultureInfo("uk-UA")
+            : CultureInfo.GetCultureInfo("en-US");
+
+        return DateTime.Now.ToString("dddd, MMMM dd, yyyy", culture);
+    }
+
+    private string FormatNotificationTime(DateTime utcDateTime)
+    {
+        var culture = this.L.CurrentLanguage == "uk"
+            ? CultureInfo.GetCultureInfo("uk-UA")
+            : CultureInfo.GetCultureInfo("en-US");
+
+        return utcDateTime.ToLocalTime().ToString("g", culture);
     }
 }
