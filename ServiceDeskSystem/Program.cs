@@ -1,9 +1,9 @@
+using Microsoft.EntityFrameworkCore;
 using ServiceDeskSystem.Application;
 using ServiceDeskSystem.Components;
 using ServiceDeskSystem.Domain.Interfaces;
 using ServiceDeskSystem.Infrastructure;
 using ServiceDeskSystem.Infrastructure.Data;
-using Microsoft.EntityFrameworkCore;
 
 namespace ServiceDeskSystem;
 

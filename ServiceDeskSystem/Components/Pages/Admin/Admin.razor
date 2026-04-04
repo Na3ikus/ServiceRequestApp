@@ -21,33 +21,89 @@
     }
     else
     {
-            <div class="mb-6">
-                <h1 class="text-2xl font-bold text-gray-800 dark:text-white">@L.Translate("admin.title")</h1>
-                <p class="text-gray-600 dark:text-gray-400">@L.Translate("admin.subtitle")</p>
+            <div class="relative overflow-hidden bg-gradient-to-br from-indigo-600 via-blue-700 to-indigo-800 rounded-3xl shadow-lg p-6 sm:p-8 mb-6 border border-white/10 dark:border-gray-800 group">
+                <div class="absolute top-0 right-0 -mr-10 -mt-10 w-48 h-48 rounded-full bg-white/10 blur-2xl pointer-events-none group-hover:scale-110 transition-transform duration-700"></div>
+                <div class="absolute bottom-0 left-0 -ml-10 -mb-10 w-64 h-64 rounded-full bg-blue-500/20 blur-2xl pointer-events-none group-hover:scale-110 transition-transform duration-700"></div>
+
+                <div class="relative z-10 flex flex-col gap-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <div class="text-white">
+                            <h1 class="text-2xl sm:text-3xl font-extrabold mb-1 tracking-tight flex items-center gap-3">
+                                <div class="p-2 bg-white/10 rounded-lg backdrop-blur-sm">
+                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                    </svg>
+                                </div>
+                                @L.Translate("admin.title")
+                            </h1>
+                            <p class="text-indigo-100 text-sm sm:text-base">@L.Translate("admin.subtitle")</p>
+                        </div>
+                    </div>
+
+                    <div class="admin-stats-grid grid grid-cols-2 lg:grid-cols-4 gap-3">
+                        <div class="admin-stat-card bg-white/10 border border-white/20 rounded-xl px-4 py-3 backdrop-blur-sm">
+                            <div class="text-xs uppercase tracking-wide text-indigo-100">@L.Translate("admin.products")</div>
+                            <div class="text-2xl font-bold text-white">@(products?.Count ?? 0)</div>
+                        </div>
+                        <div class="admin-stat-card bg-white/10 border border-white/20 rounded-xl px-4 py-3 backdrop-blur-sm">
+                            <div class="text-xs uppercase tracking-wide text-indigo-100">@L.Translate("admin.techStacks")</div>
+                            <div class="text-2xl font-bold text-white">@(techStacks?.Count ?? 0)</div>
+                        </div>
+                        <div class="admin-stat-card bg-white/10 border border-white/20 rounded-xl px-4 py-3 backdrop-blur-sm">
+                            <div class="text-xs uppercase tracking-wide text-indigo-100">@L.Translate("admin.users")</div>
+                            <div class="text-2xl font-bold text-white">@(users?.Count ?? 0)</div>
+                        </div>
+                        <div class="admin-stat-card admin-stat-card-smtp bg-white/10 border border-white/20 rounded-xl px-4 py-3 backdrop-blur-sm">
+                            <div class="text-xs uppercase tracking-wide text-indigo-100">SMTP</div>
+                            <div class="mt-1 flex items-center justify-between gap-2">
+                                <span class="smtp-health-flag @(smtpCheckSuccess == true ? "is-ok" : smtpCheckSuccess == false ? "is-fail" : "is-unknown")">
+                                    <span class="smtp-health-dot"></span>
+                                    @(isCheckingSmtp ? "Checking..." : smtpCheckSuccess == true ? "Connected" : smtpCheckSuccess == false ? "No connection" : "Unknown")
+                                </span>
+                                <button @onclick="CheckSmtpStatusFromCardAsync"
+                                        class="smtp-health-refresh-btn"
+                                        disabled="@isCheckingSmtp">
+                                    Check
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Tab Navigation -->
-            <div class="flex gap-2 mb-6 overflow-x-auto pb-1">
+            <div class="admin-tab-nav hidden md:flex items-center gap-2 mb-6 overflow-x-auto pb-1 bg-white dark:bg-gray-800/80 rounded-2xl p-2 border border-gray-200 dark:border-gray-700/50 shadow-sm">
                 <button @onclick="@(() => SetActiveTab("products"))"
-                    class="px-4 py-2 rounded-lg font-medium transition-colors @(activeTab == "products" ? "bg-blue-600 text-white" : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700")">
+                    class="admin-tab-btn px-4 py-2 rounded-xl font-semibold transition-all @(activeTab == "products" ? "is-active bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg" : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700")">
                 @L.Translate("admin.products")
                 </button>
                 <button @onclick="@(() => SetActiveTab("techstacks"))"
-                    class="px-4 py-2 rounded-lg font-medium transition-colors @(activeTab == "techstacks" ? "bg-blue-600 text-white" : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700")">
+                    class="admin-tab-btn px-4 py-2 rounded-xl font-semibold transition-all @(activeTab == "techstacks" ? "is-active bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg" : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700")">
                 @L.Translate("admin.techStacks")
                 </button>
                 <button @onclick="@(() => SetActiveTab("users"))"
-                    class="px-4 py-2 rounded-lg font-medium transition-colors @(activeTab == "users" ? "bg-blue-600 text-white" : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700")">
+                    class="admin-tab-btn px-4 py-2 rounded-xl font-semibold transition-all @(activeTab == "users" ? "is-active bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg" : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700")">
                 @L.Translate("admin.users")
                 </button>
                 <button @onclick="@(() => SetActiveTab("smtp"))"
-                    class="px-4 py-2 rounded-lg font-medium transition-colors @(activeTab == "smtp" ? "bg-blue-600 text-white" : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700")">
+                    class="admin-tab-btn px-4 py-2 rounded-xl font-semibold transition-all @(activeTab == "smtp" ? "is-active bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg" : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700")">
                     SMTP
                 </button>
             </div>
 
-        @if (activeTab == "products")
-        {
+            <div class="md:hidden mb-4">
+                <button @onclick="ToggleQuickAdminMenu"
+                        class="w-full px-4 py-3 rounded-xl bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 shadow-sm flex items-center justify-between">
+                    <span class="font-medium">Адмін-панель</span>
+                    <svg class="w-5 h-5 transition-transform @(isQuickAdminMenuOpen ? "rotate-180" : "")" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </button>
+            </div>
+
+        <div @key="activeTab" class="admin-tab-content">
+            @if (activeTab == "products")
+            {
                     <!-- Products Section -->
                     <div
                         class="bg-white dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-lg border border-transparent dark:border-gray-700/50 p-6 mb-6">
@@ -138,9 +194,9 @@
                                 </div>
                 }
                     </div>
-        }
-        else if (activeTab == "techstacks")
-        {
+            }
+            else if (activeTab == "techstacks")
+            {
                     <!-- Tech Stacks Section -->
                     <div
                         class="bg-white dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-lg border border-transparent dark:border-gray-700/50 p-6">
@@ -225,9 +281,9 @@
                                 </div>
                 }
                     </div>
-        }
-        else if (activeTab == "users")
-        {
+            }
+            else if (activeTab == "users")
+            {
                     <!-- Users Section -->
                     <div
                         class="admin-content-section bg-white dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-lg border border-transparent dark:border-gray-700/50 p-6">
@@ -311,9 +367,9 @@
                                 </div>
                 }
                     </div>
-        }
-        else if (activeTab == "smtp")
-        {
+            }
+            else if (activeTab == "smtp")
+            {
             <div class="admin-content-section bg-white dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-lg border border-transparent dark:border-gray-700/50 p-6 space-y-6">
                 <div>
                     <h2 class="text-lg font-semibold text-gray-800 dark:text-white">SMTP Integration</h2>
@@ -375,51 +431,113 @@
                     }
                 </div>
             </div>
-        }
+            }
+        </div>
     }
 </div>
+
+@if (AuthService.CurrentUser?.Role == "Admin")
+{
+    <div class="admin-quick-nav md:hidden @(isQuickAdminMenuOpen ? "open" : "")">
+        <div class="admin-quick-nav-overlay" @onclick="CloseQuickAdminMenu"></div>
+        <div class="admin-quick-nav-sheet">
+            <div class="admin-quick-nav-header">
+                <span class="font-semibold text-gray-800 dark:text-white">Адмін-панель</span>
+                <button @onclick="CloseQuickAdminMenu"
+                        class="p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="admin-quick-nav-grid">
+                <button @onclick="@(() => SetActiveTabFromQuickMenu("products"))"
+                        class="admin-quick-nav-item @(activeTab == "products" ? "is-active" : "")">
+                    @L.Translate("admin.products")
+                </button>
+                <button @onclick="@(() => SetActiveTabFromQuickMenu("techstacks"))"
+                        class="admin-quick-nav-item @(activeTab == "techstacks" ? "is-active" : "")">
+                    @L.Translate("admin.techStacks")
+                </button>
+                <button @onclick="@(() => SetActiveTabFromQuickMenu("users"))"
+                        class="admin-quick-nav-item @(activeTab == "users" ? "is-active" : "")">
+                    @L.Translate("admin.users")
+                </button>
+                <button @onclick="@(() => SetActiveTabFromQuickMenu("smtp"))"
+                        class="admin-quick-nav-item @(activeTab == "smtp" ? "is-active" : "")">
+                    SMTP
+                </button>
+            </div>
+        </div>
+    </div>
+}
 
 <!-- Modal - moved outside for proper z-index layering -->
 @if (showModal)
 {
         <div class="modal-overlay" @onclick="CloseModal">
-            <div class="modal-content animate-fade-in" @onclick:stopPropagation>
+            <div class="modal-content admin-modal-content animate-fade-in" @onclick:stopPropagation>
                 <!-- Close button -->
                 <button @onclick="CloseModal"
-                    class="absolute top-4 right-4 z-10 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors">
+                    class="admin-modal-close absolute top-4 right-4 z-10 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
                 </button>
 
-                <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4 pr-10">@modalTitle</h3>
+                <div class="admin-modal-header mb-5 pr-10">
+                    <div class="flex items-start gap-3">
+                        <div class="w-11 h-11 rounded-xl flex items-center justify-center @(modalType == "product" ? "bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-300" : "bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-300")">
+                            @if (modalType == "product")
+                            {
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                                </svg>
+                            }
+                            else
+                            {
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.427 1.756 2.925 0 3.352a1.724 1.724 0 00-1.066 2.572c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.427 1.756-2.925 1.756-3.352 0a1.724 1.724 0 00-2.572-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.427-1.756-2.925 0-3.352a1.724 1.724 0 001.066-2.572c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15a3 3 0 100-6 3 3 0 000 6z"></path>
+                                </svg>
+                            }
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-800 dark:text-white">@modalTitle</h3>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">
+                                @(modalType == "product" ? "Configure product details and link it to a tech stack." : "Configure tech stack name and type.")
+                            </p>
+                        </div>
+                    </div>
+                </div>
 
             @if (modalType == "product")
             {
-                        <div class="space-y-4">
+                        <div class="admin-modal-body space-y-4">
                             <div>
                                 <label
                                     class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">@L.Translate("admin.name")</label>
                                 <input type="text" @bind="editingProduct.Name"
-                                    class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
+                                    class="admin-modal-field w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
                             </div>
                             <div>
                                 <label
                                     class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">@L.Translate("admin.description")</label>
                                 <textarea @bind="editingProduct.Description" rows="3"
-                                    class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white resize-none"></textarea>
+                                    class="admin-modal-field w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white resize-none"></textarea>
                             </div>
                             <div>
                                 <label
                                     class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">@L.Translate("admin.version")</label>
                                 <input type="text" @bind="editingProduct.CurrentVersion"
-                                    class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
+                                    class="admin-modal-field w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
                             </div>
                             <div>
                                 <label
                                     class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">@L.Translate("admin.techStack")</label>
                                 <select @bind="editingProduct.TechStackId"
-                                    class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                                    class="admin-modal-field w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
                             @foreach (var ts in techStacks ?? [])
                             {
                                             <option value="@ts.Id">@ts.Name (@ts.Type)</option>
@@ -430,36 +548,36 @@
             }
             else if (modalType == "techstack")
             {
-                        <div class="space-y-4">
+                        <div class="admin-modal-body space-y-4">
                             <div>
                                 <label
                                     class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">@L.Translate("admin.name")</label>
                                 <input type="text" @bind="editingTechStack.Name"
-                                    class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
+                                    class="admin-modal-field w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
                             </div>
                             <div>
                                 <label
                                     class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">@L.Translate("admin.type")</label>
                                 <input type="text" @bind="editingTechStack.Type"
-                                    class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
+                                    class="admin-modal-field w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
                             </div>
                         </div>
             }
 
             @if (!string.IsNullOrEmpty(errorMessage))
             {
-                        <div class="mt-4 p-3 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-lg text-sm">
+                        <div class="mt-4 p-3 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-lg text-sm border border-red-200 dark:border-red-800/40">
                     @errorMessage
                         </div>
             }
 
-                <div class="flex justify-end gap-3 mt-6">
+                <div class="admin-modal-footer flex justify-end gap-3 mt-6">
                     <button @onclick="CloseModal"
-                        class="px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                        class="px-4 py-2 text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700/70 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors">
                     @L.Translate("admin.cancel")
                     </button>
                     <button @onclick="SaveModal"
-                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                        class="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-colors shadow-md"
                         disabled="@isSaving">
                     @if (isSaving)
                     {

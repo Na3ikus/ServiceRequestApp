@@ -43,6 +43,8 @@ public partial class Admin : BaseComponent
 
     private string activeTab { get; set; } = "products";
 
+    private bool isQuickAdminMenuOpen;
+
     private bool showModal { get; set; }
 
     private string modalTitle { get; set; } = string.Empty;
@@ -91,6 +93,7 @@ public partial class Admin : BaseComponent
         if (this.IsAdmin)
         {
             await this.LoadDataAsync();
+            await this.CheckSmtpStatusAsync(showToast: false);
         }
     }
 
@@ -134,7 +137,27 @@ public partial class Admin : BaseComponent
 
     private void SetActiveTab(string tab) => this.activeTab = tab;
 
+    private void ToggleQuickAdminMenu() => this.isQuickAdminMenuOpen = !this.isQuickAdminMenuOpen;
+
+    private void CloseQuickAdminMenu() => this.isQuickAdminMenuOpen = false;
+
+    private void SetActiveTabFromQuickMenu(string tab)
+    {
+        this.activeTab = tab;
+        this.isQuickAdminMenuOpen = false;
+    }
+
     private async Task CheckSmtpAsync()
+    {
+        await this.CheckSmtpStatusAsync(showToast: true);
+    }
+
+    private async Task CheckSmtpStatusFromCardAsync()
+    {
+        await this.CheckSmtpStatusAsync(showToast: false);
+    }
+
+    private async Task CheckSmtpStatusAsync(bool showToast)
     {
         if (this.isCheckingSmtp)
         {
@@ -150,15 +173,22 @@ public partial class Admin : BaseComponent
             this.smtpCheckSuccess = isSuccess;
             this.smtpCheckMessage = message;
 
-            await this.ShowToastAsync(
-                isSuccess ? "SMTP connection is healthy." : $"SMTP check failed: {message}",
-                isSuccess ? ToastType.Success : ToastType.Error).ConfigureAwait(false);
+            if (showToast)
+            {
+                await this.ShowToastAsync(
+                    isSuccess ? "SMTP connection is healthy." : $"SMTP check failed: {message}",
+                    isSuccess ? ToastType.Success : ToastType.Error).ConfigureAwait(false);
+            }
         }
         catch (Exception ex)
         {
             this.smtpCheckSuccess = false;
             this.smtpCheckMessage = ex.Message;
-            await this.ShowToastAsync($"SMTP check error: {ex.Message}", ToastType.Error).ConfigureAwait(false);
+
+            if (showToast)
+            {
+                await this.ShowToastAsync($"SMTP check error: {ex.Message}", ToastType.Error).ConfigureAwait(false);
+            }
         }
         finally
         {

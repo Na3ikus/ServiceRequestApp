@@ -415,7 +415,8 @@ a, .btn-link {
     width: 100vw !important;
     height: 100vh !important;
     z-index: 99999 !important;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(2, 6, 23, 0.62);
+    backdrop-filter: blur(4px);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -438,6 +439,46 @@ a, .btn-link {
     background-color: rgb(31 41 55);
 }
 
+.admin-modal-content {
+    width: min(100%, 42rem);
+    max-width: 42rem;
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    border-radius: 1.25rem;
+    box-shadow: 0 30px 80px rgba(15, 23, 42, 0.3);
+}
+
+.dark .admin-modal-content {
+    border-color: rgba(71, 85, 105, 0.65);
+}
+
+.admin-modal-header {
+    padding-bottom: 0.85rem;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.85);
+}
+
+.dark .admin-modal-header {
+    border-bottom-color: rgba(71, 85, 105, 0.6);
+}
+
+.admin-modal-field {
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.admin-modal-field:focus {
+    outline: none;
+    border-color: rgb(59 130 246 / 0.9);
+    box-shadow: 0 0 0 3px rgb(59 130 246 / 0.2);
+}
+
+.admin-modal-footer {
+    padding-top: 1rem;
+    border-top: 1px solid rgba(226, 232, 240, 0.85);
+}
+
+.dark .admin-modal-footer {
+    border-top-color: rgba(71, 85, 105, 0.6);
+}
+
 /* Modal close button - ensure it's on the right */
 .modal-content > button:first-of-type {
     position: absolute !important;
@@ -450,6 +491,14 @@ a, .btn-link {
 /* Modal title with padding for close button */
 .modal-content > h3 {
     padding-right: 2.5rem !important;
+}
+
+@media (max-width: 640px) {
+    .admin-modal-content {
+        padding: 1rem;
+        max-height: 92vh;
+        border-radius: 1rem;
+    }
 }
 
 /* Admin panel action buttons - better visibility in dark mode */
@@ -473,17 +522,39 @@ a, .btn-link {
 .admin-table {
     table-layout: fixed !important;
     width: 100% !important;
+    border-collapse: separate;
+    border-spacing: 0;
 }
 
 .admin-table thead th {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    position: sticky;
+    top: 0;
+    z-index: 5;
 }
 
 .admin-table tbody td {
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+.admin-table thead tr th:first-child {
+    border-top-left-radius: 0.75rem;
+}
+
+.admin-table thead tr th:last-child {
+    border-top-right-radius: 0.75rem;
+}
+
+.admin-table tbody tr {
+    transition: all 0.2s ease;
+}
+
+.admin-table tbody tr:hover {
+    transform: translateY(-1px);
+    box-shadow: inset 0 0 0 1px rgba(59, 130, 246, 0.12);
 }
 
 /* Products table column widths */
@@ -585,6 +656,16 @@ a, .btn-link {
     overflow-x: auto;
     min-height: 400px;
     position: relative;
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    border-radius: 1rem;
+    background: linear-gradient(180deg, rgba(248, 250, 252, 0.75), rgba(255, 255, 255, 0.95));
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+}
+
+.dark .admin-table-container {
+    border-color: rgba(71, 85, 105, 0.45);
+    background: linear-gradient(180deg, rgba(30, 41, 59, 0.45), rgba(15, 23, 42, 0.65));
+    box-shadow: 0 12px 28px rgba(2, 6, 23, 0.35);
 }
 
 /* Smooth transitions for content changes */
@@ -596,6 +677,250 @@ a, .btn-link {
 .admin-content-section {
     min-height: 500px;
     transition: opacity 0.2s ease;
+}
+
+.admin-tab-nav {
+    position: relative;
+}
+
+.admin-tab-btn {
+    position: relative;
+    overflow: hidden;
+}
+
+.admin-tab-btn::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: 0.18rem;
+    width: 0;
+    height: 2px;
+    border-radius: 999px;
+    background: rgba(59, 130, 246, 0.9);
+    transform: translateX(-50%);
+    transition: width 0.22s ease;
+}
+
+.admin-tab-btn:hover::after {
+    width: 62%;
+}
+
+.admin-tab-btn.is-active::after {
+    width: 0;
+}
+
+.admin-tab-content {
+    animation: adminTabContentEnter 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes adminTabContentEnter {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.admin-stat-card {
+    transition: transform 0.25s ease, box-shadow 0.25s ease, background-color 0.25s ease, border-color 0.25s ease;
+}
+
+.admin-stats-grid .admin-stat-card {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+    animation: adminTileEnter 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.admin-stats-grid .admin-stat-card:nth-child(1) { animation-delay: 0.05s; }
+.admin-stats-grid .admin-stat-card:nth-child(2) { animation-delay: 0.12s; }
+.admin-stats-grid .admin-stat-card:nth-child(3) { animation-delay: 0.19s; }
+.admin-stats-grid .admin-stat-card:nth-child(4) { animation-delay: 0.26s; }
+
+@keyframes adminTileEnter {
+    from {
+        opacity: 0;
+        transform: translateY(12px) scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .admin-stats-grid .admin-stat-card {
+        animation: none;
+        opacity: 1;
+        transform: none;
+    }
+
+    .admin-tab-content {
+        animation: none;
+    }
+}
+
+.admin-stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 14px 30px rgba(15, 23, 42, 0.24);
+    border-color: rgba(255, 255, 255, 0.45);
+    background-color: rgba(255, 255, 255, 0.16);
+}
+
+.smtp-health-flag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0.3rem 0.55rem;
+    border-radius: 9999px;
+    border: 1px solid transparent;
+    color: #fff;
+}
+
+.smtp-health-dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 9999px;
+    background: currentColor;
+    box-shadow: 0 0 0 0 currentColor;
+    animation: smtpPulse 1.8s infinite;
+}
+
+.smtp-health-flag.is-ok {
+    color: #86efac;
+    background: rgba(34, 197, 94, 0.16);
+    border-color: rgba(134, 239, 172, 0.45);
+}
+
+.smtp-health-flag.is-fail {
+    color: #fca5a5;
+    background: rgba(239, 68, 68, 0.16);
+    border-color: rgba(252, 165, 165, 0.4);
+}
+
+.smtp-health-flag.is-unknown {
+    color: #bfdbfe;
+    background: rgba(59, 130, 246, 0.14);
+    border-color: rgba(191, 219, 254, 0.45);
+}
+
+.smtp-health-refresh-btn {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #e0e7ff;
+    background: rgba(255, 255, 255, 0.16);
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    border-radius: 0.55rem;
+    padding: 0.25rem 0.45rem;
+    transition: all 0.2s ease;
+}
+
+.smtp-health-refresh-btn:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.26);
+}
+
+.smtp-health-refresh-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+@keyframes smtpPulse {
+    0% {
+        box-shadow: 0 0 0 0 currentColor;
+    }
+    70% {
+        box-shadow: 0 0 0 8px transparent;
+    }
+    100% {
+        box-shadow: 0 0 0 0 transparent;
+    }
+}
+
+.admin-quick-nav {
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    pointer-events: none;
+}
+
+.admin-quick-nav-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.45);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.admin-quick-nav-sheet {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #ffffff;
+    border-top-left-radius: 1rem;
+    border-top-right-radius: 1rem;
+    padding: 1rem;
+    box-shadow: 0 -15px 40px rgba(15, 23, 42, 0.2);
+    transform: translateY(100%);
+    transition: transform 0.2s ease;
+}
+
+.dark .admin-quick-nav-sheet {
+    background: #1f2937;
+    border-top: 1px solid rgba(148, 163, 184, 0.25);
+}
+
+.admin-quick-nav.open {
+    pointer-events: auto;
+}
+
+.admin-quick-nav.open .admin-quick-nav-overlay {
+    opacity: 1;
+}
+
+.admin-quick-nav.open .admin-quick-nav-sheet {
+    transform: translateY(0);
+}
+
+.admin-quick-nav-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+}
+
+.admin-quick-nav-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+}
+
+.admin-quick-nav-item {
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    padding: 0.7rem 0.75rem;
+    text-align: center;
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: #334155;
+    background: #f8fafc;
+}
+
+.admin-quick-nav-item.is-active {
+    color: #ffffff;
+    background: linear-gradient(90deg, #2563eb, #4f46e5);
+    border-color: transparent;
+}
+
+.dark .admin-quick-nav-item {
+    border-color: rgba(148, 163, 184, 0.3);
+    color: #e2e8f0;
+    background: rgba(30, 41, 59, 0.85);
 }
 
 /* Global container stability */
