@@ -120,7 +120,7 @@
 ###  Planned Features
 
 - [ ] **Advanced SLA Policies**: Automated escalations and SLA breach notifications
-- [ ] **Email Integration**: SMTP support for notifications
+- [x] **Email Integration**: SMTP support for notifications
 - [ ] **Chat Integration**: Teams/Slack webhook integration
 - [x] **KPI Dashboards**: MTTR, MTBF, SLA compliance metrics
 - [x] **Enhanced RBAC**: Expanded role management and permissions
