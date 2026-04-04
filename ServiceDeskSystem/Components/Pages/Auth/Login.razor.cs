@@ -79,6 +79,12 @@ public partial class Login : BaseComponent
                     ? "Акаунт деактивовано. Будь ласка, зверніться до адміністратора."
                     : error;
             }
+            else if (error == "Database connection is unavailable.")
+            {
+                this.ErrorMessage = this.L.CurrentLanguage == "uk"
+                    ? "Немає зв'язку до БД"
+                    : "No connection to the database.";
+            }
             else
             {
                 this.ErrorMessage = error ?? "Login failed. Please try again.";

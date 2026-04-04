@@ -48,5 +48,7 @@
   "search.label": "Пошук",
   "search.priorityLabel": "Пріоритет",
   "search.statusLabel": "Статус",
-  "search.clearFilters": "Очистити фільтри"
+  "search.clearFilters": "Очистити фільтри",
+  "db.connectionLost": "Немає зв'язку до БД",
+  "db.connectionRestored": "Зв'язок з БД відновлено"
 }

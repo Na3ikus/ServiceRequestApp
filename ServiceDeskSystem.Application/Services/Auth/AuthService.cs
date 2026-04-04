@@ -5,6 +5,7 @@ using ServiceDeskSystem.Infrastructure.Data;
 using ServiceDeskSystem.Domain.Entities;
 using ServiceDeskSystem.Domain.Interfaces;
 using System.Security.Cryptography;
+using System.Data.Common;
 using ServiceDeskSystem.Application.Services.Auth.Interfaces;
 
 namespace ServiceDeskSystem.Application.Services.Auth;
@@ -69,8 +70,20 @@ public sealed class AuthService(
             return (false, "Username and password are required.");
         }
 
-        await using var repo = new RepositoryFacade(contextFactory);
-        var user = await repo.Users.GetByLoginAsync(username).ConfigureAwait(false);
+        User? user;
+        try
+        {
+            await using var repo = new RepositoryFacade(contextFactory);
+            user = await repo.Users.GetByLoginAsync(username).ConfigureAwait(false);
+        }
+        catch (DbException)
+        {
+            return (false, "Database connection is unavailable.");
+        }
+        catch (InvalidOperationException)
+        {
+            return (false, "Database connection is unavailable.");
+        }
 
         if (user is null)
         {

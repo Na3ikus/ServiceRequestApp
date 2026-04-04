@@ -1,6 +1,8 @@
 using ServiceDeskSystem.Application;
 using ServiceDeskSystem.Components;
 using ServiceDeskSystem.Infrastructure;
+using ServiceDeskSystem.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace ServiceDeskSystem;
 
@@ -12,6 +14,7 @@ internal static class Program
 
         builder.Services.AddRazorComponents()
             .AddInteractiveServerComponents();
+        builder.Services.AddHttpClient();
 
         builder.Services.AddInfrastructureServices(builder.Configuration);
         builder.Services.AddApplicationServices();
@@ -30,6 +33,20 @@ internal static class Program
         app.UseAntiforgery();
 
         app.MapStaticAssets();
+        app.MapGet("/health/db", async (IDbContextFactory<BugTrackerDbContext> dbContextFactory, CancellationToken cancellationToken) =>
+        {
+            try
+            {
+                await using var dbContext = await dbContextFactory.CreateDbContextAsync(cancellationToken).ConfigureAwait(false);
+                var isAvailable = await dbContext.Database.CanConnectAsync(cancellationToken).ConfigureAwait(false);
+                return Results.Ok(new { IsAvailable = isAvailable });
+            }
+            catch
+            {
+                return Results.Ok(new { IsAvailable = false });
+            }
+        });
+
         app.MapRazorComponents<App>()
             .AddInteractiveServerRenderMode();
 

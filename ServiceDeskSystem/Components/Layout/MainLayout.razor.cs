@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Routing;
 using Microsoft.JSInterop;
+using System.Net.Http.Json;
 using ServiceDeskSystem.Application.Services.Auth.Interfaces;
 using ServiceDeskSystem.Application.Services.Localization.Interfaces;
 using ServiceDeskSystem.Application.Services.Theme.Interfaces;
+using ServiceDeskSystem.Components.UI.Base;
 
 namespace ServiceDeskSystem.Components.Layout;
 
@@ -12,12 +14,20 @@ namespace ServiceDeskSystem.Components.Layout;
 /// </summary>
 public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDisposable
 {
+    private static readonly TimeSpan DatabaseMonitorInterval = TimeSpan.FromSeconds(15);
+    private readonly List<ToastMessage> toasts = [];
+
     private bool authRestored;
     private bool isSidebarOpen;
     private bool isSidebarCollapsed;
     private bool hotkeyRegistered;
+    private bool databaseConnectionLost;
     private bool disposed;
     private DotNetObjectReference<MainLayout>? dotNetRef;
+    private CancellationTokenSource? databaseMonitorCts;
+    private Task? databaseMonitorTask;
+
+    internal IReadOnlyList<ToastMessage> Toasts => this.toasts;
 
     [Inject]
     private IAuthService AuthService { get; set; } = null!;
@@ -33,6 +43,9 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
 
     [Inject]
     private IJSRuntime JS { get; set; } = null!;
+
+    [Inject]
+    private IHttpClientFactory HttpClientFactory { get; set; } = null!;
 
     [JSInvokable]
     public async Task HandleSidebarHotkey()
@@ -56,6 +69,8 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
 
     public async ValueTask DisposeAsync()
     {
+        await this.StopDatabaseMonitorAsync();
+
         if (!this.disposed && this.hotkeyRegistered)
         {
             try
@@ -100,6 +115,7 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
         this.hotkeyRegistered = true;
 
         this.authRestored = true;
+        this.StartDatabaseMonitor();
         await this.InvokeAsync(this.StateHasChanged);
     }
 
@@ -119,6 +135,10 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
 
             this.dotNetRef?.Dispose();
             this.dotNetRef = null;
+
+            this.databaseMonitorCts?.Cancel();
+            this.databaseMonitorCts?.Dispose();
+            this.databaseMonitorCts = null;
         }
 
         this.disposed = true;
@@ -151,5 +171,117 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
     {
         await this.AuthService.LogoutAsync();
         this.Navigation.NavigateTo("/login");
+    }
+
+    private void StartDatabaseMonitor()
+    {
+        if (this.databaseMonitorCts is not null)
+        {
+            return;
+        }
+
+        this.databaseMonitorCts = new CancellationTokenSource();
+        this.databaseMonitorTask = this.MonitorDatabaseConnectionAsync(this.databaseMonitorCts.Token);
+    }
+
+    private async Task StopDatabaseMonitorAsync()
+    {
+        if (this.databaseMonitorCts is null)
+        {
+            return;
+        }
+
+        await this.databaseMonitorCts.CancelAsync();
+
+        if (this.databaseMonitorTask is not null)
+        {
+            try
+            {
+                await this.databaseMonitorTask;
+            }
+            catch (OperationCanceledException)
+            {
+                // Expected during shutdown.
+            }
+        }
+
+        this.databaseMonitorCts.Dispose();
+        this.databaseMonitorCts = null;
+        this.databaseMonitorTask = null;
+    }
+
+    private async Task MonitorDatabaseConnectionAsync(CancellationToken cancellationToken)
+    {
+        using var timer = new PeriodicTimer(DatabaseMonitorInterval);
+
+        while (await timer.WaitForNextTickAsync(cancellationToken))
+        {
+            var isAvailable = await this.IsDatabaseAvailableAsync(cancellationToken);
+
+            if (!isAvailable && !this.databaseConnectionLost)
+            {
+                this.databaseConnectionLost = true;
+                await this.ShowToastAsync(this.L.Translate("db.connectionLost"), ToastType.Error);
+                continue;
+            }
+
+            if (isAvailable && this.databaseConnectionLost)
+            {
+                this.databaseConnectionLost = false;
+                await this.ShowToastAsync(this.L.Translate("db.connectionRestored"), ToastType.Success);
+            }
+        }
+    }
+
+    private async Task<bool> IsDatabaseAvailableAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            using var client = this.HttpClientFactory.CreateClient();
+            client.BaseAddress = new Uri(this.Navigation.BaseUri);
+
+            using var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            timeoutCts.CancelAfter(TimeSpan.FromSeconds(5));
+
+            var response = await client.GetFromJsonAsync<DatabaseHealthResponse>("health/db", timeoutCts.Token);
+            return response?.IsAvailable ?? false;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    private async Task ShowToastAsync(string message, ToastType type = ToastType.Info, int durationMs = 5000)
+    {
+        var toast = new ToastMessage { Message = message, Type = type };
+        this.toasts.Add(toast);
+        await this.InvokeAsync(this.StateHasChanged);
+
+        _ = Task.Run(async () =>
+        {
+            await Task.Delay(durationMs);
+
+            toast.IsHiding = true;
+            await this.InvokeAsync(this.StateHasChanged);
+
+            await Task.Delay(300);
+            this.toasts.Remove(toast);
+            await this.InvokeAsync(this.StateHasChanged);
+        });
+    }
+
+    private async Task RemoveToastAsync(ToastMessage toast)
+    {
+        toast.IsHiding = true;
+        await this.InvokeAsync(this.StateHasChanged);
+        await Task.Delay(300);
+        this.toasts.Remove(toast);
+        await this.InvokeAsync(this.StateHasChanged);
+    }
+
+    private sealed class DatabaseHealthResponse
+    {
+        public bool IsAvailable { get; init; }
     }
 }

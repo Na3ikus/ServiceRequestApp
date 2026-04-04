@@ -12,8 +12,17 @@ public static class DependencyInjection
         var connectionString = configuration.GetConnectionString("DefaultConnection")
             ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
+        var serverVersionValue = configuration["Database:MySqlVersion"] ?? "8.0.45";
+        if (!Version.TryParse(serverVersionValue, out var parsedVersion))
+        {
+            throw new InvalidOperationException("Configuration key 'Database:MySqlVersion' must be a valid version (for example: 8.0.36).");
+        }
+
+        var serverVersion = new MySqlServerVersion(parsedVersion);
+
         services.AddDbContextFactory<BugTrackerDbContext>(options =>
-            options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
+            options.UseMySql(connectionString, serverVersion, mySqlOptions =>
+                mySqlOptions.EnableRetryOnFailure()));
 
         services.AddScoped(sp =>
             sp.GetRequiredService<IDbContextFactory<BugTrackerDbContext>>().CreateDbContext());
