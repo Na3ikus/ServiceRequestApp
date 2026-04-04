@@ -4,6 +4,8 @@ using ServiceDeskSystem.Api.Models;
 using ServiceDeskSystem.Application.Services.Admin;
 using ServiceDeskSystem.Application.Services.Admin.Interfaces;
 using ServiceDeskSystem.Domain.Entities;
+using ServiceDeskSystem.Domain.Interfaces;
+using System.Net.Mail;
 
 namespace ServiceDeskSystem.Api.Controllers;
 
@@ -12,6 +14,7 @@ namespace ServiceDeskSystem.Api.Controllers;
 [Authorize(Roles = "Admin")]
 public sealed class AdminController(
     IAdminService adminService,
+    IEmailSender emailSender,
     ILogger<AdminController> logger) : ControllerBase
 {
     // ───────── Tech Stacks ─────────
@@ -158,5 +161,38 @@ public sealed class AdminController(
         }
 
         return NoContent();
+    }
+
+    [HttpGet("smtp/check")]
+    public async Task<IActionResult> CheckSmtp(CancellationToken cancellationToken)
+    {
+        var (isSuccess, message) = await emailSender.CheckConnectionAsync(cancellationToken).ConfigureAwait(false);
+
+        if (!isSuccess)
+        {
+            return StatusCode(StatusCodes.Status503ServiceUnavailable, new ApiErrorResponse(503, message));
+        }
+
+        return Ok(new { IsAvailable = true, Message = message });
+    }
+
+    [HttpPost("smtp/test-email")]
+    public async Task<IActionResult> SendTestEmail([FromBody] SendTestEmailRequest request, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(request.ToEmail) || !MailAddress.TryCreate(request.ToEmail, out _))
+        {
+            return BadRequest(new ApiErrorResponse(400, "A valid recipient email is required."));
+        }
+
+        var subject = string.IsNullOrWhiteSpace(request.Subject)
+            ? "ServiceDesk SMTP test"
+            : request.Subject.Trim();
+
+        var utcNow = DateTime.UtcNow;
+        var textBody = $"SMTP test email from ServiceDeskSystem at {utcNow:O}.";
+        var htmlBody = $"<p><strong>SMTP test email</strong> from ServiceDeskSystem.</p><p>UTC: {utcNow:O}</p>";
+
+        await emailSender.SendAsync(request.ToEmail.Trim(), subject, htmlBody, textBody, cancellationToken).ConfigureAwait(false);
+        return Ok(new { Sent = true });
     }
 }

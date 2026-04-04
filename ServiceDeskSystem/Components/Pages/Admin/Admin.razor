@@ -40,6 +40,10 @@
                     class="px-4 py-2 rounded-lg font-medium transition-colors @(activeTab == "users" ? "bg-blue-600 text-white" : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700")">
                 @L.Translate("admin.users")
                 </button>
+                <button @onclick="@(() => SetActiveTab("smtp"))"
+                    class="px-4 py-2 rounded-lg font-medium transition-colors @(activeTab == "smtp" ? "bg-blue-600 text-white" : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700")">
+                    SMTP
+                </button>
             </div>
 
         @if (activeTab == "products")
@@ -307,6 +311,70 @@
                                 </div>
                 }
                     </div>
+        }
+        else if (activeTab == "smtp")
+        {
+            <div class="admin-content-section bg-white dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-lg border border-transparent dark:border-gray-700/50 p-6 space-y-6">
+                <div>
+                    <h2 class="text-lg font-semibold text-gray-800 dark:text-white">SMTP Integration</h2>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Verify SMTP connectivity and send a test email.</p>
+                </div>
+
+                <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50/80 dark:bg-gray-900/40 space-y-3">
+                    <div class="flex items-center justify-between gap-3">
+                        <div>
+                            <h3 class="font-medium text-gray-800 dark:text-white">Connection health</h3>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">Checks SMTP host, port and authentication.</p>
+                        </div>
+                        <button @onclick="CheckSmtpAsync" disabled="@isCheckingSmtp"
+                                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                            @(isCheckingSmtp ? "Checking..." : "Check connection")
+                        </button>
+                    </div>
+
+                    @if (!string.IsNullOrWhiteSpace(smtpCheckMessage))
+                    {
+                        <div class="text-sm px-3 py-2 rounded-lg @(smtpCheckSuccess == true ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400")">
+                            @smtpCheckMessage
+                        </div>
+                    }
+                </div>
+
+                <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50/80 dark:bg-gray-900/40 space-y-4">
+                    <div>
+                        <h3 class="font-medium text-gray-800 dark:text-white">Test email</h3>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Sends a test message using current SMTP settings.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Recipient email</label>
+                            <input type="email" @bind="smtpTestRecipient"
+                                   class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Subject</label>
+                            <input type="text" @bind="smtpTestSubject"
+                                   class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end">
+                        <button @onclick="SendSmtpTestEmailAsync" disabled="@isSendingTestEmail"
+                                class="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                            @(isSendingTestEmail ? "Sending..." : "Send test email")
+                        </button>
+                    </div>
+
+                    @if (!string.IsNullOrWhiteSpace(smtpSendMessage))
+                    {
+                        <div class="text-sm px-3 py-2 rounded-lg @(smtpSendSuccess == true ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400")">
+                            @smtpSendMessage
+                        </div>
+                    }
+                </div>
+            </div>
         }
     }
 </div>

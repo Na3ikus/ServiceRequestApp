@@ -1,5 +1,6 @@
 using ServiceDeskSystem.Application;
 using ServiceDeskSystem.Components;
+using ServiceDeskSystem.Domain.Interfaces;
 using ServiceDeskSystem.Infrastructure;
 using ServiceDeskSystem.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -45,6 +46,12 @@ internal static class Program
             {
                 return Results.Ok(new { IsAvailable = false });
             }
+        });
+
+        app.MapGet("/health/smtp", async (IEmailSender emailSender, CancellationToken cancellationToken) =>
+        {
+            var (isSuccess, message) = await emailSender.CheckConnectionAsync(cancellationToken).ConfigureAwait(false);
+            return Results.Ok(new { IsAvailable = isSuccess, Message = message });
         });
 
         app.MapRazorComponents<App>()

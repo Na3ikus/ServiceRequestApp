@@ -364,3 +364,7 @@ FodyWeavers.xsd
 
 # Environment secrets — do not commit real credentials!
 .env
+
+# App configuration (contains connection strings, SMTP/JWT secrets)
+**/appsettings.json
+**/appsettings.*.json

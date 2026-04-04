@@ -6,6 +6,8 @@ using ServiceDeskSystem.Application.Services.Auth.Interfaces;
 using ServiceDeskSystem.Components.Features;
 using ServiceDeskSystem.Components.UI.Base;
 using ServiceDeskSystem.Domain.Entities;
+using ServiceDeskSystem.Domain.Interfaces;
+using System.Net.Mail;
 
 namespace ServiceDeskSystem.Components.Pages.Admin;
 
@@ -30,6 +32,9 @@ public partial class Admin : BaseComponent
     [Inject]
     private NavigationManager Navigation { get; set; } = null!;
 
+    [Inject]
+    private IEmailSender EmailSender { get; set; } = null!;
+
     private List<Product>? products { get; set; }
 
     private List<TechStack>? techStacks { get; set; }
@@ -53,6 +58,22 @@ public partial class Admin : BaseComponent
     private Product editingProduct { get; set; } = new Product();
 
     private TechStack editingTechStack { get; set; } = new TechStack();
+
+    private string smtpTestRecipient { get; set; } = string.Empty;
+
+    private string smtpTestSubject { get; set; } = "ServiceDesk SMTP test";
+
+    private bool isCheckingSmtp;
+
+    private bool isSendingTestEmail;
+
+    private bool? smtpCheckSuccess;
+
+    private string? smtpCheckMessage;
+
+    private bool? smtpSendSuccess;
+
+    private string? smtpSendMessage;
 
     private bool IsAdmin => this.AuthService.CurrentUser?.Role == "Admin";
 
@@ -112,6 +133,82 @@ public partial class Admin : BaseComponent
     }
 
     private void SetActiveTab(string tab) => this.activeTab = tab;
+
+    private async Task CheckSmtpAsync()
+    {
+        if (this.isCheckingSmtp)
+        {
+            return;
+        }
+
+        this.isCheckingSmtp = true;
+        this.smtpCheckMessage = null;
+
+        try
+        {
+            var (isSuccess, message) = await this.EmailSender.CheckConnectionAsync().ConfigureAwait(false);
+            this.smtpCheckSuccess = isSuccess;
+            this.smtpCheckMessage = message;
+
+            await this.ShowToastAsync(
+                isSuccess ? "SMTP connection is healthy." : $"SMTP check failed: {message}",
+                isSuccess ? ToastType.Success : ToastType.Error).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            this.smtpCheckSuccess = false;
+            this.smtpCheckMessage = ex.Message;
+            await this.ShowToastAsync($"SMTP check error: {ex.Message}", ToastType.Error).ConfigureAwait(false);
+        }
+        finally
+        {
+            this.isCheckingSmtp = false;
+        }
+    }
+
+    private async Task SendSmtpTestEmailAsync()
+    {
+        if (this.isSendingTestEmail)
+        {
+            return;
+        }
+
+        var recipient = this.smtpTestRecipient.Trim();
+        if (string.IsNullOrWhiteSpace(recipient) || !MailAddress.TryCreate(recipient, out _))
+        {
+            this.smtpSendSuccess = false;
+            this.smtpSendMessage = "Enter a valid recipient email.";
+            await this.ShowToastAsync(this.smtpSendMessage, ToastType.Warning).ConfigureAwait(false);
+            return;
+        }
+
+        this.isSendingTestEmail = true;
+        this.smtpSendMessage = null;
+
+        try
+        {
+            var subject = string.IsNullOrWhiteSpace(this.smtpTestSubject) ? "ServiceDesk SMTP test" : this.smtpTestSubject.Trim();
+            var utcNow = DateTime.UtcNow;
+            var textBody = $"SMTP test email from ServiceDeskSystem at {utcNow:O}.";
+            var htmlBody = $"<p><strong>SMTP test email</strong> from ServiceDeskSystem.</p><p>UTC: {utcNow:O}</p>";
+
+            await this.EmailSender.SendAsync(recipient, subject, htmlBody, textBody).ConfigureAwait(false);
+
+            this.smtpSendSuccess = true;
+            this.smtpSendMessage = "Test email sent successfully.";
+            await this.ShowToastAsync(this.smtpSendMessage, ToastType.Success).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            this.smtpSendSuccess = false;
+            this.smtpSendMessage = ex.Message;
+            await this.ShowToastAsync($"Test email failed: {ex.Message}", ToastType.Error).ConfigureAwait(false);
+        }
+        finally
+        {
+            this.isSendingTestEmail = false;
+        }
+    }
 
     private void ShowAddProduct()
     {

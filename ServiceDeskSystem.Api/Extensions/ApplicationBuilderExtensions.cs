@@ -1,4 +1,5 @@
 using Serilog;
+using ServiceDeskSystem.Domain.Interfaces;
 using ServiceDeskSystem.Api.Middleware;
 
 namespace ServiceDeskSystem.Api.Extensions;
@@ -27,6 +28,12 @@ public static class ApplicationBuilderExtensions
         app.UseAuthorization();
 
         app.MapControllers();
+
+        app.MapGet("/health/smtp", async (IEmailSender emailSender, CancellationToken cancellationToken) =>
+        {
+            var (isSuccess, message) = await emailSender.CheckConnectionAsync(cancellationToken).ConfigureAwait(false);
+            return Results.Ok(new { IsAvailable = isSuccess, Message = message });
+        }).AllowAnonymous();
 
         return app;
     }
