@@ -4,6 +4,8 @@ using Microsoft.JSInterop;
 using System.Net.Http.Json;
 using ServiceDeskSystem.Application.Services.Auth.Interfaces;
 using ServiceDeskSystem.Application.Services.Localization.Interfaces;
+using ServiceDeskSystem.Application.Services.Notifications.Interfaces;
+using ServiceDeskSystem.Application.Services.Notifications.Models;
 using ServiceDeskSystem.Application.Services.Theme.Interfaces;
 using ServiceDeskSystem.Components.UI.Base;
 
@@ -16,8 +18,10 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
 {
     private static readonly TimeSpan DatabaseMonitorInterval = TimeSpan.FromSeconds(15);
     private readonly List<ToastMessage> toasts = [];
+    private readonly List<UserNotificationDto> notifications = [];
 
     private bool authRestored;
+    private bool isNotificationsOpen;
     private bool isSidebarOpen;
     private bool isSidebarCollapsed;
     private bool hotkeyRegistered;
@@ -28,6 +32,9 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
     private Task? databaseMonitorTask;
 
     internal IReadOnlyList<ToastMessage> Toasts => this.toasts;
+    internal IReadOnlyList<UserNotificationDto> Notifications => this.notifications;
+    internal int UnreadNotificationsCount { get; private set; }
+    internal bool IsNotificationsOpen => this.isNotificationsOpen;
 
     [Inject]
     private IAuthService AuthService { get; set; } = null!;
@@ -46,6 +53,9 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
 
     [Inject]
     private IHttpClientFactory HttpClientFactory { get; set; } = null!;
+
+    [Inject]
+    private INotificationService NotificationService { get; set; } = null!;
 
     [JSInvokable]
     public async Task HandleSidebarHotkey()
@@ -116,6 +126,7 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
 
         this.authRestored = true;
         this.StartDatabaseMonitor();
+        await this.LoadNotificationsAsync();
         await this.InvokeAsync(this.StateHasChanged);
     }
 
@@ -148,6 +159,8 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
 
     private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
     {
+        this.isNotificationsOpen = false;
+
         if (!this.isSidebarOpen)
         {
             return;
@@ -170,7 +183,74 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
     private async Task HandleLogout()
     {
         await this.AuthService.LogoutAsync();
+        this.notifications.Clear();
+        this.UnreadNotificationsCount = 0;
+        this.isNotificationsOpen = false;
         this.Navigation.NavigateTo("/login");
+    }
+
+    private async Task ToggleNotificationsAsync()
+    {
+        this.isNotificationsOpen = !this.isNotificationsOpen;
+
+        if (this.isNotificationsOpen)
+        {
+            await this.LoadNotificationsAsync();
+
+            var userId = this.AuthService.CurrentUser?.Id;
+            if (userId is not null && this.UnreadNotificationsCount > 0)
+            {
+                await this.NotificationService.MarkAllAsReadAsync(userId.Value);
+                await this.LoadNotificationsAsync();
+            }
+        }
+    }
+
+    private async Task DeleteNotificationAsync(int notificationId)
+    {
+        var userId = this.AuthService.CurrentUser?.Id;
+        if (userId is null)
+        {
+            return;
+        }
+
+        await this.NotificationService.DeleteAsync(notificationId, userId.Value);
+        await this.LoadNotificationsAsync();
+    }
+
+    private async Task MarkNotificationsAsReadAsync()
+    {
+        var userId = this.AuthService.CurrentUser?.Id;
+        if (userId is null)
+        {
+            return;
+        }
+
+        await this.NotificationService.MarkAllAsReadAsync(userId.Value);
+        await this.LoadNotificationsAsync();
+    }
+
+    private async Task OpenNotificationAsync(UserNotificationDto notification)
+    {
+        this.isNotificationsOpen = false;
+        this.Navigation.NavigateTo($"/ticket/{notification.TicketId}");
+        await this.LoadNotificationsAsync();
+    }
+
+    private async Task LoadNotificationsAsync()
+    {
+        var userId = this.AuthService.CurrentUser?.Id;
+        if (userId is null)
+        {
+            this.notifications.Clear();
+            this.UnreadNotificationsCount = 0;
+            return;
+        }
+
+        var latest = await this.NotificationService.GetRecentForUserAsync(userId.Value, 8);
+        this.notifications.Clear();
+        this.notifications.AddRange(latest);
+        this.UnreadNotificationsCount = await this.NotificationService.GetUnreadCountAsync(userId.Value);
     }
 
     private void StartDatabaseMonitor()

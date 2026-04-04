@@ -29,6 +29,8 @@ namespace ServiceDeskSystem.Infrastructure.Data
 
         public DbSet<Attachment> Attachments { get; set; } = null!;
 
+        public DbSet<Notification> Notifications { get; set; } = null!;
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             ArgumentNullException.ThrowIfNull(modelBuilder);
@@ -98,6 +100,27 @@ namespace ServiceDeskSystem.Infrastructure.Data
                 .WithMany(t => t.Attachments)
                 .HasForeignKey(a => a.TicketId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Notification>()
+                .HasOne(n => n.RecipientUser)
+                .WithMany(u => u.NotificationsReceived)
+                .HasForeignKey(n => n.RecipientUserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Notification>()
+                .HasOne(n => n.ActorUser)
+                .WithMany(u => u.NotificationsCreated)
+                .HasForeignKey(n => n.ActorUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Notification>()
+                .HasOne(n => n.Ticket)
+                .WithMany(t => t.Notifications)
+                .HasForeignKey(n => n.TicketId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Notification>()
+                .HasIndex(n => new { n.RecipientUserId, n.IsRead, n.CreatedAt });
 
             PersonConfiguration.Seed(modelBuilder);
             ContactTypeConfiguration.Seed(modelBuilder);

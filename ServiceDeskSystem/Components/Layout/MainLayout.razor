@@ -72,6 +72,57 @@
                                 }
                             </button>
 
+                            <div class="notification-wrapper relative">
+                                <button @onclick="ToggleNotificationsAsync"
+                                        class="theme-toggle p-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors relative"
+                                        title="Notifications">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V4a2 2 0 10-4 0v1.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                                    </svg>
+                                    @if (UnreadNotificationsCount > 0)
+                                    {
+                                        <span class="notification-badge">@UnreadNotificationsCount</span>
+                                    }
+                                </button>
+
+                                @if (IsNotificationsOpen)
+                                {
+                                    <div class="notification-dropdown absolute right-0 mt-2 w-80 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-2xl z-50">
+                                        <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-gray-700">
+                                            <span class="text-sm font-semibold text-gray-800 dark:text-white">Notifications</span>
+                                            @if (UnreadNotificationsCount > 0)
+                                            {
+                                                <button class="text-xs text-blue-600 dark:text-blue-400 hover:underline" @onclick="MarkNotificationsAsReadAsync">Mark all read</button>
+                                            }
+                                        </div>
+
+                                        <div class="max-h-80 overflow-y-auto">
+                                            @if (!Notifications.Any())
+                                            {
+                                                <div class="px-4 py-6 text-sm text-center text-gray-500 dark:text-gray-400">No notifications yet</div>
+                                            }
+                                            else
+                                            {
+                                                @foreach (var item in Notifications)
+                                                {
+                                                    <div class="notification-item @(item.IsRead ? "" : "is-unread")">
+                                                        <button class="notification-open-btn" @onclick="() => OpenNotificationAsync(item)">
+                                                            <span class="notification-message">@item.Message</span>
+                                                            <span class="notification-time">@item.CreatedAt.ToLocalTime().ToString("dd.MM HH:mm")</span>
+                                                        </button>
+                                                        <button class="notification-delete-btn"
+                                                                title="Delete notification"
+                                                                @onclick="() => DeleteNotificationAsync(item.Id)">
+                                                            ✕
+                                                        </button>
+                                                    </div>
+                                                }
+                                            }
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+
                             <NavLink href="profile" class="flex items-center gap-3 pl-3 border-l border-gray-200 dark:border-gray-600 hover:opacity-80 transition-opacity cursor-pointer">
                                 <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg">
                                     <span class="text-white font-semibold text-sm">

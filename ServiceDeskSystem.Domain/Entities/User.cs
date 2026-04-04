@@ -25,4 +25,10 @@ public class User
 
     [System.Text.Json.Serialization.JsonIgnore]
     public ICollection<Comment> Comments { get; set; } = new List<Comment>();
+
+    [System.Text.Json.Serialization.JsonIgnore]
+    public ICollection<Notification> NotificationsReceived { get; set; } = new List<Notification>();
+
+    [System.Text.Json.Serialization.JsonIgnore]
+    public ICollection<Notification> NotificationsCreated { get; set; } = new List<Notification>();
 }

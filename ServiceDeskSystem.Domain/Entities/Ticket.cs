@@ -37,4 +37,6 @@ public class Ticket
     public ICollection<Comment> Comments { get; set; } = new List<Comment>();
 
     public ICollection<Attachment> Attachments { get; set; } = new List<Attachment>();
+
+    public ICollection<Notification> Notifications { get; set; } = new List<Notification>();
 }

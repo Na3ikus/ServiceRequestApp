@@ -1,4 +1,5 @@
 using ServiceDeskSystem.Application.Services.Comments.Interfaces;
+using ServiceDeskSystem.Application.Services.Notifications.Interfaces;
 using ServiceDeskSystem.Domain.Entities;
 using ServiceDeskSystem.Domain.Interfaces;
 using ServiceDeskSystem.Infrastructure.Data;
@@ -10,7 +11,9 @@ namespace ServiceDeskSystem.Application.Services.Comments;
 /// <summary>
 /// Service for CRUD operations on ticket comments.
 /// </summary>
-public sealed class CommentService(IDbContextFactory<BugTrackerDbContext> contextFactory) : ICommentService
+public sealed class CommentService(
+    IDbContextFactory<BugTrackerDbContext> contextFactory,
+    INotificationService notificationService) : ICommentService
 {
     public async Task<Comment> AddCommentAsync(Comment comment)
     {
@@ -21,6 +24,8 @@ public sealed class CommentService(IDbContextFactory<BugTrackerDbContext> contex
 
         await repo.Comments.CreateAsync(comment).ConfigureAwait(false);
         await repo.SaveChangesAsync().ConfigureAwait(false);
+
+        await notificationService.CreateCommentNotificationAsync(comment.TicketId, comment.AuthorId).ConfigureAwait(false);
 
         var result = await repo.Comments.GetByIdWithAuthorAsync(comment.Id).ConfigureAwait(false);
         return result ?? comment;

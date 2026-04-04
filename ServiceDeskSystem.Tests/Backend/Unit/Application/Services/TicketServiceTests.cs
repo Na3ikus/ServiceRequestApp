@@ -2,6 +2,7 @@ using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 using NUnit.Framework;
+using ServiceDeskSystem.Application.Services.Notifications.Interfaces;
 using ServiceDeskSystem.Application.Services.Tickets;
 using ServiceDeskSystem.Domain.Entities;
 using ServiceDeskSystem.Infrastructure.Data;
@@ -13,6 +14,7 @@ public class TicketServiceTests
 {
     private DbContextOptions<BugTrackerDbContext> _dbContextOptions;
     private Mock<IDbContextFactory<BugTrackerDbContext>> _mockDbContextFactory;
+    private Mock<INotificationService> _mockNotificationService;
 
     [SetUp]
     public void Setup()
@@ -22,6 +24,7 @@ public class TicketServiceTests
             .Options;
 
         _mockDbContextFactory = new Mock<IDbContextFactory<BugTrackerDbContext>>();
+        _mockNotificationService = new Mock<INotificationService>();
         _mockDbContextFactory.Setup(f => f.CreateDbContextAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(() => new BugTrackerDbContext(_dbContextOptions));
         
@@ -31,11 +34,13 @@ public class TicketServiceTests
 
     private BugTrackerDbContext CreateContext() => new BugTrackerDbContext(_dbContextOptions);
 
+    private TicketService CreateService() => new TicketService(_mockDbContextFactory.Object, _mockNotificationService.Object);
+
     [Test]
     public async Task CreateTicketAsync_GivenValidTicket_SetsCreatedAtAndStatusOpen()
     {
         // Arrange
-        var service = new TicketService(_mockDbContextFactory.Object);
+        var service = CreateService();
         var ticketToCreate = new Ticket
         {
             Title = "Test Ticket",
@@ -65,7 +70,7 @@ public class TicketServiceTests
     public async Task UpdateTicketStatusAsync_GivenExistingTicket_UpdatesStatus()
     {
         // Arrange
-        var service = new TicketService(_mockDbContextFactory.Object);
+        var service = CreateService();
         var ticket = new Ticket
         {
             Title = "Status Updatable Ticket",
@@ -96,7 +101,7 @@ public class TicketServiceTests
     public async Task AssignDeveloperAsync_GivenExistingTicket_AssignsDeveloper()
     {
         // Arrange
-        var service = new TicketService(_mockDbContextFactory.Object);
+        var service = CreateService();
         var ticket = new Ticket
         {
             Title = "Assignable Ticket",
@@ -126,7 +131,7 @@ public class TicketServiceTests
     public async Task GetTicketByIdAsync_WhenTicketExists_ReturnsTicket()
     {
         // ... (existing code for GetTicketByIdAsync from line 125 onward)
-        var service = new TicketService(_mockDbContextFactory.Object);
+        var service = CreateService();
         var author = new User { Id = 1, Login = "author" };
         var product = new Product { Id = 1, Name = "Product1" };
         
@@ -161,7 +166,7 @@ public class TicketServiceTests
     public async Task GetAllTicketsAsync_WhenTicketsExist_ReturnsAllTickets()
     {
         // Arrange
-        var service = new TicketService(_mockDbContextFactory.Object);
+        var service = CreateService();
         var author1 = new User { Id = 5, Login = "author5" };
         var product1 = new Product { Id = 5, Name = "Product5" };
         using (var context = CreateContext())
@@ -187,7 +192,7 @@ public class TicketServiceTests
     public async Task DeleteTicketAsync_GivenExistingTicket_SuccessfullyDeletesIt()
     {
         // Arrange
-        var service = new TicketService(_mockDbContextFactory.Object);
+        var service = CreateService();
         var author2 = new User { Id = 6, Login = "author6" };
         var product2 = new Product { Id = 6, Name = "Product6" };
         var ticket = new Ticket { Id = 12, Title = "To Delete", Status = "Open", AuthorId = author2.Id, ProductId = product2.Id };
@@ -216,7 +221,7 @@ public class TicketServiceTests
     public async Task AddCommentAsync_GivenValidComment_SavesAndReturnsComment()
     {
         // Arrange
-        var service = new TicketService(_mockDbContextFactory.Object);
+        var service = CreateService();
         var ticket = new Ticket { Title = "Ticket for comment", Status = "Open" };
         var author = new User { Id = 3, Login = "commenter" };
         

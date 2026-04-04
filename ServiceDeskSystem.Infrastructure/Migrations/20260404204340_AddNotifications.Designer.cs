@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ServiceDeskSystem.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using ServiceDeskSystem.Infrastructure.Data;
 namespace ServiceDeskSystem.Infrastructure.Migrations
 {
     [DbContext(typeof(BugTrackerDbContext))]
-    partial class BugTrackerDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260404204340_AddNotifications")]
+    partial class AddNotifications
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -45,7 +48,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
 
                     b.HasIndex("TicketId");
 
-                    b.ToTable("Attachments", (string)null);
+                    b.ToTable("Attachments");
                 });
 
             modelBuilder.Entity("ServiceDeskSystem.Domain.Entities.Comment", b =>
@@ -78,7 +81,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
 
                     b.HasIndex("TicketId");
 
-                    b.ToTable("Comments", (string)null);
+                    b.ToTable("Comments");
 
                     b.HasData(
                         new
@@ -218,7 +221,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
 
                     b.HasIndex("PersonId");
 
-                    b.ToTable("ContactInfos", (string)null);
+                    b.ToTable("ContactInfos");
                 });
 
             modelBuilder.Entity("ServiceDeskSystem.Domain.Entities.ContactType", b =>
@@ -235,7 +238,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ContactTypes", (string)null);
+                    b.ToTable("ContactTypes");
 
                     b.HasData(
                         new
@@ -294,7 +297,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
 
                     b.HasIndex("RecipientUserId", "IsRead", "CreatedAt");
 
-                    b.ToTable("Notifications", (string)null);
+                    b.ToTable("Notifications");
                 });
 
             modelBuilder.Entity("ServiceDeskSystem.Domain.Entities.Person", b =>
@@ -321,7 +324,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("People", (string)null);
+                    b.ToTable("People");
 
                     b.HasData(
                         new
@@ -391,7 +394,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
 
                     b.HasIndex("TechStackId");
 
-                    b.ToTable("Products", (string)null);
+                    b.ToTable("Products");
 
                     b.HasData(
                         new
@@ -478,7 +481,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("TechStacks", (string)null);
+                    b.ToTable("TechStacks");
 
                     b.HasData(
                         new
@@ -579,7 +582,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("Tickets", (string)null);
+                    b.ToTable("Tickets");
 
                     b.HasData(
                         new
@@ -790,7 +793,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                     b.HasIndex("PersonId")
                         .IsUnique();
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users");
 
                     b.HasData(
                         new

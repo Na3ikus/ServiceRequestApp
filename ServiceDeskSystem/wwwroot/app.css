@@ -1533,3 +1533,105 @@ h3[tabindex] {
     0%, 100% { background-position: 0% 50%; }
     50% { background-position: 100% 50%; }
 }
+
+.notification-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    min-width: 18px;
+    height: 18px;
+    border-radius: 9999px;
+    background: #ef4444;
+    color: #fff;
+    font-size: 0.65rem;
+    line-height: 18px;
+    font-weight: 700;
+    padding: 0 4px;
+}
+
+.notification-dropdown {
+    overflow: hidden;
+}
+
+.notification-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+    padding: 0.35rem 0.4rem 0.35rem 0.75rem;
+}
+
+.dark .notification-item {
+    border-bottom-color: rgba(71, 85, 105, 0.55);
+}
+
+.notification-item:hover {
+    background: rgba(59, 130, 246, 0.08);
+}
+
+.dark .notification-item:hover {
+    background: rgba(59, 130, 246, 0.18);
+}
+
+.notification-item.is-unread {
+    background: rgba(59, 130, 246, 0.1);
+}
+
+.dark .notification-item.is-unread {
+    background: rgba(59, 130, 246, 0.2);
+}
+
+.notification-open-btn {
+    flex: 1;
+    border: 0;
+    background: transparent;
+    padding: 0.4rem 0.25rem;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.notification-delete-btn {
+    width: 1.8rem;
+    height: 1.8rem;
+    border: 0;
+    border-radius: 9999px;
+    background: transparent;
+    color: #64748b;
+    font-size: 0.95rem;
+    line-height: 1;
+}
+
+.notification-delete-btn:hover {
+    background: rgba(239, 68, 68, 0.14);
+    color: #b91c1c;
+}
+
+.dark .notification-delete-btn {
+    color: #94a3b8;
+}
+
+.dark .notification-delete-btn:hover {
+    background: rgba(239, 68, 68, 0.2);
+    color: #fca5a5;
+}
+
+.notification-message {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.dark .notification-message {
+    color: #e5e7eb;
+}
+
+.notification-time {
+    font-size: 0.7rem;
+    color: #64748b;
+}
+
+.dark .notification-time {
+    color: #94a3b8;
+}

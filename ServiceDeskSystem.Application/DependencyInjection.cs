@@ -8,6 +8,8 @@ using ServiceDeskSystem.Application.Services.Comments;
 using ServiceDeskSystem.Application.Services.Comments.Interfaces;
 using ServiceDeskSystem.Application.Services.Localization;
 using ServiceDeskSystem.Application.Services.Localization.Interfaces;
+using ServiceDeskSystem.Application.Services.Notifications;
+using ServiceDeskSystem.Application.Services.Notifications.Interfaces;
 using ServiceDeskSystem.Application.Services.Profile;
 using ServiceDeskSystem.Application.Services.Profile.Interfaces;
 using ServiceDeskSystem.Application.Services.Theme;
@@ -38,6 +40,7 @@ public static class DependencyInjection
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IAdminService, AdminService>();
         services.AddScoped<IProfileService, ProfileService>();
+        services.AddScoped<INotificationService, NotificationService>();
 
         return services;
     }

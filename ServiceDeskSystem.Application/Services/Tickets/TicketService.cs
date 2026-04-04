@@ -4,12 +4,15 @@ using ServiceDeskSystem.Infrastructure.Data;
 using ServiceDeskSystem.Domain.Constants;
 using ServiceDeskSystem.Domain.Entities;
 using ServiceDeskSystem.Domain.Interfaces;
+using ServiceDeskSystem.Application.Services.Notifications.Interfaces;
 using ServiceDeskSystem.Application.Services.Tickets.Interfaces;
 using ServiceDeskSystem.Application.Services.Tickets.Models;
 
 namespace ServiceDeskSystem.Application.Services.Tickets;
 
-public sealed class TicketService(IDbContextFactory<BugTrackerDbContext> contextFactory)
+public sealed class TicketService(
+    IDbContextFactory<BugTrackerDbContext> contextFactory,
+    INotificationService notificationService)
     : ITicketService, ITicketAssignmentService, ITicketStatisticsService
 {
     public async Task<List<Ticket>> GetAllTicketsAsync()
@@ -74,8 +77,16 @@ public sealed class TicketService(IDbContextFactory<BugTrackerDbContext> context
             return false;
         }
 
+        var oldStatus = ticket.Status;
         ticket.Status = newStatus;
         await repo.SaveChangesAsync().ConfigureAwait(false);
+
+        if (!string.Equals(oldStatus, newStatus, StringComparison.OrdinalIgnoreCase))
+        {
+            await notificationService
+                .CreateStatusChangedNotificationAsync(ticketId, oldStatus, newStatus, ticket.DeveloperId)
+                .ConfigureAwait(false);
+        }
 
         return true;
     }
