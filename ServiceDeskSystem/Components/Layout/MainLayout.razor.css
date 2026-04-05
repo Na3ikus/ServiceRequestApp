@@ -4,6 +4,24 @@
     flex-direction: column;
 }
 
+.header-dropdown {
+    position: relative;
+}
+
+.header-dropdown-summary {
+    list-style: none;
+    display: inline-flex;
+    align-items: center;
+}
+
+.header-dropdown-summary::-webkit-details-marker {
+    display: none;
+}
+
+.header-dropdown:not([open]) .header-dropdown-menu {
+    display: none;
+}
+
 main {
     flex: 1;
 }

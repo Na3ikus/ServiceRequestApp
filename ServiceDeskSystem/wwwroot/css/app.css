@@ -2224,8 +2224,8 @@ video {
   padding-left: 3rem;
 }
 
-.pl-3 {
-  padding-left: 0.75rem;
+.pl-2 {
+  padding-left: 0.5rem;
 }
 
 .pl-4 {
@@ -3167,10 +3167,6 @@ video {
 
 .hover\:underline:hover {
   text-decoration-line: underline;
-}
-
-.hover\:opacity-80:hover {
-  opacity: 0.8;
 }
 
 .hover\:shadow-2xl:hover {
@@ -4196,6 +4192,10 @@ video {
   .sm\:px-3 {
     padding-left: 0.75rem;
     padding-right: 0.75rem;
+  }
+
+  .sm\:pl-3 {
+    padding-left: 0.75rem;
   }
 
   .sm\:pt-0 {
