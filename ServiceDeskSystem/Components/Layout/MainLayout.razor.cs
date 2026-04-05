@@ -24,6 +24,7 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
     private readonly List<UserNotificationDto> notifications = [];
 
     private bool authRestored;
+    private bool isLanguageDropdownOpen;
     private bool isNotificationsOpen;
     private bool isSidebarOpen;
     private bool isSidebarCollapsed;
@@ -90,6 +91,7 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
     {
         await this.StopDatabaseMonitorAsync();
         await this.StopNotificationMonitorAsync();
+        await this.UnregisterLanguageOutsideClickAsync();
         await this.UnregisterNotificationOutsideClickAsync();
 
         if (!this.disposed && this.hotkeyRegistered)
@@ -179,7 +181,9 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
 
     private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
     {
+        _ = this.UnregisterLanguageOutsideClickAsync();
         _ = this.UnregisterNotificationOutsideClickAsync();
+        this.isLanguageDropdownOpen = false;
         this.StopNotificationPulse();
         this.isNotificationsOpen = false;
 
@@ -205,7 +209,9 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
     private async Task HandleLogout()
     {
         await this.AuthService.LogoutAsync();
+        await this.UnregisterLanguageOutsideClickAsync();
         await this.UnregisterNotificationOutsideClickAsync();
+        this.isLanguageDropdownOpen = false;
         this.notifications.Clear();
         this.UnreadNotificationsCount = 0;
         this.lastPolledUnreadCount = 0;
@@ -342,5 +348,68 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
             : CultureInfo.GetCultureInfo("en-US");
 
         return utcDateTime.ToLocalTime().ToString("g", culture);
+    }
+
+    private async Task ToggleLanguageDropdownAsync()
+    {
+        this.isLanguageDropdownOpen = !this.isLanguageDropdownOpen;
+
+        if (this.isLanguageDropdownOpen)
+        {
+            await this.RegisterLanguageOutsideClickAsync();
+        }
+        else
+        {
+            await this.UnregisterLanguageOutsideClickAsync();
+        }
+    }
+
+    private async Task SetLanguageAsync(string language)
+    {
+        this.L.SetLanguage(language);
+        this.isLanguageDropdownOpen = false;
+        await this.UnregisterLanguageOutsideClickAsync();
+    }
+
+    [JSInvokable]
+    public async Task HandleOutsideLanguageClick()
+    {
+        if (!this.isLanguageDropdownOpen)
+        {
+            return;
+        }
+
+        this.isLanguageDropdownOpen = false;
+        await this.UnregisterLanguageOutsideClickAsync();
+        await this.InvokeAsync(this.StateHasChanged);
+    }
+
+    private async Task RegisterLanguageOutsideClickAsync()
+    {
+        if (this.dotNetRef is null)
+        {
+            return;
+        }
+
+        try
+        {
+            await this.JS.InvokeVoidAsync("notificationManager.registerLanguageOutsideClick", this.dotNetRef);
+        }
+        catch
+        {
+            // Ignore JS interop issues during reconnect/shutdown.
+        }
+    }
+
+    private async Task UnregisterLanguageOutsideClickAsync()
+    {
+        try
+        {
+            await this.JS.InvokeVoidAsync("notificationManager.unregisterLanguageOutsideClick");
+        }
+        catch
+        {
+            // Ignore JS interop issues during reconnect/shutdown.
+        }
     }
 }

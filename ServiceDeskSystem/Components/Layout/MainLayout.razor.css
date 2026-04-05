@@ -12,6 +12,8 @@
     list-style: none;
     display: inline-flex;
     align-items: center;
+    cursor: pointer;
+    user-select: none;
 }
 
 .header-dropdown-summary::-webkit-details-marker {

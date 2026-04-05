@@ -27,7 +27,7 @@
             </aside>
 
             <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
-                <header class="sticky top-0 z-30 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md shadow-sm border-b border-gray-200/50 dark:border-gray-700/50 transition-colors duration-200">
+                <header class="sticky top-0 z-30 bg-white dark:bg-gray-800 backdrop-blur-md border-b-2 border-gray-400 dark:border-gray-700 shadow-md shadow-gray-300/70 dark:shadow-black/30 transition-colors duration-200">
                     <div class="flex items-center justify-between px-4 lg:px-6 py-4">
                         <div class="flex items-center gap-4">
                             <button @onclick="ToggleSidebar" class="p-2 -ml-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700 lg:hidden focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors">
@@ -42,16 +42,18 @@
                         </div>
 
                         <div class="header-actions flex items-center gap-2 sm:gap-3">
-                            <details class="header-dropdown relative">
-                                <summary class="header-dropdown-summary h-10 px-3 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-sm font-semibold">
+                            <details class="header-dropdown relative language-dropdown-wrapper" open="@isLanguageDropdownOpen">
+                                <summary @onclick="ToggleLanguageDropdownAsync"
+                                         @onclick:preventDefault="true"
+                                         class="header-dropdown-summary h-10 px-3 rounded-lg bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 shadow-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors text-sm font-semibold">
                                     @(L.CurrentLanguage == "uk" ? "UK" : "EN") ▾
                                 </summary>
                                 <div class="header-dropdown-menu absolute right-0 mt-2 w-24 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl z-50 p-1">
-                                    <button @onclick='@(() => L.SetLanguage("en"))'
+                                    <button @onclick='@(() => SetLanguageAsync("en"))'
                                             class="w-full px-3 py-2 rounded-md text-left text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
                                         EN
                                     </button>
-                                    <button @onclick='@(() => L.SetLanguage("uk"))'
+                                    <button @onclick='@(() => SetLanguageAsync("uk"))'
                                             class="w-full px-3 py-2 rounded-md text-left text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
                                         UK
                                     </button>
@@ -59,7 +61,7 @@
                             </details>
 
                             <button @onclick="Theme.ToggleTheme"
-                                    class="theme-toggle p-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                                    class="theme-toggle p-2 rounded-lg bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 shadow-sm text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
                                     title="@L.Translate("theme.toggle")">
                                 @if (Theme.IsDarkMode)
                                 {
@@ -77,7 +79,7 @@
 
                             <div class="notification-wrapper relative @(HasNewNotificationPulse ? "has-new" : "")">
                                 <button @onclick="ToggleNotificationsAsync"
-                                        class="theme-toggle p-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors relative"
+                                        class="theme-toggle p-2 rounded-lg bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 shadow-sm text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors relative"
                                         title="@L.Translate("notifications.title")">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V4a2 2 0 10-4 0v1.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
