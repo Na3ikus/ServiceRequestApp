@@ -5,7 +5,7 @@ using ServiceDeskSystem.Domain.Interfaces;
 
 namespace ServiceDeskSystem.Infrastructure.Data.Repository
 {
-    public sealed class ProductRepository : TemplateRepository<Product>
+    public sealed class ProductRepository : TemplateRepository<Product>, IProductRepository
     {
         public ProductRepository(BugTrackerDbContext context)
             : base(context)

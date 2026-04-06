@@ -1,8 +1,9 @@
 using Microsoft.EntityFrameworkCore;
+using ServiceDeskSystem.Domain.Interfaces;
 
 namespace ServiceDeskSystem.Infrastructure.Data.Repository
 {
-    public sealed class RepositoryFacade : IAsyncDisposable
+    public sealed class RepositoryFacade : IRepositoryFacade
     {
         private readonly BugTrackerDbContext _context;
         private readonly Lazy<TicketRepository> _ticketRepository;
@@ -22,11 +23,11 @@ namespace ServiceDeskSystem.Infrastructure.Data.Repository
             this._userRepository = new Lazy<UserRepository>(() => new UserRepository(this._context));
         }
 
-        public TicketRepository Tickets => this._ticketRepository.Value;
-        public CommentRepository Comments => this._commentRepository.Value;
-        public TechStackRepository TechStacks => this._techStackRepository.Value;
-        public ProductRepository Products => this._productRepository.Value;
-        public UserRepository Users => this._userRepository.Value;
+        public ITicketRepository Tickets => this._ticketRepository.Value;
+        public ICommentRepository Comments => this._commentRepository.Value;
+        public ITechStackRepository TechStacks => this._techStackRepository.Value;
+        public IProductRepository Products => this._productRepository.Value;
+        public IUserRepository Users => this._userRepository.Value;
 
         public async Task<int> SaveChangesAsync()
         {

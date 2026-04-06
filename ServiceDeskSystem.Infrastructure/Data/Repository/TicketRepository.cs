@@ -5,7 +5,7 @@ using ServiceDeskSystem.Domain.Interfaces;
 
 namespace ServiceDeskSystem.Infrastructure.Data.Repository
 {
-    public sealed class TicketRepository : TemplateRepository<Ticket>
+    public sealed class TicketRepository : TemplateRepository<Ticket>, ITicketRepository
     {
         public TicketRepository(BugTrackerDbContext context)
             : base(context)

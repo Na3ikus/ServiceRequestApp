@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using ServiceDeskSystem.Domain.Interfaces;
 using ServiceDeskSystem.Infrastructure.Email;
 using ServiceDeskSystem.Infrastructure.Data;
+using ServiceDeskSystem.Infrastructure.Data.Repository;
 
 namespace ServiceDeskSystem.Infrastructure;
 
@@ -41,6 +42,7 @@ public static class DependencyInjection
             .ValidateOnStart();
 
         services.AddScoped<IEmailSender, SmtpEmailSender>();
+        services.AddScoped<IRepositoryFacadeFactory, RepositoryFacadeFactory>();
 
         return services;
     }

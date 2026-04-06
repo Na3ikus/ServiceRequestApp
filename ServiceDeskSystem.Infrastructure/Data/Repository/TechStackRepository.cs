@@ -5,7 +5,7 @@ using ServiceDeskSystem.Domain.Interfaces;
 
 namespace ServiceDeskSystem.Infrastructure.Data.Repository
 {
-    public sealed class TechStackRepository : TemplateRepository<TechStack>
+    public sealed class TechStackRepository : TemplateRepository<TechStack>, ITechStackRepository
     {
         public TechStackRepository(BugTrackerDbContext context)
             : base(context)

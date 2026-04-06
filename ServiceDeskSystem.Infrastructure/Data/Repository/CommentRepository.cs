@@ -5,7 +5,7 @@ using ServiceDeskSystem.Domain.Interfaces;
 
 namespace ServiceDeskSystem.Infrastructure.Data.Repository
 {
-    public sealed class CommentRepository : TemplateRepository<Comment>
+    public sealed class CommentRepository : TemplateRepository<Comment>, ICommentRepository
     {
         public CommentRepository(BugTrackerDbContext context)
             : base(context)

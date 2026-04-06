@@ -2,9 +2,6 @@ using ServiceDeskSystem.Application.Services.Comments.Interfaces;
 using ServiceDeskSystem.Application.Services.Notifications.Interfaces;
 using ServiceDeskSystem.Domain.Entities;
 using ServiceDeskSystem.Domain.Interfaces;
-using ServiceDeskSystem.Infrastructure.Data;
-using ServiceDeskSystem.Infrastructure.Data.Repository;
-using Microsoft.EntityFrameworkCore;
 
 namespace ServiceDeskSystem.Application.Services.Comments;
 
@@ -12,14 +9,14 @@ namespace ServiceDeskSystem.Application.Services.Comments;
 /// Service for CRUD operations on ticket comments.
 /// </summary>
 public sealed class CommentService(
-    IDbContextFactory<BugTrackerDbContext> contextFactory,
+    IRepositoryFacadeFactory repositoryFacadeFactory,
     INotificationService notificationService) : ICommentService
 {
     public async Task<Comment> AddCommentAsync(Comment comment)
     {
         ArgumentNullException.ThrowIfNull(comment);
 
-        await using var repo = new RepositoryFacade(contextFactory);
+        await using var repo = repositoryFacadeFactory.Create();
         comment.CreatedAt = DateTime.UtcNow;
 
         await repo.Comments.CreateAsync(comment).ConfigureAwait(false);
@@ -35,7 +32,7 @@ public sealed class CommentService(
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(newMessage);
 
-        await using var repo = new RepositoryFacade(contextFactory);
+        await using var repo = repositoryFacadeFactory.Create();
         var existing = await repo.Comments.GetByIdWithAuthorAsync(commentId).ConfigureAwait(false);
 
         if (existing is null)
@@ -50,7 +47,7 @@ public sealed class CommentService(
 
     public async Task<bool> DeleteCommentAsync(int commentId)
     {
-        await using var repo = new RepositoryFacade(contextFactory);
+        await using var repo = repositoryFacadeFactory.Create();
         var comment = await repo.Comments.GetByIdAsync(commentId).ConfigureAwait(false);
 
         if (comment is null)

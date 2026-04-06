@@ -1,6 +1,6 @@
-using ServiceDeskSystem.Infrastructure.Data.Repository;
 using Microsoft.EntityFrameworkCore;
 using ServiceDeskSystem.Infrastructure.Data;
+using ServiceDeskSystem.Infrastructure.Data.Repository;
 using ServiceDeskSystem.Domain.Constants;
 using ServiceDeskSystem.Domain.Entities;
 using ServiceDeskSystem.Domain.Interfaces;
@@ -11,13 +11,21 @@ using ServiceDeskSystem.Application.Services.Tickets.Models;
 namespace ServiceDeskSystem.Application.Services.Tickets;
 
 public sealed class TicketService(
+    IRepositoryFacadeFactory repositoryFacadeFactory,
     IDbContextFactory<BugTrackerDbContext> contextFactory,
     INotificationService notificationService)
     : ITicketService, ITicketAssignmentService, ITicketStatisticsService
 {
+    public TicketService(
+        IDbContextFactory<BugTrackerDbContext> contextFactory,
+        INotificationService notificationService)
+        : this(new RepositoryFacadeFactory(contextFactory), contextFactory, notificationService)
+    {
+    }
+
     public async Task<List<Ticket>> GetAllTicketsAsync()
     {
-        await using var repo = new RepositoryFacade(contextFactory);
+        await using var repo = repositoryFacadeFactory.Create();
         var tickets = await repo.Tickets.GetAllWithIncludesAsync().ConfigureAwait(false);
         return tickets.ToList();
     }
@@ -25,7 +33,7 @@ public sealed class TicketService(
 
     public async Task<Ticket?> GetTicketByIdAsync(int id)
     {
-        await using var repo = new RepositoryFacade(contextFactory);
+        await using var repo = repositoryFacadeFactory.Create();
         return await repo.Tickets.GetByIdWithIncludesAsync(id).ConfigureAwait(false);
     }
 
@@ -33,7 +41,7 @@ public sealed class TicketService(
     {
         ArgumentNullException.ThrowIfNull(ticket);
 
-        await using var repo = new RepositoryFacade(contextFactory);
+        await using var repo = repositoryFacadeFactory.Create();
         ticket.CreatedAt = DateTime.UtcNow;
         ticket.Status = TicketConstants.Statuses.Open;
 
@@ -57,7 +65,7 @@ public sealed class TicketService(
     {
         ArgumentNullException.ThrowIfNull(comment);
 
-        await using var repo = new RepositoryFacade(contextFactory);
+        await using var repo = repositoryFacadeFactory.Create();
         comment.CreatedAt = DateTime.UtcNow;
 
         await repo.Comments.CreateAsync(comment).ConfigureAwait(false);
@@ -69,7 +77,7 @@ public sealed class TicketService(
 
     public async Task<bool> UpdateTicketStatusAsync(int ticketId, string newStatus)
     {
-        await using var repo = new RepositoryFacade(contextFactory);
+        await using var repo = repositoryFacadeFactory.Create();
         var ticket = await repo.Tickets.GetByIdAsync(ticketId).ConfigureAwait(false);
 
         if (ticket is null)
@@ -93,7 +101,7 @@ public sealed class TicketService(
 
     public async Task<bool> DeleteTicketAsync(int ticketId)
     {
-        await using var repo = new RepositoryFacade(contextFactory);
+        await using var repo = repositoryFacadeFactory.Create();
         var ticket = await repo.Tickets.GetByIdWithIncludesAsync(ticketId).ConfigureAwait(false);
 
         if (ticket is null)
@@ -108,7 +116,7 @@ public sealed class TicketService(
 
     public async Task<List<Product>> GetProductsAsync()
     {
-        await using var repo = new RepositoryFacade(contextFactory);
+        await using var repo = repositoryFacadeFactory.Create();
         var products = await repo.Products.GetAllAsync().ConfigureAwait(false);
         return products.OrderBy(p => p.Name).ToList();
     }
@@ -162,7 +170,7 @@ public sealed class TicketService(
 
     public async Task<bool> AssignDeveloperAsync(int ticketId, int developerId)
     {
-        await using var repo = new RepositoryFacade(contextFactory);
+        await using var repo = repositoryFacadeFactory.Create();
         var ticket = await repo.Tickets.GetByIdAsync(ticketId).ConfigureAwait(false);
 
         if (ticket is null)
@@ -178,7 +186,7 @@ public sealed class TicketService(
 
     public async Task<bool> UnassignDeveloperAsync(int ticketId)
     {
-        await using var repo = new RepositoryFacade(contextFactory);
+        await using var repo = repositoryFacadeFactory.Create();
         var ticket = await repo.Tickets.GetByIdAsync(ticketId).ConfigureAwait(false);
 
         if (ticket is null)
@@ -194,7 +202,7 @@ public sealed class TicketService(
 
     public async Task<List<Ticket>> GetDeveloperTicketsAsync(int developerId)
     {
-        await using var repo = new RepositoryFacade(contextFactory);
+        await using var repo = repositoryFacadeFactory.Create();
         var tickets = await repo.Tickets.GetByDeveloperIdAsync(developerId).ConfigureAwait(false);
         return tickets.ToList();
     }
@@ -269,7 +277,7 @@ public sealed class TicketService(
 
     public async Task<List<(string Login, int Count)>> GetTopDevelopersAsync(int top = 5)
     {
-        await using var repo = new RepositoryFacade(contextFactory);
+        await using var repo = repositoryFacadeFactory.Create();
         var tickets = await repo.Tickets.GetAllWithIncludesAsync().ConfigureAwait(false);
         return tickets
             .Where(t => t.Developer != null && (t.Status == "Resolved" || t.Status == "Closed" || t.Status == "Done"))

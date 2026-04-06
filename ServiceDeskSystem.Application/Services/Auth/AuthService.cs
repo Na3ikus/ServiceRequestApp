@@ -1,7 +1,7 @@
-using ServiceDeskSystem.Infrastructure.Data.Repository;
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using Microsoft.EntityFrameworkCore;
 using ServiceDeskSystem.Infrastructure.Data;
+using ServiceDeskSystem.Infrastructure.Data.Repository;
 using ServiceDeskSystem.Domain.Entities;
 using ServiceDeskSystem.Domain.Interfaces;
 using System.Security.Cryptography;
@@ -11,6 +11,7 @@ using ServiceDeskSystem.Application.Services.Auth.Interfaces;
 namespace ServiceDeskSystem.Application.Services.Auth;
 
 public sealed class AuthService(
+    IRepositoryFacadeFactory repositoryFacadeFactory,
     IDbContextFactory<BugTrackerDbContext> contextFactory,
     ProtectedSessionStorage? sessionStorage = null) : IAuthService
 {
@@ -20,6 +21,13 @@ public sealed class AuthService(
     private bool initialized;
 
     public event EventHandler? AuthStateChanged;
+
+    public AuthService(
+        IDbContextFactory<BugTrackerDbContext> contextFactory,
+        ProtectedSessionStorage? sessionStorage = null)
+        : this(new RepositoryFacadeFactory(contextFactory), contextFactory, sessionStorage)
+    {
+    }
 
     public User? CurrentUser { get; private set; }
     public bool IsAuthenticated => this.CurrentUser is not null;
@@ -43,7 +51,7 @@ public sealed class AuthService(
             var stored = await sessionStorage.GetAsync<int>("authUserId").ConfigureAwait(false);
             if (stored.Success && stored.Value > 0)
             {
-                await using var repo = new RepositoryFacade(contextFactory);
+                await using var repo = repositoryFacadeFactory.Create();
                 var user = await repo.Users.GetByIdAsync(stored.Value).ConfigureAwait(false);
 
                 if (user is not null && user.IsActive)
@@ -73,7 +81,7 @@ public sealed class AuthService(
         User? user;
         try
         {
-            await using var repo = new RepositoryFacade(contextFactory);
+            await using var repo = repositoryFacadeFactory.Create();
             user = await repo.Users.GetByLoginAsync(username).ConfigureAwait(false);
         }
         catch (DbException)

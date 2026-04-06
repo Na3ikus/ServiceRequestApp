@@ -1,4 +1,3 @@
-using ServiceDeskSystem.Infrastructure.Data.Repository;
 using Microsoft.EntityFrameworkCore;
 using ServiceDeskSystem.Infrastructure.Data;
 using ServiceDeskSystem.Domain.Entities;
@@ -7,18 +6,20 @@ using ServiceDeskSystem.Application.Services.Admin.Interfaces;
 
 namespace ServiceDeskSystem.Application.Services.Admin;
 
-public sealed class AdminService(IDbContextFactory<BugTrackerDbContext> contextFactory) : IAdminService
+public sealed class AdminService(
+    IRepositoryFacadeFactory repositoryFacadeFactory,
+    IDbContextFactory<BugTrackerDbContext> contextFactory) : IAdminService
 {
     public async Task<List<TechStack>> GetAllTechStacksAsync()
     {
-        await using var repo = new RepositoryFacade(contextFactory);
+        await using var repo = repositoryFacadeFactory.Create();
         var techStacks = await repo.TechStacks.GetAllWithProductsAsync().ConfigureAwait(false);
         return techStacks.ToList();
     }
 
     public async Task<List<Product>> GetAllProductsAsync()
     {
-        await using var repo = new RepositoryFacade(contextFactory);
+        await using var repo = repositoryFacadeFactory.Create();
         var products = await repo.Products.GetAllWithTechStackAsync().ConfigureAwait(false);
         return products.ToList();
     }
@@ -27,7 +28,7 @@ public sealed class AdminService(IDbContextFactory<BugTrackerDbContext> contextF
     {
         ArgumentNullException.ThrowIfNull(techStack);
 
-        await using var repo = new RepositoryFacade(contextFactory);
+        await using var repo = repositoryFacadeFactory.Create();
         await repo.TechStacks.CreateAsync(techStack).ConfigureAwait(false);
         await repo.SaveChangesAsync().ConfigureAwait(false);
         return techStack;
@@ -37,7 +38,7 @@ public sealed class AdminService(IDbContextFactory<BugTrackerDbContext> contextF
     {
         ArgumentNullException.ThrowIfNull(product);
 
-        await using var repo = new RepositoryFacade(contextFactory);
+        await using var repo = repositoryFacadeFactory.Create();
         await repo.Products.CreateAsync(product).ConfigureAwait(false);
         await repo.SaveChangesAsync().ConfigureAwait(false);
         return product;
@@ -47,7 +48,7 @@ public sealed class AdminService(IDbContextFactory<BugTrackerDbContext> contextF
     {
         ArgumentNullException.ThrowIfNull(techStack);
 
-        await using var repo = new RepositoryFacade(contextFactory);
+        await using var repo = repositoryFacadeFactory.Create();
         var existing = await repo.TechStacks.GetByIdAsync(techStack.Id).ConfigureAwait(false);
         if (existing is null)
         {
@@ -64,7 +65,7 @@ public sealed class AdminService(IDbContextFactory<BugTrackerDbContext> contextF
     {
         ArgumentNullException.ThrowIfNull(product);
 
-        await using var repo = new RepositoryFacade(contextFactory);
+        await using var repo = repositoryFacadeFactory.Create();
         var existing = await repo.Products.GetByIdAsync(product.Id).ConfigureAwait(false);
         if (existing is null)
         {
@@ -81,7 +82,7 @@ public sealed class AdminService(IDbContextFactory<BugTrackerDbContext> contextF
 
     public async Task<bool> DeleteTechStackAsync(int id)
     {
-        await using var repo = new RepositoryFacade(contextFactory);
+        await using var repo = repositoryFacadeFactory.Create();
         var techStack = await repo.TechStacks.GetByIdWithProductsAsync(id).ConfigureAwait(false);
 
         if (techStack is null)
@@ -101,7 +102,7 @@ public sealed class AdminService(IDbContextFactory<BugTrackerDbContext> contextF
 
     public async Task<bool> DeleteProductAsync(int id)
     {
-        await using var repo = new RepositoryFacade(contextFactory);
+        await using var repo = repositoryFacadeFactory.Create();
         var product = await repo.Products.GetByIdWithTicketsAsync(id).ConfigureAwait(false);
 
         if (product is null)
@@ -121,7 +122,7 @@ public sealed class AdminService(IDbContextFactory<BugTrackerDbContext> contextF
 
     public async Task<List<User>> GetAllUsersAsync()
     {
-        await using var repo = new RepositoryFacade(contextFactory);
+        await using var repo = repositoryFacadeFactory.Create();
         var users = await repo.Users.GetAllWithPersonAsync().ConfigureAwait(false);
         return users.ToList();
     }
