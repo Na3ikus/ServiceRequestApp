@@ -1,8 +1,9 @@
+using System.Globalization;
+using System.Net.Http.Json;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Routing;
+using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.JSInterop;
-using System.Net.Http.Json;
-using System.Globalization;
 using ServiceDeskSystem.Application.Services.Auth.Interfaces;
 using ServiceDeskSystem.Application.Services.Localization.Interfaces;
 using ServiceDeskSystem.Application.Services.Notifications.Interfaces;
@@ -18,7 +19,6 @@ namespace ServiceDeskSystem.Components.Layout;
 public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDisposable
 {
     private static readonly TimeSpan DatabaseMonitorInterval = TimeSpan.FromSeconds(15);
-    private static readonly TimeSpan NotificationMonitorInterval = TimeSpan.FromSeconds(5);
     private static readonly TimeSpan NotificationPulseDuration = TimeSpan.FromSeconds(2);
     private readonly List<ToastMessage> toasts = [];
     private readonly List<UserNotificationDto> notifications = [];
@@ -31,13 +31,13 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
     private bool hotkeyRegistered;
     private bool databaseConnectionLost;
     private bool hasNewNotificationPulse;
+    private bool notificationsHubInitialized;
     private bool disposed;
-    private int? lastPolledUnreadCount;
+    private int lastKnownUnreadCount;
     private DotNetObjectReference<MainLayout>? dotNetRef;
     private CancellationTokenSource? databaseMonitorCts;
     private Task? databaseMonitorTask;
-    private CancellationTokenSource? notificationMonitorCts;
-    private Task? notificationMonitorTask;
+    private HubConnection? notificationsHubConnection;
     private CancellationTokenSource? notificationPulseCts;
 
     internal IReadOnlyList<ToastMessage> Toasts => this.toasts;
@@ -90,7 +90,7 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
     public async ValueTask DisposeAsync()
     {
         await this.StopDatabaseMonitorAsync();
-        await this.StopNotificationMonitorAsync();
+        await this.StopNotificationsHubAsync();
         await this.UnregisterLanguageOutsideClickAsync();
         await this.UnregisterNotificationOutsideClickAsync();
 
@@ -140,7 +140,7 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
         this.authRestored = true;
         this.StartDatabaseMonitor();
         await this.LoadNotificationsAsync();
-        this.StartNotificationMonitor();
+        await this.StartNotificationsHubAsync();
         await this.InvokeAsync(this.StateHasChanged);
     }
 
@@ -165,9 +165,8 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
             this.databaseMonitorCts?.Dispose();
             this.databaseMonitorCts = null;
 
-            this.notificationMonitorCts?.Cancel();
-            this.notificationMonitorCts?.Dispose();
-            this.notificationMonitorCts = null;
+            this.notificationsHubConnection = null;
+            this.notificationsHubInitialized = false;
 
             this.notificationPulseCts?.Cancel();
             this.notificationPulseCts?.Dispose();
@@ -214,7 +213,7 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
         this.isLanguageDropdownOpen = false;
         this.notifications.Clear();
         this.UnreadNotificationsCount = 0;
-        this.lastPolledUnreadCount = 0;
+        this.lastKnownUnreadCount = 0;
         this.StopNotificationPulse();
         this.isNotificationsOpen = false;
         this.Navigation.NavigateTo("/login");

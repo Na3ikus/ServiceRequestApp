@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.JSInterop;
 using ServiceDeskSystem.Application.Services.Notifications.Models;
 
@@ -87,94 +88,109 @@ public partial class MainLayout
         this.notifications.Clear();
         this.notifications.AddRange(latest);
         this.UnreadNotificationsCount = await this.NotificationService.GetUnreadCountAsync(userId.Value);
-        this.lastPolledUnreadCount = this.UnreadNotificationsCount;
+        this.lastKnownUnreadCount = this.UnreadNotificationsCount;
     }
 
-    private void StartNotificationMonitor()
+    private async Task StartNotificationsHubAsync()
     {
-        if (this.notificationMonitorCts is not null)
+        if (this.notificationsHubInitialized)
         {
             return;
         }
 
-        this.notificationMonitorCts = new CancellationTokenSource();
-        this.notificationMonitorTask = this.MonitorNotificationsAsync(this.notificationMonitorCts.Token);
+        this.notificationsHubConnection = new HubConnectionBuilder()
+            .WithUrl(this.Navigation.ToAbsoluteUri("/hubs/updates"))
+            .WithAutomaticReconnect()
+            .Build();
+
+        this.notificationsHubConnection.On("NotificationsChanged", async () =>
+        {
+            await this.HandleNotificationsChangedAsync();
+        });
+
+        this.notificationsHubConnection.Reconnected += async _ =>
+        {
+            await this.JoinNotificationsGroupAsync().ConfigureAwait(false);
+        };
+
+        try
+        {
+            await this.notificationsHubConnection.StartAsync();
+            await this.JoinNotificationsGroupAsync();
+            this.notificationsHubInitialized = true;
+        }
+        catch
+        {
+            this.notificationsHubConnection = null;
+        }
     }
 
-    private async Task StopNotificationMonitorAsync()
+    private async Task StopNotificationsHubAsync()
     {
-        if (this.notificationMonitorCts is null)
+        if (this.notificationsHubConnection is null)
         {
             return;
         }
 
-        await this.notificationMonitorCts.CancelAsync();
-
-        if (this.notificationMonitorTask is not null)
+        try
         {
-            try
-            {
-                await this.notificationMonitorTask;
-            }
-            catch (OperationCanceledException)
-            {
-                // Expected during shutdown.
-            }
+            await this.LeaveNotificationsGroupAsync();
+            await this.notificationsHubConnection.StopAsync();
+            await this.notificationsHubConnection.DisposeAsync();
         }
-
-        this.notificationMonitorCts.Dispose();
-        this.notificationMonitorCts = null;
-        this.notificationMonitorTask = null;
+        catch
+        {
+            // Ignore disposal/reconnect race issues.
+        }
+        finally
+        {
+            this.notificationsHubConnection = null;
+            this.notificationsHubInitialized = false;
+        }
     }
 
-    private async Task MonitorNotificationsAsync(CancellationToken cancellationToken)
+    private async Task HandleNotificationsChangedAsync()
     {
-        using var timer = new PeriodicTimer(NotificationMonitorInterval);
-
-        while (await timer.WaitForNextTickAsync(cancellationToken))
+        if (!this.AuthService.IsAuthenticated)
         {
-            if (!this.AuthService.IsAuthenticated)
-            {
-                continue;
-            }
-
-            var userId = this.AuthService.CurrentUser?.Id;
-            if (userId is null)
-            {
-                continue;
-            }
-
-            int unreadCount;
-
-            try
-            {
-                unreadCount = await this.NotificationService.GetUnreadCountAsync(userId.Value);
-            }
-            catch
-            {
-                continue;
-            }
-
-            if (this.lastPolledUnreadCount == unreadCount)
-            {
-                continue;
-            }
-
-            var hasIncrease = this.lastPolledUnreadCount.HasValue && unreadCount > this.lastPolledUnreadCount.Value;
-
-            await this.InvokeAsync(async () =>
-            {
-                await this.LoadNotificationsAsync();
-
-                if (hasIncrease)
-                {
-                    this.StartNotificationPulse();
-                    await this.PlayNotificationSoundAsync();
-                }
-
-                this.StateHasChanged();
-            });
+            return;
         }
+
+        await this.InvokeAsync(async () =>
+        {
+            var previousUnread = this.lastKnownUnreadCount;
+            await this.LoadNotificationsAsync();
+
+            if (this.UnreadNotificationsCount > previousUnread)
+            {
+                this.StartNotificationPulse();
+                await this.PlayNotificationSoundAsync();
+            }
+
+            this.StateHasChanged();
+        });
+    }
+
+    private async Task JoinNotificationsGroupAsync()
+    {
+        var userId = this.AuthService.CurrentUser?.Id;
+        if (userId is null || this.notificationsHubConnection is null)
+        {
+            return;
+        }
+
+        await this.notificationsHubConnection.InvokeAsync("JoinNotificationsGroup", userId.Value);
+    }
+
+    private async Task LeaveNotificationsGroupAsync()
+    {
+        var userId = this.AuthService.CurrentUser?.Id;
+        if (userId is null || this.notificationsHubConnection is null)
+        {
+            return;
+        }
+
+        await this.notificationsHubConnection.InvokeAsync("LeaveNotificationsGroup", userId.Value);
     }
 
     private async Task RegisterNotificationOutsideClickAsync()

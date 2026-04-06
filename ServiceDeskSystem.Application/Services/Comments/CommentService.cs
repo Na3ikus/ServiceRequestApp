@@ -1,5 +1,6 @@
 using ServiceDeskSystem.Application.Services.Comments.Interfaces;
 using ServiceDeskSystem.Application.Services.Notifications.Interfaces;
+using ServiceDeskSystem.Application.Services.Realtime.Interfaces;
 using ServiceDeskSystem.Domain.Entities;
 using ServiceDeskSystem.Domain.Interfaces;
 
@@ -10,7 +11,8 @@ namespace ServiceDeskSystem.Application.Services.Comments;
 /// </summary>
 public sealed class CommentService(
     IRepositoryFacadeFactory repositoryFacadeFactory,
-    INotificationService notificationService) : ICommentService
+    INotificationService notificationService,
+    IRealtimeNotifier realtimeNotifier) : ICommentService
 {
     public async Task<Comment> AddCommentAsync(Comment comment)
     {
@@ -23,6 +25,7 @@ public sealed class CommentService(
         await repo.SaveChangesAsync().ConfigureAwait(false);
 
         await notificationService.CreateCommentNotificationAsync(comment.TicketId, comment.AuthorId).ConfigureAwait(false);
+        await realtimeNotifier.NotifyTicketsChangedAsync().ConfigureAwait(false);
 
         var result = await repo.Comments.GetByIdWithAuthorAsync(comment.Id).ConfigureAwait(false);
         return result ?? comment;

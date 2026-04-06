@@ -5,6 +5,8 @@ using ServiceDeskSystem.Domain.Constants;
 using ServiceDeskSystem.Domain.Entities;
 using ServiceDeskSystem.Domain.Interfaces;
 using ServiceDeskSystem.Application.Services.Notifications.Interfaces;
+using ServiceDeskSystem.Application.Services.Realtime;
+using ServiceDeskSystem.Application.Services.Realtime.Interfaces;
 using ServiceDeskSystem.Application.Services.Tickets.Interfaces;
 using ServiceDeskSystem.Application.Services.Tickets.Models;
 
@@ -13,13 +15,14 @@ namespace ServiceDeskSystem.Application.Services.Tickets;
 public sealed class TicketService(
     IRepositoryFacadeFactory repositoryFacadeFactory,
     IDbContextFactory<BugTrackerDbContext> contextFactory,
-    INotificationService notificationService)
+    INotificationService notificationService,
+    IRealtimeNotifier realtimeNotifier)
     : ITicketService, ITicketAssignmentService, ITicketStatisticsService
 {
     public TicketService(
         IDbContextFactory<BugTrackerDbContext> contextFactory,
         INotificationService notificationService)
-        : this(new RepositoryFacadeFactory(contextFactory), contextFactory, notificationService)
+        : this(new RepositoryFacadeFactory(contextFactory), contextFactory, notificationService, NoOpRealtimeNotifier.Instance)
     {
     }
 
@@ -57,6 +60,7 @@ public sealed class TicketService(
 
         await repo.Tickets.CreateAsync(ticket).ConfigureAwait(false);
         await repo.SaveChangesAsync().ConfigureAwait(false);
+        await realtimeNotifier.NotifyTicketsChangedAsync().ConfigureAwait(false);
 
         return ticket;
     }
@@ -96,6 +100,8 @@ public sealed class TicketService(
                 .ConfigureAwait(false);
         }
 
+        await realtimeNotifier.NotifyTicketsChangedAsync().ConfigureAwait(false);
+
         return true;
     }
 
@@ -111,6 +117,7 @@ public sealed class TicketService(
 
         await repo.Tickets.DeleteAsync(ticketId).ConfigureAwait(false);
         await repo.SaveChangesAsync().ConfigureAwait(false);
+        await realtimeNotifier.NotifyTicketsChangedAsync().ConfigureAwait(false);
         return true;
     }
 
@@ -180,6 +187,7 @@ public sealed class TicketService(
 
         ticket.DeveloperId = developerId;
         await repo.SaveChangesAsync().ConfigureAwait(false);
+        await realtimeNotifier.NotifyTicketsChangedAsync().ConfigureAwait(false);
 
         return true;
     }
@@ -196,6 +204,7 @@ public sealed class TicketService(
 
         ticket.DeveloperId = null;
         await repo.SaveChangesAsync().ConfigureAwait(false);
+        await realtimeNotifier.NotifyTicketsChangedAsync().ConfigureAwait(false);
 
         return true;
     }

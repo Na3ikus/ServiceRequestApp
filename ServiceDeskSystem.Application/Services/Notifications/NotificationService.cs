@@ -1,12 +1,15 @@
 using Microsoft.EntityFrameworkCore;
 using ServiceDeskSystem.Application.Services.Notifications.Interfaces;
 using ServiceDeskSystem.Application.Services.Notifications.Models;
+using ServiceDeskSystem.Application.Services.Realtime.Interfaces;
 using ServiceDeskSystem.Domain.Entities;
 using ServiceDeskSystem.Infrastructure.Data;
 
 namespace ServiceDeskSystem.Application.Services.Notifications;
 
-public sealed class NotificationService(IDbContextFactory<BugTrackerDbContext> contextFactory) : INotificationService
+public sealed class NotificationService(
+    IDbContextFactory<BugTrackerDbContext> contextFactory,
+    IRealtimeNotifier realtimeNotifier) : INotificationService
 {
     public async Task<IReadOnlyList<UserNotificationDto>> GetRecentForUserAsync(int userId, int take = 10)
     {
@@ -62,6 +65,7 @@ public sealed class NotificationService(IDbContextFactory<BugTrackerDbContext> c
 
             context.Notifications.Remove(notification);
             await context.SaveChangesAsync().ConfigureAwait(false);
+            await realtimeNotifier.NotifyNotificationsChangedAsync([userId]).ConfigureAwait(false);
         }
         catch
         {
@@ -116,6 +120,7 @@ public sealed class NotificationService(IDbContextFactory<BugTrackerDbContext> c
             }
 
             await context.SaveChangesAsync().ConfigureAwait(false);
+            await realtimeNotifier.NotifyNotificationsChangedAsync([userId]).ConfigureAwait(false);
         }
         catch
         {
@@ -175,6 +180,7 @@ public sealed class NotificationService(IDbContextFactory<BugTrackerDbContext> c
             }
 
             await context.SaveChangesAsync().ConfigureAwait(false);
+            await realtimeNotifier.NotifyNotificationsChangedAsync(recipients).ConfigureAwait(false);
         }
         catch
         {
@@ -220,6 +226,7 @@ public sealed class NotificationService(IDbContextFactory<BugTrackerDbContext> c
 
             context.Notifications.Add(notification);
             await context.SaveChangesAsync().ConfigureAwait(false);
+            await realtimeNotifier.NotifyNotificationsChangedAsync([ticket.AuthorId]).ConfigureAwait(false);
         }
         catch
         {

@@ -1,9 +1,12 @@
 using Microsoft.EntityFrameworkCore;
 using ServiceDeskSystem.Application;
+using ServiceDeskSystem.Application.Services.Realtime.Interfaces;
 using ServiceDeskSystem.Components;
 using ServiceDeskSystem.Domain.Interfaces;
+using ServiceDeskSystem.Hubs;
 using ServiceDeskSystem.Infrastructure;
 using ServiceDeskSystem.Infrastructure.Data;
+using ServiceDeskSystem.Services.Realtime;
 
 namespace ServiceDeskSystem;
 
@@ -16,9 +19,11 @@ internal static class Program
         builder.Services.AddRazorComponents()
             .AddInteractiveServerComponents();
         builder.Services.AddHttpClient();
+        builder.Services.AddSignalR();
 
         builder.Services.AddInfrastructureServices(builder.Configuration);
         builder.Services.AddApplicationServices();
+        builder.Services.AddSingleton<IRealtimeNotifier, SignalRRealtimeNotifier>();
 
         var app = builder.Build();
 
@@ -53,6 +58,7 @@ internal static class Program
             var (isSuccess, message) = await emailSender.CheckConnectionAsync(cancellationToken).ConfigureAwait(false);
             return Results.Ok(new { IsAvailable = isSuccess, Message = message });
         });
+        app.MapHub<UpdatesHub>("/hubs/updates");
 
         app.MapRazorComponents<App>()
             .AddInteractiveServerRenderMode();

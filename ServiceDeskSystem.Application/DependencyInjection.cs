@@ -12,6 +12,8 @@ using ServiceDeskSystem.Application.Services.Notifications;
 using ServiceDeskSystem.Application.Services.Notifications.Interfaces;
 using ServiceDeskSystem.Application.Services.Profile;
 using ServiceDeskSystem.Application.Services.Profile.Interfaces;
+using ServiceDeskSystem.Application.Services.Realtime;
+using ServiceDeskSystem.Application.Services.Realtime.Interfaces;
 using ServiceDeskSystem.Application.Services.Theme;
 using ServiceDeskSystem.Application.Services.Theme.Interfaces;
 using ServiceDeskSystem.Application.Services.Tickets;
@@ -41,6 +43,7 @@ public static class DependencyInjection
         services.AddScoped<IAdminService, AdminService>();
         services.AddScoped<IProfileService, ProfileService>();
         services.AddScoped<INotificationService, NotificationService>();
+        services.AddSingleton<IRealtimeNotifier>(NoOpRealtimeNotifier.Instance);
 
         return services;
     }

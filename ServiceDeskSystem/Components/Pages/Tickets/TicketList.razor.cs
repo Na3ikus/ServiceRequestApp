@@ -1,5 +1,5 @@
-using System.Threading;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.SignalR.Client;
 using ServiceDeskSystem.Application.Services.Auth;
 using ServiceDeskSystem.Application.Services.Auth.Interfaces;
 using ServiceDeskSystem.Application.Services.Localization;
@@ -16,8 +16,8 @@ namespace ServiceDeskSystem.Components.Pages.Tickets;
 /// </summary>
 public partial class TicketList : BaseComponent
 {
-    private readonly TimeSpan refreshInterval = TimeSpan.FromSeconds(5);
-    private Timer? refreshTimer;
+    private HubConnection? ticketsHubConnection;
+    private bool ticketsHubInitialized;
     private bool isRefreshing;
     private string _searchQuery = string.Empty;
 
@@ -61,14 +61,14 @@ public partial class TicketList : BaseComponent
     {
         this.tickets = await this.TicketService.GetAllTicketsAsync();
         this.ApplyFilters();
-        this.StartAutoRefresh();
+        await this.StartTicketsHubAsync();
     }
 
     protected override void Dispose(bool disposing)
     {
         if (disposing)
         {
-            this.refreshTimer?.Dispose();
+            _ = this.StopTicketsHubAsync();
         }
 
         base.Dispose(disposing);
@@ -103,9 +103,55 @@ public partial class TicketList : BaseComponent
         }
     }
 
-    private void StartAutoRefresh()
+    private async Task StartTicketsHubAsync()
     {
-        this.refreshTimer ??= new Timer(async _ => await this.RefreshTicketsAsync(), null, this.refreshInterval, this.refreshInterval);
+        if (this.ticketsHubInitialized)
+        {
+            return;
+        }
+
+        this.ticketsHubConnection = new HubConnectionBuilder()
+            .WithUrl(this.Navigation.ToAbsoluteUri("/hubs/updates"))
+            .WithAutomaticReconnect()
+            .Build();
+
+        this.ticketsHubConnection.On("TicketsChanged", async () =>
+        {
+            await this.RefreshTicketsAsync();
+        });
+
+        try
+        {
+            await this.ticketsHubConnection.StartAsync();
+            this.ticketsHubInitialized = true;
+        }
+        catch
+        {
+            this.ticketsHubConnection = null;
+        }
+    }
+
+    private async Task StopTicketsHubAsync()
+    {
+        if (this.ticketsHubConnection is null)
+        {
+            return;
+        }
+
+        try
+        {
+            await this.ticketsHubConnection.StopAsync();
+            await this.ticketsHubConnection.DisposeAsync();
+        }
+        catch
+        {
+            // Ignore shutdown/reconnect races.
+        }
+        finally
+        {
+            this.ticketsHubConnection = null;
+            this.ticketsHubInitialized = false;
+        }
     }
 
     private async Task RefreshTicketsAsync()
