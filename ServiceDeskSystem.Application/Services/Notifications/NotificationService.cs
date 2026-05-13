@@ -233,4 +233,56 @@ public sealed class NotificationService(
             // Notifications are best-effort and must not break user actions.
         }
     }
+
+    public async Task CreateDatesChangedNotificationAsync(int ticketId, int? actorUserId)
+    {
+        try
+        {
+            await using var context = await contextFactory.CreateDbContextAsync().ConfigureAwait(false);
+
+            var ticket = await context.Tickets
+                .AsNoTracking()
+                .FirstOrDefaultAsync(t => t.Id == ticketId)
+                .ConfigureAwait(false);
+
+            if (ticket is null)
+            {
+                return;
+            }
+
+            // Don't notify the actor themselves
+            if (actorUserId == ticket.AuthorId)
+            {
+                return;
+            }
+
+            var actorLogin = actorUserId is null
+                ? "Someone"
+                : await context.Users
+                    .AsNoTracking()
+                    .Where(u => u.Id == actorUserId.Value)
+                    .Select(u => u.Login)
+                    .FirstOrDefaultAsync()
+                    .ConfigureAwait(false) ?? "Someone";
+
+            var notification = new Notification
+            {
+                RecipientUserId = ticket.AuthorId,
+                ActorUserId = actorUserId,
+                TicketId = ticket.Id,
+                Type = "DatesChanged",
+                Message = $"{actorLogin} updated the schedule for ticket #{ticket.Id}",
+                IsRead = false,
+                CreatedAt = DateTime.UtcNow,
+            };
+
+            context.Notifications.Add(notification);
+            await context.SaveChangesAsync().ConfigureAwait(false);
+            await realtimeNotifier.NotifyNotificationsChangedAsync([ticket.AuthorId]).ConfigureAwait(false);
+        }
+        catch
+        {
+            // Notifications are best-effort and must not break user actions.
+        }
+    }
 }

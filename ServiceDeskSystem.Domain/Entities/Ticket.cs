@@ -22,6 +22,10 @@ public class Ticket
 
     public DateTime CreatedAt { get; set; }
 
+    public DateTime? StartDate { get; set; }
+
+    public DateTime? DueDate { get; set; }
+
     public int? ProductId { get; set; }
 
     public Product? Product { get; set; }

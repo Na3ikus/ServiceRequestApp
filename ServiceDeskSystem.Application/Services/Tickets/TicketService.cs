@@ -105,6 +105,32 @@ public sealed class TicketService(
         return true;
     }
 
+    public async Task<bool> UpdateTicketDatesAsync(int ticketId, DateTime? startDate, DateTime? dueDate, int? actorUserId = null)
+    {
+        await using var repo = repositoryFacadeFactory.Create();
+        var ticket = await repo.Tickets.GetByIdAsync(ticketId).ConfigureAwait(false);
+
+        if (ticket is null)
+        {
+            return false;
+        }
+
+        bool datesChanged = ticket.StartDate != startDate || ticket.DueDate != dueDate;
+
+        ticket.StartDate = startDate;
+        ticket.DueDate = dueDate;
+        await repo.SaveChangesAsync().ConfigureAwait(false);
+
+        if (datesChanged)
+        {
+            await notificationService.CreateDatesChangedNotificationAsync(ticketId, actorUserId).ConfigureAwait(false);
+        }
+
+        await realtimeNotifier.NotifyTicketsChangedAsync().ConfigureAwait(false);
+
+        return true;
+    }
+
     public async Task<bool> DeleteTicketAsync(int ticketId)
     {
         await using var repo = repositoryFacadeFactory.Create();

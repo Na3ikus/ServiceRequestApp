@@ -12,6 +12,8 @@ public interface ITicketService
 
     Task<bool> UpdateTicketStatusAsync(int ticketId, string newStatus);
 
+    Task<bool> UpdateTicketDatesAsync(int ticketId, DateTime? startDate, DateTime? dueDate, int? actorUserId = null);
+
     Task<bool> DeleteTicketAsync(int ticketId);
 
     Task<List<Product>> GetProductsAsync();

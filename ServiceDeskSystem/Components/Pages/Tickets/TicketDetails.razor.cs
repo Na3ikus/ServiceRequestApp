@@ -54,6 +54,10 @@ public partial class TicketDetails : BaseComponent
 
     private string EditingCommentMessage { get; set; } = string.Empty;
 
+    private DateTime? editStartDate;
+
+    private DateTime? editDueDate;
+
     private int CurrentUserId => this.AuthService.CurrentUser?.Id ?? 0;
 
     private string CurrentUserRole => this.AuthService.CurrentUser?.Role ?? string.Empty;
@@ -124,12 +128,33 @@ public partial class TicketDetails : BaseComponent
     private async Task LoadTicketAsync()
     {
         this.Ticket = await this.TicketService.GetTicketByIdAsync(this.Id);
+        if (this.Ticket is not null)
+        {
+            this.editStartDate = this.Ticket.StartDate;
+            this.editDueDate = this.Ticket.DueDate;
+        }
         this.StateHasChanged();
     }
 
     private void StartAutoRefresh()
     {
         this.refreshTimer = new Timer(async _ => await this.RefreshCommentsAsync(), null, this.refreshInterval, this.refreshInterval);
+    }
+
+    private async Task SaveDatesAsync()
+    {
+        if (this.Ticket is null || !this.IsAdminOrDeveloper)
+        {
+            return;
+        }
+
+        var success = await this.TicketService.UpdateTicketDatesAsync(this.Ticket.Id, this.editStartDate, this.editDueDate, this.CurrentUserId);
+        if (success)
+        {
+            this.Ticket.StartDate = this.editStartDate;
+            this.Ticket.DueDate = this.editDueDate;
+            await this.ShowToastAsync(this.L.Translate("details.datesUpdated") ?? "Dates updated successfully.", ToastType.Success);
+        }
     }
 
     private async Task RefreshCommentsAsync()

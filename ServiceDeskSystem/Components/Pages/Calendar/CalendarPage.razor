@@ -1,0 +1,122 @@
+@page "/calendar"
+@using ServiceDeskSystem.Components.Features
+@using System.Globalization
+@inherits BaseComponent
+@rendermode InteractiveServer
+
+<div class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
+    <!-- Premium Header -->
+    <div class="relative overflow-hidden bg-white dark:bg-gradient-to-br dark:from-gray-900 dark:via-gray-800 dark:to-slate-900 rounded-2xl p-6 sm:p-8 shadow-sm border border-gray-200 dark:border-gray-700/50 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+        <div class="absolute top-0 right-0 -m-8 w-40 h-40 bg-blue-400/10 dark:bg-blue-500/20 rounded-full filter blur-3xl"></div>
+        <div class="relative z-10">
+            <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white tracking-tight flex items-center gap-3">
+                <div class="p-2.5 bg-blue-50 dark:bg-blue-500/20 rounded-xl shadow-sm">
+                    <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                </div>
+                @L.Translate("nav.calendar")
+            </h1>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">@L.Translate("details.calendarDesc")</p>
+        </div>
+        <div class="relative z-10 flex items-center gap-2 bg-gray-50 dark:bg-gray-900/50 p-1.5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-inner">
+            <button @onclick="PreviousMonth" class="p-2.5 hover:bg-white dark:hover:bg-gray-800 rounded-lg hover:shadow-sm transition-all text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+            </button>
+            <span class="font-bold text-gray-800 dark:text-white px-4 min-w-[140px] text-center text-lg capitalize tracking-wide">
+                @currentMonth.ToString("MMMM yyyy")
+            </span>
+            <button @onclick="NextMonth" class="p-2.5 hover:bg-white dark:hover:bg-gray-800 rounded-lg hover:shadow-sm transition-all text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+            </button>
+        </div>
+    </div>
+
+    @if (isLoading)
+    {
+        <div class="grid grid-cols-7 gap-px bg-gray-200 dark:bg-gray-700 rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700">
+            @for (int i = 0; i < 35; i++)
+            {
+                <div class="bg-white dark:bg-gray-800 h-28 sm:h-36 animate-pulse"></div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <!-- Days of Week Header -->
+            <div class="grid grid-cols-7 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/80">
+                @{
+                    var daysOfWeek = new[] { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" };
+                    foreach (var day in daysOfWeek)
+                    {
+                        <div class="py-4 text-center text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">
+                            @day
+                        </div>
+                    }
+                }
+            </div>
+
+            <!-- Calendar Grid -->
+            <div class="grid grid-cols-7 gap-px bg-gray-200 dark:bg-gray-700">
+                @{
+                    var firstDayOfMonth = new DateTime(currentMonth.Year, currentMonth.Month, 1);
+                    var daysInMonth = DateTime.DaysInMonth(currentMonth.Year, currentMonth.Month);
+                    var startingDayOfWeek = (int)firstDayOfMonth.DayOfWeek;
+                    
+                    // Adjust starting day so Monday is 0
+                    startingDayOfWeek = startingDayOfWeek == 0 ? 6 : startingDayOfWeek - 1;
+
+                    // Empty slots before the first day of the month
+                    for (int i = 0; i < startingDayOfWeek; i++)
+                    {
+                        <div class="bg-gray-50/80 dark:bg-gray-800/80 min-h-[110px] sm:min-h-[140px] p-2 opacity-50"></div>
+                    }
+
+                    // Days of the month
+                    for (int i = 1; i <= daysInMonth; i++)
+                    {
+                        var currentDate = new DateTime(currentMonth.Year, currentMonth.Month, i);
+                        var isToday = currentDate.Date == DateTime.Today;
+                        var dayTickets = GetTicketsForDay(currentDate).ToList();
+
+                        <div class="bg-white dark:bg-gray-800 min-h-[110px] sm:min-h-[140px] p-2 sm:p-3 transition-colors hover:bg-blue-50/30 dark:hover:bg-gray-700/50 group">
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="@(isToday ? "bg-blue-600 text-white w-7 h-7 rounded-full flex items-center justify-center font-bold text-sm shadow-md ring-4 ring-blue-100 dark:ring-blue-900/30" : "text-sm font-medium text-gray-700 dark:text-gray-300 w-7 h-7 flex items-center justify-center group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors")">
+                                    @i
+                                </span>
+                            </div>
+                            <div class="space-y-1.5 overflow-y-auto max-h-[90px] sm:max-h-[110px] no-scrollbar pr-1">
+                                @foreach (var ticket in dayTickets)
+                                {
+                                    var start = ticket.StartDate ?? ticket.CreatedAt;
+                                    var isStart = start.Date == currentDate.Date;
+                                    var isDue = ticket.DueDate?.Date == currentDate.Date;
+                                    
+                                    // Visual cues: Start (Green), Due (Red), Between (Blue/Gray)
+                                    var colorClass = isDue ? "bg-red-50 hover:bg-red-100 text-red-700 border-red-200 dark:bg-red-500/10 dark:hover:bg-red-500/20 dark:text-red-300 dark:border-red-500/30" : 
+                                                     isStart ? "bg-green-50 hover:bg-green-100 text-green-700 border-green-200 dark:bg-green-500/10 dark:hover:bg-green-500/20 dark:text-green-300 dark:border-green-500/30" : 
+                                                     "bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-500/10 dark:hover:bg-slate-500/20 dark:text-slate-300 dark:border-slate-500/30";
+                                                     
+                                    <a href="/ticket/@ticket.Id" class="block w-full text-left transition-all hover:scale-[1.02]">
+                                        <div class="px-2 py-1.5 text-xs rounded-lg border shadow-sm truncate font-medium flex items-center gap-1.5 @colorClass" title="@ticket.Title">
+                                            @if(isDue) { <span class="flex-shrink-0 text-[10px]">⏰</span> }
+                                            else if(isStart) { <span class="flex-shrink-0 text-[10px]">🚀</span> }
+                                            <span class="truncate">#@ticket.Id @ticket.Title</span>
+                                        </div>
+                                    </a>
+                                }
+                            </div>
+                        </div>
+                    }
+
+                    // Empty slots after the last day
+                    var totalCells = startingDayOfWeek + daysInMonth;
+                    var remainingCells = 42 - totalCells; // 6 rows * 7 columns
+                    for (int i = 0; i < remainingCells; i++)
+                    {
+                        <div class="bg-gray-50/80 dark:bg-gray-800/80 min-h-[110px] sm:min-h-[140px] p-2 opacity-50"></div>
+                    }
+                }
+            </div>
+        </div>
+    }
+</div>

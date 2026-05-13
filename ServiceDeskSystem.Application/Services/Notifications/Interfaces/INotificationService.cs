@@ -15,4 +15,6 @@ public interface INotificationService
     Task CreateCommentNotificationAsync(int ticketId, int commentAuthorId);
 
     Task CreateStatusChangedNotificationAsync(int ticketId, string oldStatus, string newStatus, int? actorUserId);
+
+    Task CreateDatesChangedNotificationAsync(int ticketId, int? actorUserId);
 }
