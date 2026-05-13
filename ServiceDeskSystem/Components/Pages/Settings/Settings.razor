@@ -1,0 +1,251 @@
+@page "/settings"
+@inherits ServiceDeskSystem.Components.UI.Base.BaseComponent
+@rendermode InteractiveServer
+@using ServiceDeskSystem.Application.Services.Auth.Interfaces
+@using Microsoft.JSInterop
+
+<!-- Created by Nazar "N1h3" Hutsol -->
+<div class="max-w-4xl mx-auto p-4 sm:p-6 animate-fade-in">
+
+    <!-- Page Header -->
+    <div class="mb-8">
+        <div class="flex items-center gap-3 mb-2">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg shadow-violet-500/30">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                </svg>
+            </div>
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">@L.Translate("settings.title")</h1>
+                <p class="text-sm text-gray-500 dark:text-gray-400">@L.Translate("settings.subtitle")</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="space-y-6">
+
+        <!-- ═══════════════ Appearance Section ═══════════════ -->
+        <section class="bg-white dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700/50 overflow-hidden transition-colors hover:shadow-xl duration-300">
+            <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700/50 flex items-center gap-3">
+                <div class="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+                    <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path>
+                    </svg>
+                </div>
+                <h2 class="text-lg font-semibold text-gray-800 dark:text-white">@L.Translate("settings.appearance")</h2>
+            </div>
+
+            <div class="p-6 space-y-6">
+                <!-- Theme -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <p class="text-sm font-medium text-gray-900 dark:text-white">@L.Translate("settings.theme")</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">@L.Translate("settings.themeDesc")</p>
+                    </div>
+                    <div class="flex gap-3">
+                        <button @onclick="() => SetTheme(false)"
+                                class="@(Theme.IsDarkMode ? "ring-1 ring-gray-500" : "ring-2 ring-blue-500 shadow-md shadow-blue-500/20") flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-200 font-medium text-sm transition-all hover:shadow-md">
+                            <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                            @L.Translate("theme.light")
+                        </button>
+                        <button @onclick="() => SetTheme(true)"
+                                class="@(Theme.IsDarkMode ? "ring-2 ring-blue-500 shadow-md shadow-blue-500/20" : "ring-1 ring-gray-300 dark:ring-gray-600") flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gray-900 border border-gray-700 text-white font-medium text-sm transition-all hover:shadow-md">
+                            <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+                            @L.Translate("theme.dark")
+                        </button>
+                    </div>
+                </div>
+
+                <hr class="border-gray-100 dark:border-gray-700/50" />
+
+                <!-- Language -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <p class="text-sm font-medium text-gray-900 dark:text-white">@L.Translate("settings.language")</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">@L.Translate("settings.languageDesc")</p>
+                    </div>
+                    <div class="flex gap-3">
+                        <button @onclick='() => L.SetLanguage("en")'
+                                class="@(L.CurrentLanguage == "en" ? "ring-2 ring-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 shadow-md shadow-blue-500/20" : "ring-1 ring-gray-300 dark:ring-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300") flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm transition-all hover:shadow-md">
+                            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"></circle><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10A15.3 15.3 0 0112 2z"></path></svg>
+                            English
+                        </button>
+                        <button @onclick='() => L.SetLanguage("uk")'
+                                class="@(L.CurrentLanguage == "uk" ? "ring-2 ring-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 shadow-md shadow-blue-500/20" : "ring-1 ring-gray-300 dark:ring-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300") flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm transition-all hover:shadow-md">
+                            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"></circle><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10A15.3 15.3 0 0112 2z"></path></svg>
+                            Українська
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════════════ Notifications Section ═══════════════ -->
+        <section class="bg-white dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700/50 overflow-hidden transition-colors hover:shadow-xl duration-300">
+            <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700/50 flex items-center gap-3">
+                <div class="p-2 bg-amber-100 dark:bg-amber-900/30 rounded-lg">
+                    <svg class="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V4a2 2 0 10-4 0v1.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                    </svg>
+                </div>
+                <h2 class="text-lg font-semibold text-gray-800 dark:text-white">@L.Translate("settings.notifications")</h2>
+            </div>
+
+            <div class="p-6 space-y-6">
+                <!-- Sound -->
+                <div class="flex items-center justify-between gap-4">
+                    <div>
+                        <p class="text-sm font-medium text-gray-900 dark:text-white">@L.Translate("settings.soundNotifications")</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">@L.Translate("settings.soundDesc")</p>
+                    </div>
+                    <button @onclick="ToggleSoundNotifications"
+                            class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 @(soundEnabled ? "bg-blue-600" : "bg-gray-300 dark:bg-gray-600")">
+                        <span class="inline-block h-4 w-4 transform rounded-full bg-white shadow-md transition-transform duration-200 @(soundEnabled ? "translate-x-6" : "translate-x-1")"></span>
+                    </button>
+                </div>
+
+                <hr class="border-gray-100 dark:border-gray-700/50" />
+
+                <!-- Desktop notifications -->
+                <div class="flex items-center justify-between gap-4">
+                    <div>
+                        <p class="text-sm font-medium text-gray-900 dark:text-white">@L.Translate("settings.desktopNotifications")</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">@L.Translate("settings.desktopDesc")</p>
+                    </div>
+                    <button @onclick="ToggleDesktopNotifications"
+                            class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 @(desktopNotificationsEnabled ? "bg-blue-600" : "bg-gray-300 dark:bg-gray-600")">
+                        <span class="inline-block h-4 w-4 transform rounded-full bg-white shadow-md transition-transform duration-200 @(desktopNotificationsEnabled ? "translate-x-6" : "translate-x-1")"></span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════════════ Default Views Section ═══════════════ -->
+        <section class="bg-white dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700/50 overflow-hidden transition-colors hover:shadow-xl duration-300">
+            <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700/50 flex items-center gap-3">
+                <div class="p-2 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg">
+                    <svg class="w-5 h-5 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
+                    </svg>
+                </div>
+                <h2 class="text-lg font-semibold text-gray-800 dark:text-white">@L.Translate("settings.defaultViews")</h2>
+            </div>
+
+            <div class="p-6 space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <p class="text-sm font-medium text-gray-900 dark:text-white">@L.Translate("settings.ticketView")</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">@L.Translate("settings.ticketViewDesc")</p>
+                    </div>
+                    <div class="flex gap-3">
+                        <button @onclick='() => SetDefaultView("TABLE")'
+                                class="@(defaultView == "TABLE" ? "ring-2 ring-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 shadow-md shadow-blue-500/20" : "ring-1 ring-gray-300 dark:ring-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300") flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm transition-all hover:shadow-md">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>
+                            @L.Translate("kanban.viewTable")
+                        </button>
+                        <button @onclick='() => SetDefaultView("KANBAN")'
+                                class="@(defaultView == "KANBAN" ? "ring-2 ring-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 shadow-md shadow-blue-500/20" : "ring-1 ring-gray-300 dark:ring-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300") flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm transition-all hover:shadow-md">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7"></path></svg>
+                            @L.Translate("kanban.viewKanban")
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════════════ System Info (Admin Only) ═══════════════ -->
+        @if (isAdmin)
+        {
+            <section class="bg-white dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700/50 overflow-hidden transition-colors hover:shadow-xl duration-300">
+                <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700/50 flex items-center gap-3">
+                    <div class="p-2 bg-red-100 dark:bg-red-900/30 rounded-lg">
+                        <svg class="w-5 h-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path>
+                        </svg>
+                    </div>
+                    <h2 class="text-lg font-semibold text-gray-800 dark:text-white">@L.Translate("settings.system")</h2>
+                </div>
+
+                <div class="p-6 space-y-4">
+                    <!-- DB Status -->
+                    <div class="flex items-center justify-between p-4 rounded-xl bg-gray-50 dark:bg-gray-700/30 border border-gray-100 dark:border-gray-700/50">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center">
+                                <svg class="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"></path></svg>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-900 dark:text-white">@L.Translate("settings.database")</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">MySQL</p>
+                            </div>
+                        </div>
+                        @if (isCheckingDb)
+                        {
+                            <div class="flex items-center gap-2 text-gray-500 dark:text-gray-400 text-xs">
+                                <svg class="animate-spin h-4 w-4" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                @L.Translate("settings.checking")
+                            </div>
+                        }
+                        else
+                        {
+                            <span class="px-3 py-1 rounded-full text-xs font-semibold @(dbAvailable ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-700" : "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-700")">
+                                @(dbAvailable ? L.Translate("settings.connected") : L.Translate("settings.disconnected"))
+                            </span>
+                        }
+                    </div>
+
+                    <!-- SMTP Status -->
+                    <div class="flex items-center justify-between p-4 rounded-xl bg-gray-50 dark:bg-gray-700/30 border border-gray-100 dark:border-gray-700/50">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-lg bg-violet-100 dark:bg-violet-900/40 flex items-center justify-center">
+                                <svg class="w-4 h-4 text-violet-600 dark:text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-900 dark:text-white">@L.Translate("settings.smtp")</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">@smtpMessage</p>
+                            </div>
+                        </div>
+                        @if (isCheckingSmtp)
+                        {
+                            <div class="flex items-center gap-2 text-gray-500 dark:text-gray-400 text-xs">
+                                <svg class="animate-spin h-4 w-4" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                @L.Translate("settings.checking")
+                            </div>
+                        }
+                        else
+                        {
+                            <span class="px-3 py-1 rounded-full text-xs font-semibold @(smtpAvailable ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-700" : "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-700")">
+                                @(smtpAvailable ? L.Translate("settings.connected") : L.Translate("settings.disconnected"))
+                            </span>
+                        }
+                    </div>
+
+                    <!-- App Version -->
+                    <div class="flex items-center justify-between p-4 rounded-xl bg-gray-50 dark:bg-gray-700/30 border border-gray-100 dark:border-gray-700/50">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-lg bg-teal-100 dark:bg-teal-900/40 flex items-center justify-center">
+                                <svg class="w-4 h-4 text-teal-600 dark:text-teal-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"></path><circle cx="7" cy="7" r="1"></circle></svg>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-900 dark:text-white">@L.Translate("settings.version")</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">ServiceDeskSystem</p>
+                            </div>
+                        </div>
+                        <span class="px-3 py-1 rounded-full text-xs font-mono font-semibold bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-600">
+                            v1.0.0
+                        </span>
+                    </div>
+
+                    <!-- Refresh button -->
+                    <div class="flex justify-end pt-2">
+                        <button @onclick="CheckSystemStatusAsync" disabled="@(isCheckingDb || isCheckingSmtp)"
+                                class="px-4 py-2 text-sm font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors flex items-center gap-2 disabled:opacity-50">
+                            <svg class="w-4 h-4 @(isCheckingDb || isCheckingSmtp ? "animate-spin" : "")" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                            @L.Translate("settings.refresh")
+                        </button>
+                    </div>
+                </div>
+            </section>
+        }
+    </div>
+</div>

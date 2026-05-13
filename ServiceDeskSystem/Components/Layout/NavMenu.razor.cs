@@ -75,6 +75,7 @@ public partial class NavMenu : ComponentBase, IDisposable
             Items =
             {
                 new MenuItem("home", this.L.Translate("nav.home"), string.Empty, "home", NavLinkMatch.All),
+                new MenuItem("settings", this.L.Translate("nav.settings"), "settings", "settings"),
             },
         };
 

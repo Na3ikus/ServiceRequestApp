@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.SignalR.Client;
+using Microsoft.JSInterop;
 using ServiceDeskSystem.Application.Services.Auth;
 using ServiceDeskSystem.Application.Services.Auth.Interfaces;
 using ServiceDeskSystem.Application.Services.Localization;
@@ -29,6 +30,9 @@ public partial class TicketList : BaseComponent
 
     [Inject]
     private NavigationManager Navigation { get; set; } = null!;
+
+    [Inject]
+    private IJSRuntime JS { get; set; } = null!;
 
     private List<Ticket>? tickets { get; set; }
 
@@ -64,6 +68,28 @@ public partial class TicketList : BaseComponent
         await this.StartTicketsHubAsync();
     }
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                var defaultView = await this.JS.InvokeAsync<string?>("localStorage.getItem", "settings.defaultView");
+                if (string.Equals(defaultView, "KANBAN", StringComparison.OrdinalIgnoreCase) || string.Equals(defaultView, "kanban", StringComparison.OrdinalIgnoreCase))
+                {
+                    this.viewMode = "Kanban";
+                    this.StateHasChanged();
+                }
+            }
+            catch
+            {
+                // Ignore prerendering errors
+            }
+        }
+
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
     protected override void Dispose(bool disposing)
     {
         if (disposing)
@@ -76,10 +102,19 @@ public partial class TicketList : BaseComponent
 
     private void ViewTicket(int id) => this.Navigation.NavigateTo($"/ticket/{id}");
 
-    private void SetViewMode(string mode)
+    private async Task SetViewMode(string mode)
     {
         this.viewMode = mode;
         this.StateHasChanged();
+
+        try
+        {
+            await this.JS.InvokeVoidAsync("localStorage.setItem", "settings.defaultView", mode.ToUpperInvariant());
+        }
+        catch
+        {
+            // Ignore prerendering errors
+        }
     }
 
     private async Task HandleKanbanStatusChangedAsync((int TicketId, string NewStatus) args)

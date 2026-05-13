@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
     <ProjectReference Include="..\ServiceDeskSystem.Domain\ServiceDeskSystem.Domain.csproj" />
@@ -28,14 +28,6 @@
     </Content>
   </ItemGroup>
 
-  <ItemGroup>
-    <Content Remove="Services\Localization\LanguagePack\en.json" />
-    <Content Remove="Services\Localization\LanguagePack\uk.json" />
-  </ItemGroup>
 
-  <ItemGroup>
-    <None Remove="Services\Localization\LanguagePack\en.json" />
-    <None Remove="Services\Localization\LanguagePack\uk.json" />
-  </ItemGroup>
 
 </Project>
