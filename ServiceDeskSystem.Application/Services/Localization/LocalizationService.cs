@@ -55,31 +55,27 @@ public sealed class LocalizationService : ILocalizationService
 
         foreach (var lang in languages)
         {
-            var directoryPath = Path.Combine(AppContext.BaseDirectory, "Localization", "LanguagePack", lang);
             this.translations[lang] = new Dictionary<string, string>();
 
             try
             {
+                // Load root-level language file first (e.g. en.json, uk.json)
+                var basePath = Path.Combine(AppContext.BaseDirectory, "Localization", "LanguagePack");
+                var rootFile = Path.Combine(basePath, $"{lang}.json");
+                if (File.Exists(rootFile))
+                {
+                    await this.LoadJsonFileAsync(rootFile, lang).ConfigureAwait(false);
+                }
+
+                // Load subdirectory language files (e.g. en/system.json, en/tickets.json)
+                var directoryPath = Path.Combine(basePath, lang);
                 if (Directory.Exists(directoryPath))
                 {
                     var files = Directory.GetFiles(directoryPath, "*.json", SearchOption.AllDirectories);
-                    
+
                     foreach (var filePath in files)
                     {
-                        var json = await File.ReadAllTextAsync(filePath).ConfigureAwait(false);
-                        if (string.IsNullOrWhiteSpace(json))
-                        {
-                            continue;
-                        }
-
-                        var dict = JsonSerializer.Deserialize<Dictionary<string, string>>(json);
-                        if (dict != null)
-                        {
-                            foreach (var kvp in dict)
-                            {
-                                this.translations[lang][kvp.Key] = kvp.Value;
-                            }
-                        }
+                        await this.LoadJsonFileAsync(filePath, lang).ConfigureAwait(false);
                     }
                 }
                 else
@@ -94,5 +90,23 @@ public sealed class LocalizationService : ILocalizationService
         }
 
         this.isLoaded = true;
+    }
+
+    private async Task LoadJsonFileAsync(string filePath, string lang)
+    {
+        var json = await File.ReadAllTextAsync(filePath).ConfigureAwait(false);
+        if (string.IsNullOrWhiteSpace(json))
+        {
+            return;
+        }
+
+        var dict = JsonSerializer.Deserialize<Dictionary<string, string>>(json);
+        if (dict != null)
+        {
+            foreach (var kvp in dict)
+            {
+                this.translations[lang][kvp.Key] = kvp.Value;
+            }
+        }
     }
 }

@@ -4,6 +4,9 @@
   "nav.myTickets": "My Tickets",
   "nav.newTicket": "New Ticket",
   "nav.serviceDesk": "ServiceDesk",
+  "nav.section.general": "General",
+  "nav.section.workspace": "Workspace",
+  "nav.section.management": "Administration",
   "login.title": "Sign in to your account",
   "login.username": "Username",
   "login.password": "Password",
@@ -124,6 +127,7 @@
   "common.logout": "Logout",
   "common.required": "required",
   "common.footer": "Service Desk System",
+  "common.loading": "Loading...",
   "home.welcomeBack": "Welcome back,",
   "home.subtitle": "Here's what's happening in your workspace.",
   "home.recentActivity": "Recent Activity",
@@ -194,7 +198,6 @@
   "admin.techStackDeleted": "Tech stack deleted successfully",
   "admin.cannotDeleteTechStackWithProducts": "Cannot delete tech stack with associated products",
   "admin.cannotDeleteProductWithTickets": "Cannot delete product with existing tickets",
-  "common.loading": "Loading...",
   "nav.developer": "My Tickets",
   "developer.title": "My Tickets",
   "developer.subtitle": "Manage your assigned tickets",
@@ -246,5 +249,11 @@
   "profile.validation.firstNameRequired": "First name cannot be empty.",
   "profile.validation.contactValueRequired": "Contact value cannot be empty.",
   "profile.saving": "Saving...",
-  "profile.saveChanges": "Save changes"
+  "profile.saveChanges": "Save changes",
+  "notifications.title": "Notifications",
+  "notifications.markAllRead": "Mark all read",
+  "notifications.empty": "No notifications yet",
+  "notifications.delete": "Delete notification",
+  "db.connectionLost": "No connection to the database",
+  "db.connectionRestored": "Database connection restored"
 }

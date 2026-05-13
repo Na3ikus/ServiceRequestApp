@@ -45,12 +45,14 @@
 
 .sidebar-brand {
     padding: 1rem;
-    min-height: 4rem;
-    border-bottom: 1px solid var(--sidebar-border);
+    height: 4.5rem;
+    min-height: 4.5rem;
+    border-bottom: 2px solid var(--sidebar-border);
     display: flex;
     align-items: center;
     justify-content: flex-start;
     gap: 0.5rem;
+    box-sizing: border-box;
 }
 
 .brand-link {

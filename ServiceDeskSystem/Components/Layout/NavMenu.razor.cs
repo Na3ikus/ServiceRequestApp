@@ -70,7 +70,7 @@ public partial class NavMenu : ComponentBase, IDisposable
     {
         var role = this.AuthService.CurrentUser?.Role;
 
-        var general = new MenuSection("general", "General")
+        var general = new MenuSection("general", this.L.Translate("nav.section.general"))
         {
             Items =
             {
@@ -78,7 +78,7 @@ public partial class NavMenu : ComponentBase, IDisposable
             },
         };
 
-        var workspace = new MenuSection("workspace", "Workspace");
+        var workspace = new MenuSection("workspace", this.L.Translate("nav.section.workspace"));
 
         if (role is "Admin" or "Developer")
         {
@@ -90,7 +90,7 @@ public partial class NavMenu : ComponentBase, IDisposable
             workspace.Items.Add(new MenuItem("myTickets", this.L.Translate("nav.myTickets"), "my-tickets", "user", NavLinkMatch.All));
         }
 
-        var management = new MenuSection("management", "Administration");
+        var management = new MenuSection("management", this.L.Translate("nav.section.management"));
 
         if (role == "Developer")
         {
@@ -121,7 +121,11 @@ public partial class NavMenu : ComponentBase, IDisposable
         section.IsExpanded = !section.IsExpanded;
     }
 
-    private void OnStateChanged(object? sender, EventArgs e) => this.InvokeAsync(this.StateHasChanged);
+    private void OnStateChanged(object? sender, EventArgs e) => this.InvokeAsync(() =>
+    {
+        this.BuildMenu();
+        this.StateHasChanged();
+    });
 
     private sealed class MenuSection(string id, string title)
     {

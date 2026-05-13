@@ -129,7 +129,7 @@
                                     <div class="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400 font-medium">
                                         <span class="flex items-center gap-1.5 px-2 py-0.5 rounded bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 shadow-sm">
                                             <span class="w-2 h-2 rounded-full @GetStatusDotColor(ticket.Status)"></span>
-                                            @ticket.Status
+                                            @GetStatusText(ticket.Status)
                                         </span>
                                         <span class="text-gray-300 dark:text-gray-600">&bull;</span>
                                         <span class="flex items-center gap-1.5 whitespace-nowrap">
@@ -219,5 +219,18 @@
         "Resolved" => "bg-green-500",
         "Closed" => "bg-gray-500",
         _ => "bg-purple-500"
+    };
+
+    private string GetStatusText(string status) => status switch
+    {
+        "New" => L.Translate("status.new"),
+        "Open" => L.Translate("status.open"),
+        "In Progress" => L.Translate("status.inProgress"),
+        "Testing" => L.Translate("status.testing"),
+        "Code Review" => L.Translate("status.codeReview"),
+        "Resolved" => L.Translate("status.resolved"),
+        "Done" => L.Translate("status.done"),
+        "Closed" => L.Translate("status.closed"),
+        _ => status,
     };
 }

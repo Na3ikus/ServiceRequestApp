@@ -5,14 +5,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="MailKit" Version="4.12.1" />
+    <PackageReference Include="MailKit" Version="4.16.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.0">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.0" />
-    <PackageReference Include="MimeKit" Version="4.15.1" />
+    <PackageReference Include="MimeKit" Version="4.16.0" />
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="9.0.0" />
   </ItemGroup>
 
