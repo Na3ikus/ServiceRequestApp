@@ -1,7 +1,26 @@
-﻿<!-- Created by Nazar "N1h3" Hutsol -->
+<!-- Created by Nazar "N1h3" Hutsol -->
 <Router AppAssembly="typeof(Program).Assembly" NotFoundPage="typeof(Pages.NotFound)">
     <Found Context="routeData">
-        <RouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)" />
-        <FocusOnNavigate RouteData="routeData" Selector="h1" />
+        <ErrorBoundary>
+            <ChildContent>
+                <RouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)" />
+                <FocusOnNavigate RouteData="routeData" Selector="h1" />
+            </ChildContent>
+            <ErrorContent Context="ex">
+                <div class="max-w-3xl mx-auto mt-12 p-8 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-2xl shadow-lg text-center">
+                    <svg class="w-16 h-16 text-red-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                    </svg>
+                    <h2 class="text-2xl font-bold text-red-800 dark:text-red-400 mb-2">Something went wrong</h2>
+                    <p class="text-red-600 dark:text-red-300 mb-6">We encountered an unexpected system error. This might be due to a lost database connection.</p>
+                    <div class="p-4 bg-white dark:bg-gray-800 rounded-xl text-left overflow-auto max-h-64 text-sm font-mono text-gray-700 dark:text-gray-300 border border-gray-100 dark:border-gray-700">
+                        @ex.Message
+                    </div>
+                    <button class="mt-6 px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl font-medium transition-colors" onclick="window.location.reload()">
+                        Reload Page
+                    </button>
+                </div>
+            </ErrorContent>
+        </ErrorBoundary>
     </Found>
 </Router>
