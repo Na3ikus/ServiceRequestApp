@@ -65,7 +65,7 @@
             <DashboardStats />
         }
 
-        <!-- Recent Activity Feed -->
+        <!-- Recent Activity Feed — Timeline -->
         <div class="mt-8 bg-white dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-lg border border-transparent dark:border-gray-700/50 p-6 sm:p-8 hover:shadow-xl transition-shadow duration-300">
             <div class="flex items-center justify-between mb-6 border-b border-gray-100 dark:border-gray-700/50 pb-4">
                 <h2 class="text-xl font-bold text-gray-800 dark:text-white flex items-center gap-3">
@@ -89,10 +89,10 @@
 
             @if (recentTickets == null)
             {
-                <div class="animate-pulse space-y-4">
+                <div class="space-y-4">
                     @for (int i = 0; i < 3; i++)
                     {
-                        <div class="h-20 bg-gray-100 dark:bg-gray-700/50 rounded-xl"></div>
+                        <div class="h-20 skeleton-shimmer rounded-xl"></div>
                     }
                 </div>
             }
@@ -109,43 +109,48 @@
             }
             else
             {
-                <div class="space-y-4">
+                <div class="timeline-feed">
                     @foreach (var ticket in recentTickets)
                     {
-                        <a href="@($"/ticket/{ticket.Id}")" class="block group/card">
-                            <div class="flex items-center gap-4 p-4 rounded-xl border border-gray-100 dark:border-gray-700/50 bg-gray-50/50 dark:bg-gray-800/30 hover:bg-white dark:hover:bg-gray-700/50 hover:shadow-lg hover:border-blue-200 dark:hover:border-blue-500/30 transition-all duration-300 transform group-hover/card:-translate-y-0.5">
-                                <div class="w-10 h-10 rounded-full flex shrink-0 items-center justify-center shadow-sm @GetPriorityColorClass(ticket.Priority)">
-                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path>
-                                    </svg>
-                                </div>
-                                <div class="flex-1 min-w-0">
-                                    <div class="flex items-center justify-between gap-2 mb-1">
-                                        <p class="text-sm font-semibold text-gray-900 dark:text-white truncate group-hover/card:text-blue-600 dark:group-hover/card:text-blue-400 transition-colors">
-                                            @ticket.Title
-                                        </p>
-                                        <span class="text-xs font-mono font-medium text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded-full whitespace-nowrap border border-gray-200 dark:border-gray-600">#@ticket.Id</span>
-                                    </div>
-                                    <div class="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400 font-medium">
-                                        <span class="flex items-center gap-1.5 px-2 py-0.5 rounded bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 shadow-sm">
-                                            <span class="w-2 h-2 rounded-full @GetStatusDotColor(ticket.Status)"></span>
-                                            @GetStatusText(ticket.Status)
-                                        </span>
-                                        <span class="text-gray-300 dark:text-gray-600">&bull;</span>
-                                        <span class="flex items-center gap-1.5 whitespace-nowrap">
-                                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                            </svg>
-                                            <span class="hidden sm:inline text-gray-400">@L.Translate("table.created"):</span>
-                                            <span class="text-gray-700 dark:text-gray-300">@ticket.CreatedAt.ToString("dd MMM yyyy, HH:mm")</span>
-                                        </span>
-                                    </div>
-                                </div>
-                                <div class="shrink-0 text-gray-300 dark:text-gray-600 group-hover/card:text-blue-500 transition-colors transform group-hover/card:translate-x-1 duration-200">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-                                </div>
+                        <div class="timeline-item">
+                            <div class="timeline-dot">
+                                <div class="timeline-dot-inner"></div>
                             </div>
-                        </a>
+                            <a href="@($"/ticket/{ticket.Id}")" class="block group/card">
+                                <div class="flex items-center gap-4 p-4 rounded-xl border border-gray-100 dark:border-gray-700/50 bg-gray-50/50 dark:bg-gray-800/30 hover:bg-white dark:hover:bg-gray-700/50 hover:shadow-lg hover:border-blue-200 dark:hover:border-blue-500/30 transition-all duration-300 transform group-hover/card:-translate-y-0.5">
+                                    <div class="w-10 h-10 rounded-full flex shrink-0 items-center justify-center shadow-sm @GetPriorityColorClass(ticket.Priority)">
+                                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path>
+                                        </svg>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <div class="flex items-center justify-between gap-2 mb-1">
+                                            <p class="text-sm font-semibold text-gray-900 dark:text-white truncate group-hover/card:text-blue-600 dark:group-hover/card:text-blue-400 transition-colors">
+                                                @ticket.Title
+                                            </p>
+                                            <span class="text-xs font-mono font-medium text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded-full whitespace-nowrap border border-gray-200 dark:border-gray-600">#@ticket.Id</span>
+                                        </div>
+                                        <div class="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400 font-medium">
+                                            <span class="flex items-center gap-1.5 px-2 py-0.5 rounded bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 shadow-sm">
+                                                <span class="w-2 h-2 rounded-full @GetStatusDotColor(ticket.Status)"></span>
+                                                @GetStatusText(ticket.Status)
+                                            </span>
+                                            <span class="text-gray-300 dark:text-gray-600">&bull;</span>
+                                            <span class="flex items-center gap-1.5 whitespace-nowrap">
+                                                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                </svg>
+                                                <span class="hidden sm:inline text-gray-400">@L.Translate("table.created"):</span>
+                                                <span class="text-gray-700 dark:text-gray-300">@ticket.CreatedAt.ToString("dd MMM yyyy, HH:mm")</span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="shrink-0 text-gray-300 dark:text-gray-600 group-hover/card:text-blue-500 transition-colors transform group-hover/card:translate-x-1 duration-200">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
                     }
                 </div>
             }

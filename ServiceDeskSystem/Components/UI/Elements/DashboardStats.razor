@@ -1,7 +1,7 @@
 
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
     <div
-        class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700/50 shadow-lg dark:shadow-gray-900/50 overflow-hidden hover:shadow-2xl hover:shadow-blue-500/20 dark:hover:shadow-blue-500/10 transition-all duration-300 hover:-translate-y-1">
+        class="stat-card-animated bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700/50 shadow-lg dark:shadow-gray-900/50 overflow-hidden hover:shadow-2xl hover:shadow-blue-500/20 dark:hover:shadow-blue-500/10 transition-all duration-300 hover:-translate-y-1">
         <div class="p-6">
             <div class="flex items-center justify-between">
                 <div>
@@ -17,12 +17,19 @@
                     </svg>
                 </div>
             </div>
+            @if (displayTotalTickets > 0)
+            {
+                <div class="stat-progress-track">
+                    <div class="stat-progress-bar bg-gradient-to-r from-blue-500 to-blue-600" style="width: 100%"></div>
+                </div>
+                <p class="text-xs text-gray-400 dark:text-gray-500 mt-1.5 font-medium">100%</p>
+            }
         </div>
         <div class="h-1.5 bg-gradient-to-r from-blue-500 to-blue-600"></div>
     </div>
 
     <div
-        class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700/50 shadow-lg dark:shadow-gray-900/50 overflow-hidden hover:shadow-2xl hover:shadow-amber-500/20 dark:hover:shadow-amber-500/10 transition-all duration-300 hover:-translate-y-1">
+        class="stat-card-animated bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700/50 shadow-lg dark:shadow-gray-900/50 overflow-hidden hover:shadow-2xl hover:shadow-amber-500/20 dark:hover:shadow-amber-500/10 transition-all duration-300 hover:-translate-y-1">
         <div class="p-6">
             <div class="flex items-center justify-between">
                 <div>
@@ -38,17 +45,29 @@
                     </svg>
                 </div>
             </div>
+            @if (displayTotalTickets > 0)
+            {
+                <div class="stat-progress-track">
+                    <div class="stat-progress-bar bg-gradient-to-r from-amber-500 to-orange-500" style="width: @(GetPercentage(displayOpenTickets, displayTotalTickets))%"></div>
+                </div>
+                <p class="text-xs text-gray-400 dark:text-gray-500 mt-1.5 font-medium">@(GetPercentage(displayOpenTickets, displayTotalTickets))% @L.Translate("dashboard.totalTickets").ToLower()</p>
+            }
         </div>
         <div class="h-1.5 bg-gradient-to-r from-amber-500 to-orange-500"></div>
     </div>
 
     <div
-        class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700/50 shadow-lg dark:shadow-gray-900/50 overflow-hidden hover:shadow-2xl hover:shadow-red-500/20 dark:hover:shadow-red-500/10 transition-all duration-300 hover:-translate-y-1">
+        class="stat-card-animated bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700/50 shadow-lg dark:shadow-gray-900/50 overflow-hidden hover:shadow-2xl hover:shadow-red-500/20 dark:hover:shadow-red-500/10 transition-all duration-300 hover:-translate-y-1">
         <div class="p-6">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-base font-semibold text-gray-700 dark:text-gray-100 tracking-wide leading-6">
-                        @L.Translate("dashboard.criticalPriority")</p>
+                    <p class="text-base font-semibold text-gray-700 dark:text-gray-100 tracking-wide leading-6 flex items-center gap-2">
+                        @L.Translate("dashboard.criticalPriority")
+                        @if (displayCriticalTickets > 0)
+                        {
+                            <span class="w-2 h-2 rounded-full bg-red-500 critical-pulse"></span>
+                        }
+                    </p>
                     <p class="mt-2 text-3xl font-bold text-gray-900 dark:text-white">@displayCriticalTickets</p>
                 </div>
                 <div class="p-4 bg-gradient-to-br from-red-500 to-rose-600 rounded-2xl shadow-lg shadow-red-500/30">
@@ -59,12 +78,19 @@
                     </svg>
                 </div>
             </div>
+            @if (displayTotalTickets > 0)
+            {
+                <div class="stat-progress-track">
+                    <div class="stat-progress-bar bg-gradient-to-r from-red-500 to-rose-600" style="width: @(GetPercentage(displayCriticalTickets, displayTotalTickets))%"></div>
+                </div>
+                <p class="text-xs text-gray-400 dark:text-gray-500 mt-1.5 font-medium">@(GetPercentage(displayCriticalTickets, displayTotalTickets))% @L.Translate("dashboard.totalTickets").ToLower()</p>
+            }
         </div>
         <div class="h-1.5 bg-gradient-to-r from-red-500 to-rose-600"></div>
     </div>
 
     <div
-        class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700/50 shadow-lg dark:shadow-gray-900/50 overflow-hidden hover:shadow-2xl hover:shadow-emerald-500/20 dark:hover:shadow-emerald-500/10 transition-all duration-300 hover:-translate-y-1">
+        class="stat-card-animated bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700/50 shadow-lg dark:shadow-gray-900/50 overflow-hidden hover:shadow-2xl hover:shadow-emerald-500/20 dark:hover:shadow-emerald-500/10 transition-all duration-300 hover:-translate-y-1">
         <div class="p-6">
             <div class="flex items-center justify-between">
                 <div>
@@ -80,7 +106,15 @@
                     </svg>
                 </div>
             </div>
+            @if (displayTotalTickets > 0)
+            {
+                <div class="stat-progress-track">
+                    <div class="stat-progress-bar bg-gradient-to-r from-emerald-500 to-green-600" style="width: @(GetPercentage(displayMyTickets, displayTotalTickets))%"></div>
+                </div>
+                <p class="text-xs text-gray-400 dark:text-gray-500 mt-1.5 font-medium">@(GetPercentage(displayMyTickets, displayTotalTickets))% @L.Translate("dashboard.totalTickets").ToLower()</p>
+            }
         </div>
         <div class="h-1.5 bg-gradient-to-r from-emerald-500 to-green-600"></div>
     </div>
 </div>
+

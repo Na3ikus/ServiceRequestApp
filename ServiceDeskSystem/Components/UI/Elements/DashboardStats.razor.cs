@@ -105,5 +105,8 @@ public partial class DashboardStats : ComponentBase, IDisposable
         await this.InvokeAsync(this.StateHasChanged);
     }
 
+    private static int GetPercentage(int part, int total) =>
+        total > 0 ? (int)Math.Round((double)part / total * 100) : 0;
+
     private void OnStateChanged(object? sender, EventArgs e) => _ = this.InvokeAsync(this.StateHasChanged);
 }

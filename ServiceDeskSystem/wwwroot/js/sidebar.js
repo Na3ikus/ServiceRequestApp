@@ -15,13 +15,46 @@ window.sidebarManager = {
         this.unregisterHotkey();
 
         window.__sidebarHotkeyHandler = function (event) {
+            const tag = (event.target.tagName || '').toLowerCase();
+            const isInput = tag === 'input' || tag === 'textarea' || tag === 'select' || event.target.isContentEditable;
+
+            // Ctrl+B — sidebar collapse
             const isCtrlB = (event.ctrlKey || event.metaKey) && event.key && event.key.toLowerCase() === 'b';
-            if (!isCtrlB) {
+            if (isCtrlB) {
+                event.preventDefault();
+                dotNetRef.invokeMethodAsync('HandleSidebarHotkey');
                 return;
             }
 
-            event.preventDefault();
-            dotNetRef.invokeMethodAsync('HandleSidebarHotkey');
+            // Application keyboard shortcuts (only when not typing)
+            if (isInput || event.ctrlKey || event.metaKey || event.altKey) {
+                return;
+            }
+
+            const kbEnabled = localStorage.getItem('settings.keyboardShortcuts');
+            if (kbEnabled === 'false') {
+                return;
+            }
+
+            const key = event.key && event.key.toLowerCase();
+
+            if (key === 'n') {
+                event.preventDefault();
+                window.location.href = '/create-ticket';
+            } else if (key === 't') {
+                event.preventDefault();
+                window.location.href = '/tickets';
+            } else if (key === '/') {
+                event.preventDefault();
+                const searchInput = document.querySelector('.search-input');
+                if (searchInput) {
+                    searchInput.focus();
+                    searchInput.select();
+                }
+            } else if (key === 'd') {
+                event.preventDefault();
+                dotNetRef.invokeMethodAsync('HandleThemeHotkey');
+            }
         };
 
         document.addEventListener('keydown', window.__sidebarHotkeyHandler);
@@ -36,3 +69,12 @@ window.sidebarManager = {
         window.__sidebarHotkeyHandler = null;
     }
 };
+
+// Initialize accent color from localStorage on page load
+(function () {
+    var accent = localStorage.getItem('settings.accentColor');
+    if (accent && accent !== 'blue') {
+        document.documentElement.setAttribute('data-accent', accent);
+    }
+})();
+

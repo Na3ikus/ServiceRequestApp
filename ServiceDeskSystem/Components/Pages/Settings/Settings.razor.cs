@@ -16,12 +16,19 @@ public partial class Settings : BaseComponent
     private bool desktopNotificationsEnabled;
     private string defaultView = "table";
 
+    // Visual Effects
+    private bool animationsEnabled = true;
+    private string accentColor = "blue";
+    private bool keyboardShortcutsEnabled = true;
+
     // System health
     private bool dbAvailable;
     private bool smtpAvailable;
     private bool isCheckingDb;
     private bool isCheckingSmtp;
     private string smtpMessage = "SMTP";
+
+    private static readonly string[] AccentColors = ["blue", "purple", "emerald", "rose", "amber"];
 
     [Inject]
     private IAuthService AuthService { get; set; } = null!;
@@ -56,6 +63,16 @@ public partial class Settings : BaseComponent
             this.defaultView = !string.IsNullOrWhiteSpace(viewStr) ? viewStr.ToUpperInvariant() : "TABLE";
             var desktopStr = await this.JS.InvokeAsync<string?>("localStorage.getItem", "settings.desktopNotifications");
             this.desktopNotificationsEnabled = desktopStr == "true";
+
+            // Visual Effects
+            var animStr = await this.JS.InvokeAsync<string?>("localStorage.getItem", "settings.animations");
+            this.animationsEnabled = animStr != "false";
+            var accentStr = await this.JS.InvokeAsync<string?>("localStorage.getItem", "settings.accentColor");
+            this.accentColor = !string.IsNullOrWhiteSpace(accentStr) ? accentStr : "blue";
+            var kbStr = await this.JS.InvokeAsync<string?>("localStorage.getItem", "settings.keyboardShortcuts");
+            this.keyboardShortcutsEnabled = kbStr != "false";
+
+            await this.ApplyAccentColorAsync();
         }
         catch
         {
@@ -90,6 +107,54 @@ public partial class Settings : BaseComponent
         this.defaultView = view;
         await this.SaveSetting("settings.defaultView", view);
     }
+
+    private async Task ToggleAnimations()
+    {
+        this.animationsEnabled = !this.animationsEnabled;
+        await this.SaveSetting("settings.animations", this.animationsEnabled.ToString().ToLowerInvariant());
+    }
+
+    private async Task SetAccentColor(string color)
+    {
+        this.accentColor = color;
+        await this.SaveSetting("settings.accentColor", color);
+        await this.ApplyAccentColorAsync();
+    }
+
+    private async Task ToggleKeyboardShortcuts()
+    {
+        this.keyboardShortcutsEnabled = !this.keyboardShortcutsEnabled;
+        await this.SaveSetting("settings.keyboardShortcuts", this.keyboardShortcutsEnabled.ToString().ToLowerInvariant());
+    }
+
+    private async Task ApplyAccentColorAsync()
+    {
+        try
+        {
+            if (this.accentColor == "blue")
+            {
+                await this.JS.InvokeVoidAsync("eval", "document.documentElement.removeAttribute('data-accent')");
+            }
+            else
+            {
+                await this.JS.InvokeVoidAsync("eval", $"document.documentElement.setAttribute('data-accent','{this.accentColor}')");
+            }
+        }
+        catch
+        {
+            // Ignore JS interop errors during prerendering.
+        }
+    }
+
+    private string GetAccentSwatchStyle(string color) => color switch
+    {
+        "blue" => "background: linear-gradient(135deg, #3b82f6, #6366f1); color: #3b82f6;",
+        "purple" => "background: linear-gradient(135deg, #8b5cf6, #a855f7); color: #8b5cf6;",
+        "emerald" => "background: linear-gradient(135deg, #10b981, #14b8a6); color: #10b981;",
+        "rose" => "background: linear-gradient(135deg, #f43f5e, #e11d48); color: #f43f5e;",
+        "amber" => "background: linear-gradient(135deg, #f59e0b, #f97316); color: #f59e0b;",
+        _ => "background: linear-gradient(135deg, #3b82f6, #6366f1); color: #3b82f6;",
+    };
 
     private async Task SaveSetting(string key, string value)
     {
@@ -147,3 +212,4 @@ public partial class Settings : BaseComponent
         }
     }
 }
+

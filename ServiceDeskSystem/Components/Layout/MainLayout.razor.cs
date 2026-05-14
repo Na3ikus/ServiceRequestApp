@@ -81,6 +81,13 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
         this.ToggleSidebar();
     }
 
+    [JSInvokable]
+    public Task HandleThemeHotkey()
+    {
+        this.Theme.ToggleTheme();
+        return Task.CompletedTask;
+    }
+
     public void Dispose()
     {
         this.Dispose(true);

@@ -104,6 +104,12 @@ public partial class Register : BaseComponent
                     ? "Ця електронна адреса вже зареєстрована."
                     : error;
             }
+            else if (error == "Database connection is unavailable.")
+            {
+                this.ErrorMessage = this.L.CurrentLanguage == "uk"
+                    ? "Немає зв'язку до БД"
+                    : "No connection to the database.";
+            }
             else
             {
                 this.ErrorMessage = error ?? "Registration failed. Please try again.";

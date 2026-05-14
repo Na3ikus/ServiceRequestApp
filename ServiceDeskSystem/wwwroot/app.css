@@ -1687,3 +1687,330 @@ h3[tabindex] {
         box-shadow: 0 0 0 8px rgba(239, 68, 68, 0);
     }
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   ACCENT COLOR SYSTEM
+   ═══════════════════════════════════════════════════════════════════ */
+
+:root {
+    --accent-500: 59 130 246;
+    --accent-600: 37 99 235;
+    --accent-gradient-from: #3b82f6;
+    --accent-gradient-to: #6366f1;
+}
+
+[data-accent="purple"] {
+    --accent-500: 139 92 246;
+    --accent-600: 124 58 237;
+    --accent-gradient-from: #8b5cf6;
+    --accent-gradient-to: #a855f7;
+}
+
+[data-accent="emerald"] {
+    --accent-500: 16 185 129;
+    --accent-600: 5 150 105;
+    --accent-gradient-from: #10b981;
+    --accent-gradient-to: #14b8a6;
+}
+
+[data-accent="rose"] {
+    --accent-500: 244 63 94;
+    --accent-600: 225 29 72;
+    --accent-gradient-from: #f43f5e;
+    --accent-gradient-to: #e11d48;
+}
+
+[data-accent="amber"] {
+    --accent-500: 245 158 11;
+    --accent-600: 217 119 6;
+    --accent-gradient-from: #f59e0b;
+    --accent-gradient-to: #f97316;
+}
+
+/* Apply accent to key UI elements */
+.accent-gradient {
+    background: linear-gradient(135deg, var(--accent-gradient-from), var(--accent-gradient-to));
+}
+
+.accent-ring {
+    box-shadow: 0 0 0 3px rgb(var(--accent-500) / 0.3);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   SHIMMER SKELETON LOADER
+   ═══════════════════════════════════════════════════════════════════ */
+
+@keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+.skeleton-shimmer {
+    background: linear-gradient(90deg,
+        rgba(0, 0, 0, 0.06) 25%,
+        rgba(0, 0, 0, 0.12) 50%,
+        rgba(0, 0, 0, 0.06) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s ease-in-out infinite;
+    border-radius: 0.5rem;
+}
+
+.dark .skeleton-shimmer {
+    background: linear-gradient(90deg,
+        rgba(255, 255, 255, 0.06) 25%,
+        rgba(255, 255, 255, 0.12) 50%,
+        rgba(255, 255, 255, 0.06) 75%);
+    background-size: 200% 100%;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   CRITICAL TICKET PULSE INDICATOR
+   ═══════════════════════════════════════════════════════════════════ */
+
+@keyframes criticalPulse {
+    0%, 100% {
+        opacity: 1;
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.6);
+    }
+    50% {
+        opacity: 0.7;
+        box-shadow: 0 0 0 6px rgba(239, 68, 68, 0);
+    }
+}
+
+.critical-pulse {
+    animation: criticalPulse 2s ease-in-out infinite;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   NOTIFICATION BELL WIGGLE
+   ═══════════════════════════════════════════════════════════════════ */
+
+@keyframes bellWiggle {
+    0% { transform: rotate(0deg); }
+    10% { transform: rotate(14deg); }
+    20% { transform: rotate(-12deg); }
+    30% { transform: rotate(10deg); }
+    40% { transform: rotate(-8deg); }
+    50% { transform: rotate(5deg); }
+    60% { transform: rotate(-3deg); }
+    70% { transform: rotate(1deg); }
+    100% { transform: rotate(0deg); }
+}
+
+.notification-wrapper.has-new svg {
+    animation: bellWiggle 0.8s ease-in-out;
+    transform-origin: top center;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   DASHBOARD PROGRESS BARS
+   ═══════════════════════════════════════════════════════════════════ */
+
+.stat-progress-track {
+    height: 4px;
+    background: rgba(0, 0, 0, 0.06);
+    border-radius: 999px;
+    overflow: hidden;
+    margin-top: 0.75rem;
+}
+
+.dark .stat-progress-track {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.stat-progress-bar {
+    height: 100%;
+    border-radius: 999px;
+    transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   TIMELINE ACTIVITY FEED
+   ═══════════════════════════════════════════════════════════════════ */
+
+.timeline-feed {
+    position: relative;
+    padding-left: 2rem;
+}
+
+.timeline-feed::before {
+    content: "";
+    position: absolute;
+    left: 0.4375rem;
+    top: 1.5rem;
+    bottom: 1.5rem;
+    width: 2px;
+    background: linear-gradient(to bottom,
+        rgb(var(--accent-500) / 0.35),
+        rgb(var(--accent-500) / 0.08));
+    border-radius: 999px;
+}
+
+.timeline-item {
+    position: relative;
+    padding-bottom: 0.75rem;
+}
+
+.timeline-item:last-child {
+    padding-bottom: 0;
+}
+
+.timeline-dot {
+    position: absolute;
+    left: -2rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0.9375rem;
+    height: 0.9375rem;
+    border-radius: 50%;
+    border: 2px solid rgb(var(--accent-500));
+    background: white;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.dark .timeline-dot {
+    background: #1e293b;
+}
+
+.timeline-dot-inner {
+    width: 0.3125rem;
+    height: 0.3125rem;
+    border-radius: 50%;
+    background: rgb(var(--accent-500));
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   ACCENT COLOR SWATCHES (Settings page)
+   ═══════════════════════════════════════════════════════════════════ */
+
+.accent-swatch {
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 0.75rem;
+    cursor: pointer;
+    border: 2.5px solid transparent;
+    transition: all 0.2s ease;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.accent-swatch:hover {
+    transform: scale(1.12);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.accent-swatch.is-active {
+    border-color: currentColor;
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.08);
+    transform: scale(1.08);
+}
+
+.accent-swatch-check {
+    color: white;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   KEYBOARD SHORTCUT BADGES
+   ═══════════════════════════════════════════════════════════════════ */
+
+.kbd-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.5rem;
+    height: 1.5rem;
+    padding: 0 0.4rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    font-family: 'SF Mono', 'Consolas', 'Monaco', monospace;
+    line-height: 1;
+    color: #475569;
+    background: linear-gradient(180deg, #fff 0%, #f1f5f9 100%);
+    border: 1px solid #cbd5e1;
+    border-bottom-width: 2px;
+    border-radius: 0.35rem;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+    user-select: none;
+    text-transform: uppercase;
+}
+
+.dark .kbd-badge {
+    color: #cbd5e1;
+    background: linear-gradient(180deg, #374151 0%, #1f2937 100%);
+    border-color: #4b5563;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   STAGGER ENTRANCE ANIMATION FOR DASHBOARD STATS
+   ═══════════════════════════════════════════════════════════════════ */
+
+@keyframes statCardEnter {
+    from {
+        opacity: 0;
+        transform: translateY(16px) scale(0.96);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.stat-card-animated {
+    opacity: 0;
+    animation: statCardEnter 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.stat-card-animated:nth-child(1) { animation-delay: 0.05s; }
+.stat-card-animated:nth-child(2) { animation-delay: 0.12s; }
+.stat-card-animated:nth-child(3) { animation-delay: 0.19s; }
+.stat-card-animated:nth-child(4) { animation-delay: 0.26s; }
+
+/* ═══════════════════════════════════════════════════════════════════
+   STICKY BLUR HEADER ENHANCEMENT
+   ═══════════════════════════════════════════════════════════════════ */
+
+.header-scrolled {
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    background: rgba(255, 255, 255, 0.88) !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.06) !important;
+}
+
+.dark .header-scrolled {
+    background: rgba(31, 41, 55, 0.88) !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25), 0 1px 3px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   REDUCED MOTION SUPPORT
+   ═══════════════════════════════════════════════════════════════════ */
+
+@media (prefers-reduced-motion: reduce) {
+    .skeleton-shimmer {
+        animation: none;
+    }
+    .critical-pulse {
+        animation: none;
+    }
+    .notification-wrapper.has-new svg {
+        animation: none;
+    }
+    .stat-card-animated {
+        animation: none;
+        opacity: 1;
+        transform: none;
+    }
+    .stat-progress-bar {
+        transition: none;
+    }
+}
+

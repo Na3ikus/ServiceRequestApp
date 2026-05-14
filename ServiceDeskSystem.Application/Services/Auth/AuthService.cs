@@ -84,11 +84,11 @@ public sealed class AuthService(
             await using var repo = repositoryFacadeFactory.Create();
             user = await repo.Users.GetByLoginAsync(username).ConfigureAwait(false);
         }
-        catch (DbException)
-        {
-            return (false, "Database connection is unavailable.");
-        }
-        catch (InvalidOperationException)
+        catch (Exception ex) when (
+            ex is DbException ||
+            ex is InvalidOperationException ||
+            ex.GetType().Name.Contains("SocketException") ||
+            ex.GetType().Name.Contains("MySqlException"))
         {
             return (false, "Database connection is unavailable.");
         }
@@ -132,12 +132,14 @@ public sealed class AuthService(
             return (false, $"Password must be at least {MinPasswordLength} characters long.");
         }
 
-        var dbContext = await contextFactory.CreateDbContextAsync().ConfigureAwait(false);
-        await using (dbContext.ConfigureAwait(false))
+        try
         {
-            var existingUser = await dbContext.Users
-                .FirstOrDefaultAsync(u => u.Login == username)
-                .ConfigureAwait(false);
+            var dbContext = await contextFactory.CreateDbContextAsync().ConfigureAwait(false);
+            await using (dbContext.ConfigureAwait(false))
+            {
+                var existingUser = await dbContext.Users
+                    .FirstOrDefaultAsync(u => u.Login == username)
+                    .ConfigureAwait(false);
 
             if (existingUser is not null)
             {
@@ -195,6 +197,15 @@ public sealed class AuthService(
             await dbContext.SaveChangesAsync().ConfigureAwait(false);
 
             return (true, null);
+            }
+        }
+        catch (Exception ex) when (
+            ex is DbException ||
+            ex is InvalidOperationException ||
+            ex.GetType().Name.Contains("SocketException") ||
+            ex.GetType().Name.Contains("MySqlException"))
+        {
+            return (false, "Database connection is unavailable.");
         }
     }
 
