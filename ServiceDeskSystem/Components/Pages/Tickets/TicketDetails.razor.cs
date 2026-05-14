@@ -53,6 +53,10 @@ public partial class TicketDetails : BaseComponent
     private int? EditingCommentId { get; set; }
 
     private string EditingCommentMessage { get; set; } = string.Empty;
+    
+    private ElementReference newCommentTextArea;
+    
+    private ElementReference editCommentTextArea;
 
     private DateTime? editStartDate;
 

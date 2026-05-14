@@ -26,6 +26,10 @@ public partial class CreateTicket
     private TicketCreateModel ticketModel { get; set; } = new TicketCreateModel();
 
     private List<Product> products { get; set; } = [];
+    
+    private ElementReference descriptionTextArea;
+    
+    private ElementReference stepsTextArea;
 
     private bool isSubmitting { get; set; }
 

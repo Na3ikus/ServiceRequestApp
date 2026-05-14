@@ -70,11 +70,16 @@ window.sidebarManager = {
     }
 };
 
-// Initialize accent color from localStorage on page load
+// Initialize visual settings from localStorage on page load
 (function () {
     var accent = localStorage.getItem('settings.accentColor');
     if (accent && accent !== 'blue') {
         document.documentElement.setAttribute('data-accent', accent);
+    }
+    
+    var density = localStorage.getItem('settings.tableDensity');
+    if (density && density !== 'comfortable') {
+        document.documentElement.setAttribute('data-density', density);
     }
 })();
 

@@ -1,0 +1,40 @@
+@using Microsoft.JSInterop
+@inject IJSRuntime JS
+@inject ServiceDeskSystem.Application.Services.Localization.Interfaces.ILocalizationService L
+
+<div class="flex items-center gap-1 mb-2 bg-gray-50 dark:bg-gray-800 p-1.5 rounded-lg border border-gray-200 dark:border-gray-700 w-fit shadow-sm">
+    <button type="button" @onclick='() => ApplyFormatting("**", "**")' class="p-1.5 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors flex items-center justify-center" title="@L.Translate("markdown.bold")">
+        <span class="w-4 h-4 flex items-center justify-center font-bold font-serif text-[15px] leading-none">B</span>
+    </button>
+    <button type="button" @onclick='() => ApplyFormatting("*", "*")' class="p-1.5 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors flex items-center justify-center" title="@L.Translate("markdown.italic")">
+        <span class="w-4 h-4 flex items-center justify-center italic font-serif text-[15px] leading-none">I</span>
+    </button>
+    <div class="w-px h-4 bg-gray-300 dark:bg-gray-600 mx-1"></div>
+    <button type="button" @onclick='() => ApplyFormatting("`", "`")' class="p-1.5 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors" title="@L.Translate("markdown.code")">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+    </button>
+    <button type="button" @onclick='() => ApplyFormatting("> ", "")' class="p-1.5 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors" title="@L.Translate("markdown.quote")">
+        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" /></svg>
+    </button>
+    <div class="w-px h-4 bg-gray-300 dark:bg-gray-600 mx-1"></div>
+    <button type="button" @onclick='() => ApplyFormatting("[", "](https://)")' class="p-1.5 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors" title="@L.Translate("markdown.link")">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+    </button>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public ElementReference TargetElement { get; set; }
+
+    private async Task ApplyFormatting(string prefix, string suffix)
+    {
+        try
+        {
+            await JS.InvokeVoidAsync("window.markdownEditor.insertFormatting", TargetElement, prefix, suffix);
+        }
+        catch (Exception)
+        {
+            // Ignore errors
+        }
+    }
+}

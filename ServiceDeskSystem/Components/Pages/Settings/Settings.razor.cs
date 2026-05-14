@@ -20,6 +20,7 @@ public partial class Settings : BaseComponent
     private bool animationsEnabled = true;
     private string accentColor = "blue";
     private bool keyboardShortcutsEnabled = true;
+    private string tableDensity = "comfortable";
 
     // System health
     private bool dbAvailable;
@@ -71,8 +72,11 @@ public partial class Settings : BaseComponent
             this.accentColor = !string.IsNullOrWhiteSpace(accentStr) ? accentStr : "blue";
             var kbStr = await this.JS.InvokeAsync<string?>("localStorage.getItem", "settings.keyboardShortcuts");
             this.keyboardShortcutsEnabled = kbStr != "false";
+            var densityStr = await this.JS.InvokeAsync<string?>("localStorage.getItem", "settings.tableDensity");
+            this.tableDensity = !string.IsNullOrWhiteSpace(densityStr) ? densityStr : "comfortable";
 
             await this.ApplyAccentColorAsync();
+            await this.ApplyTableDensityAsync();
         }
         catch
         {
@@ -139,6 +143,25 @@ public partial class Settings : BaseComponent
             {
                 await this.JS.InvokeVoidAsync("eval", $"document.documentElement.setAttribute('data-accent','{this.accentColor}')");
             }
+        }
+        catch
+        {
+            // Ignore JS interop errors during prerendering.
+        }
+    }
+
+    private async Task SetTableDensity(string density)
+    {
+        this.tableDensity = density;
+        await this.SaveSetting("settings.tableDensity", density);
+        await this.ApplyTableDensityAsync();
+    }
+
+    private async Task ApplyTableDensityAsync()
+    {
+        try
+        {
+            await this.JS.InvokeVoidAsync("eval", $"document.documentElement.setAttribute('data-density','{this.tableDensity}')");
         }
         catch
         {

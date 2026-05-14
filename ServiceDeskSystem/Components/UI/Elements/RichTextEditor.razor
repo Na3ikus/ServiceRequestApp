@@ -1,0 +1,67 @@
+@using Microsoft.JSInterop
+@inject IJSRuntime JS
+@implements IAsyncDisposable
+
+<div class="quill-wrapper bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-300 dark:border-gray-600 focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-transparent transition-colors">
+    <div id="@elementId" class="min-h-[120px] text-gray-900 dark:text-white"></div>
+</div>
+
+@code {
+    private string elementId = "quill_" + Guid.NewGuid().ToString("N");
+    private DotNetObjectReference<RichTextEditor>? dotNetRef;
+    private bool isInitialized;
+    private string? lastSetValue;
+
+    [Parameter]
+    public string? Value { get; set; }
+
+    [Parameter]
+    public EventCallback<string?> ValueChanged { get; set; }
+
+    [Parameter]
+    public string Placeholder { get; set; } = string.Empty;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            dotNetRef = DotNetObjectReference.Create(this);
+            lastSetValue = Value;
+            await JS.InvokeVoidAsync("window.quillInterop.init", elementId, dotNetRef, Value, Placeholder);
+            isInitialized = true;
+        }
+        else if (isInitialized && Value != lastSetValue)
+        {
+            lastSetValue = Value;
+            await JS.InvokeVoidAsync("window.quillInterop.setContent", elementId, Value);
+        }
+    }
+
+    [JSInvokable]
+    public async Task UpdateContent(string content)
+    {
+        if (content == "<p><br></p>") // Empty quill
+        {
+            content = string.Empty;
+        }
+        
+        lastSetValue = content;
+        await ValueChanged.InvokeAsync(content);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (isInitialized)
+        {
+            try
+            {
+                await JS.InvokeVoidAsync("window.quillInterop.dispose", elementId);
+            }
+            catch
+            {
+                // Ignore JS errors on disposal
+            }
+        }
+        dotNetRef?.Dispose();
+    }
+}
