@@ -18,8 +18,9 @@
     }
     else
     {
-        <div class="relative overflow-hidden bg-gradient-to-br from-gray-800 via-gray-900 to-black rounded-3xl shadow-lg p-6 sm:p-8 mb-6 border border-white/10 dark:border-gray-800 group">
-            <div class="absolute top-0 right-0 -mr-10 -mt-10 w-48 h-48 rounded-full bg-white/5 blur-2xl pointer-events-none group-hover:scale-110 transition-transform duration-700"></div>
+        <div class="relative overflow-hidden bg-gradient-to-br from-indigo-500 via-blue-600 to-indigo-700 dark:from-gray-800 dark:via-gray-900 dark:to-black rounded-3xl shadow-lg p-6 sm:p-8 mb-6 border border-indigo-500/20 dark:border-gray-800 group">
+            <div class="absolute top-0 right-0 -mr-10 -mt-10 w-48 h-48 rounded-full bg-white/10 dark:bg-white/5 blur-2xl pointer-events-none group-hover:scale-110 transition-transform duration-700"></div>
+            <div class="absolute bottom-0 left-0 -ml-10 -mb-10 w-64 h-64 rounded-full bg-blue-500/10 blur-2xl pointer-events-none group-hover:scale-110 transition-transform duration-700"></div>
             
             <div class="relative z-10">
                 <h1 class="text-2xl sm:text-3xl font-extrabold text-white mb-2 tracking-tight flex items-center gap-3">
@@ -30,9 +31,9 @@
                     </span>
                     @L.Translate("audit.title")
                 </h1>
-                <p class="text-gray-400 text-sm sm:text-base flex flex-wrap items-center gap-2">
+                <p class="text-indigo-100 dark:text-gray-400 text-sm sm:text-base flex flex-wrap items-center gap-2">
                     @L.Translate("audit.subtitle")
-                    <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/20 dark:bg-emerald-500/10 text-emerald-200 dark:text-emerald-400 border border-emerald-500/30 dark:border-emerald-500/20">
                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
                         @L.Translate("audit.autoRefreshActive")
                     </span>
