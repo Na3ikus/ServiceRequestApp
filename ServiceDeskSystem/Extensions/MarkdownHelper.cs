@@ -37,7 +37,7 @@ public static class MarkdownHelper
         encoded = Regex.Replace(encoded, @"^&gt;\s+(.+)$", "<blockquote class=\"border-l-4 border-gray-300 dark:border-gray-600 pl-4 py-1 my-2 text-gray-600 dark:text-gray-400 italic bg-gray-50 dark:bg-gray-800/50 rounded-r-lg\">$1</blockquote>", RegexOptions.Multiline);
 
         // 7. Newlines to <br />
-        encoded = encoded.Replace("\n", "<br />");
+        encoded = encoded.Replace("\n", "<br />", StringComparison.Ordinal);
 
         return new MarkupString(encoded);
     }

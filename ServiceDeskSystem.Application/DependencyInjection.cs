@@ -2,6 +2,8 @@ using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using ServiceDeskSystem.Application.Services.Admin;
 using ServiceDeskSystem.Application.Services.Admin.Interfaces;
+using ServiceDeskSystem.Application.Services.Audit;
+using ServiceDeskSystem.Application.Services.Audit.Interfaces;
 using ServiceDeskSystem.Application.Services.Auth;
 using ServiceDeskSystem.Application.Services.Auth.Interfaces;
 using ServiceDeskSystem.Application.Services.Comments;
@@ -18,6 +20,8 @@ using ServiceDeskSystem.Application.Services.Theme;
 using ServiceDeskSystem.Application.Services.Theme.Interfaces;
 using ServiceDeskSystem.Application.Services.Tickets;
 using ServiceDeskSystem.Application.Services.Tickets.Interfaces;
+using ServiceDeskSystem.Application.Services.Toasts;
+using ServiceDeskSystem.Application.Services.Toasts.Interfaces;
 
 namespace ServiceDeskSystem.Application;
 
@@ -41,6 +45,7 @@ public static class DependencyInjection
         services.AddScoped<ICommentService, CommentService>();
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IAdminService, AdminService>();
+        services.AddScoped<IAuditService, AuditService>();
         services.AddScoped<IProfileService, ProfileService>();
         services.AddScoped<INotificationService, NotificationService>();
         services.AddSingleton<IRealtimeNotifier>(NoOpRealtimeNotifier.Instance);
@@ -52,6 +57,7 @@ public static class DependencyInjection
     {
         services.AddScoped<ILocalizationService, LocalizationService>();
         services.AddScoped<IThemeService, ThemeService>();
+        services.AddScoped<IToastService, ToastService>();
 
         return services;
     }

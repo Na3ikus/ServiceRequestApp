@@ -9,6 +9,7 @@ using ServiceDeskSystem.Application.Services.Realtime;
 using ServiceDeskSystem.Application.Services.Realtime.Interfaces;
 using ServiceDeskSystem.Application.Services.Tickets.Interfaces;
 using ServiceDeskSystem.Application.Services.Tickets.Models;
+using ServiceDeskSystem.Application.Services.Audit.Interfaces;
 
 namespace ServiceDeskSystem.Application.Services.Tickets;
 
@@ -16,13 +17,14 @@ public sealed class TicketService(
     IRepositoryFacadeFactory repositoryFacadeFactory,
     IDbContextFactory<BugTrackerDbContext> contextFactory,
     INotificationService notificationService,
-    IRealtimeNotifier realtimeNotifier)
+    IRealtimeNotifier realtimeNotifier,
+    IAuditService? auditService = null)
     : ITicketService, ITicketAssignmentService, ITicketStatisticsService
 {
     public TicketService(
         IDbContextFactory<BugTrackerDbContext> contextFactory,
         INotificationService notificationService)
-        : this(new RepositoryFacadeFactory(contextFactory), contextFactory, notificationService, NoOpRealtimeNotifier.Instance)
+        : this(new RepositoryFacadeFactory(contextFactory), contextFactory, notificationService, NoOpRealtimeNotifier.Instance, null)
     {
     }
 
@@ -62,6 +64,8 @@ public sealed class TicketService(
         await repo.SaveChangesAsync().ConfigureAwait(false);
         await realtimeNotifier.NotifyTicketsChangedAsync().ConfigureAwait(false);
 
+        await auditService.LogActionSafeAsync("CREATE", "Ticket", ticket.Id.ToString(), $"Created ticket: {ticket.Title}", ticket.AuthorId).ConfigureAwait(false);
+
         return ticket;
     }
 
@@ -98,6 +102,8 @@ public sealed class TicketService(
             await notificationService
                 .CreateStatusChangedNotificationAsync(ticketId, oldStatus, newStatus, ticket.DeveloperId)
                 .ConfigureAwait(false);
+                
+            await auditService.LogActionSafeAsync("STATUS_UPDATE", "Ticket", ticket.Id.ToString(), $"Status changed from {oldStatus} to {newStatus}").ConfigureAwait(false);
         }
 
         await realtimeNotifier.NotifyTicketsChangedAsync().ConfigureAwait(false);
@@ -144,6 +150,9 @@ public sealed class TicketService(
         await repo.Tickets.DeleteAsync(ticketId).ConfigureAwait(false);
         await repo.SaveChangesAsync().ConfigureAwait(false);
         await realtimeNotifier.NotifyTicketsChangedAsync().ConfigureAwait(false);
+        
+        await auditService.LogActionSafeAsync("DELETE", "Ticket", ticket.Id.ToString(), $"Deleted ticket: {ticket.Title}").ConfigureAwait(false);
+        
         return true;
     }
 

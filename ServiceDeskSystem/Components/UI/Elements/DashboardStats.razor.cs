@@ -77,6 +77,9 @@ public partial class DashboardStats : ComponentBase, IDisposable
         _ = this.AnimateNumbersAsync(this.animationCts.Token);
     }
 
+    private static int GetPercentage(int part, int total) =>
+        total > 0 ? (int)Math.Round((double)part / total * 100) : 0;
+
     private async Task AnimateNumbersAsync(CancellationToken cancellationToken)
     {
         const int Steps = 25;
@@ -104,9 +107,6 @@ public partial class DashboardStats : ComponentBase, IDisposable
         this.displayMyTickets = this.myTickets;
         await this.InvokeAsync(this.StateHasChanged);
     }
-
-    private static int GetPercentage(int part, int total) =>
-        total > 0 ? (int)Math.Round((double)part / total * 100) : 0;
 
     private void OnStateChanged(object? sender, EventArgs e) => _ = this.InvokeAsync(this.StateHasChanged);
 }

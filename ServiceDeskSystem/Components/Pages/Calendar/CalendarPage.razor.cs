@@ -20,32 +20,32 @@ public partial class CalendarPage : BaseComponent
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadTicketsAsync();
+        await this.LoadTicketsAsync();
     }
 
     private async Task LoadTicketsAsync()
     {
-        isLoading = true;
+        this.isLoading = true;
         this.StateHasChanged();
 
         if (this.AuthService.CurrentUser is null)
         {
-            tickets = [];
-            isLoading = false;
+            this.tickets = [];
+            this.isLoading = false;
             return;
         }
 
         if (this.AuthService.CurrentUser.Role == "Admin")
         {
-            tickets = await TicketService.GetAllTicketsAsync();
+            this.tickets = await this.TicketService.GetAllTicketsAsync();
         }
         else if (this.AuthService.CurrentUser.Role == "Developer")
         {
-            tickets = await TicketService.GetDeveloperTicketsAsync(this.AuthService.CurrentUser.Id);
+            this.tickets = await this.TicketService.GetDeveloperTicketsAsync(this.AuthService.CurrentUser.Id);
         }
         else
         {
-            tickets = await TicketService.GetUserTicketsAsync(this.AuthService.CurrentUser.Id);
+            this.tickets = await this.TicketService.GetUserTicketsAsync(this.AuthService.CurrentUser.Id);
         }
 
         // We want to show tickets on the calendar. To avoid cluttering, we might only want to show:
@@ -53,24 +53,23 @@ public partial class CalendarPage : BaseComponent
         // 2. Tickets that have a specific DueDate.
         // Let's filter to only show tickets relevant to the calendar (e.g., exclude old closed tickets without due dates)
         // But for now, let's keep all tickets and let the month filtering handle it.
-
-        isLoading = false;
+        this.isLoading = false;
         this.StateHasChanged();
     }
 
     private void PreviousMonth()
     {
-        currentMonth = currentMonth.AddMonths(-1);
+        this.currentMonth = this.currentMonth.AddMonths(-1);
     }
 
     private void NextMonth()
     {
-        currentMonth = currentMonth.AddMonths(1);
+        this.currentMonth = this.currentMonth.AddMonths(1);
     }
 
     private IEnumerable<Ticket> GetTicketsForDay(DateTime day)
     {
-        return tickets.Where(t => 
+        return this.tickets.Where(t =>
         {
             var start = t.StartDate ?? t.CreatedAt;
             var end = t.DueDate;

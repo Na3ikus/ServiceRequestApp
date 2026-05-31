@@ -6,6 +6,20 @@ namespace ServiceDeskSystem.Components.Layout;
 
 public partial class MainLayout
 {
+    [JSInvokable]
+    public async Task HandleOutsideNotificationClick()
+    {
+        if (!this.isNotificationsOpen)
+        {
+            return;
+        }
+
+        this.isNotificationsOpen = false;
+        this.StopNotificationPulse();
+        await this.UnregisterNotificationOutsideClickAsync();
+        await this.InvokeAsync(this.StateHasChanged);
+    }
+
     private async Task ToggleNotificationsAsync()
     {
         this.isNotificationsOpen = !this.isNotificationsOpen;
@@ -27,20 +41,6 @@ public partial class MainLayout
         {
             await this.UnregisterNotificationOutsideClickAsync();
         }
-    }
-
-    [JSInvokable]
-    public async Task HandleOutsideNotificationClick()
-    {
-        if (!this.isNotificationsOpen)
-        {
-            return;
-        }
-
-        this.isNotificationsOpen = false;
-        this.StopNotificationPulse();
-        await this.UnregisterNotificationOutsideClickAsync();
-        await this.InvokeAsync(this.StateHasChanged);
     }
 
     private async Task DeleteNotificationAsync(int notificationId)

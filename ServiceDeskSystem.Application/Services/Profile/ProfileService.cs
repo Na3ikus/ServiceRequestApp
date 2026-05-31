@@ -3,11 +3,13 @@ using ServiceDeskSystem.Application.Services.Profile.Interfaces;
 using ServiceDeskSystem.Application.Services.Profile.Models;
 using ServiceDeskSystem.Domain.Entities;
 using ServiceDeskSystem.Infrastructure.Data;
+using ServiceDeskSystem.Application.Services.Audit.Interfaces;
 
 namespace ServiceDeskSystem.Application.Services.Profile;
 
-public sealed class ProfileService(BugTrackerDbContext context) : IProfileService
+public sealed class ProfileService(BugTrackerDbContext context, IAuditService? auditService = null) : IProfileService
 {
+
     public async Task<UserProfileDto?> GetProfileAsync(int userId)
     {
         var user = await context.Users
@@ -54,10 +56,8 @@ public sealed class ProfileService(BugTrackerDbContext context) : IProfileServic
         user.Person.MiddleName = request.MiddleName;
         user.Person.Bio = request.Bio;
 
-        // Update contacts
         var existingContacts = user.Person.ContactInfos.ToList();
 
-        // Remove deleted contacts
         var requestContactIds = request.Contacts.Where(c => c.Id.HasValue).Select(c => c.Id!.Value).ToList();
         var toRemove = existingContacts.Where(c => !requestContactIds.Contains(c.Id)).ToList();
         foreach (var r in toRemove)
@@ -65,7 +65,6 @@ public sealed class ProfileService(BugTrackerDbContext context) : IProfileServic
             context.ContactInfos.Remove(r);
         }
 
-        // Add or update contacts
         foreach (var reqContact in request.Contacts)
         {
             if (reqContact.Id.HasValue && reqContact.Id.Value > 0)
@@ -94,6 +93,7 @@ public sealed class ProfileService(BugTrackerDbContext context) : IProfileServic
         try
         {
             await context.SaveChangesAsync();
+            await auditService.LogActionSafeAsync("UPDATE_PROFILE", "User", userId.ToString(), $"Updated user profile: {user.Login}", userId).ConfigureAwait(false);
             return (true, null);
         }
         catch (Exception ex)
@@ -110,3 +110,4 @@ public sealed class ProfileService(BugTrackerDbContext context) : IProfileServic
             .ToListAsync();
     }
 }
+

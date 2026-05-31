@@ -3,13 +3,16 @@ using ServiceDeskSystem.Infrastructure.Data;
 using ServiceDeskSystem.Domain.Entities;
 using ServiceDeskSystem.Domain.Interfaces;
 using ServiceDeskSystem.Application.Services.Admin.Interfaces;
+using ServiceDeskSystem.Application.Services.Audit.Interfaces;
 
 namespace ServiceDeskSystem.Application.Services.Admin;
 
 public sealed class AdminService(
     IRepositoryFacadeFactory repositoryFacadeFactory,
-    IDbContextFactory<BugTrackerDbContext> contextFactory) : IAdminService
+    IDbContextFactory<BugTrackerDbContext> contextFactory,
+    IAuditService? auditService = null) : IAdminService
 {
+
     public async Task<List<TechStack>> GetAllTechStacksAsync()
     {
         await using var repo = repositoryFacadeFactory.Create();
@@ -31,6 +34,9 @@ public sealed class AdminService(
         await using var repo = repositoryFacadeFactory.Create();
         await repo.TechStacks.CreateAsync(techStack).ConfigureAwait(false);
         await repo.SaveChangesAsync().ConfigureAwait(false);
+
+        await auditService.LogActionSafeAsync("CREATE_TECH_STACK", "TechStack", techStack.Id.ToString(), $"Created tech stack: {techStack.Name}").ConfigureAwait(false);
+
         return techStack;
     }
 
@@ -41,6 +47,9 @@ public sealed class AdminService(
         await using var repo = repositoryFacadeFactory.Create();
         await repo.Products.CreateAsync(product).ConfigureAwait(false);
         await repo.SaveChangesAsync().ConfigureAwait(false);
+
+        await auditService.LogActionSafeAsync("CREATE_PRODUCT", "Product", product.Id.ToString(), $"Created product: {product.Name}").ConfigureAwait(false);
+
         return product;
     }
 
@@ -58,6 +67,9 @@ public sealed class AdminService(
         existing.Name = techStack.Name;
         existing.Type = techStack.Type;
         await repo.SaveChangesAsync().ConfigureAwait(false);
+
+        await auditService.LogActionSafeAsync("UPDATE_TECH_STACK", "TechStack", techStack.Id.ToString(), $"Updated tech stack: {techStack.Name}").ConfigureAwait(false);
+
         return true;
     }
 
@@ -77,6 +89,9 @@ public sealed class AdminService(
         existing.CurrentVersion = product.CurrentVersion;
         existing.TechStackId = product.TechStackId;
         await repo.SaveChangesAsync().ConfigureAwait(false);
+
+        await auditService.LogActionSafeAsync("UPDATE_PRODUCT", "Product", product.Id.ToString(), $"Updated product: {product.Name}").ConfigureAwait(false);
+
         return true;
     }
 
@@ -97,6 +112,9 @@ public sealed class AdminService(
 
         await repo.TechStacks.DeleteAsync(id).ConfigureAwait(false);
         await repo.SaveChangesAsync().ConfigureAwait(false);
+
+        await auditService.LogActionSafeAsync("DELETE_TECH_STACK", "TechStack", id.ToString(), $"Deleted tech stack: {techStack.Name}").ConfigureAwait(false);
+
         return true;
     }
 
@@ -117,6 +135,9 @@ public sealed class AdminService(
 
         await repo.Products.DeleteAsync(id).ConfigureAwait(false);
         await repo.SaveChangesAsync().ConfigureAwait(false);
+
+        await auditService.LogActionSafeAsync("DELETE_PRODUCT", "Product", id.ToString(), $"Deleted product: {product.Name}").ConfigureAwait(false);
+
         return true;
     }
 
@@ -142,7 +163,13 @@ public sealed class AdminService(
                 .ExecuteUpdateAsync(setters => setters.SetProperty(u => u.Role, newRole))
                 .ConfigureAwait(false);
 
-            return affectedRows > 0;
+            if (affectedRows > 0)
+            {
+                await auditService.LogActionSafeAsync("UPDATE_USER_ROLE", "User", userId.ToString(), $"Updated user role to: {newRole}").ConfigureAwait(false);
+                return true;
+            }
+
+            return false;
         }
     }
 
@@ -166,7 +193,16 @@ public sealed class AdminService(
                 .Where(u => u.Id == userId)
                 .ExecuteUpdateAsync(setters => setters.SetProperty(u => u.IsActive, !currentStatus.Value))
                 .ConfigureAwait(false);
-            return affectedRows > 0;
+
+            if (affectedRows > 0)
+            {
+                var actionStr = !currentStatus.Value ? "ACTIVATE_USER" : "DEACTIVATE_USER";
+                var detailStr = !currentStatus.Value ? "Activated user account" : "Deactivated user account";
+                await auditService.LogActionSafeAsync(actionStr, "User", userId.ToString(), detailStr).ConfigureAwait(false);
+                return true;
+            }
+
+            return false;
         }
     }
 
@@ -193,8 +229,12 @@ public sealed class AdminService(
 
             dbContext.Users.Remove(user);
             await dbContext.SaveChangesAsync().ConfigureAwait(false);
+
+            await auditService.LogActionSafeAsync("DELETE_USER", "User", userId.ToString(), $"Deleted user: {user.Login}").ConfigureAwait(false);
+
             return true;
         }
     }
 }
+
 

@@ -7,6 +7,8 @@ using ServiceDeskSystem.Application.Services.Localization;
 using ServiceDeskSystem.Application.Services.Localization.Interfaces;
 using ServiceDeskSystem.Application.Services.Tickets;
 using ServiceDeskSystem.Application.Services.Tickets.Interfaces;
+using ServiceDeskSystem.Application.Services.Toasts.Interfaces;
+using ServiceDeskSystem.Application.Services.Toasts.Models;
 using ServiceDeskSystem.Components.Features;
 using ServiceDeskSystem.Components.UI.Base;
 using ServiceDeskSystem.Domain.Entities;
@@ -19,7 +21,6 @@ namespace ServiceDeskSystem.Components.Pages.Tickets;
 public partial class TicketDetails : BaseComponent
 {
     private readonly TimeSpan refreshInterval = TimeSpan.FromSeconds(5);
-    private readonly List<ToastMessage> toasts = [];
     private Timer? refreshTimer;
     private bool isRefreshing;
     private bool authRestored;
@@ -27,10 +28,11 @@ public partial class TicketDetails : BaseComponent
     [Parameter]
     public int Id { get; set; }
 
-    internal IReadOnlyList<ToastMessage> Toasts => this.toasts;
-
     [Inject]
     private ITicketService TicketService { get; set; } = null!;
+
+    [Inject]
+    private IToastService ToastService { get; set; } = null!;
 
     [Inject]
     private ITicketAssignmentService TicketAssignmentService { get; set; } = null!;
@@ -53,14 +55,10 @@ public partial class TicketDetails : BaseComponent
     private int? EditingCommentId { get; set; }
 
     private string EditingCommentMessage { get; set; } = string.Empty;
-    
-    private ElementReference newCommentTextArea;
-    
-    private ElementReference editCommentTextArea;
 
-    private DateTime? editStartDate;
+    private DateTime? editStartDate { get; set; }
 
-    private DateTime? editDueDate;
+    private DateTime? editDueDate { get; set; }
 
     private int CurrentUserId => this.AuthService.CurrentUser?.Id ?? 0;
 
@@ -83,15 +81,6 @@ public partial class TicketDetails : BaseComponent
     /// </summary>
     private bool CanManageTicketStatus => this.AuthService.IsAuthenticated &&
         this.Ticket?.DeveloperId == this.CurrentUserId;
-
-    internal async Task RemoveToastAsync(ToastMessage toast)
-    {
-        toast.IsHiding = true;
-        await this.InvokeAsync(this.StateHasChanged);
-        await Task.Delay(300);
-        this.toasts.Remove(toast);
-        await this.InvokeAsync(this.StateHasChanged);
-    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -137,6 +126,7 @@ public partial class TicketDetails : BaseComponent
             this.editStartDate = this.Ticket.StartDate;
             this.editDueDate = this.Ticket.DueDate;
         }
+
         this.StateHasChanged();
     }
 
@@ -157,7 +147,7 @@ public partial class TicketDetails : BaseComponent
         {
             this.Ticket.StartDate = this.editStartDate;
             this.Ticket.DueDate = this.editDueDate;
-            await this.ShowToastAsync(this.L.Translate("details.datesUpdated") ?? "Dates updated successfully.", ToastType.Success);
+            await this.ToastService.ShowToastAsync(this.L.Translate("details.datesUpdated") ?? "Dates updated successfully.", ToastType.Success);
         }
     }
 
@@ -315,14 +305,14 @@ public partial class TicketDetails : BaseComponent
         // Перевірка: автор не може взяти свій тікет
         if (this.Ticket.AuthorId == this.CurrentUserId)
         {
-            await this.ShowToastAsync(this.L.Translate("details.cannotTakeOwnTicket"), ToastType.Warning);
+            await this.ToastService.ShowToastAsync(this.L.Translate("details.cannotTakeOwnTicket"), ToastType.Warning);
             return;
         }
 
         // Перевірка: тікет вже призначений комусь іншому
         if (this.Ticket.DeveloperId is not null)
         {
-            await this.ShowToastAsync(this.L.Translate("details.ticketAlreadyAssigned"), ToastType.Warning);
+            await this.ToastService.ShowToastAsync(this.L.Translate("details.ticketAlreadyAssigned"), ToastType.Warning);
             await this.LoadTicketAsync();
             return;
         }
@@ -348,25 +338,6 @@ public partial class TicketDetails : BaseComponent
             await this.LoadTicketAsync();
             await this.InvokeAsync(this.StateHasChanged);
         }
-    }
-
-    private async Task ShowToastAsync(string message, ToastType type = ToastType.Info, int durationMs = 4000)
-    {
-        var toast = new ToastMessage { Message = message, Type = type };
-        this.toasts.Add(toast);
-        await this.InvokeAsync(this.StateHasChanged);
-
-        _ = Task.Run(async () =>
-        {
-            await Task.Delay(durationMs);
-
-            toast.IsHiding = true;
-            await this.InvokeAsync(this.StateHasChanged);
-
-            await Task.Delay(300);
-            this.toasts.Remove(toast);
-            await this.InvokeAsync(this.StateHasChanged);
-        });
     }
 
     private void OnAuthStateChanged(object? sender, EventArgs e)

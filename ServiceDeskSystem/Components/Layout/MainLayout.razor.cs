@@ -9,6 +9,8 @@ using ServiceDeskSystem.Application.Services.Localization.Interfaces;
 using ServiceDeskSystem.Application.Services.Notifications.Interfaces;
 using ServiceDeskSystem.Application.Services.Notifications.Models;
 using ServiceDeskSystem.Application.Services.Theme.Interfaces;
+using ServiceDeskSystem.Application.Services.Toasts.Interfaces;
+using ServiceDeskSystem.Application.Services.Toasts.Models;
 using ServiceDeskSystem.Components.UI.Base;
 
 namespace ServiceDeskSystem.Components.Layout;
@@ -20,7 +22,6 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
 {
     private static readonly TimeSpan DatabaseMonitorInterval = TimeSpan.FromSeconds(15);
     private static readonly TimeSpan NotificationPulseDuration = TimeSpan.FromSeconds(2);
-    private readonly List<ToastMessage> toasts = [];
     private readonly List<UserNotificationDto> notifications = [];
 
     private bool authRestored;
@@ -40,7 +41,6 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
     private HubConnection? notificationsHubConnection;
     private CancellationTokenSource? notificationPulseCts;
 
-    internal IReadOnlyList<ToastMessage> Toasts => this.toasts;
     internal IReadOnlyList<UserNotificationDto> Notifications => this.notifications;
     internal int UnreadNotificationsCount { get; private set; }
     internal bool IsNotificationsOpen => this.isNotificationsOpen;
@@ -67,6 +67,9 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
     [Inject]
     private INotificationService NotificationService { get; set; } = null!;
 
+    [Inject]
+    private IToastService ToastService { get; set; } = null!;
+
     [JSInvokable]
     public async Task HandleSidebarHotkey()
     {
@@ -86,6 +89,19 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
     {
         this.Theme.ToggleTheme();
         return Task.CompletedTask;
+    }
+
+    [JSInvokable]
+    public async Task HandleOutsideLanguageClick()
+    {
+        if (!this.isLanguageDropdownOpen)
+        {
+            return;
+        }
+
+        this.isLanguageDropdownOpen = false;
+        await this.UnregisterLanguageOutsideClickAsync();
+        await this.InvokeAsync(this.StateHasChanged);
     }
 
     public void Dispose()
@@ -127,6 +143,7 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
         this.Theme.ThemeChanged += this.OnStateChanged;
         this.AuthService.AuthStateChanged += this.OnStateChanged;
         this.Navigation.LocationChanged += this.OnLocationChanged;
+        this.ToastService.OnToastsChanged += this.OnStateChanged;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -164,6 +181,7 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
             this.Theme.ThemeChanged -= this.OnStateChanged;
             this.AuthService.AuthStateChanged -= this.OnStateChanged;
             this.Navigation.LocationChanged -= this.OnLocationChanged;
+            this.ToastService.OnToastsChanged -= this.OnStateChanged;
 
             this.dotNetRef?.Dispose();
             this.dotNetRef = null;
@@ -274,14 +292,14 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
             if (!isAvailable && !this.databaseConnectionLost)
             {
                 this.databaseConnectionLost = true;
-                await this.ShowToastAsync(this.L.Translate("db.connectionLost"), ToastType.Error);
+                await this.ToastService.ShowToastAsync(this.L.Translate("db.connectionLost"), ToastType.Error);
                 continue;
             }
 
             if (isAvailable && this.databaseConnectionLost)
             {
                 this.databaseConnectionLost = false;
-                await this.ShowToastAsync(this.L.Translate("db.connectionRestored"), ToastType.Success);
+                await this.ToastService.ShowToastAsync(this.L.Translate("db.connectionRestored"), ToastType.Success);
             }
         }
     }
@@ -303,39 +321,6 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
         {
             return false;
         }
-    }
-
-    private async Task ShowToastAsync(string message, ToastType type = ToastType.Info, int durationMs = 5000)
-    {
-        var toast = new ToastMessage { Message = message, Type = type };
-        this.toasts.Add(toast);
-        await this.InvokeAsync(this.StateHasChanged);
-
-        _ = Task.Run(async () =>
-        {
-            await Task.Delay(durationMs);
-
-            toast.IsHiding = true;
-            await this.InvokeAsync(this.StateHasChanged);
-
-            await Task.Delay(300);
-            this.toasts.Remove(toast);
-            await this.InvokeAsync(this.StateHasChanged);
-        });
-    }
-
-    private async Task RemoveToastAsync(ToastMessage toast)
-    {
-        toast.IsHiding = true;
-        await this.InvokeAsync(this.StateHasChanged);
-        await Task.Delay(300);
-        this.toasts.Remove(toast);
-        await this.InvokeAsync(this.StateHasChanged);
-    }
-
-    private sealed class DatabaseHealthResponse
-    {
-        public bool IsAvailable { get; init; }
     }
 
     private string GetHeaderDateText()
@@ -377,19 +362,6 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
         await this.UnregisterLanguageOutsideClickAsync();
     }
 
-    [JSInvokable]
-    public async Task HandleOutsideLanguageClick()
-    {
-        if (!this.isLanguageDropdownOpen)
-        {
-            return;
-        }
-
-        this.isLanguageDropdownOpen = false;
-        await this.UnregisterLanguageOutsideClickAsync();
-        await this.InvokeAsync(this.StateHasChanged);
-    }
-
     private async Task RegisterLanguageOutsideClickAsync()
     {
         if (this.dotNetRef is null)
@@ -417,5 +389,10 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
         {
             // Ignore JS interop issues during reconnect/shutdown.
         }
+    }
+
+    private sealed class DatabaseHealthResponse
+    {
+        public bool IsAvailable { get; init; }
     }
 }

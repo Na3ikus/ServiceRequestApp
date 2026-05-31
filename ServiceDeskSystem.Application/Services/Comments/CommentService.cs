@@ -3,6 +3,7 @@ using ServiceDeskSystem.Application.Services.Notifications.Interfaces;
 using ServiceDeskSystem.Application.Services.Realtime.Interfaces;
 using ServiceDeskSystem.Domain.Entities;
 using ServiceDeskSystem.Domain.Interfaces;
+using ServiceDeskSystem.Application.Services.Audit.Interfaces;
 
 namespace ServiceDeskSystem.Application.Services.Comments;
 
@@ -12,8 +13,10 @@ namespace ServiceDeskSystem.Application.Services.Comments;
 public sealed class CommentService(
     IRepositoryFacadeFactory repositoryFacadeFactory,
     INotificationService notificationService,
-    IRealtimeNotifier realtimeNotifier) : ICommentService
+    IRealtimeNotifier realtimeNotifier,
+    IAuditService? auditService = null) : ICommentService
 {
+
     public async Task<Comment> AddCommentAsync(Comment comment)
     {
         ArgumentNullException.ThrowIfNull(comment);
@@ -26,6 +29,8 @@ public sealed class CommentService(
 
         await notificationService.CreateCommentNotificationAsync(comment.TicketId, comment.AuthorId).ConfigureAwait(false);
         await realtimeNotifier.NotifyTicketsChangedAsync().ConfigureAwait(false);
+
+        await auditService.LogActionSafeAsync("ADD_COMMENT", "Comment", comment.Id.ToString(), $"Added comment to ticket {comment.TicketId}", comment.AuthorId).ConfigureAwait(false);
 
         var result = await repo.Comments.GetByIdWithAuthorAsync(comment.Id).ConfigureAwait(false);
         return result ?? comment;
@@ -45,6 +50,9 @@ public sealed class CommentService(
 
         existing.Message = newMessage;
         await repo.SaveChangesAsync().ConfigureAwait(false);
+
+        await auditService.LogActionSafeAsync("UPDATE_COMMENT", "Comment", commentId.ToString(), $"Updated comment in ticket {existing.TicketId}", existing.AuthorId).ConfigureAwait(false);
+
         return existing;
     }
 
@@ -60,6 +68,10 @@ public sealed class CommentService(
 
         await repo.Comments.DeleteAsync(commentId).ConfigureAwait(false);
         await repo.SaveChangesAsync().ConfigureAwait(false);
+
+        await auditService.LogActionSafeAsync("DELETE_COMMENT", "Comment", commentId.ToString(), $"Deleted comment from ticket {comment.TicketId}", comment.AuthorId).ConfigureAwait(false);
+
         return true;
     }
 }
+

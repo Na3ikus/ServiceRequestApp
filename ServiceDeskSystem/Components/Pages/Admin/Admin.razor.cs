@@ -4,6 +4,8 @@ using ServiceDeskSystem.Application.Services.Admin;
 using ServiceDeskSystem.Application.Services.Admin.Interfaces;
 using ServiceDeskSystem.Application.Services.Auth;
 using ServiceDeskSystem.Application.Services.Auth.Interfaces;
+using ServiceDeskSystem.Application.Services.Toasts.Interfaces;
+using ServiceDeskSystem.Application.Services.Toasts.Models;
 using ServiceDeskSystem.Components.Features;
 using ServiceDeskSystem.Components.UI.Base;
 using ServiceDeskSystem.Domain.Entities;
@@ -17,17 +19,14 @@ namespace ServiceDeskSystem.Components.Pages.Admin;
 #pragma warning disable CA1724 // The type name Admin conflicts with the namespace name
 public partial class Admin : BaseComponent
 {
-#pragma warning restore CA1724
-
-    private readonly List<ToastMessage> toasts = [];
-
-    internal IReadOnlyList<ToastMessage> Toasts => this.toasts;
-
+    #pragma warning restore CA1724
     [Inject]
     private IAdminService AdminService { get; set; } = null!;
-
     [Inject]
     private IAuthService AuthService { get; set; } = null!;
+
+    [Inject]
+    private IToastService ToastService { get; set; } = null!;
 
     [Inject]
     private NavigationManager Navigation { get; set; } = null!;
@@ -43,7 +42,7 @@ public partial class Admin : BaseComponent
 
     private string activeTab { get; set; } = "products";
 
-    private bool isQuickAdminMenuOpen;
+    private bool isQuickAdminMenuOpen { get; set; }
 
     private bool showModal { get; set; }
 
@@ -65,28 +64,19 @@ public partial class Admin : BaseComponent
 
     private string smtpTestSubject { get; set; } = "ServiceDesk SMTP test";
 
-    private bool isCheckingSmtp;
+    private bool isCheckingSmtp { get; set; }
 
-    private bool isSendingTestEmail;
+    private bool isSendingTestEmail { get; set; }
 
-    private bool? smtpCheckSuccess;
+    private bool? smtpCheckSuccess { get; set; }
 
-    private string? smtpCheckMessage;
+    private string? smtpCheckMessage { get; set; }
 
-    private bool? smtpSendSuccess;
+    private bool? smtpSendSuccess { get; set; }
 
-    private string? smtpSendMessage;
+    private string? smtpSendMessage { get; set; }
 
     private bool IsAdmin => this.AuthService.CurrentUser?.Role == "Admin";
-
-    internal async Task RemoveToastAsync(ToastMessage toast)
-    {
-        toast.IsHiding = true;
-        await this.InvokeAsync(this.StateHasChanged);
-        await Task.Delay(300);
-        this.toasts.Remove(toast);
-        await this.InvokeAsync(this.StateHasChanged);
-    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -175,7 +165,7 @@ public partial class Admin : BaseComponent
 
             if (showToast)
             {
-                await this.ShowToastAsync(
+                await this.ToastService.ShowToastAsync(
                     isSuccess ? "SMTP connection is healthy." : $"SMTP check failed: {message}",
                     isSuccess ? ToastType.Success : ToastType.Error).ConfigureAwait(false);
             }
@@ -187,7 +177,7 @@ public partial class Admin : BaseComponent
 
             if (showToast)
             {
-                await this.ShowToastAsync($"SMTP check error: {ex.Message}", ToastType.Error).ConfigureAwait(false);
+                await this.ToastService.ShowToastAsync($"SMTP check error: {ex.Message}", ToastType.Error).ConfigureAwait(false);
             }
         }
         finally
@@ -208,7 +198,7 @@ public partial class Admin : BaseComponent
         {
             this.smtpSendSuccess = false;
             this.smtpSendMessage = "Enter a valid recipient email.";
-            await this.ShowToastAsync(this.smtpSendMessage, ToastType.Warning).ConfigureAwait(false);
+            await this.ToastService.ShowToastAsync(this.smtpSendMessage, ToastType.Warning).ConfigureAwait(false);
             return;
         }
 
@@ -226,13 +216,13 @@ public partial class Admin : BaseComponent
 
             this.smtpSendSuccess = true;
             this.smtpSendMessage = "Test email sent successfully.";
-            await this.ShowToastAsync(this.smtpSendMessage, ToastType.Success).ConfigureAwait(false);
+            await this.ToastService.ShowToastAsync(this.smtpSendMessage, ToastType.Success).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
             this.smtpSendSuccess = false;
             this.smtpSendMessage = ex.Message;
-            await this.ShowToastAsync($"Test email failed: {ex.Message}", ToastType.Error).ConfigureAwait(false);
+            await this.ToastService.ShowToastAsync($"Test email failed: {ex.Message}", ToastType.Error).ConfigureAwait(false);
         }
         finally
         {
@@ -266,17 +256,17 @@ public partial class Admin : BaseComponent
             var success = await this.AdminService.DeleteProductAsync(product.Id);
             if (success)
             {
-                await this.ShowToastAsync(this.L.Translate("admin.productDeleted"), ToastType.Success);
+                await this.ToastService.ShowToastAsync(this.L.Translate("admin.productDeleted"), ToastType.Success);
                 await this.LoadDataAsync();
             }
             else
             {
-                await this.ShowToastAsync(this.L.Translate("admin.cannotDeleteProductWithTickets"), ToastType.Error);
+                await this.ToastService.ShowToastAsync(this.L.Translate("admin.cannotDeleteProductWithTickets"), ToastType.Error);
             }
         }
         catch (Exception ex)
         {
-            await this.ShowToastAsync($"Error deleting product: {ex.Message}", ToastType.Error);
+            await this.ToastService.ShowToastAsync($"Error deleting product: {ex.Message}", ToastType.Error);
         }
     }
 
@@ -291,12 +281,12 @@ public partial class Admin : BaseComponent
         if (this.isEditing)
         {
             await this.AdminService.UpdateProductAsync(this.editingProduct);
-            await this.ShowToastAsync(this.L.Translate("admin.productUpdated"), ToastType.Success);
+            await this.ToastService.ShowToastAsync(this.L.Translate("admin.productUpdated"), ToastType.Success);
         }
         else
         {
             await this.AdminService.CreateProductAsync(this.editingProduct);
-            await this.ShowToastAsync(this.L.Translate("admin.productCreated"), ToastType.Success);
+            await this.ToastService.ShowToastAsync(this.L.Translate("admin.productCreated"), ToastType.Success);
         }
     }
 
@@ -323,20 +313,20 @@ public partial class Admin : BaseComponent
         {
             if (techStack.Products.Count > 0)
             {
-                await this.ShowToastAsync(this.L.Translate("admin.cannotDeleteTechStackWithProducts"), ToastType.Error);
+                await this.ToastService.ShowToastAsync(this.L.Translate("admin.cannotDeleteTechStackWithProducts"), ToastType.Error);
                 return;
             }
 
             var success = await this.AdminService.DeleteTechStackAsync(techStack.Id);
             if (success)
             {
-                await this.ShowToastAsync(this.L.Translate("admin.techStackDeleted"), ToastType.Success);
+                await this.ToastService.ShowToastAsync(this.L.Translate("admin.techStackDeleted"), ToastType.Success);
                 await this.LoadTechStacksAsync();
             }
         }
         catch (Exception ex)
         {
-            await this.ShowToastAsync($"Error deleting tech stack: {ex.Message}", ToastType.Error);
+            await this.ToastService.ShowToastAsync($"Error deleting tech stack: {ex.Message}", ToastType.Error);
         }
     }
 
@@ -351,12 +341,12 @@ public partial class Admin : BaseComponent
         if (this.isEditing)
         {
             await this.AdminService.UpdateTechStackAsync(this.editingTechStack);
-            await this.ShowToastAsync(this.L.Translate("admin.techStackUpdated"), ToastType.Success);
+            await this.ToastService.ShowToastAsync(this.L.Translate("admin.techStackUpdated"), ToastType.Success);
         }
         else
         {
             await this.AdminService.CreateTechStackAsync(this.editingTechStack);
-            await this.ShowToastAsync(this.L.Translate("admin.techStackCreated"), ToastType.Success);
+            await this.ToastService.ShowToastAsync(this.L.Translate("admin.techStackCreated"), ToastType.Success);
         }
     }
 
@@ -365,7 +355,7 @@ public partial class Admin : BaseComponent
         var user = this.users?.FirstOrDefault(u => u.Id == userId);
         if (user is not null && !this.CanEditUserRole(user))
         {
-            await this.ShowToastAsync(this.L.Translate("admin.cannotEditSelfRole"), ToastType.Error);
+            await this.ToastService.ShowToastAsync(this.L.Translate("admin.cannotEditSelfRole"), ToastType.Error);
             await this.LoadUsersAsync();
             return;
         }
@@ -379,7 +369,7 @@ public partial class Admin : BaseComponent
                 await this.InvokeAsync(this.StateHasChanged);
             }
 
-            await this.ShowToastAsync(this.L.Translate("admin.userUpdated"), ToastType.Success);
+            await this.ToastService.ShowToastAsync(this.L.Translate("admin.userUpdated"), ToastType.Success);
         }
     }
 
@@ -388,7 +378,7 @@ public partial class Admin : BaseComponent
         var user = this.users?.FirstOrDefault(u => u.Id == userId);
         if (user?.Role == "Admin")
         {
-            await this.ShowToastAsync(this.L.Translate("admin.cannotDeactivateAdmin"), ToastType.Error);
+            await this.ToastService.ShowToastAsync(this.L.Translate("admin.cannotDeactivateAdmin"), ToastType.Error);
             return;
         }
 
@@ -397,7 +387,7 @@ public partial class Admin : BaseComponent
         {
             user.IsActive = !user.IsActive;
             await this.InvokeAsync(this.StateHasChanged);
-            await this.ShowToastAsync(this.L.Translate("admin.userUpdated"), ToastType.Success);
+            await this.ToastService.ShowToastAsync(this.L.Translate("admin.userUpdated"), ToastType.Success);
         }
     }
 
@@ -407,25 +397,25 @@ public partial class Admin : BaseComponent
         {
             if (user.Role == "Admin")
             {
-                await this.ShowToastAsync(this.L.Translate("admin.cannotDeleteAdmin"), ToastType.Error);
+                await this.ToastService.ShowToastAsync(this.L.Translate("admin.cannotDeleteAdmin"), ToastType.Error);
                 return;
             }
 
             var success = await this.AdminService.DeleteUserAsync(user.Id);
             if (success)
             {
-                await this.ShowToastAsync(this.L.Translate("admin.userDeleted"), ToastType.Success);
+                await this.ToastService.ShowToastAsync(this.L.Translate("admin.userDeleted"), ToastType.Success);
                 this.users?.Remove(user);
                 await this.InvokeAsync(this.StateHasChanged);
             }
             else
             {
-                await this.ShowToastAsync(this.L.Translate("admin.cannotDeleteUserWithTickets"), ToastType.Error);
+                await this.ToastService.ShowToastAsync(this.L.Translate("admin.cannotDeleteUserWithTickets"), ToastType.Error);
             }
         }
         catch (Exception ex)
         {
-            await this.ShowToastAsync($"Error deleting user: {ex.Message}", ToastType.Error);
+            await this.ToastService.ShowToastAsync($"Error deleting user: {ex.Message}", ToastType.Error);
         }
     }
 
@@ -475,24 +465,5 @@ public partial class Admin : BaseComponent
         {
             this.isSaving = false;
         }
-    }
-
-    private async Task ShowToastAsync(string message, ToastType type = ToastType.Info, int durationMs = 4000)
-    {
-        var toast = new ToastMessage { Message = message, Type = type };
-        this.toasts.Add(toast);
-        await this.InvokeAsync(this.StateHasChanged);
-
-        _ = Task.Run(async () =>
-        {
-            await Task.Delay(durationMs);
-
-            toast.IsHiding = true;
-            await this.InvokeAsync(this.StateHasChanged);
-
-            await Task.Delay(300);
-            this.toasts.Remove(toast);
-            await this.InvokeAsync(this.StateHasChanged);
-        });
     }
 }

@@ -7,13 +7,15 @@ using ServiceDeskSystem.Domain.Interfaces;
 using System.Security.Cryptography;
 using System.Data.Common;
 using ServiceDeskSystem.Application.Services.Auth.Interfaces;
+using ServiceDeskSystem.Application.Services.Audit.Interfaces;
 
 namespace ServiceDeskSystem.Application.Services.Auth;
 
 public sealed class AuthService(
     IRepositoryFacadeFactory repositoryFacadeFactory,
     IDbContextFactory<BugTrackerDbContext> contextFactory,
-    ProtectedSessionStorage? sessionStorage = null) : IAuthService
+    ProtectedSessionStorage? sessionStorage = null,
+    IAuditService? auditService = null) : IAuthService
 {
     private const int Pbkdf2Iterations = 100_000;
     private const int MinPasswordLength = 8;
@@ -25,7 +27,7 @@ public sealed class AuthService(
     public AuthService(
         IDbContextFactory<BugTrackerDbContext> contextFactory,
         ProtectedSessionStorage? sessionStorage = null)
-        : this(new RepositoryFacadeFactory(contextFactory), contextFactory, sessionStorage)
+        : this(new RepositoryFacadeFactory(contextFactory), contextFactory, sessionStorage, null)
     {
     }
 
@@ -67,7 +69,6 @@ public sealed class AuthService(
         }
         catch
         {
-            // It's safe to ignore exceptions here, as failure to restore session does not affect application logic.
         }
     }
 
@@ -111,6 +112,8 @@ public sealed class AuthService(
         this.CurrentUser = user;
         await this.SaveToSessionAsync(user).ConfigureAwait(false);
         this.AuthStateChanged?.Invoke(this, EventArgs.Empty);
+
+        await auditService.LogActionSafeAsync("LOGIN", "User", user.Id.ToString(), $"User {user.Login} logged in", user.Id).ConfigureAwait(false);
 
         return (true, null);
     }
@@ -196,6 +199,8 @@ public sealed class AuthService(
             dbContext.Users.Add(user);
             await dbContext.SaveChangesAsync().ConfigureAwait(false);
 
+            await auditService.LogActionSafeAsync("REGISTER", "User", user.Id.ToString(), $"User registered: {user.Login}", user.Id).ConfigureAwait(false);
+
             return (true, null);
             }
         }
@@ -211,6 +216,11 @@ public sealed class AuthService(
 
     public async Task LogoutAsync()
     {
+        if (this.CurrentUser is not null)
+        {
+            await auditService.LogActionSafeAsync("LOGOUT", "User", this.CurrentUser.Id.ToString(), $"User {this.CurrentUser.Login} logged out", this.CurrentUser.Id).ConfigureAwait(false);
+        }
+
         this.CurrentUser = null;
         try
         {
@@ -221,7 +231,6 @@ public sealed class AuthService(
         }
         catch
         {
-            // It's safe to ignore exceptions here, as failure to delete the session does not affect logout logic.
         }
 
         this.AuthStateChanged?.Invoke(this, EventArgs.Empty);
@@ -273,7 +282,6 @@ public sealed class AuthService(
         }
         catch
         {
-            // It's safe to ignore exceptions here, as failure to save the session does not affect authentication logic.
         }
     }
 }

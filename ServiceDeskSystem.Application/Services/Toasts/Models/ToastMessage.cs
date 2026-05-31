@@ -1,4 +1,6 @@
-namespace ServiceDeskSystem.Components.UI.Base;
+using System;
+
+namespace ServiceDeskSystem.Application.Services.Toasts.Models;
 
 /// <summary>
 /// Types of toast notifications.

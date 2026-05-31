@@ -31,6 +31,8 @@ namespace ServiceDeskSystem.Infrastructure.Data
 
         public DbSet<Notification> Notifications { get; set; } = null!;
 
+        public DbSet<AuditLog> AuditLogs { get; set; } = null!;
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             ArgumentNullException.ThrowIfNull(modelBuilder);

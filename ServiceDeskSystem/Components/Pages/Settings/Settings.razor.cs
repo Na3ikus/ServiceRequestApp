@@ -9,6 +9,7 @@ namespace ServiceDeskSystem.Components.Pages.Settings;
 /// <summary>
 /// Application settings page with appearance, notifications, and system info.
 /// </summary>
+[System.Diagnostics.CodeAnalysis.SuppressMessage("Naming", "CA1724:TypeNamesShouldNotMatchNamespaces", Justification = "Blazor page component must match .razor file name")]
 public partial class Settings : BaseComponent
 {
     private bool isAdmin;
@@ -28,8 +29,6 @@ public partial class Settings : BaseComponent
     private bool isCheckingDb;
     private bool isCheckingSmtp;
     private string smtpMessage = "SMTP";
-
-    private static readonly string[] AccentColors = ["blue", "purple", "emerald", "rose", "amber"];
 
     [Inject]
     private IAuthService AuthService { get; set; } = null!;
@@ -89,6 +88,16 @@ public partial class Settings : BaseComponent
         }
     }
 
+    private static string GetAccentSwatchStyle(string color) => color switch
+    {
+        "blue" => "background: linear-gradient(135deg, #3b82f6, #6366f1); color: #3b82f6;",
+        "purple" => "background: linear-gradient(135deg, #8b5cf6, #a855f7); color: #8b5cf6;",
+        "emerald" => "background: linear-gradient(135deg, #10b981, #14b8a6); color: #10b981;",
+        "rose" => "background: linear-gradient(135deg, #f43f5e, #e11d48); color: #f43f5e;",
+        "amber" => "background: linear-gradient(135deg, #f59e0b, #f97316); color: #f59e0b;",
+        _ => "background: linear-gradient(135deg, #3b82f6, #6366f1); color: #3b82f6;",
+    };
+
     private void SetTheme(bool dark)
     {
         this.Theme.SetTheme(dark ? "dark" : "light");
@@ -97,13 +106,13 @@ public partial class Settings : BaseComponent
     private async Task ToggleSoundNotifications()
     {
         this.soundEnabled = !this.soundEnabled;
-        await this.SaveSetting("settings.soundEnabled", this.soundEnabled.ToString().ToLowerInvariant());
+        await this.SaveSetting("settings.soundEnabled", this.soundEnabled ? "true" : "false");
     }
 
     private async Task ToggleDesktopNotifications()
     {
         this.desktopNotificationsEnabled = !this.desktopNotificationsEnabled;
-        await this.SaveSetting("settings.desktopNotifications", this.desktopNotificationsEnabled.ToString().ToLowerInvariant());
+        await this.SaveSetting("settings.desktopNotifications", this.desktopNotificationsEnabled ? "true" : "false");
     }
 
     private async Task SetDefaultView(string view)
@@ -115,7 +124,7 @@ public partial class Settings : BaseComponent
     private async Task ToggleAnimations()
     {
         this.animationsEnabled = !this.animationsEnabled;
-        await this.SaveSetting("settings.animations", this.animationsEnabled.ToString().ToLowerInvariant());
+        await this.SaveSetting("settings.animations", this.animationsEnabled ? "true" : "false");
     }
 
     private async Task SetAccentColor(string color)
@@ -128,7 +137,7 @@ public partial class Settings : BaseComponent
     private async Task ToggleKeyboardShortcuts()
     {
         this.keyboardShortcutsEnabled = !this.keyboardShortcutsEnabled;
-        await this.SaveSetting("settings.keyboardShortcuts", this.keyboardShortcutsEnabled.ToString().ToLowerInvariant());
+        await this.SaveSetting("settings.keyboardShortcuts", this.keyboardShortcutsEnabled ? "true" : "false");
     }
 
     private async Task ApplyAccentColorAsync()
@@ -169,16 +178,6 @@ public partial class Settings : BaseComponent
         }
     }
 
-    private string GetAccentSwatchStyle(string color) => color switch
-    {
-        "blue" => "background: linear-gradient(135deg, #3b82f6, #6366f1); color: #3b82f6;",
-        "purple" => "background: linear-gradient(135deg, #8b5cf6, #a855f7); color: #8b5cf6;",
-        "emerald" => "background: linear-gradient(135deg, #10b981, #14b8a6); color: #10b981;",
-        "rose" => "background: linear-gradient(135deg, #f43f5e, #e11d48); color: #f43f5e;",
-        "amber" => "background: linear-gradient(135deg, #f59e0b, #f97316); color: #f59e0b;",
-        _ => "background: linear-gradient(135deg, #3b82f6, #6366f1); color: #3b82f6;",
-    };
-
     private async Task SaveSetting(string key, string value)
     {
         try
@@ -203,7 +202,7 @@ public partial class Settings : BaseComponent
             using var client = this.HttpClientFactory.CreateClient();
             client.BaseAddress = new Uri(this.Navigation.BaseUri);
             using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
-            var response = await client.GetAsync("health/db", cts.Token);
+            var response = await client.GetAsync(new Uri("health/db", UriKind.Relative), cts.Token);
             this.dbAvailable = response.IsSuccessStatusCode;
         }
         catch
@@ -235,4 +234,3 @@ public partial class Settings : BaseComponent
         }
     }
 }
-

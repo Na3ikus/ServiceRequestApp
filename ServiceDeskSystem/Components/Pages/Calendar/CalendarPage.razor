@@ -9,12 +9,12 @@
     <div class="relative overflow-hidden bg-white dark:bg-gradient-to-br dark:from-gray-900 dark:via-gray-800 dark:to-slate-900 rounded-2xl p-6 sm:p-8 shadow-sm border border-gray-200 dark:border-gray-700/50 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
         <div class="absolute top-0 right-0 -m-8 w-40 h-40 bg-blue-400/10 dark:bg-blue-500/20 rounded-full filter blur-3xl"></div>
         <div class="relative z-10">
-            <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white tracking-tight flex items-center gap-3">
+            <div class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white tracking-tight flex items-center gap-3">
                 <div class="p-2.5 bg-blue-50 dark:bg-blue-500/20 rounded-xl shadow-sm">
                     <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                 </div>
-                @L.Translate("nav.calendar")
-            </h1>
+                <h1>@L.Translate("nav.calendar")</h1>
+            </div>
             <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">@L.Translate("details.calendarDesc")</p>
         </div>
         <div class="relative z-10 flex items-center gap-2 bg-gray-50 dark:bg-gray-900/50 p-1.5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-inner">
