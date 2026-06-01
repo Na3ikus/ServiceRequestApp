@@ -27,21 +27,21 @@
 ### 🔑 Authentication & Login
 | English Version | Ukrainian Version |
 | :---: | :---: |
-| <img src="screenshots/login-en.png" alt="Login English" width="350"/> | <img src="screenshots/login-uk.png" alt="Login Ukrainian" width="350"/> |
+| <img src="screenshots/login-dark.png" alt="Login English" width="350"/> | <img src="screenshots/login-light.png" alt="Login Ukrainian" width="350"/> |
 
 ### 📊 Dashboard & Tickets
 | Main Dashboard | Ticket Details |
 | :---: | :---: |
-| <img src="screenshots/dashboard.png" alt="Dashboard" width="350"/> | <img src="screenshots/ticket-info.png" alt="Ticket Details" width="350"/> |
+| <img src="screenshots/dashboard.png" alt="Dashboard" width="350"/> | <img src="screenshots/ticket-details.png" alt="Ticket Details" width="350"/> |
 
 ### ⚙️ Management & Panels
 | Admin Panel | Product Management |
 | :---: | :---: |
-| <img src="screenshots/admin-panel.png" alt="Admin Panel" width="350"/> | <img src="screenshots/admin-panel-product.png" alt="Product Management" width="350"/> |
+| <img src="screenshots/admin-techstacks.png" alt="Admin Panel" width="350"/> | <img src="screenshots/admin-products.png" alt="Product Management" width="350"/> |
 
 | Tech Stack Management | Developer Panel |
 | :---: | :---: |
-| <img src="screenshots/admin-panel-techstack.png" alt="Tech Stack" width="350"/> | <img src="screenshots/panel-dev.png" alt="Developer Panel" width="350"/> |
+| <img src="screenshots/admin-techstacks.png" alt="Tech Stack" width="350"/> | <img src="screenshots/audit-logs.png" alt="Audit loger" width="350"/> |
 
 ---
 
