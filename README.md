@@ -1,169 +1,74 @@
-#  ServiceDesk - IT Service Management System
+# 🛠️ ServiceDesk - IT Service Management System
 
 <p align="center">
-  <img src="screenshots/login-uk.png" alt="ServiceDesk Login" width="600"/>
+  <img src="screenshots/dashboard.png" alt="ServiceDesk Dashboard" width="700"/>
 </p>
 
 <p align="center">
-  <img alt="C#" src="https://img.shields.io/badge/C%23-239120?style=for-the-badge&logo=c-sharp&logoColor=white">
-  <img alt=".NET 10" src="https://img.shields.io/badge/.NET%2010-512BD4?style=for-the-badge&logo=dotnet&logoColor=white">
-  <img alt="Blazor" src="https://img.shields.io/badge/Blazor-512BD4?style=for-the-badge&logo=blazor&logoColor=white">
-  <img alt="MySQL" src="https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white">
-  <img alt="Tailwind CSS" src="https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=for-the-badge&logo=tailwind-css&logoColor=white">
-</p>
-
-<p align="center">
-  <strong>A modern, comprehensive IT Service Desk and Incident Management system</strong>
+  <img alt="C#" src="https://img.shields.io/badge/C%23-239120?style=flat-square&logo=c-sharp&logoColor=white">
+  <img alt=".NET 10" src="https://img.shields.io/badge/.NET%2010-512BD4?style=flat-square&logo=dotnet&logoColor=white">
+  <img alt="Blazor" src="https://img.shields.io/badge/Blazor-512BD4?style=flat-square&logo=blazor&logoColor=white">
+  <img alt="MySQL" src="https://img.shields.io/badge/MySQL-4479A1?style=flat-square&logo=mysql&logoColor=white">
+  <img alt="Tailwind CSS" src="https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=flat-square&logo=tailwind-css&logoColor=white">
 </p>
 
 ---
 
-##  Overview
+## 📌 Overview
 
-**ServiceDesk** is a powerful IT Service Management (ITSM) platform built with **.NET 10** and **Blazor Server**, designed to streamline incident tracking, service requests, and team collaboration. With multilingual support (English & Ukrainian), intuitive UI, and robust backend, it's perfect for IT departments of any size.
+**ServiceDesk** is a modern, responsive IT Service Management (ITSM) system built with **.NET 10** and **Blazor Server**. It simplifies incident tracking, SLA management, and team collaboration with native multilingual support (English & Ukrainian) and role-based access control (RBAC).
 
-**Цей проект використовує локальну базу MySQL. Налаштування підключення знаходяться в appsettings.Development.json. Для роботи в Docker використовуйте змінні оточення.**
-
-###  Key Highlights
-
--  **Real-time incident & request tracking**
--  **Multilingual interface** (English/Ukrainian)
--  **Interactive dashboards & analytics**
--  **Role-based access control (RBAC)**
--  **SLA management & escalations**
--  **Modern UI with Tailwind CSS**
--  **Built with .NET 10 & Blazor Server**
-
-## What it’s for
-- Centralize incident and request tracking.
-- Enforce transparent SLAs and execution control.
-- Improve communication between requesters and assignees.
-- Provide analytics and dashboards to manage workload and service quality.
-
-## Key capabilities
-- Creation and routing of incidents/requests.
-- Categorization, priorities, states, and change history.
-- SLA policies and escalations.
-- Notifications for assignees and requesters.
-- Roles and access control.
-- Search, filters, dashboards, and reports.
-
-## Architectural notes
-- **Interface**: Blazor Server (interactive UI without a separate SPA client).
-- **Server**: ASP.NET Core, C#.
-- **Data**: MySQL; migrations supported (typically EF Core).
-- **UI**: HTML, CSS; auxiliary JavaScript when needed.
-- **Automation/scripting**: PowerShell.
-
-## Target use cases
-- IT Service Desk in internal IT departments.
-- Incident Management for critical services.
-- Service catalog and service request handling.
-- Metric collection for reporting and SLA improvement.
-
-## 📸 Screenshots
-
-<details>
-<summary><b> Authentication & Login</b></summary>
-
-### Login Page (English)
-<img src="screenshots/login-en.png" alt="Login Page English" width="700"/>
-
-### Login Page (Ukrainian)
-<img src="screenshots/login-uk.png" alt="Login Page Ukrainian" width="700"/>
-
-</details>
-
-<details open>
-<summary><b> Dashboard & Tickets</b></summary>
-
-### Main Dashboard
-<img src="screenshots/dashboard.png" alt="Dashboard" width="700"/>
-
-### Ticket Details
-<img src="screenshots/ticket-info.png" alt="Ticket Info" width="700"/>
-
-</details>
-
-<details>
-<summary><b> Admin Panel</b></summary>
-
-### Admin Panel
-<img src="screenshots/admin-panel.png" alt="Admin Panel" width="700"/>
-
-### Product Management
-<img src="screenshots/admin-panel-product.png" alt="Product Management" width="700"/>
-
-### Tech Stack Management
-<img src="screenshots/admin-panel-techstack.png" alt="Tech Stack" width="700"/>
-
-### Developer Panel
-<img src="screenshots/panel-dev.png" alt="Developer Panel" width="700"/>
-
-</details>
+> 💻 **Setup Note**: Uses a local MySQL database. Connection settings are in `appsettings.Development.json`. For Docker deployment, use environment variables.
 
 ---
 
-##  Project Status
+## 📸 System Screenshots
 
->  **Active Development**: This repository is under active development. Features and capabilities may evolve.
+### 🔑 Authentication & Login
+| English Version | Ukrainian Version |
+| :---: | :---: |
+| <img src="screenshots/login-en.png" alt="Login English" width="350"/> | <img src="screenshots/login-uk.png" alt="Login Ukrainian" width="350"/> |
 
-### Current Version
-- **Phase**: Early Beta
-- **Framework**: .NET 10
-- **Database**: MySQL 8.0+
+### 📊 Dashboard & Tickets
+| Main Dashboard | Ticket Details |
+| :---: | :---: |
+| <img src="screenshots/dashboard.png" alt="Dashboard" width="350"/> | <img src="screenshots/ticket-info.png" alt="Ticket Details" width="350"/> |
 
----
+### ⚙️ Management & Panels
+| Admin Panel | Product Management |
+| :---: | :---: |
+| <img src="screenshots/admin-panel.png" alt="Admin Panel" width="350"/> | <img src="screenshots/admin-panel-product.png" alt="Product Management" width="350"/> |
 
-##  Roadmap
-
-###  Planned Features
-
-- [ ] **Advanced SLA Policies**: Automated escalations and SLA breach notifications
-- [x] **Email Integration**: SMTP support for notifications
-- [ ] **Chat Integration**: Teams/Slack webhook integration
-- [x] **KPI Dashboards**: MTTR, MTBF, SLA compliance metrics
-- [x] **Enhanced RBAC**: Expanded role management and permissions
-- [ ] **Audit Logging**: Comprehensive system activity tracking
-- [ ] **Knowledge Base**: FAQ and self-service modules
-- [x] **Mobile adaptiaon**: Native mobile web-app for phones
-- [x] **API**: RESTful API for third-party integrations
-- [ ] **Reporting**: Advanced reporting and analytics engine
+| Tech Stack Management | Developer Panel |
+| :---: | :---: |
+| <img src="screenshots/admin-panel-techstack.png" alt="Tech Stack" width="350"/> | <img src="screenshots/panel-dev.png" alt="Developer Panel" width="350"/> |
 
 ---
 
-##  Contributing
+## 🗺️ Roadmap & Features
 
-We welcome contributions! Here's how you can help:
-
-1.  **Report Bugs**: Open an issue with detailed reproduction steps
-2.  **Suggest Features**: Share your ideas for new functionality
-3.  **Submit Pull Requests**: Follow our coding conventions
-4.  **Improve Documentation**: Help us make the docs better
-5.  **Star the Project**: Show your support!
-
-### Development Guidelines
-- Follow C# coding conventions
-- Write unit tests for new features
-- Update documentation for any changes
-- Use descriptive commit messages
+- [x] **Multilingual UI** (English/Ukrainian)
+- [x] **Interactive Dashboard** (MTTR, MTBF, SLA compliance metrics)
+- [x] **Enhanced RBAC** (Role-Based Access Control & Permissions)
+- [x] **Email Integration** (SMTP notifications)
+- [x] **Mobile Adaptation** (Native mobile web-app for phones)
+- [x] **RESTful API** for third-party integrations
+- [ ] **Advanced SLA Policies** (Automated escalations & breach notifications)
+- [ ] **Chat Integration** (Teams & Slack webhooks) ???
+- [x] **Audit Logging** (Comprehensive system activity tracking)
+- [ ] **Knowledge Base** (FAQ & self-service modules)
+- [ ] **Advanced Reporting** (Analytics and export engine)
 
 ---
 
-##  Contact & Support
+## ⚙️ Tech Stack
 
--  **Bug Reports**: [Open an Issue](https://github.com/Na3ikus/ServiceRequestApp/issues)
--  **Feature Requests**: Share your ideas via Issues
--  **Email**: For private inquiries
-
----
-
-##  License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+- **Frontend:** Blazor Server + Tailwind CSS (dynamic, interactive UI)
+- **Backend:** ASP.NET Core (.NET 10)
+- **Database:** MySQL 8.0+ (Entity Framework Core)
 
 ---
 
-<p align="center">
-  <a href="#top"> Back to Top</a>
-</p>
+## 📄 License & Info
+
+Licensed under the [MIT License](LICENSE). Contributions, issues, and feature requests are welcome!
