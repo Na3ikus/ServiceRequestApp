@@ -1,0 +1,66 @@
+@inherits BaseComponent
+
+<div class="admin-content-section bg-white dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-lg border border-transparent dark:border-gray-700/50 p-6">
+    <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-semibold text-gray-800 dark:text-white">@L.Translate("admin.users")</h2>
+    </div>
+
+    @if (Users is null)
+    {
+        <div class="text-gray-500 dark:text-gray-400">@L.Translate("common.loading")</div>
+    }
+    else
+    {
+        <div class="admin-table-container">
+            <table class="admin-table users-table w-full">
+                <thead class="bg-gray-50 dark:bg-gray-700/50">
+                    <tr>
+                        <th class="col-id px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">ID</th>
+                        <th class="col-login px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">@L.Translate("admin.login")</th>
+                        <th class="col-fullname px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">@L.Translate("admin.fullName")</th>
+                        <th class="col-role px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">@L.Translate("admin.role")</th>
+                        <th class="col-status px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">@L.Translate("admin.status")</th>
+                        <th class="col-actions px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">@L.Translate("admin.actions")</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                    @foreach (var user in Users)
+                    {
+                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                            <td class="col-id px-4 py-3 text-sm text-gray-500 dark:text-gray-400 font-mono">@user.Id</td>
+                            <td class="col-login px-4 py-3 text-sm font-medium text-gray-900 dark:text-white">@user.Login</td>
+                            <td class="col-fullname px-4 py-3 text-sm text-gray-500 dark:text-gray-400">@($"{user.Person.FirstName} {user.Person.LastName}")</td>
+                            <td class="col-role px-4 py-3 text-sm">
+                                <select @bind="user.Role" @bind:after="@(() => UpdateUserRole(user.Id, user.Role))"
+                                        disabled="@(!CanEditUserRole(user))"
+                                        class="w-full px-2 py-1 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md text-xs @(!CanEditUserRole(user) ? "opacity-50 cursor-not-allowed" : "")">
+                                    <option value="Admin">@L.Translate("admin.roleAdmin")</option>
+                                    <option value="Developer">@L.Translate("admin.roleDeveloper")</option>
+                                    <option value="User">@L.Translate("admin.roleUser")</option>
+                                </select>
+                            </td>
+                            <td class="col-status px-4 py-3 text-sm">
+                                <button @onclick="@(() => ToggleUserStatus(user.Id))"
+                                        disabled="@(!CanToggleUserStatus(user))"
+                                        class="w-full px-3 py-1 rounded-full text-xs font-medium transition-colors @(!CanToggleUserStatus(user) ? "opacity-50 cursor-not-allowed" : "") @(user.IsActive ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400" : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-400")">
+                                    @(user.IsActive ? L.Translate("admin.active") : L.Translate("admin.inactive"))
+                                </button>
+                            </td>
+                            <td class="col-actions px-4 py-3">
+                                <div class="flex gap-2 justify-center">
+                                    <button @onclick="@(() => DeleteUser(user))"
+                                            class="admin-delete-btn p-2 rounded-lg transition-colors @(!CanDeleteUser(user) ? "text-gray-400 dark:text-gray-600 cursor-not-allowed opacity-50" : "text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30")"
+                                            disabled="@(!CanDeleteUser(user))">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
