@@ -1,6 +1,6 @@
 using ServiceDeskSystem.Domain.Entities;
 
-namespace ServiceDeskSystem.Application.Services.Auth.Interfaces;
+namespace ServiceDeskSystem.Application.Services.Auth;
 
 public interface IAuthService
 {
@@ -18,3 +18,4 @@ public interface IAuthService
 
     Task LogoutAsync();
 }
+

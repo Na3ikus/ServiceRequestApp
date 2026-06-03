@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Components;
-using ServiceDeskSystem.Application.Services.Admin.Interfaces;
-using ServiceDeskSystem.Application.Services.Auth.Interfaces;
-using ServiceDeskSystem.Application.Services.Toasts.Interfaces;
+using ServiceDeskSystem.Application.Services.Admin;
+using ServiceDeskSystem.Application.Services.Auth;
+using ServiceDeskSystem.Application.Services.Toasts;
 using ServiceDeskSystem.Application.Services.Toasts.Models;
 using ServiceDeskSystem.Components.UI.Base;
 using ServiceDeskSystem.Domain.Entities;
@@ -105,3 +105,4 @@ public partial class UsersTab : BaseComponent
         }
     }
 }
+

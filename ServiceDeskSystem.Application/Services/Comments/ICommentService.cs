@@ -1,6 +1,6 @@
 using ServiceDeskSystem.Domain.Entities;
 
-namespace ServiceDeskSystem.Application.Services.Comments.Interfaces;
+namespace ServiceDeskSystem.Application.Services.Comments;
 
 /// <summary>
 /// Provides CRUD operations for ticket comments.
@@ -14,3 +14,4 @@ public interface ICommentService
 
     Task<bool> DeleteCommentAsync(int commentId);
 }
+

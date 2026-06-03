@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using ServiceDeskSystem.Application.Services.Audit.Interfaces;
+using ServiceDeskSystem.Application.Services.Audit;
 using ServiceDeskSystem.Domain.Entities;
 using ServiceDeskSystem.Infrastructure.Data;
 
@@ -52,3 +52,4 @@ public sealed class AuditService(IDbContextFactory<BugTrackerDbContext> contextF
         }
     }
 }
+

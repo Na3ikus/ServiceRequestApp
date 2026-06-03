@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using ServiceDeskSystem.Application;
-using ServiceDeskSystem.Application.Services.Realtime.Interfaces;
+using ServiceDeskSystem.Application.Services.Realtime;
 using ServiceDeskSystem.Components;
 using ServiceDeskSystem.Domain.Interfaces;
 using ServiceDeskSystem.Hubs;
@@ -72,3 +72,4 @@ internal static class Program
         await app.RunAsync().ConfigureAwait(false);
     }
 }
+

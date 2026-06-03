@@ -2,7 +2,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using ServiceDeskSystem.Api.Models;
 using ServiceDeskSystem.Application.Services.Auth;
-using ServiceDeskSystem.Application.Services.Auth.Interfaces;
+using ServiceDeskSystem.Application.Services.Auth;
 using ServiceDeskSystem.Domain.Entities;
 using ServiceDeskSystem.Api.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -111,4 +111,5 @@ public sealed class AuthController(
         new(user.Id, user.Login, user.Role.ToString(), user.IsActive,
             user.Person?.FirstName, user.Person?.LastName);
 }
+
 

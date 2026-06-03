@@ -1,4 +1,4 @@
-namespace ServiceDeskSystem.Application.Services.Tickets.Interfaces;
+namespace ServiceDeskSystem.Application.Services.Tickets;
 
 using ServiceDeskSystem.Application.Services.Tickets.Models;
 
@@ -30,3 +30,4 @@ public interface ITicketStatisticsService
 
     Task<List<(string Login, int Count)>> GetTopDevelopersAsync(int top = 5);
 }
+

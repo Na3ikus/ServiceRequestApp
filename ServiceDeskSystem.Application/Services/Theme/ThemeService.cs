@@ -1,5 +1,5 @@
 using Microsoft.JSInterop;
-using ServiceDeskSystem.Application.Services.Theme.Interfaces;
+using ServiceDeskSystem.Application.Services.Theme;
 
 namespace ServiceDeskSystem.Application.Services.Theme;
 
@@ -91,3 +91,4 @@ public sealed class ThemeService : IThemeService, IAsyncDisposable
         await Task.CompletedTask;
     }
 }
+

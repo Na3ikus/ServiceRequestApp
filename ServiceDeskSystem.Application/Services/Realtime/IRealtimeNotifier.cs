@@ -1,4 +1,4 @@
-namespace ServiceDeskSystem.Application.Services.Realtime.Interfaces;
+namespace ServiceDeskSystem.Application.Services.Realtime;
 
 public interface IRealtimeNotifier
 {
@@ -6,3 +6,4 @@ public interface IRealtimeNotifier
 
     Task NotifyNotificationsChangedAsync(IEnumerable<int> userIds, CancellationToken cancellationToken = default);
 }
+

@@ -1,4 +1,4 @@
-namespace ServiceDeskSystem.Application.Services.Theme.Interfaces;
+namespace ServiceDeskSystem.Application.Services.Theme;
 
 public interface IThemeService
 {
@@ -14,3 +14,4 @@ public interface IThemeService
 
     void ToggleTheme();
 }
+

@@ -1,9 +1,9 @@
-using ServiceDeskSystem.Application.Services.Comments.Interfaces;
-using ServiceDeskSystem.Application.Services.Notifications.Interfaces;
-using ServiceDeskSystem.Application.Services.Realtime.Interfaces;
+using ServiceDeskSystem.Application.Services.Comments;
+using ServiceDeskSystem.Application.Services.Notifications;
+using ServiceDeskSystem.Application.Services.Realtime;
 using ServiceDeskSystem.Domain.Entities;
 using ServiceDeskSystem.Domain.Interfaces;
-using ServiceDeskSystem.Application.Services.Audit.Interfaces;
+using ServiceDeskSystem.Application.Services.Audit;
 
 namespace ServiceDeskSystem.Application.Services.Comments;
 
@@ -74,4 +74,5 @@ public sealed class CommentService(
         return true;
     }
 }
+
 

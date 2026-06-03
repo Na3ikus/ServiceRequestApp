@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Routing;
 using Microsoft.AspNetCore.Components.Web;
-using ServiceDeskSystem.Application.Services.Auth.Interfaces;
-using ServiceDeskSystem.Application.Services.Localization.Interfaces;
-using ServiceDeskSystem.Application.Services.Theme.Interfaces;
+using ServiceDeskSystem.Application.Services.Auth;
+using ServiceDeskSystem.Application.Services.Localization;
+using ServiceDeskSystem.Application.Services.Theme;
 using ServiceDeskSystem.Domain.Enums;
 
 namespace ServiceDeskSystem.Components.Layout;
@@ -158,3 +158,4 @@ public partial class NavMenu : ComponentBase, IDisposable
         public NavLinkMatch Match { get; } = match;
     }
 }
+

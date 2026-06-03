@@ -1,4 +1,4 @@
-using ServiceDeskSystem.Application.Services.Realtime.Interfaces;
+using ServiceDeskSystem.Application.Services.Realtime;
 
 namespace ServiceDeskSystem.Application.Services.Realtime;
 
@@ -20,3 +20,4 @@ public sealed class NoOpRealtimeNotifier : IRealtimeNotifier
         return Task.CompletedTask;
     }
 }
+

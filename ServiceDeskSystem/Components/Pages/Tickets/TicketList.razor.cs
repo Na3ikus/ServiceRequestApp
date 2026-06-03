@@ -2,10 +2,10 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.JSInterop;
 using ServiceDeskSystem.Application.Services.Auth;
-using ServiceDeskSystem.Application.Services.Auth.Interfaces;
+using ServiceDeskSystem.Application.Services.Auth;
 using ServiceDeskSystem.Application.Services.Localization;
 using ServiceDeskSystem.Application.Services.Tickets;
-using ServiceDeskSystem.Application.Services.Tickets.Interfaces;
+using ServiceDeskSystem.Application.Services.Tickets;
 using ServiceDeskSystem.Components.Features;
 using ServiceDeskSystem.Components.UI.Base;
 using ServiceDeskSystem.Domain.Entities;
@@ -279,3 +279,4 @@ public partial class TicketList : BaseComponent
         this.StateHasChanged();
     }
 }
+

@@ -6,8 +6,8 @@ using ServiceDeskSystem.Domain.Entities;
 using ServiceDeskSystem.Domain.Interfaces;
 using System.Security.Cryptography;
 using System.Data.Common;
-using ServiceDeskSystem.Application.Services.Auth.Interfaces;
-using ServiceDeskSystem.Application.Services.Audit.Interfaces;
+using ServiceDeskSystem.Application.Services.Auth;
+using ServiceDeskSystem.Application.Services.Audit;
 using ServiceDeskSystem.Domain.Enums;
 
 namespace ServiceDeskSystem.Application.Services.Auth;
@@ -286,4 +286,5 @@ public sealed class AuthService(
         }
     }
 }
+
 

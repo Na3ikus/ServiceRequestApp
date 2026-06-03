@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Moq;
 using NUnit.Framework;
 using ServiceDeskSystem.Application.Common;
-using ServiceDeskSystem.Application.Services.Notifications.Interfaces;
+using ServiceDeskSystem.Application.Services.Notifications;
 using ServiceDeskSystem.Application.Services.Tickets;
 using ServiceDeskSystem.Domain.Entities;
 using ServiceDeskSystem.Domain.Enums;
@@ -259,3 +259,4 @@ public class TicketServiceTests
         }
     }
 }
+

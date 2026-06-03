@@ -1,7 +1,7 @@
 using ServiceDeskSystem.Application.Services.Notifications.Models;
 using ServiceDeskSystem.Domain.Enums;
 
-namespace ServiceDeskSystem.Application.Services.Notifications.Interfaces;
+namespace ServiceDeskSystem.Application.Services.Notifications;
 
 public interface INotificationService
 {
@@ -19,3 +19,4 @@ public interface INotificationService
 
     Task CreateDatesChangedNotificationAsync(int ticketId, int? actorUserId);
 }
+

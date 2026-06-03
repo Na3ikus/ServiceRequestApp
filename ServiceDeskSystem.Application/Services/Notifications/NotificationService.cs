@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using ServiceDeskSystem.Application.Services.Notifications.Interfaces;
+using ServiceDeskSystem.Application.Services.Notifications;
 using ServiceDeskSystem.Application.Services.Notifications.Models;
-using ServiceDeskSystem.Application.Services.Realtime.Interfaces;
+using ServiceDeskSystem.Application.Services.Realtime;
 using ServiceDeskSystem.Domain.Entities;
 using ServiceDeskSystem.Domain.Enums;
 using ServiceDeskSystem.Infrastructure.Data;
@@ -287,3 +287,4 @@ public sealed class NotificationService(
         }
     }
 }
+

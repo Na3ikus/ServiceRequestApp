@@ -1,27 +1,27 @@
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using ServiceDeskSystem.Application.Services.Admin;
-using ServiceDeskSystem.Application.Services.Admin.Interfaces;
+using ServiceDeskSystem.Application.Services.Admin;
 using ServiceDeskSystem.Application.Services.Audit;
-using ServiceDeskSystem.Application.Services.Audit.Interfaces;
+using ServiceDeskSystem.Application.Services.Audit;
 using ServiceDeskSystem.Application.Services.Auth;
-using ServiceDeskSystem.Application.Services.Auth.Interfaces;
+using ServiceDeskSystem.Application.Services.Auth;
 using ServiceDeskSystem.Application.Services.Comments;
-using ServiceDeskSystem.Application.Services.Comments.Interfaces;
+using ServiceDeskSystem.Application.Services.Comments;
 using ServiceDeskSystem.Application.Services.Localization;
-using ServiceDeskSystem.Application.Services.Localization.Interfaces;
+using ServiceDeskSystem.Application.Services.Localization;
 using ServiceDeskSystem.Application.Services.Notifications;
-using ServiceDeskSystem.Application.Services.Notifications.Interfaces;
+using ServiceDeskSystem.Application.Services.Notifications;
 using ServiceDeskSystem.Application.Services.Profile;
-using ServiceDeskSystem.Application.Services.Profile.Interfaces;
+using ServiceDeskSystem.Application.Services.Profile;
 using ServiceDeskSystem.Application.Services.Realtime;
-using ServiceDeskSystem.Application.Services.Realtime.Interfaces;
+using ServiceDeskSystem.Application.Services.Realtime;
 using ServiceDeskSystem.Application.Services.Theme;
-using ServiceDeskSystem.Application.Services.Theme.Interfaces;
+using ServiceDeskSystem.Application.Services.Theme;
 using ServiceDeskSystem.Application.Services.Tickets;
-using ServiceDeskSystem.Application.Services.Tickets.Interfaces;
+using ServiceDeskSystem.Application.Services.Tickets;
 using ServiceDeskSystem.Application.Services.Toasts;
-using ServiceDeskSystem.Application.Services.Toasts.Interfaces;
+using ServiceDeskSystem.Application.Services.Toasts;
 
 namespace ServiceDeskSystem.Application;
 
@@ -63,3 +63,4 @@ public static class DependencyInjection
         return services;
     }
 }
+

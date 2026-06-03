@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ServiceDeskSystem.Api.Models; // For ApiErrorResponse if needed
-using ServiceDeskSystem.Application.Services.Auth.Interfaces;
-using ServiceDeskSystem.Application.Services.Profile.Interfaces;
+using ServiceDeskSystem.Application.Services.Auth;
+using ServiceDeskSystem.Application.Services.Profile;
 using ServiceDeskSystem.Application.Services.Profile.Models;
 using ServiceDeskSystem.Api.Services;
 
@@ -55,3 +55,4 @@ public sealed class ProfileController(
         return Ok(types);
     }
 }
+

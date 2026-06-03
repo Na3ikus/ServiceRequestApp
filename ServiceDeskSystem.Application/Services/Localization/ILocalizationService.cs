@@ -1,4 +1,4 @@
-namespace ServiceDeskSystem.Application.Services.Localization.Interfaces;
+namespace ServiceDeskSystem.Application.Services.Localization;
 
 public interface ILocalizationService
 {
@@ -10,3 +10,4 @@ public interface ILocalizationService
 
     string Translate(string key);
 }
+

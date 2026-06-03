@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Components;
-using ServiceDeskSystem.Application.Services.Auth.Interfaces;
-using ServiceDeskSystem.Application.Services.Tickets.Interfaces;
+using ServiceDeskSystem.Application.Services.Auth;
+using ServiceDeskSystem.Application.Services.Tickets;
 using ServiceDeskSystem.Components.UI.Base;
 using ServiceDeskSystem.Domain.Entities;
 using ServiceDeskSystem.Domain.Enums;
@@ -83,3 +83,4 @@ public partial class CalendarPage : BaseComponent
         }).OrderBy(t => t.DueDate ?? DateTime.MaxValue).Take(4); // Show max 4 tickets per day
     }
 }
+

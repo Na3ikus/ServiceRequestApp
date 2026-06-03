@@ -1,7 +1,7 @@
 using ServiceDeskSystem.Domain.Entities;
 using ServiceDeskSystem.Domain.Enums;
 
-namespace ServiceDeskSystem.Application.Services.Tickets.Interfaces;
+namespace ServiceDeskSystem.Application.Services.Tickets;
 
 public interface ITicketService
 {
@@ -23,3 +23,4 @@ public interface ITicketService
 
     Task<List<Ticket>> GetDeveloperTicketsAsync(int developerId);
 }
+

@@ -1,6 +1,6 @@
 using System.Net.Mail;
 using Microsoft.AspNetCore.Components;
-using ServiceDeskSystem.Application.Services.Toasts.Interfaces;
+using ServiceDeskSystem.Application.Services.Toasts;
 using ServiceDeskSystem.Application.Services.Toasts.Models;
 using ServiceDeskSystem.Components.UI.Base;
 using ServiceDeskSystem.Domain.Interfaces;
@@ -81,3 +81,4 @@ public partial class SmtpTab : BaseComponent
         }
     }
 }
+

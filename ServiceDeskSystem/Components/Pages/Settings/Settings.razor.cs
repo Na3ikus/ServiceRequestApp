@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
-using ServiceDeskSystem.Application.Services.Auth.Interfaces;
+using ServiceDeskSystem.Application.Services.Auth;
 using ServiceDeskSystem.Components.UI.Base;
 using ServiceDeskSystem.Domain.Enums;
 using ServiceDeskSystem.Domain.Interfaces;
@@ -235,3 +235,4 @@ public partial class Settings : BaseComponent
         }
     }
 }
+

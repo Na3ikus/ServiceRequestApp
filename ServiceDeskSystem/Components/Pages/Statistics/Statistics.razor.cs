@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using ServiceDeskSystem.Application.Services.Auth;
-using ServiceDeskSystem.Application.Services.Auth.Interfaces;
+using ServiceDeskSystem.Application.Services.Auth;
 using ServiceDeskSystem.Application.Services.Tickets;
-using ServiceDeskSystem.Application.Services.Tickets.Interfaces;
+using ServiceDeskSystem.Application.Services.Tickets;
 using ServiceDeskSystem.Components.Features;
 using ServiceDeskSystem.Components.UI.Base;
 using ServiceDeskSystem.Domain.Enums;
@@ -131,3 +131,4 @@ public partial class Statistics : BaseComponent
                              + (this.byStatus.TryGetValue(TicketStatus.Done.ToString(), out var d) ? d : 0);
     }
 }
+

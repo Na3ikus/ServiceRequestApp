@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using ServiceDeskSystem.Application.Services.Toasts.Interfaces;
+using ServiceDeskSystem.Application.Services.Toasts;
 using ServiceDeskSystem.Application.Services.Toasts.Models;
 
 namespace ServiceDeskSystem.Application.Services.Toasts;
@@ -53,3 +53,4 @@ public sealed class ToastService : IToastService
 
     private void NotifyStateChanged() => this.OnToastsChanged?.Invoke(this, EventArgs.Empty);
 }
+

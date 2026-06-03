@@ -2,9 +2,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ServiceDeskSystem.Api.Models;
 using ServiceDeskSystem.Application.Services.Tickets;
-using ServiceDeskSystem.Application.Services.Tickets.Interfaces;
+using ServiceDeskSystem.Application.Services.Tickets;
 using ServiceDeskSystem.Application.Services.Comments;
-using ServiceDeskSystem.Application.Services.Comments.Interfaces;
+using ServiceDeskSystem.Application.Services.Comments;
 using ServiceDeskSystem.Domain.Entities;
 using ServiceDeskSystem.Api.Services;
 
@@ -204,3 +204,4 @@ public sealed class TicketsController(
         return Ok(products);
     }
 }
+

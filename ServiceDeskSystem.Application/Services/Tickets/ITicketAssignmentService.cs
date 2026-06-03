@@ -1,6 +1,6 @@
 using ServiceDeskSystem.Domain.Entities;
 
-namespace ServiceDeskSystem.Application.Services.Tickets.Interfaces;
+namespace ServiceDeskSystem.Application.Services.Tickets;
 
 /// <summary>
 /// Provides ticket assignment operations.
@@ -12,3 +12,4 @@ public interface ITicketAssignmentService
 
     Task<bool> UnassignDeveloperAsync(int ticketId);
 }
+

@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Components;
 using ServiceDeskSystem.Application.Services.Auth;
-using ServiceDeskSystem.Application.Services.Auth.Interfaces;
+using ServiceDeskSystem.Application.Services.Auth;
 using ServiceDeskSystem.Components.Features;
 using ServiceDeskSystem.Components.UI.Base;
 
@@ -143,3 +143,4 @@ public partial class Register : BaseComponent
         public string ConfirmPassword { get; set; } = string.Empty;
     }
 }
+

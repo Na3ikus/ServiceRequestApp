@@ -4,12 +4,12 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Routing;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.JSInterop;
-using ServiceDeskSystem.Application.Services.Auth.Interfaces;
-using ServiceDeskSystem.Application.Services.Localization.Interfaces;
-using ServiceDeskSystem.Application.Services.Notifications.Interfaces;
+using ServiceDeskSystem.Application.Services.Auth;
+using ServiceDeskSystem.Application.Services.Localization;
+using ServiceDeskSystem.Application.Services.Notifications;
 using ServiceDeskSystem.Application.Services.Notifications.Models;
-using ServiceDeskSystem.Application.Services.Theme.Interfaces;
-using ServiceDeskSystem.Application.Services.Toasts.Interfaces;
+using ServiceDeskSystem.Application.Services.Theme;
+using ServiceDeskSystem.Application.Services.Toasts;
 using ServiceDeskSystem.Application.Services.Toasts.Models;
 using ServiceDeskSystem.Components.UI.Base;
 
@@ -396,3 +396,4 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
         public bool IsAvailable { get; init; }
     }
 }
+

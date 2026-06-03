@@ -1,7 +1,7 @@
 using ServiceDeskSystem.Domain.Entities;
 using ServiceDeskSystem.Domain.Enums;
 
-namespace ServiceDeskSystem.Application.Services.Admin.Interfaces;
+namespace ServiceDeskSystem.Application.Services.Admin;
 
 public interface IAdminService
 {
@@ -30,3 +30,4 @@ public interface IAdminService
 
     Task<bool> DeleteUserAsync(int userId);
 }
+

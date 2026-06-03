@@ -1,5 +1,5 @@
 using System.Text.Json;
-using ServiceDeskSystem.Application.Services.Localization.Interfaces;
+using ServiceDeskSystem.Application.Services.Localization;
 
 namespace ServiceDeskSystem.Application.Services.Localization;
 
@@ -110,3 +110,4 @@ public sealed class LocalizationService : ILocalizationService
         }
     }
 }
+

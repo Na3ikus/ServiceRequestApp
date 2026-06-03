@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using ServiceDeskSystem.Application.Services.Toasts.Models;
 
-namespace ServiceDeskSystem.Application.Services.Toasts.Interfaces;
+namespace ServiceDeskSystem.Application.Services.Toasts;
 
 /// <summary>
 /// Service for managing global toast notifications.
@@ -36,3 +36,4 @@ public interface IToastService
     /// <returns>A task representing the asynchronous operation.</returns>
     Task RemoveToastAsync(ToastMessage toast);
 }
+

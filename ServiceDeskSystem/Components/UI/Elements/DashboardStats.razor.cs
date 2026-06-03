@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Components;
-using ServiceDeskSystem.Application.Services.Auth.Interfaces;
-using ServiceDeskSystem.Application.Services.Localization.Interfaces;
-using ServiceDeskSystem.Application.Services.Theme.Interfaces;
-using ServiceDeskSystem.Application.Services.Tickets.Interfaces;
+using ServiceDeskSystem.Application.Services.Auth;
+using ServiceDeskSystem.Application.Services.Localization;
+using ServiceDeskSystem.Application.Services.Theme;
+using ServiceDeskSystem.Application.Services.Tickets;
 
 namespace ServiceDeskSystem.Components.UI.Elements;
 
@@ -110,3 +110,4 @@ public partial class DashboardStats : ComponentBase, IDisposable
 
     private void OnStateChanged(object? sender, EventArgs e) => _ = this.InvokeAsync(this.StateHasChanged);
 }
+

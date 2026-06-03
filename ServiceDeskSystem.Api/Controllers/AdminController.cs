@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ServiceDeskSystem.Api.Models;
 using ServiceDeskSystem.Application.Services.Admin;
-using ServiceDeskSystem.Application.Services.Admin.Interfaces;
+using ServiceDeskSystem.Application.Services.Admin;
 using ServiceDeskSystem.Domain.Entities;
 using ServiceDeskSystem.Domain.Enums;
 using ServiceDeskSystem.Domain.Interfaces;
@@ -197,3 +197,4 @@ public sealed class AdminController(
         return Ok(new { Sent = true });
     }
 }
+

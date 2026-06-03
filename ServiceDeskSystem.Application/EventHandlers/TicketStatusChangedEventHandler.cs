@@ -1,8 +1,8 @@
 using MediatR;
 using ServiceDeskSystem.Application.Common;
-using ServiceDeskSystem.Application.Services.Audit.Interfaces;
-using ServiceDeskSystem.Application.Services.Notifications.Interfaces;
-using ServiceDeskSystem.Application.Services.Realtime.Interfaces;
+using ServiceDeskSystem.Application.Services.Audit;
+using ServiceDeskSystem.Application.Services.Notifications;
+using ServiceDeskSystem.Application.Services.Realtime;
 using ServiceDeskSystem.Domain.Events;
 
 namespace ServiceDeskSystem.Application.EventHandlers;
@@ -43,3 +43,4 @@ public class TicketStatusChangedEventHandler : INotificationHandler<DomainEventN
         await _realtimeNotifier.NotifyTicketsChangedAsync();
     }
 }
+

@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.SignalR;
-using ServiceDeskSystem.Application.Services.Realtime.Interfaces;
+using ServiceDeskSystem.Application.Services.Realtime;
 using ServiceDeskSystem.Hubs;
 
 namespace ServiceDeskSystem.Services.Realtime;
@@ -32,3 +32,4 @@ public sealed class SignalRRealtimeNotifier(IHubContext<UpdatesHub> hubContext) 
         }
     }
 }
+

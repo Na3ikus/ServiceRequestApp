@@ -5,12 +5,12 @@ using ServiceDeskSystem.Domain.Constants;
 using ServiceDeskSystem.Domain.Entities;
 using ServiceDeskSystem.Domain.Enums;
 using ServiceDeskSystem.Domain.Interfaces;
-using ServiceDeskSystem.Application.Services.Notifications.Interfaces;
+using ServiceDeskSystem.Application.Services.Notifications;
 using ServiceDeskSystem.Application.Services.Realtime;
-using ServiceDeskSystem.Application.Services.Realtime.Interfaces;
-using ServiceDeskSystem.Application.Services.Tickets.Interfaces;
+using ServiceDeskSystem.Application.Services.Realtime;
+using ServiceDeskSystem.Application.Services.Tickets;
 using ServiceDeskSystem.Application.Services.Tickets.Models;
-using ServiceDeskSystem.Application.Services.Audit.Interfaces;
+using ServiceDeskSystem.Application.Services.Audit;
 
 namespace ServiceDeskSystem.Application.Services.Tickets;
 
@@ -335,4 +335,5 @@ public sealed class TicketService(
             .ToList();
     }
 }
+
 

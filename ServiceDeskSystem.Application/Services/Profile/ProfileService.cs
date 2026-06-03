@@ -1,9 +1,9 @@
 using Microsoft.EntityFrameworkCore;
-using ServiceDeskSystem.Application.Services.Profile.Interfaces;
+using ServiceDeskSystem.Application.Services.Profile;
 using ServiceDeskSystem.Application.Services.Profile.Models;
 using ServiceDeskSystem.Domain.Entities;
 using ServiceDeskSystem.Infrastructure.Data;
-using ServiceDeskSystem.Application.Services.Audit.Interfaces;
+using ServiceDeskSystem.Application.Services.Audit;
 
 namespace ServiceDeskSystem.Application.Services.Profile;
 
@@ -110,4 +110,5 @@ public sealed class ProfileService(BugTrackerDbContext context, IAuditService? a
             .ToListAsync();
     }
 }
+
 

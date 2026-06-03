@@ -1,6 +1,6 @@
 using ServiceDeskSystem.Domain.Entities;
 
-namespace ServiceDeskSystem.Application.Services.Audit.Interfaces;
+namespace ServiceDeskSystem.Application.Services.Audit;
 
 public interface IAuditService
 {
@@ -22,3 +22,4 @@ public static class AuditServiceExtensions
         return auditService?.LogActionAsync(action, entityName, entityId, changes, userId) ?? Task.CompletedTask;
     }
 }
+

@@ -2,8 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using ServiceDeskSystem.Infrastructure.Data;
 using ServiceDeskSystem.Domain.Entities;
 using ServiceDeskSystem.Domain.Interfaces;
-using ServiceDeskSystem.Application.Services.Admin.Interfaces;
-using ServiceDeskSystem.Application.Services.Audit.Interfaces;
+using ServiceDeskSystem.Application.Services.Admin;
+using ServiceDeskSystem.Application.Services.Audit;
 using ServiceDeskSystem.Domain.Enums;
 
 namespace ServiceDeskSystem.Application.Services.Admin;
@@ -233,5 +233,6 @@ public sealed class AdminService(
         }
     }
 }
+
 
 

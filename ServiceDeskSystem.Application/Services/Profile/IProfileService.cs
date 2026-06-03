@@ -1,6 +1,6 @@
 using ServiceDeskSystem.Application.Services.Profile.Models;
 
-namespace ServiceDeskSystem.Application.Services.Profile.Interfaces;
+namespace ServiceDeskSystem.Application.Services.Profile;
 
 public interface IProfileService
 {
@@ -12,3 +12,4 @@ public interface IProfileService
 }
 
 public record ContactTypeDto(int Id, string Name);
+
