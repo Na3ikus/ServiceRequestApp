@@ -4,6 +4,8 @@ using Microsoft.OpenApi.Models;
 using System.Text;
 using FluentValidation;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
+using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace ServiceDeskSystem.Api.Extensions;
 
@@ -56,7 +58,7 @@ public static class DependencyInjection
                 ValidateIssuerSigningKey = true,
                 ValidIssuer = jwtIssuer,
                 ValidAudience = jwtAudience,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey!))
             };
 
             // Add cookie extraction fallback
@@ -90,10 +92,23 @@ public static class DependencyInjection
         {
             options.AddPolicy("AllowAll", policy =>
             {
-                policy.AllowAnyOrigin()
+                policy.WithOrigins("https://localhost:7196", "http://localhost:5033", "https://localhost:7197", "http://localhost:5034")
                       .AllowAnyMethod()
-                      .AllowAnyHeader();
+                      .AllowAnyHeader()
+                      .AllowCredentials();
             });
+        });
+
+        services.AddRateLimiter(options =>
+        {
+            options.AddFixedWindowLimiter("AuthRateLimiter", limiterOptions =>
+            {
+                limiterOptions.PermitLimit = 5;
+                limiterOptions.Window = TimeSpan.FromMinutes(1);
+                limiterOptions.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+                limiterOptions.QueueLimit = 0;
+            });
+            options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
         });
 
         return services;

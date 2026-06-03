@@ -1,5 +1,4 @@
-using Microsoft.EntityFrameworkCore;
-using ServiceDeskSystem.Infrastructure.Data;
+
 using ServiceDeskSystem.Domain.Entities;
 using ServiceDeskSystem.Domain.Interfaces;
 using ServiceDeskSystem.Application.Services.Admin;
@@ -10,7 +9,6 @@ namespace ServiceDeskSystem.Application.Services.Admin;
 
 public sealed class AdminService(
     IRepositoryFacadeFactory repositoryFacadeFactory,
-    IDbContextFactory<BugTrackerDbContext> contextFactory,
     IAuditService? auditService = null) : IAdminService
 {
 
@@ -152,85 +150,75 @@ public sealed class AdminService(
     public async Task<bool> UpdateUserRoleAsync(int userId, UserRole newRole)
     {
 
-        var dbContext = await contextFactory.CreateDbContextAsync().ConfigureAwait(false);
-        await using (dbContext.ConfigureAwait(false))
+        await using var repo = repositoryFacadeFactory.Create();
+        var user = await repo.Users.GetByIdAsync(userId).ConfigureAwait(false);
+        if (user is null)
         {
-            var affectedRows = await dbContext.Users
-                .Where(u => u.Id == userId)
-                .ExecuteUpdateAsync(setters => setters.SetProperty(u => u.Role, newRole))
-                .ConfigureAwait(false);
-
-            if (affectedRows > 0)
-            {
-                await auditService.LogActionSafeAsync("UPDATE_USER_ROLE", "User", userId.ToString(), $"Updated user role to: {newRole}").ConfigureAwait(false);
-                return true;
-            }
-
             return false;
         }
+
+        user.Role = newRole;
+        await repo.UnitOfWork.SaveChangesAsync().ConfigureAwait(false);
+
+        if (auditService is not null)
+        {
+            await auditService.LogActionSafeAsync("UPDATE_USER_ROLE", "User", userId.ToString(), $"Updated user role to: {newRole}").ConfigureAwait(false);
+        }
+
+        return true;
     }
 
     public async Task<bool> ToggleUserActiveStatusAsync(int userId)
     {
-        var dbContext = await contextFactory.CreateDbContextAsync().ConfigureAwait(false);
-        await using (dbContext.ConfigureAwait(false))
+        await using var repo = repositoryFacadeFactory.Create();
+        var user = await repo.Users.GetByIdAsync(userId).ConfigureAwait(false);
+        if (user is null)
         {
-            var currentStatus = await dbContext.Users
-                .Where(u => u.Id == userId)
-                .Select(u => (bool?)u.IsActive)
-                .FirstOrDefaultAsync()
-                .ConfigureAwait(false);
-
-            if (currentStatus is null)
-            {
-                return false;
-            }
-
-            var affectedRows = await dbContext.Users
-                .Where(u => u.Id == userId)
-                .ExecuteUpdateAsync(setters => setters.SetProperty(u => u.IsActive, !currentStatus.Value))
-                .ConfigureAwait(false);
-
-            if (affectedRows > 0)
-            {
-                var actionStr = !currentStatus.Value ? "ACTIVATE_USER" : "DEACTIVATE_USER";
-                var detailStr = !currentStatus.Value ? "Activated user account" : "Deactivated user account";
-                await auditService.LogActionSafeAsync(actionStr, "User", userId.ToString(), detailStr).ConfigureAwait(false);
-                return true;
-            }
-
             return false;
         }
+
+        user.IsActive = !user.IsActive;
+        await repo.UnitOfWork.SaveChangesAsync().ConfigureAwait(false);
+
+        var actionStr = user.IsActive ? "ACTIVATE_USER" : "DEACTIVATE_USER";
+        var detailStr = user.IsActive ? "Activated user account" : "Deactivated user account";
+
+        if (auditService is not null)
+        {
+            await auditService.LogActionSafeAsync(actionStr, "User", userId.ToString(), detailStr).ConfigureAwait(false);
+        }
+
+        return true;
     }
 
     public async Task<bool> DeleteUserAsync(int userId)
     {
-        var dbContext = await contextFactory.CreateDbContextAsync().ConfigureAwait(false);
-        await using (dbContext.ConfigureAwait(false))
+        await using var repo = repositoryFacadeFactory.Create();
+        var users = await repo.Users.GetAllAsync().ConfigureAwait(false);
+        var user = users.FirstOrDefault(u => u.Id == userId);
+        
+        if (user is null)
         {
-            var user = await dbContext.Users
-                .Include(u => u.CreatedTickets)
-                .Include(u => u.AssignedTickets)
-                .FirstOrDefaultAsync(u => u.Id == userId)
-                .ConfigureAwait(false);
-
-            if (user is null)
-            {
-                return false;
-            }
-
-            if (user.CreatedTickets.Count > 0 || user.AssignedTickets.Count > 0)
-            {
-                return false;
-            }
-
-            dbContext.Users.Remove(user);
-            await dbContext.SaveChangesAsync().ConfigureAwait(false);
-
-            await auditService.LogActionSafeAsync("DELETE_USER", "User", userId.ToString(), $"Deleted user: {user.Login}").ConfigureAwait(false);
-
-            return true;
+            return false;
         }
+
+        // We can't easily check created/assigned tickets without repository methods.
+        // Let's assume we can use the repository to check if any exist.
+        var tickets = await repo.Tickets.GetAllAsync().ConfigureAwait(false);
+        if (tickets.Any(t => t.AuthorId == userId || t.DeveloperId == userId))
+        {
+            return false;
+        }
+
+        await repo.Users.DeleteAsync(userId).ConfigureAwait(false);
+        await repo.UnitOfWork.SaveChangesAsync().ConfigureAwait(false);
+
+        if (auditService is not null)
+        {
+            await auditService.LogActionSafeAsync("DELETE_USER", "User", userId.ToString(), $"Deleted user: {user.Login}").ConfigureAwait(false);
+        }
+
+        return true;
     }
 }
 

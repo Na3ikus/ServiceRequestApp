@@ -137,4 +137,3 @@ public partial class ProductsTab : BaseComponent
         }
     }
 }
-

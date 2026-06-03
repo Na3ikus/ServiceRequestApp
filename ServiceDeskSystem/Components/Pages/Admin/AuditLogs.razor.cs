@@ -4,8 +4,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
-using ServiceDeskSystem.Application.Services.Audit;
-using ServiceDeskSystem.Application.Services.Auth;
 using ServiceDeskSystem.Components.UI.Base;
 using ServiceDeskSystem.Domain.Entities;
 using ServiceDeskSystem.Domain.Enums;
@@ -124,4 +122,3 @@ public partial class AuditLogs : BaseComponent
         }
     }
 }
-

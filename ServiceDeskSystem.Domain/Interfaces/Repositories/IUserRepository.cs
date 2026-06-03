@@ -7,4 +7,6 @@ public interface IUserRepository : IRepository<User>
     Task<User?> GetByLoginAsync(string login);
 
     Task<IEnumerable<User>> GetAllWithPersonAsync();
+
+    Task<User?> GetByIdWithPersonAndContactsAsync(int userId);
 }

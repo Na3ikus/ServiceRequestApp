@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: ServiceDeskDB
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - ConnectionStrings__DefaultConnection=Host=db;Database=ServiceDeskDB;Username=admin;Password=password
+      - Jwt__Issuer=ServiceDeskSystem
+      - Jwt__Audience=ServiceDeskSystem
+      - Jwt__Key=SuperSecretKeyThatIsAtLeast32BytesLong!!!
+    ports:
+      - "5033:80"
+    depends_on:
+      - db
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+    environment:
+      - ApiBaseUrl=http://api:80
+    ports:
+      - "5034:80"
+    depends_on:
+      - api
+
+volumes:
+  postgres_data:

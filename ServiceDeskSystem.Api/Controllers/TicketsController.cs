@@ -2,8 +2,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ServiceDeskSystem.Api.Models;
 using ServiceDeskSystem.Application.Services.Tickets;
-using ServiceDeskSystem.Application.Services.Tickets;
-using ServiceDeskSystem.Application.Services.Comments;
 using ServiceDeskSystem.Application.Services.Comments;
 using ServiceDeskSystem.Domain.Entities;
 using ServiceDeskSystem.Api.Services;
@@ -22,10 +20,9 @@ public sealed class TicketsController(
     ILogger<TicketsController> logger) : ControllerBase
 {
     [HttpGet]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
     {
-        logger.LogInformation("Fetching all tickets");
-        var tickets = await ticketService.GetAllTicketsAsync().ConfigureAwait(false);
+        var tickets = await ticketService.GetPagedTicketsAsync(page, pageSize).ConfigureAwait(false);
         return Ok(tickets);
     }
 
@@ -44,7 +41,7 @@ public sealed class TicketsController(
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] Ticket ticket)
+    public async Task<IActionResult> Create([FromBody] CreateTicketDto request)
     {
         var authorId = currentUserService.UserId;
         if (authorId is null)
@@ -52,7 +49,16 @@ public sealed class TicketsController(
             return Unauthorized(new ApiErrorResponse(401, "User not authenticated or extracted properly from token."));
         }
 
-        ticket.AuthorId = authorId.Value;
+        var ticket = new Ticket
+        {
+            Title = request.Title,
+            Description = request.Description,
+            Priority = request.Priority,
+            Type = request.Type,
+            ProductId = request.ProductId,
+            AuthorId = authorId.Value
+        };
+
         logger.LogInformation("Creating new ticket: {Title} by AuthorId: {AuthorId}", ticket.Title, ticket.AuthorId);
 
         var created = await ticketService.CreateTicketAsync(ticket).ConfigureAwait(false);
@@ -204,4 +210,3 @@ public sealed class TicketsController(
         return Ok(products);
     }
 }
-

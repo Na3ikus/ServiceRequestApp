@@ -1,7 +1,4 @@
 using Microsoft.AspNetCore.Components;
-using ServiceDeskSystem.Application.Services.Auth;
-using ServiceDeskSystem.Application.Services.Profile;
-using ServiceDeskSystem.Application.Services.Profile.Models;
 using ServiceDeskSystem.Components.UI.Base;
 
 namespace ServiceDeskSystem.Components.Pages.Profile;
@@ -138,4 +135,3 @@ public partial class UserProfile : BaseComponent
         }
     }
 }
-

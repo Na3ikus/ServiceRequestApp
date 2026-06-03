@@ -2,8 +2,6 @@ using System.Security.Cryptography;
 using System.Threading;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
-using ServiceDeskSystem.Application.Services.Auth;
-using ServiceDeskSystem.Application.Services.Tickets;
 using ServiceDeskSystem.Components.Features;
 using ServiceDeskSystem.Components.UI.Base;
 using ServiceDeskSystem.Domain.Entities;
@@ -217,4 +215,3 @@ public partial class DeveloperDashboard : BaseComponent
         }
     }
 }
-

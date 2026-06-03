@@ -6,7 +6,6 @@ public class Notification
 
     public int RecipientUserId { get; set; }
 
-    [System.Text.Json.Serialization.JsonIgnore]
     public User RecipientUser { get; set; } = null!;
 
     public int? ActorUserId { get; set; }
@@ -15,7 +14,6 @@ public class Notification
 
     public int TicketId { get; set; }
 
-    [System.Text.Json.Serialization.JsonIgnore]
     public Ticket Ticket { get; set; } = null!;
 
     public string Type { get; set; } = string.Empty;
@@ -26,3 +24,4 @@ public class Notification
 
     public DateTime CreatedAt { get; set; }
 }
+

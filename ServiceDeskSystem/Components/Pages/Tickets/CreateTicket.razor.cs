@@ -110,4 +110,3 @@ public partial class CreateTicket
         public string? AffectedVersion { get; set; }
     }
 }
-

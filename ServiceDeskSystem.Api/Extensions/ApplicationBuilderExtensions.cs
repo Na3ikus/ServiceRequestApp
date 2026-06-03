@@ -24,6 +24,7 @@ public static class ApplicationBuilderExtensions
 
         app.UseHttpsRedirection();
         app.UseCors("AllowAll");
+        app.UseRateLimiter();
         app.UseSerilogRequestLogging();
 
         app.UseAuthentication();

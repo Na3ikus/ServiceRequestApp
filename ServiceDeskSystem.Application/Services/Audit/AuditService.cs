@@ -1,15 +1,14 @@
-using Microsoft.EntityFrameworkCore;
 using ServiceDeskSystem.Application.Services.Audit;
 using ServiceDeskSystem.Domain.Entities;
-using ServiceDeskSystem.Infrastructure.Data;
+using ServiceDeskSystem.Domain.Interfaces;
 
 namespace ServiceDeskSystem.Application.Services.Audit;
 
-public sealed class AuditService(IDbContextFactory<BugTrackerDbContext> contextFactory) : IAuditService
+public sealed class AuditService(IRepositoryFacadeFactory repositoryFacadeFactory) : IAuditService
 {
     public async Task LogActionAsync(string action, string entityName, string entityId, string? changes = null, int? userId = null)
     {
-        await using var context = await contextFactory.CreateDbContextAsync().ConfigureAwait(false);
+        await using var repo = repositoryFacadeFactory.Create();
         
         var log = new AuditLog
         {
@@ -21,35 +20,20 @@ public sealed class AuditService(IDbContextFactory<BugTrackerDbContext> contextF
             UserId = userId
         };
 
-        context.AuditLogs.Add(log);
-        await context.SaveChangesAsync().ConfigureAwait(false);
+        await repo.AuditLogs.CreateAsync(log).ConfigureAwait(false);
+        await repo.UnitOfWork.SaveChangesAsync().ConfigureAwait(false);
     }
 
     public async Task<List<AuditLog>> GetLatestLogsAsync(int count = 100)
     {
-        await using var context = await contextFactory.CreateDbContextAsync().ConfigureAwait(false);
-        
-        return await context.AuditLogs
-            .AsNoTracking()
-            .Include(l => l.User)
-            .OrderByDescending(l => l.Timestamp)
-            .Take(count)
-            .ToListAsync()
-            .ConfigureAwait(false);
+        await using var repo = repositoryFacadeFactory.Create();
+        return await repo.AuditLogs.GetLatestLogsAsync(count).ConfigureAwait(false);
     }
 
     public async Task ClearAllLogsAsync()
     {
-        await using var context = await contextFactory.CreateDbContextAsync().ConfigureAwait(false);
-        try
-        {
-            await context.Database.ExecuteSqlRawAsync("TRUNCATE TABLE AuditLogs").ConfigureAwait(false);
-        }
-        catch
-        {
-            context.AuditLogs.RemoveRange(context.AuditLogs);
-            await context.SaveChangesAsync().ConfigureAwait(false);
-        }
+        await using var repo = repositoryFacadeFactory.Create();
+        await repo.AuditLogs.ClearAllLogsAsync().ConfigureAwait(false);
     }
 }
 

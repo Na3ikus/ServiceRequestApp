@@ -235,4 +235,3 @@ public partial class Settings : BaseComponent
         }
     }
 }
-

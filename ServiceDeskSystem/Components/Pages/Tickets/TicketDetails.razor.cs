@@ -1,15 +1,9 @@
 using Microsoft.AspNetCore.Components;
 using ServiceDeskSystem.Application.Services.Auth;
-using ServiceDeskSystem.Application.Services.Auth;
 using ServiceDeskSystem.Application.Services.Comments;
-using ServiceDeskSystem.Application.Services.Comments;
-using ServiceDeskSystem.Application.Services.Localization;
-using ServiceDeskSystem.Application.Services.Localization;
-using ServiceDeskSystem.Application.Services.Tickets;
 using ServiceDeskSystem.Application.Services.Tickets;
 using ServiceDeskSystem.Application.Services.Toasts;
 using ServiceDeskSystem.Application.Services.Toasts.Models;
-using ServiceDeskSystem.Components.Features;
 using ServiceDeskSystem.Components.UI.Base;
 using ServiceDeskSystem.Domain.Entities;
 using ServiceDeskSystem.Domain.Enums;
@@ -346,4 +340,3 @@ public partial class TicketDetails : BaseComponent
         _ = this.InvokeAsync(this.StateHasChanged);
     }
 }
-

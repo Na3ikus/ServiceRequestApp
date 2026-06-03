@@ -1,15 +1,13 @@
-using Microsoft.EntityFrameworkCore;
-using ServiceDeskSystem.Application.Services.Notifications;
 using ServiceDeskSystem.Application.Services.Notifications.Models;
 using ServiceDeskSystem.Application.Services.Realtime;
 using ServiceDeskSystem.Domain.Entities;
 using ServiceDeskSystem.Domain.Enums;
-using ServiceDeskSystem.Infrastructure.Data;
+using ServiceDeskSystem.Domain.Interfaces;
 
 namespace ServiceDeskSystem.Application.Services.Notifications;
 
 public sealed class NotificationService(
-    IDbContextFactory<BugTrackerDbContext> contextFactory,
+    IRepositoryFacadeFactory repositoryFacadeFactory,
     IRealtimeNotifier realtimeNotifier) : INotificationService
 {
     public async Task<IReadOnlyList<UserNotificationDto>> GetRecentForUserAsync(int userId, int take = 10)
@@ -21,23 +19,19 @@ public sealed class NotificationService(
 
         try
         {
-            await using var context = await contextFactory.CreateDbContextAsync().ConfigureAwait(false);
+            await using var repo = repositoryFacadeFactory.Create();
 
-            return await context.Notifications
-                .AsNoTracking()
-                .Where(n => n.RecipientUserId == userId)
-                .OrderByDescending(n => n.CreatedAt)
-                .Take(Math.Max(1, take))
+            var notifications = await repo.Notifications.GetRecentForUserAsync(userId, Math.Max(1, take)).ConfigureAwait(false);
+            return notifications
                 .Select(n => new UserNotificationDto(
                     n.Id,
                     n.TicketId,
                     n.Type,
                     n.Message,
-                    n.ActorUser != null ? n.ActorUser.Login : null,
+                    n.ActorUser?.Login,
                     n.CreatedAt,
                     n.IsRead))
-                .ToListAsync()
-                .ConfigureAwait(false);
+                .ToList();
         }
         catch
         {
@@ -54,18 +48,16 @@ public sealed class NotificationService(
 
         try
         {
-            await using var context = await contextFactory.CreateDbContextAsync().ConfigureAwait(false);
-            var notification = await context.Notifications
-                .FirstOrDefaultAsync(n => n.Id == notificationId && n.RecipientUserId == userId)
-                .ConfigureAwait(false);
+            await using var repo = repositoryFacadeFactory.Create();
+            var notification = await repo.Notifications.GetByIdAndUserAsync(notificationId, userId).ConfigureAwait(false);
 
             if (notification is null)
             {
                 return;
             }
 
-            context.Notifications.Remove(notification);
-            await context.SaveChangesAsync().ConfigureAwait(false);
+            await repo.Notifications.DeleteAsync(notification.Id).ConfigureAwait(false);
+            await repo.UnitOfWork.SaveChangesAsync().ConfigureAwait(false);
             await realtimeNotifier.NotifyNotificationsChangedAsync([userId]).ConfigureAwait(false);
         }
         catch
@@ -83,11 +75,8 @@ public sealed class NotificationService(
 
         try
         {
-            await using var context = await contextFactory.CreateDbContextAsync().ConfigureAwait(false);
-            return await context.Notifications
-                .AsNoTracking()
-                .CountAsync(n => n.RecipientUserId == userId && !n.IsRead)
-                .ConfigureAwait(false);
+            await using var repo = repositoryFacadeFactory.Create();
+            return await repo.Notifications.GetUnreadCountAsync(userId).ConfigureAwait(false);
         }
         catch
         {
@@ -104,11 +93,8 @@ public sealed class NotificationService(
 
         try
         {
-            await using var context = await contextFactory.CreateDbContextAsync().ConfigureAwait(false);
-            var items = await context.Notifications
-                .Where(n => n.RecipientUserId == userId && !n.IsRead)
-                .ToListAsync()
-                .ConfigureAwait(false);
+            await using var repo = repositoryFacadeFactory.Create();
+            var items = await repo.Notifications.GetUnreadForUserAsync(userId).ConfigureAwait(false);
 
             if (items.Count == 0)
             {
@@ -120,7 +106,7 @@ public sealed class NotificationService(
                 notification.IsRead = true;
             }
 
-            await context.SaveChangesAsync().ConfigureAwait(false);
+            await repo.UnitOfWork.SaveChangesAsync().ConfigureAwait(false);
             await realtimeNotifier.NotifyNotificationsChangedAsync([userId]).ConfigureAwait(false);
         }
         catch
@@ -133,24 +119,16 @@ public sealed class NotificationService(
     {
         try
         {
-            await using var context = await contextFactory.CreateDbContextAsync().ConfigureAwait(false);
+            await using var repo = repositoryFacadeFactory.Create();
 
-            var ticket = await context.Tickets
-                .AsNoTracking()
-                .FirstOrDefaultAsync(t => t.Id == ticketId)
-                .ConfigureAwait(false);
+            var ticket = await repo.Tickets.GetByIdAsync(ticketId).ConfigureAwait(false);
 
             if (ticket is null)
             {
                 return;
             }
 
-            var actor = await context.Users
-                .AsNoTracking()
-                .Where(u => u.Id == commentAuthorId)
-                .Select(u => u.Login)
-                .FirstOrDefaultAsync()
-                .ConfigureAwait(false);
+            var actor = await repo.Users.GetByIdAsync(commentAuthorId).ConfigureAwait(false);
 
             var recipients = new[] { ticket.AuthorId, ticket.DeveloperId }
                 .Where(id => id.HasValue)
@@ -164,11 +142,11 @@ public sealed class NotificationService(
                 return;
             }
 
-            var message = $"{actor ?? "Someone"} replied in ticket #{ticket.Id}";
+            var message = $"{actor?.Login ?? "Someone"} replied in ticket #{ticket.Id}";
 
             foreach (var recipientId in recipients)
             {
-                context.Notifications.Add(new Notification
+                await repo.Notifications.CreateAsync(new Notification
                 {
                     RecipientUserId = recipientId,
                     ActorUserId = commentAuthorId,
@@ -177,10 +155,10 @@ public sealed class NotificationService(
                     Message = message,
                     IsRead = false,
                     CreatedAt = DateTime.UtcNow,
-                });
+                }).ConfigureAwait(false);
             }
 
-            await context.SaveChangesAsync().ConfigureAwait(false);
+            await repo.UnitOfWork.SaveChangesAsync().ConfigureAwait(false);
             await realtimeNotifier.NotifyNotificationsChangedAsync(recipients).ConfigureAwait(false);
         }
         catch
@@ -193,26 +171,21 @@ public sealed class NotificationService(
     {
         try
         {
-            await using var context = await contextFactory.CreateDbContextAsync().ConfigureAwait(false);
+            await using var repo = repositoryFacadeFactory.Create();
 
-            var ticket = await context.Tickets
-                .AsNoTracking()
-                .FirstOrDefaultAsync(t => t.Id == ticketId)
-                .ConfigureAwait(false);
+            var ticket = await repo.Tickets.GetByIdAsync(ticketId).ConfigureAwait(false);
 
             if (ticket is null)
             {
                 return;
             }
 
-            var actorLogin = actorUserId is null
-                ? "Someone"
-                : await context.Users
-                    .AsNoTracking()
-                    .Where(u => u.Id == actorUserId.Value)
-                    .Select(u => u.Login)
-                    .FirstOrDefaultAsync()
-                    .ConfigureAwait(false) ?? "Someone";
+            string actorLogin = "Someone";
+            if (actorUserId.HasValue)
+            {
+                var actor = await repo.Users.GetByIdAsync(actorUserId.Value).ConfigureAwait(false);
+                actorLogin = actor?.Login ?? "Someone";
+            }
 
             var notification = new Notification
             {
@@ -225,8 +198,8 @@ public sealed class NotificationService(
                 CreatedAt = DateTime.UtcNow,
             };
 
-            context.Notifications.Add(notification);
-            await context.SaveChangesAsync().ConfigureAwait(false);
+            await repo.Notifications.CreateAsync(notification).ConfigureAwait(false);
+            await repo.UnitOfWork.SaveChangesAsync().ConfigureAwait(false);
             await realtimeNotifier.NotifyNotificationsChangedAsync([ticket.AuthorId]).ConfigureAwait(false);
         }
         catch
@@ -239,12 +212,9 @@ public sealed class NotificationService(
     {
         try
         {
-            await using var context = await contextFactory.CreateDbContextAsync().ConfigureAwait(false);
+            await using var repo = repositoryFacadeFactory.Create();
 
-            var ticket = await context.Tickets
-                .AsNoTracking()
-                .FirstOrDefaultAsync(t => t.Id == ticketId)
-                .ConfigureAwait(false);
+            var ticket = await repo.Tickets.GetByIdAsync(ticketId).ConfigureAwait(false);
 
             if (ticket is null)
             {
@@ -257,14 +227,12 @@ public sealed class NotificationService(
                 return;
             }
 
-            var actorLogin = actorUserId is null
-                ? "Someone"
-                : await context.Users
-                    .AsNoTracking()
-                    .Where(u => u.Id == actorUserId.Value)
-                    .Select(u => u.Login)
-                    .FirstOrDefaultAsync()
-                    .ConfigureAwait(false) ?? "Someone";
+            string actorLogin = "Someone";
+            if (actorUserId.HasValue)
+            {
+                var actor = await repo.Users.GetByIdAsync(actorUserId.Value).ConfigureAwait(false);
+                actorLogin = actor?.Login ?? "Someone";
+            }
 
             var notification = new Notification
             {
@@ -277,8 +245,8 @@ public sealed class NotificationService(
                 CreatedAt = DateTime.UtcNow,
             };
 
-            context.Notifications.Add(notification);
-            await context.SaveChangesAsync().ConfigureAwait(false);
+            await repo.Notifications.CreateAsync(notification).ConfigureAwait(false);
+            await repo.UnitOfWork.SaveChangesAsync().ConfigureAwait(false);
             await realtimeNotifier.NotifyNotificationsChangedAsync([ticket.AuthorId]).ConfigureAwait(false);
         }
         catch

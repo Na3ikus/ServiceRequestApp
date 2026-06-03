@@ -1,23 +1,17 @@
-using Microsoft.EntityFrameworkCore;
-using ServiceDeskSystem.Application.Services.Profile;
 using ServiceDeskSystem.Application.Services.Profile.Models;
 using ServiceDeskSystem.Domain.Entities;
-using ServiceDeskSystem.Infrastructure.Data;
+using ServiceDeskSystem.Domain.Interfaces;
 using ServiceDeskSystem.Application.Services.Audit;
 
 namespace ServiceDeskSystem.Application.Services.Profile;
 
-public sealed class ProfileService(BugTrackerDbContext context, IAuditService? auditService = null) : IProfileService
+public sealed class ProfileService(IRepositoryFacadeFactory repositoryFacadeFactory, IAuditService? auditService = null) : IProfileService
 {
 
     public async Task<UserProfileDto?> GetProfileAsync(int userId)
     {
-        var user = await context.Users
-            .Include(u => u.Person)
-            .ThenInclude(p => p.ContactInfos)
-            .ThenInclude(ci => ci.ContactType)
-            .AsNoTracking()
-            .FirstOrDefaultAsync(u => u.Id == userId);
+        await using var repo = repositoryFacadeFactory.Create();
+        var user = await repo.Users.GetByIdWithPersonAndContactsAsync(userId).ConfigureAwait(false);
 
         if (user?.Person == null)
             return null;
@@ -43,10 +37,8 @@ public sealed class ProfileService(BugTrackerDbContext context, IAuditService? a
 
     public async Task<(bool Success, string? ErrorMessage)> UpdateProfileAsync(int userId, UpdateProfileRequest request)
     {
-        var user = await context.Users
-            .Include(u => u.Person)
-            .ThenInclude(p => p.ContactInfos)
-            .FirstOrDefaultAsync(u => u.Id == userId);
+        await using var repo = repositoryFacadeFactory.Create();
+        var user = await repo.Users.GetByIdWithPersonAndContactsAsync(userId).ConfigureAwait(false);
 
         if (user?.Person == null)
             return (false, "User not found.");
@@ -62,7 +54,7 @@ public sealed class ProfileService(BugTrackerDbContext context, IAuditService? a
         var toRemove = existingContacts.Where(c => !requestContactIds.Contains(c.Id)).ToList();
         foreach (var r in toRemove)
         {
-            context.ContactInfos.Remove(r);
+            await repo.ContactInfos.DeleteAsync(r.Id).ConfigureAwait(false);
         }
 
         foreach (var reqContact in request.Contacts)
@@ -86,14 +78,17 @@ public sealed class ProfileService(BugTrackerDbContext context, IAuditService? a
                     IsPrimary = reqContact.IsPrimary,
                     PersonId = user.PersonId
                 };
-                context.ContactInfos.Add(newContact);
+                await repo.ContactInfos.CreateAsync(newContact).ConfigureAwait(false);
             }
         }
 
         try
         {
-            await context.SaveChangesAsync();
-            await auditService.LogActionSafeAsync("UPDATE_PROFILE", "User", userId.ToString(), $"Updated user profile: {user.Login}", userId).ConfigureAwait(false);
+            await repo.UnitOfWork.SaveChangesAsync().ConfigureAwait(false);
+            if (auditService is not null)
+            {
+                await auditService.LogActionSafeAsync("UPDATE_PROFILE", "User", userId.ToString(), $"Updated user profile: {user.Login}", userId).ConfigureAwait(false);
+            }
             return (true, null);
         }
         catch (Exception ex)
@@ -104,10 +99,9 @@ public sealed class ProfileService(BugTrackerDbContext context, IAuditService? a
 
     public async Task<List<ContactTypeDto>> GetContactTypesAsync()
     {
-        return await context.ContactTypes
-            .AsNoTracking()
-            .Select(ct => new ContactTypeDto(ct.Id, ct.Name))
-            .ToListAsync();
+        await using var repo = repositoryFacadeFactory.Create();
+        var contactTypes = await repo.ContactTypes.GetAllAsync().ConfigureAwait(false);
+        return contactTypes.Select(ct => new ContactTypeDto(ct.Id, ct.Name)).ToList();
     }
 }
 

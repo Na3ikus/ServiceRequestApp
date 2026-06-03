@@ -1,7 +1,4 @@
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
-using Microsoft.EntityFrameworkCore;
-using ServiceDeskSystem.Infrastructure.Data;
-using ServiceDeskSystem.Infrastructure.Data.Repository;
 using ServiceDeskSystem.Domain.Entities;
 using ServiceDeskSystem.Domain.Interfaces;
 using System.Security.Cryptography;
@@ -14,7 +11,6 @@ namespace ServiceDeskSystem.Application.Services.Auth;
 
 public sealed class AuthService(
     IRepositoryFacadeFactory repositoryFacadeFactory,
-    IDbContextFactory<BugTrackerDbContext> contextFactory,
     ProtectedSessionStorage? sessionStorage = null,
     IAuditService? auditService = null) : IAuthService
 {
@@ -24,13 +20,6 @@ public sealed class AuthService(
     private bool initialized;
 
     public event EventHandler? AuthStateChanged;
-
-    public AuthService(
-        IDbContextFactory<BugTrackerDbContext> contextFactory,
-        ProtectedSessionStorage? sessionStorage = null)
-        : this(new RepositoryFacadeFactory(contextFactory), contextFactory, sessionStorage, null)
-    {
-    }
 
     public User? CurrentUser { get; private set; }
     public bool IsAuthenticated => this.CurrentUser is not null;
@@ -138,12 +127,9 @@ public sealed class AuthService(
 
         try
         {
-            var dbContext = await contextFactory.CreateDbContextAsync().ConfigureAwait(false);
-            await using (dbContext.ConfigureAwait(false))
-            {
-                var existingUser = await dbContext.Users
-                    .FirstOrDefaultAsync(u => u.Login == username)
-                    .ConfigureAwait(false);
+            await using var repo = repositoryFacadeFactory.Create();
+            var existingUsers = await repo.Users.GetAllAsync().ConfigureAwait(false);
+            var existingUser = existingUsers.FirstOrDefault(u => u.Login == username);
 
             if (existingUser is not null)
             {
@@ -153,15 +139,13 @@ public sealed class AuthService(
             ContactType? emailContactType = null;
             if (!string.IsNullOrWhiteSpace(email))
             {
-                emailContactType = await dbContext.ContactTypes
-                    .FirstOrDefaultAsync(ct => ct.Name == "Email")
-                    .ConfigureAwait(false);
+                var contactTypes = await repo.ContactTypes.GetAllAsync().ConfigureAwait(false);
+                emailContactType = contactTypes.FirstOrDefault(ct => ct.Name == "Email");
 
                 if (emailContactType is not null)
                 {
-                    var existingEmail = await dbContext.ContactInfos
-                        .AnyAsync(ci => ci.ContactTypeId == emailContactType.Id && ci.Value == email)
-                        .ConfigureAwait(false);
+                    var contactInfos = await repo.ContactInfos.GetAllAsync().ConfigureAwait(false);
+                    var existingEmail = contactInfos.Any(ci => ci.ContactTypeId == emailContactType.Id && ci.Value == email);
 
                     if (existingEmail)
                     {
@@ -185,25 +169,26 @@ public sealed class AuthService(
                 });
             }
 
-            dbContext.People.Add(person);
-            await dbContext.SaveChangesAsync().ConfigureAwait(false);
+            await repo.People.CreateAsync(person).ConfigureAwait(false);
 
             var user = new User
             {
                 Login = username,
                 PasswordHash = ComputeSecureHash(password),
                 Role = UserRole.User,
-                PersonId = person.Id,
+                Person = person,
                 IsActive = true,
             };
 
-            dbContext.Users.Add(user);
-            await dbContext.SaveChangesAsync().ConfigureAwait(false);
+            await repo.Users.CreateAsync(user).ConfigureAwait(false);
+            await repo.UnitOfWork.SaveChangesAsync().ConfigureAwait(false);
 
-            await auditService.LogActionSafeAsync("REGISTER", "User", user.Id.ToString(), $"User registered: {user.Login}", user.Id).ConfigureAwait(false);
+            if (auditService is not null)
+            {
+                await auditService.LogActionSafeAsync("REGISTER", "User", user.Id.ToString(), $"User registered: {user.Login}", user.Id).ConfigureAwait(false);
+            }
 
             return (true, null);
-            }
         }
         catch (Exception ex) when (
             ex is DbException ||

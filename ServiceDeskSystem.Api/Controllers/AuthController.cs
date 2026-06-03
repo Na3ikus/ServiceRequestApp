@@ -1,7 +1,7 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using ServiceDeskSystem.Api.Models;
-using ServiceDeskSystem.Application.Services.Auth;
 using ServiceDeskSystem.Application.Services.Auth;
 using ServiceDeskSystem.Domain.Entities;
 using ServiceDeskSystem.Api.Services;
@@ -11,6 +11,7 @@ namespace ServiceDeskSystem.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[EnableRateLimiting("AuthRateLimiter")]
 public sealed class AuthController(
     IAuthService authService,
     IJwtTokenService jwtTokenService,
@@ -111,5 +112,3 @@ public sealed class AuthController(
         new(user.Id, user.Login, user.Role.ToString(), user.IsActive,
             user.Person?.FirstName, user.Person?.LastName);
 }
-
-

@@ -1,0 +1,16 @@
+global using ServiceDeskSystem.Application.Common.Models;
+global using ServiceDeskSystem.Application.Services.Admin;
+global using ServiceDeskSystem.Application.Services.Audit;
+global using ServiceDeskSystem.Application.Services.Auth;
+global using ServiceDeskSystem.Application.Services.Comments;
+global using ServiceDeskSystem.Application.Services.Localization;
+global using ServiceDeskSystem.Application.Services.Notifications;
+global using ServiceDeskSystem.Application.Services.Notifications.Models;
+global using ServiceDeskSystem.Application.Services.Profile;
+global using ServiceDeskSystem.Application.Services.Profile.Models;
+global using ServiceDeskSystem.Application.Services.Realtime;
+global using ServiceDeskSystem.Application.Services.Theme;
+global using ServiceDeskSystem.Application.Services.Tickets;
+global using ServiceDeskSystem.Application.Services.Tickets.Models;
+global using ServiceDeskSystem.Application.Services.Toasts;
+global using ServiceDeskSystem.Application.Services.Toasts.Models;

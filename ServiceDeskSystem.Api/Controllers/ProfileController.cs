@@ -55,4 +55,3 @@ public sealed class ProfileController(
         return Ok(types);
     }
 }
-

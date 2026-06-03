@@ -15,21 +15,16 @@ public class User : AggregateRoot
 
     public int PersonId { get; set; }
 
-    [System.Text.Json.Serialization.JsonIgnore]
     public Person Person { get; set; } = null!;
 
-    [System.Text.Json.Serialization.JsonIgnore]
     public ICollection<Ticket> CreatedTickets { get; set; } = new List<Ticket>();
 
-    [System.Text.Json.Serialization.JsonIgnore]
     public ICollection<Ticket> AssignedTickets { get; set; } = new List<Ticket>();
 
-    [System.Text.Json.Serialization.JsonIgnore]
     public ICollection<Comment> Comments { get; set; } = new List<Comment>();
 
-    [System.Text.Json.Serialization.JsonIgnore]
     public ICollection<Notification> NotificationsReceived { get; set; } = new List<Notification>();
 
-    [System.Text.Json.Serialization.JsonIgnore]
     public ICollection<Notification> NotificationsCreated { get; set; } = new List<Notification>();
 }
+

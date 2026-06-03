@@ -133,4 +133,3 @@ public partial class TechStacksTab : BaseComponent
         }
     }
 }
-

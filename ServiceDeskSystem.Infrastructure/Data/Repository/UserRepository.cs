@@ -45,6 +45,16 @@ namespace ServiceDeskSystem.Infrastructure.Data.Repository
                 .ToListAsync()
                 .ConfigureAwait(false);
         }
+
+        public async Task<User?> GetByIdWithPersonAndContactsAsync(int userId)
+        {
+            return await this.Context.Users
+                .Include(u => u.Person)
+                .ThenInclude(p => p.ContactInfos)
+                .ThenInclude(ci => ci.ContactType)
+                .FirstOrDefaultAsync(u => u.Id == userId)
+                .ConfigureAwait(false);
+        }
     }
 }
 

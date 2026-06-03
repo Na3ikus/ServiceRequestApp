@@ -32,4 +32,3 @@ public sealed class SignalRRealtimeNotifier(IHubContext<UpdatesHub> hubContext) 
         }
     }
 }
-

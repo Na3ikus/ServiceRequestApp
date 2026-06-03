@@ -12,10 +12,10 @@ public class Comment
 
     public int TicketId { get; set; }
 
-    [System.Text.Json.Serialization.JsonIgnore]
     public Ticket Ticket { get; set; } = null!;
 
     public int AuthorId { get; set; }
 
     public User Author { get; set; } = null!;
 }
+

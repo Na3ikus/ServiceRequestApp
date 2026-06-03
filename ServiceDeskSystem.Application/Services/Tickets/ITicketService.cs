@@ -1,3 +1,4 @@
+using ServiceDeskSystem.Application.Common.Models;
 using ServiceDeskSystem.Domain.Entities;
 using ServiceDeskSystem.Domain.Enums;
 
@@ -6,6 +7,8 @@ namespace ServiceDeskSystem.Application.Services.Tickets;
 public interface ITicketService
 {
     Task<List<Ticket>> GetAllTicketsAsync();
+
+    Task<PagedResult<Ticket>> GetPagedTicketsAsync(int page, int pageSize);
 
     Task<Ticket?> GetTicketByIdAsync(int id);
 

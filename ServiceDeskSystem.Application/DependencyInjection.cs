@@ -1,26 +1,15 @@
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using ServiceDeskSystem.Application.Services.Admin;
-using ServiceDeskSystem.Application.Services.Admin;
-using ServiceDeskSystem.Application.Services.Audit;
 using ServiceDeskSystem.Application.Services.Audit;
 using ServiceDeskSystem.Application.Services.Auth;
-using ServiceDeskSystem.Application.Services.Auth;
-using ServiceDeskSystem.Application.Services.Comments;
 using ServiceDeskSystem.Application.Services.Comments;
 using ServiceDeskSystem.Application.Services.Localization;
-using ServiceDeskSystem.Application.Services.Localization;
-using ServiceDeskSystem.Application.Services.Notifications;
 using ServiceDeskSystem.Application.Services.Notifications;
 using ServiceDeskSystem.Application.Services.Profile;
-using ServiceDeskSystem.Application.Services.Profile;
-using ServiceDeskSystem.Application.Services.Realtime;
 using ServiceDeskSystem.Application.Services.Realtime;
 using ServiceDeskSystem.Application.Services.Theme;
-using ServiceDeskSystem.Application.Services.Theme;
 using ServiceDeskSystem.Application.Services.Tickets;
-using ServiceDeskSystem.Application.Services.Tickets;
-using ServiceDeskSystem.Application.Services.Toasts;
 using ServiceDeskSystem.Application.Services.Toasts;
 
 namespace ServiceDeskSystem.Application;

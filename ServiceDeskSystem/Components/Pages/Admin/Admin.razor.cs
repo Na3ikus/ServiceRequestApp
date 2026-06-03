@@ -1,3 +1,4 @@
+#pragma warning disable CA1724
 using Microsoft.AspNetCore.Components;
 using ServiceDeskSystem.Application.Services.Admin;
 using ServiceDeskSystem.Application.Services.Auth;
@@ -130,4 +131,3 @@ public partial class Admin : BaseComponent
         }
     }
 }
-

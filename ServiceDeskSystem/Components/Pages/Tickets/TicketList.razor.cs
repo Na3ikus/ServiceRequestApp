@@ -2,11 +2,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.JSInterop;
 using ServiceDeskSystem.Application.Services.Auth;
-using ServiceDeskSystem.Application.Services.Auth;
-using ServiceDeskSystem.Application.Services.Localization;
 using ServiceDeskSystem.Application.Services.Tickets;
-using ServiceDeskSystem.Application.Services.Tickets;
-using ServiceDeskSystem.Components.Features;
 using ServiceDeskSystem.Components.UI.Base;
 using ServiceDeskSystem.Domain.Entities;
 using ServiceDeskSystem.Domain.Enums;
@@ -247,7 +243,7 @@ public partial class TicketList : BaseComponent
             {
                 query = query.Where(t => t.Status == TicketStatus.Closed || t.Status == TicketStatus.Resolved);
             }
-            else if (Enum.TryParse<TicketStatus>(this.selectedStatus.Replace(" ", string.Empty), out var parsedStatus))
+            else if (Enum.TryParse<TicketStatus>(this.selectedStatus.Replace(" ", string.Empty, StringComparison.Ordinal), out var parsedStatus))
             {
                 query = query.Where(t => t.Status == parsedStatus);
             }
@@ -279,4 +275,3 @@ public partial class TicketList : BaseComponent
         this.StateHasChanged();
     }
 }
-
