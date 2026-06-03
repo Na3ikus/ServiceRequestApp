@@ -2,8 +2,8 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using ServiceDeskSystem.Application.Services.Auth.Interfaces;
 using ServiceDeskSystem.Components.UI.Base;
-using ServiceDeskSystem.Domain.Interfaces;
 using ServiceDeskSystem.Domain.Enums;
+using ServiceDeskSystem.Domain.Interfaces;
 
 namespace ServiceDeskSystem.Components.Pages.Settings;
 

@@ -10,7 +10,9 @@ public static class ApplicationBuilderExtensions
     {
         app.UseMiddleware<ExceptionHandlingMiddleware>();
 
-        if (app.Environment.IsDevelopment())
+        bool hasJwtKey = !string.IsNullOrWhiteSpace(app.Configuration["Jwt:Key"]);
+
+        if (app.Environment.IsDevelopment() && hasJwtKey)
         {
             app.UseSwagger();
             app.UseSwaggerUI(c =>

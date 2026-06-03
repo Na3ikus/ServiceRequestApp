@@ -247,7 +247,7 @@ public partial class TicketList : BaseComponent
             {
                 query = query.Where(t => t.Status == TicketStatus.Closed || t.Status == TicketStatus.Resolved);
             }
-            else if (Enum.TryParse<TicketStatus>(this.selectedStatus.Replace(" ", ""), out var parsedStatus))
+            else if (Enum.TryParse<TicketStatus>(this.selectedStatus.Replace(" ", string.Empty), out var parsedStatus))
             {
                 query = query.Where(t => t.Status == parsedStatus);
             }

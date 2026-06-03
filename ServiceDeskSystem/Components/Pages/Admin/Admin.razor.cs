@@ -5,8 +5,8 @@ using ServiceDeskSystem.Application.Services.Toasts.Interfaces;
 using ServiceDeskSystem.Application.Services.Toasts.Models;
 using ServiceDeskSystem.Components.UI.Base;
 using ServiceDeskSystem.Domain.Entities;
-using ServiceDeskSystem.Domain.Interfaces;
 using ServiceDeskSystem.Domain.Enums;
+using ServiceDeskSystem.Domain.Interfaces;
 
 namespace ServiceDeskSystem.Components.Pages.Admin;
 
