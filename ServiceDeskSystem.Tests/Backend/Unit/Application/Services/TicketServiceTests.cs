@@ -2,9 +2,11 @@ using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 using NUnit.Framework;
+using ServiceDeskSystem.Application.Common;
 using ServiceDeskSystem.Application.Services.Notifications.Interfaces;
 using ServiceDeskSystem.Application.Services.Tickets;
 using ServiceDeskSystem.Domain.Entities;
+using ServiceDeskSystem.Domain.Enums;
 using ServiceDeskSystem.Infrastructure.Data;
 
 namespace ServiceDeskSystem.Tests.Backend.Unit.Application.Services;
@@ -15,6 +17,7 @@ public class TicketServiceTests
     private DbContextOptions<BugTrackerDbContext> _dbContextOptions;
     private Mock<IDbContextFactory<BugTrackerDbContext>> _mockDbContextFactory;
     private Mock<INotificationService> _mockNotificationService;
+    private Mock<IDomainEventDispatcher> _mockDomainEventDispatcher;
 
     [SetUp]
     public void Setup()
@@ -25,6 +28,7 @@ public class TicketServiceTests
 
         _mockDbContextFactory = new Mock<IDbContextFactory<BugTrackerDbContext>>();
         _mockNotificationService = new Mock<INotificationService>();
+        _mockDomainEventDispatcher = new Mock<IDomainEventDispatcher>();
         _mockDbContextFactory.Setup(f => f.CreateDbContextAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(() => new BugTrackerDbContext(_dbContextOptions));
         
@@ -34,7 +38,7 @@ public class TicketServiceTests
 
     private BugTrackerDbContext CreateContext() => new BugTrackerDbContext(_dbContextOptions);
 
-    private TicketService CreateService() => new TicketService(_mockDbContextFactory.Object, _mockNotificationService.Object);
+    private TicketService CreateService() => new TicketService(_mockDbContextFactory.Object, _mockNotificationService.Object, _mockDomainEventDispatcher.Object);
 
     [Test]
     public async Task CreateTicketAsync_GivenValidTicket_SetsCreatedAtAndStatusOpen()
@@ -45,7 +49,7 @@ public class TicketServiceTests
         {
             Title = "Test Ticket",
             Description = "Test Description",
-            Priority = "High",
+            Priority = TicketPriority.High,
             ProductId = 1,
             AuthorId = 1
         };
@@ -56,7 +60,7 @@ public class TicketServiceTests
         // Assert
         createdTicket.Should().NotBeNull();
         createdTicket.Id.Should().BeGreaterThan(0);
-        createdTicket.Status.Should().Be("Open");
+        createdTicket.Status.Should().Be(TicketStatus.Open);
         createdTicket.CreatedAt.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(2));
         
         // Verify it was actually saved
@@ -74,8 +78,8 @@ public class TicketServiceTests
         var ticket = new Ticket
         {
             Title = "Status Updatable Ticket",
-            Status = "Open",
-            Priority = "Medium"
+            Status = TicketStatus.Open,
+            Priority = TicketPriority.Medium
         };
         
         using (var context = CreateContext())
@@ -85,7 +89,7 @@ public class TicketServiceTests
         }
 
         // Act
-        var result = await service.UpdateTicketStatusAsync(ticket.Id, "In Progress");
+        var result = await service.UpdateTicketStatusAsync(ticket.Id, TicketStatus.InProgress);
 
         // Assert
         result.Should().BeTrue();
@@ -93,7 +97,7 @@ public class TicketServiceTests
         using (var context = CreateContext())
         {
             var updatedTicket = await context.Tickets.FindAsync(ticket.Id);
-            updatedTicket!.Status.Should().Be("In Progress");
+            updatedTicket!.Status.Should().Be(TicketStatus.InProgress);
         }
     }
 
@@ -105,7 +109,7 @@ public class TicketServiceTests
         var ticket = new Ticket
         {
             Title = "Assignable Ticket",
-            Status = "Open"
+            Status = TicketStatus.Open
         };
         
         using (var context = CreateContext())
@@ -138,7 +142,7 @@ public class TicketServiceTests
         var ticket = new Ticket
         {
             Title = "Existing Ticket",
-            Status = "Open",
+            Status = TicketStatus.Open,
             AuthorId = author.Id,
             Author = author,
             ProductId = product.Id,
@@ -173,8 +177,8 @@ public class TicketServiceTests
         {
             context.Users.Add(author1);
             context.Products.Add(product1);
-            context.Tickets.Add(new Ticket { Id = 10, Title = "T1", Status = "Open", AuthorId = author1.Id, ProductId = product1.Id });
-            context.Tickets.Add(new Ticket { Id = 11, Title = "T2", Status = "Closed", AuthorId = author1.Id, ProductId = product1.Id });
+            context.Tickets.Add(new Ticket { Id = 10, Title = "T1", Status = TicketStatus.Open, AuthorId = author1.Id, ProductId = product1.Id });
+            context.Tickets.Add(new Ticket { Id = 11, Title = "T2", Status = TicketStatus.Closed, AuthorId = author1.Id, ProductId = product1.Id });
             await context.SaveChangesAsync();
         }
 
@@ -195,7 +199,7 @@ public class TicketServiceTests
         var service = CreateService();
         var author2 = new User { Id = 6, Login = "author6" };
         var product2 = new Product { Id = 6, Name = "Product6" };
-        var ticket = new Ticket { Id = 12, Title = "To Delete", Status = "Open", AuthorId = author2.Id, ProductId = product2.Id };
+        var ticket = new Ticket { Id = 12, Title = "To Delete", Status = TicketStatus.Open, AuthorId = author2.Id, ProductId = product2.Id };
         
         using (var context = CreateContext())
         {
@@ -222,7 +226,7 @@ public class TicketServiceTests
     {
         // Arrange
         var service = CreateService();
-        var ticket = new Ticket { Title = "Ticket for comment", Status = "Open" };
+        var ticket = new Ticket { Title = "Ticket for comment", Status = TicketStatus.Open };
         var author = new User { Id = 3, Login = "commenter" };
         
         using (var context = CreateContext())

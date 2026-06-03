@@ -1,6 +1,7 @@
 using System.Security.Cryptography;
 using Microsoft.EntityFrameworkCore;
 using ServiceDeskSystem.Domain.Entities;
+using ServiceDeskSystem.Domain.Enums;
 
 namespace ServiceDeskSystem.Infrastructure.Data.DataSeeding;
 
@@ -30,7 +31,7 @@ internal static class UserConfiguration
                 Id = 1,
                 Login = "admin",
                 PasswordHash = ComputeSecureHash("admin123"),
-                Role = "Admin",
+                Role = UserRole.Admin,
                 PersonId = 1,
                 IsActive = true,
             },
@@ -39,7 +40,7 @@ internal static class UserConfiguration
                 Id = 2,
                 Login = "o.kovalenko",
                 PasswordHash = ComputeSecureHash("dev123"),
-                Role = "Developer",
+                Role = UserRole.Developer,
                 PersonId = 2,
                 IsActive = true,
             },
@@ -48,7 +49,7 @@ internal static class UserConfiguration
                 Id = 3,
                 Login = "m.shevchenko",
                 PasswordHash = ComputeSecureHash("client123"),
-                Role = "User",
+                Role = UserRole.User,
                 PersonId = 3,
                 IsActive = true,
             },
@@ -57,7 +58,7 @@ internal static class UserConfiguration
                 Id = 4,
                 Login = "j.smith",
                 PasswordHash = ComputeSecureHash("client123"),
-                Role = "User",
+                Role = UserRole.User,
                 PersonId = 4,
                 IsActive = true,
             },
@@ -66,7 +67,7 @@ internal static class UserConfiguration
                 Id = 5,
                 Login = "a.bondarenko",
                 PasswordHash = ComputeSecureHash("dev123"),
-                Role = "Developer",
+                Role = UserRole.Developer,
                 PersonId = 5,
                 IsActive = true,
             });

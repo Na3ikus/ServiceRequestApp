@@ -1,9 +1,10 @@
 @page "/audit-logs"
 @inherits BaseComponent
+@using ServiceDeskSystem.Domain.Enums
 @rendermode InteractiveServer
 
 <div class="audit-logs-container max-w-7xl mx-auto p-4 sm:p-6">
-    @if (AuthService.CurrentUser?.Role != "Admin")
+    @if (AuthService.CurrentUser?.Role != UserRole.Admin)
     {
         <div class="bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-700 text-red-700 dark:text-red-400 px-6 py-4 rounded-xl">
             <div class="flex items-center gap-3">

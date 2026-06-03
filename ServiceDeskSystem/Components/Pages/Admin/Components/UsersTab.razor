@@ -1,4 +1,5 @@
 @inherits BaseComponent
+@using ServiceDeskSystem.Domain.Enums
 
 <div class="admin-content-section bg-white dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-lg border border-transparent dark:border-gray-700/50 p-6">
     <div class="flex items-center justify-between mb-4">
@@ -34,9 +35,9 @@
                                 <select @bind="user.Role" @bind:after="@(() => UpdateUserRole(user.Id, user.Role))"
                                         disabled="@(!CanEditUserRole(user))"
                                         class="w-full px-2 py-1 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md text-xs @(!CanEditUserRole(user) ? "opacity-50 cursor-not-allowed" : "")">
-                                    <option value="Admin">@L.Translate("admin.roleAdmin")</option>
-                                    <option value="Developer">@L.Translate("admin.roleDeveloper")</option>
-                                    <option value="User">@L.Translate("admin.roleUser")</option>
+                                    <option value="@UserRole.Admin">@L.Translate("admin.roleAdmin")</option>
+                                    <option value="@UserRole.Developer">@L.Translate("admin.roleDeveloper")</option>
+                                    <option value="@UserRole.User">@L.Translate("admin.roleUser")</option>
                                 </select>
                             </td>
                             <td class="col-status px-4 py-3 text-sm">

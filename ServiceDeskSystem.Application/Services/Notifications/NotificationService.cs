@@ -3,6 +3,7 @@ using ServiceDeskSystem.Application.Services.Notifications.Interfaces;
 using ServiceDeskSystem.Application.Services.Notifications.Models;
 using ServiceDeskSystem.Application.Services.Realtime.Interfaces;
 using ServiceDeskSystem.Domain.Entities;
+using ServiceDeskSystem.Domain.Enums;
 using ServiceDeskSystem.Infrastructure.Data;
 
 namespace ServiceDeskSystem.Application.Services.Notifications;
@@ -188,7 +189,7 @@ public sealed class NotificationService(
         }
     }
 
-    public async Task CreateStatusChangedNotificationAsync(int ticketId, string oldStatus, string newStatus, int? actorUserId)
+    public async Task CreateStatusChangedNotificationAsync(int ticketId, TicketStatus oldStatus, TicketStatus newStatus, int? actorUserId)
     {
         try
         {

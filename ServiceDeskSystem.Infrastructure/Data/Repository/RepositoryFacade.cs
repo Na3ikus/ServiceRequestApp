@@ -21,6 +21,7 @@ namespace ServiceDeskSystem.Infrastructure.Data.Repository
             this._techStackRepository = new Lazy<TechStackRepository>(() => new TechStackRepository(this._context));
             this._productRepository = new Lazy<ProductRepository>(() => new ProductRepository(this._context));
             this._userRepository = new Lazy<UserRepository>(() => new UserRepository(this._context));
+            this.UnitOfWork = new ServiceDeskSystem.Infrastructure.Data.UnitOfWork(this._context);
         }
 
         public ITicketRepository Tickets => this._ticketRepository.Value;
@@ -28,11 +29,7 @@ namespace ServiceDeskSystem.Infrastructure.Data.Repository
         public ITechStackRepository TechStacks => this._techStackRepository.Value;
         public IProductRepository Products => this._productRepository.Value;
         public IUserRepository Users => this._userRepository.Value;
-
-        public async Task<int> SaveChangesAsync()
-        {
-            return await this._context.SaveChangesAsync().ConfigureAwait(false);
-        }
+        public IUnitOfWork UnitOfWork { get; }
 
         public async ValueTask DisposeAsync()
         {

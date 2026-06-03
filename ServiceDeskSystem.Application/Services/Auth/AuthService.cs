@@ -8,6 +8,7 @@ using System.Security.Cryptography;
 using System.Data.Common;
 using ServiceDeskSystem.Application.Services.Auth.Interfaces;
 using ServiceDeskSystem.Application.Services.Audit.Interfaces;
+using ServiceDeskSystem.Domain.Enums;
 
 namespace ServiceDeskSystem.Application.Services.Auth;
 
@@ -191,7 +192,7 @@ public sealed class AuthService(
             {
                 Login = username,
                 PasswordHash = ComputeSecureHash(password),
-                Role = "User",
+                Role = UserRole.User,
                 PersonId = person.Id,
                 IsActive = true,
             };

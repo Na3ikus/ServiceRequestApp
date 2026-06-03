@@ -4,7 +4,7 @@ using ServiceDeskSystem.Application.Services.Auth;
 using ServiceDeskSystem.Application.Services.Auth.Interfaces;
 using ServiceDeskSystem.Application.Services.Tickets;
 using ServiceDeskSystem.Application.Services.Tickets.Interfaces;
-using ServiceDeskSystem.Domain.Constants;
+using ServiceDeskSystem.Domain.Enums;
 using ServiceDeskSystem.Domain.Entities;
 
 namespace ServiceDeskSystem.Components.Pages.Tickets;
@@ -31,15 +31,15 @@ public partial class CreateTicket
 
     private string? productValidationError { get; set; }
 
-    private bool IsProductRequired => this.ticketModel.TicketType != TicketConstants.Types.Project;
+    private bool IsProductRequired => this.ticketModel.TicketType != TicketType.Project;
 
     private int CurrentUserId => this.AuthService.CurrentUser?.Id ?? 0;
 
     protected override async Task OnInitializedAsync()
     {
         this.products = await this.TicketService.GetProductsAsync();
-        this.ticketModel.Priority = TicketConstants.Priorities.Medium;
-        this.ticketModel.TicketType = TicketConstants.Types.Support;
+        this.ticketModel.Priority = TicketPriority.Medium;
+        this.ticketModel.TicketType = TicketType.Support;
     }
 
     private async Task HandleSubmitAsync()
@@ -98,10 +98,10 @@ public partial class CreateTicket
         public string Description { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Priority is required")]
-        public string Priority { get; set; } = string.Empty;
+        public TicketPriority Priority { get; set; }
 
         [Required(ErrorMessage = "Ticket type is required")]
-        public string TicketType { get; set; } = string.Empty;
+        public TicketType TicketType { get; set; }
 
         public int? ProductId { get; set; }
 

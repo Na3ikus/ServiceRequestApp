@@ -1,4 +1,5 @@
 @using ServiceDeskSystem.Domain.Entities
+@using ServiceDeskSystem.Domain.Enums
 @using Microsoft.JSInterop
 @inject IJSRuntime JSRuntime
 @inject NavigationManager Navigation
@@ -58,7 +59,7 @@
 
 @code {
     private ElementReference cardElement;
-    private string _lastInitializedStatus = string.Empty;
+    private TicketStatus? _lastInitializedStatus = null;
     private bool _lastCanDrag = false;
 
     [Parameter, EditorRequired]
@@ -76,7 +77,7 @@
         {
             _lastInitializedStatus = Ticket.Status;
             _lastCanDrag = CanDrag;
-            await JSRuntime.InvokeVoidAsync("kanban.initDraggable", cardElement, Ticket.Id, Ticket.Status);
+            await JSRuntime.InvokeVoidAsync("kanban.initDraggable", cardElement, Ticket.Id, Ticket.Status.ToString());
         }
     }
 

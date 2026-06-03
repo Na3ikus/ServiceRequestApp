@@ -12,5 +12,5 @@ public interface IRepositoryFacade : IAsyncDisposable
 
     IUserRepository Users { get; }
 
-    Task<int> SaveChangesAsync();
+    IUnitOfWork UnitOfWork { get; }
 }

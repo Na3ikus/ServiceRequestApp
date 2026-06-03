@@ -25,7 +25,7 @@ public sealed class CommentService(
         comment.CreatedAt = DateTime.UtcNow;
 
         await repo.Comments.CreateAsync(comment).ConfigureAwait(false);
-        await repo.SaveChangesAsync().ConfigureAwait(false);
+        await repo.UnitOfWork.SaveChangesAsync().ConfigureAwait(false);
 
         await notificationService.CreateCommentNotificationAsync(comment.TicketId, comment.AuthorId).ConfigureAwait(false);
         await realtimeNotifier.NotifyTicketsChangedAsync().ConfigureAwait(false);
@@ -49,7 +49,7 @@ public sealed class CommentService(
         }
 
         existing.Message = newMessage;
-        await repo.SaveChangesAsync().ConfigureAwait(false);
+        await repo.UnitOfWork.SaveChangesAsync().ConfigureAwait(false);
 
         await auditService.LogActionSafeAsync("UPDATE_COMMENT", "Comment", commentId.ToString(), $"Updated comment in ticket {existing.TicketId}", existing.AuthorId).ConfigureAwait(false);
 
@@ -67,7 +67,7 @@ public sealed class CommentService(
         }
 
         await repo.Comments.DeleteAsync(commentId).ConfigureAwait(false);
-        await repo.SaveChangesAsync().ConfigureAwait(false);
+        await repo.UnitOfWork.SaveChangesAsync().ConfigureAwait(false);
 
         await auditService.LogActionSafeAsync("DELETE_COMMENT", "Comment", commentId.ToString(), $"Deleted comment from ticket {comment.TicketId}", comment.AuthorId).ConfigureAwait(false);
 

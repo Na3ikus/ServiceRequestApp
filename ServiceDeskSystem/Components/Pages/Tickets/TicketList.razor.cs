@@ -9,6 +9,7 @@ using ServiceDeskSystem.Application.Services.Tickets.Interfaces;
 using ServiceDeskSystem.Components.Features;
 using ServiceDeskSystem.Components.UI.Base;
 using ServiceDeskSystem.Domain.Entities;
+using ServiceDeskSystem.Domain.Enums;
 
 namespace ServiceDeskSystem.Components.Pages.Tickets;
 
@@ -42,7 +43,7 @@ public partial class TicketList : BaseComponent
 
     private int currentUserId => this.AuthService.CurrentUser?.Id ?? 0;
 
-    private bool isAdmin => string.Equals(this.AuthService.CurrentUser?.Role, "Admin", StringComparison.OrdinalIgnoreCase);
+    private bool isAdmin => this.AuthService.CurrentUser?.Role == UserRole.Admin;
 
     private string searchQuery
     {
@@ -117,7 +118,7 @@ public partial class TicketList : BaseComponent
         }
     }
 
-    private async Task HandleKanbanStatusChangedAsync((int TicketId, string NewStatus) args)
+    private async Task HandleKanbanStatusChangedAsync((int TicketId, TicketStatus NewStatus) args)
     {
         var ticket = this.tickets?.FirstOrDefault(t => t.Id == args.TicketId);
         if (ticket is null)
@@ -231,24 +232,24 @@ public partial class TicketList : BaseComponent
                 t.Author?.Login.Contains(this.searchQuery, StringComparison.OrdinalIgnoreCase) == true);
         }
 
-        if (this.selectedPriority != "All")
+        if (this.selectedPriority != "All" && Enum.TryParse<TicketPriority>(this.selectedPriority, out var parsedPriority))
         {
-            query = query.Where(t => t.Priority == this.selectedPriority);
+            query = query.Where(t => t.Priority == parsedPriority);
         }
 
         if (this.selectedStatus != "All")
         {
             if (this.selectedStatus == "Open/InProgress")
             {
-                query = query.Where(t => t.Status == "Open" || t.Status == "In Progress");
+                query = query.Where(t => t.Status == TicketStatus.Open || t.Status == TicketStatus.InProgress);
             }
             else if (this.selectedStatus == "Closed/Resolved")
             {
-                query = query.Where(t => t.Status == "Closed" || t.Status == "Resolved");
+                query = query.Where(t => t.Status == TicketStatus.Closed || t.Status == TicketStatus.Resolved);
             }
-            else
+            else if (Enum.TryParse<TicketStatus>(this.selectedStatus.Replace(" ", ""), out var parsedStatus))
             {
-                query = query.Where(t => t.Status == this.selectedStatus);
+                query = query.Where(t => t.Status == parsedStatus);
             }
         }
 

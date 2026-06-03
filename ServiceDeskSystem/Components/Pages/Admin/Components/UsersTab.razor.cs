@@ -5,6 +5,7 @@ using ServiceDeskSystem.Application.Services.Toasts.Interfaces;
 using ServiceDeskSystem.Application.Services.Toasts.Models;
 using ServiceDeskSystem.Components.UI.Base;
 using ServiceDeskSystem.Domain.Entities;
+using ServiceDeskSystem.Domain.Enums;
 
 namespace ServiceDeskSystem.Components.Pages.Admin.Components;
 
@@ -26,13 +27,13 @@ public partial class UsersTab : BaseComponent
     [Inject]
     private IToastService ToastService { get; set; } = null!;
 
-    private static bool CanDeleteUser(User user) => user.Role != "Admin";
+    private static bool CanDeleteUser(User user) => user.Role != UserRole.Admin;
 
-    private static bool CanToggleUserStatus(User user) => user.Role != "Admin";
+    private static bool CanToggleUserStatus(User user) => user.Role != UserRole.Admin;
 
     private bool CanEditUserRole(User user) => user.Id != this.AuthService.CurrentUser?.Id;
 
-    private async Task UpdateUserRole(int userId, string newRole)
+    private async Task UpdateUserRole(int userId, UserRole newRole)
     {
         var user = this.Users?.FirstOrDefault(u => u.Id == userId);
         if (user is not null && !this.CanEditUserRole(user))
@@ -59,7 +60,7 @@ public partial class UsersTab : BaseComponent
     private async Task ToggleUserStatus(int userId)
     {
         var user = this.Users?.FirstOrDefault(u => u.Id == userId);
-        if (user?.Role == "Admin")
+        if (user?.Role == UserRole.Admin)
         {
             await this.ToastService.ShowToastAsync(this.L.Translate("admin.cannotDeactivateAdmin"), ToastType.Error);
             return;
@@ -79,7 +80,7 @@ public partial class UsersTab : BaseComponent
     {
         try
         {
-            if (user.Role == "Admin")
+            if (user.Role == UserRole.Admin)
             {
                 await this.ToastService.ShowToastAsync(this.L.Translate("admin.cannotDeleteAdmin"), ToastType.Error);
                 return;

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Components.Web;
 using ServiceDeskSystem.Application.Services.Auth.Interfaces;
 using ServiceDeskSystem.Application.Services.Localization.Interfaces;
 using ServiceDeskSystem.Application.Services.Theme.Interfaces;
+using ServiceDeskSystem.Domain.Enums;
 
 namespace ServiceDeskSystem.Components.Layout;
 
@@ -83,12 +84,12 @@ public partial class NavMenu : ComponentBase, IDisposable
 
         var workspace = new MenuSection("workspace", this.L.Translate("nav.section.workspace"));
 
-        if (role is "Admin" or "Developer")
+        if (role is UserRole.Admin or UserRole.Developer)
         {
             workspace.Items.Add(new MenuItem("tickets", this.L.Translate("nav.allTickets"), "tickets", "tickets", NavLinkMatch.All));
         }
 
-        if (role == "User")
+        if (role == UserRole.User)
         {
             workspace.Items.Add(new MenuItem("myTickets", this.L.Translate("nav.myTickets"), "my-tickets", "user", NavLinkMatch.All));
         }
@@ -97,13 +98,13 @@ public partial class NavMenu : ComponentBase, IDisposable
 
         var management = new MenuSection("management", this.L.Translate("nav.section.management"));
 
-        if (role == "Developer")
+        if (role == UserRole.Developer)
         {
             management.Items.Add(new MenuItem("developer", this.L.Translate("nav.developer"), "developer", "code"));
             management.Items.Add(new MenuItem("statistics", this.L.Translate("nav.statistics"), "statistics", "chart"));
         }
 
-        if (role == "Admin")
+        if (role == UserRole.Admin)
         {
             management.Items.Add(new MenuItem("developer", this.L.Translate("nav.myTickets"), "developer", "tickets"));
             management.Items.Add(new MenuItem("statistics", this.L.Translate("nav.statistics"), "statistics", "chart"));

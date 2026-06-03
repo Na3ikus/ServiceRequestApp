@@ -136,7 +136,7 @@
                                         </span>
                                     </div>
                                     <span class="hidden sm:inline text-sm font-medium text-gray-800 dark:text-white">
-                                        @(AuthService.CurrentUser?.Role ?? AuthService.CurrentUser?.Login)
+                                        @(AuthService.CurrentUser?.Role.ToString() ?? AuthService.CurrentUser?.Login)
                                     </span>
                                 </summary>
 

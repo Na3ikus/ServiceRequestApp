@@ -12,6 +12,7 @@ using ServiceDeskSystem.Application.Services.Toasts.Models;
 using ServiceDeskSystem.Components.Features;
 using ServiceDeskSystem.Components.UI.Base;
 using ServiceDeskSystem.Domain.Entities;
+using ServiceDeskSystem.Domain.Enums;
 
 namespace ServiceDeskSystem.Components.Pages.Tickets;
 
@@ -62,11 +63,11 @@ public partial class TicketDetails : BaseComponent
 
     private int CurrentUserId => this.AuthService.CurrentUser?.Id ?? 0;
 
-    private string CurrentUserRole => this.AuthService.CurrentUser?.Role ?? string.Empty;
+    private UserRole? CurrentUserRole => this.AuthService.CurrentUser?.Role;
 
-    private bool IsAdmin => string.Equals(this.CurrentUserRole, "Admin", StringComparison.OrdinalIgnoreCase);
+    private bool IsAdmin => this.CurrentUserRole == UserRole.Admin;
 
-    private bool IsDeveloper => string.Equals(this.CurrentUserRole, "Developer", StringComparison.OrdinalIgnoreCase);
+    private bool IsDeveloper => this.CurrentUserRole == UserRole.Developer;
 
     /// <summary>
     /// Gets a value indicating whether the user is admin or developer (both can take/release tickets).
@@ -261,7 +262,7 @@ public partial class TicketDetails : BaseComponent
         await this.RefreshCommentsAsync();
     }
 
-    private async Task UpdateStatusAsync(string newStatus)
+    private async Task UpdateStatusAsync(TicketStatus newStatus)
     {
         if (this.Ticket is null || !this.CanManageTicketStatus)
         {

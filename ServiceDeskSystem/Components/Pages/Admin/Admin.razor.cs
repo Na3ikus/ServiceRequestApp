@@ -6,6 +6,7 @@ using ServiceDeskSystem.Application.Services.Toasts.Models;
 using ServiceDeskSystem.Components.UI.Base;
 using ServiceDeskSystem.Domain.Entities;
 using ServiceDeskSystem.Domain.Interfaces;
+using ServiceDeskSystem.Domain.Enums;
 
 namespace ServiceDeskSystem.Components.Pages.Admin;
 
@@ -45,7 +46,7 @@ public partial class Admin : BaseComponent
 
     private string? smtpCheckMessage { get; set; }
 
-    private bool IsAdmin => this.AuthService.CurrentUser?.Role == "Admin";
+    private bool IsAdmin => this.AuthService.CurrentUser?.Role == UserRole.Admin;
 
     protected override async Task OnInitializedAsync()
     {

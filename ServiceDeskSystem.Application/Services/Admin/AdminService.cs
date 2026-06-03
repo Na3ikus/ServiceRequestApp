@@ -4,6 +4,7 @@ using ServiceDeskSystem.Domain.Entities;
 using ServiceDeskSystem.Domain.Interfaces;
 using ServiceDeskSystem.Application.Services.Admin.Interfaces;
 using ServiceDeskSystem.Application.Services.Audit.Interfaces;
+using ServiceDeskSystem.Domain.Enums;
 
 namespace ServiceDeskSystem.Application.Services.Admin;
 
@@ -33,7 +34,7 @@ public sealed class AdminService(
 
         await using var repo = repositoryFacadeFactory.Create();
         await repo.TechStacks.CreateAsync(techStack).ConfigureAwait(false);
-        await repo.SaveChangesAsync().ConfigureAwait(false);
+        await repo.UnitOfWork.SaveChangesAsync().ConfigureAwait(false);
 
         await auditService.LogActionSafeAsync("CREATE_TECH_STACK", "TechStack", techStack.Id.ToString(), $"Created tech stack: {techStack.Name}").ConfigureAwait(false);
 
@@ -46,7 +47,7 @@ public sealed class AdminService(
 
         await using var repo = repositoryFacadeFactory.Create();
         await repo.Products.CreateAsync(product).ConfigureAwait(false);
-        await repo.SaveChangesAsync().ConfigureAwait(false);
+        await repo.UnitOfWork.SaveChangesAsync().ConfigureAwait(false);
 
         await auditService.LogActionSafeAsync("CREATE_PRODUCT", "Product", product.Id.ToString(), $"Created product: {product.Name}").ConfigureAwait(false);
 
@@ -66,7 +67,7 @@ public sealed class AdminService(
 
         existing.Name = techStack.Name;
         existing.Type = techStack.Type;
-        await repo.SaveChangesAsync().ConfigureAwait(false);
+        await repo.UnitOfWork.SaveChangesAsync().ConfigureAwait(false);
 
         await auditService.LogActionSafeAsync("UPDATE_TECH_STACK", "TechStack", techStack.Id.ToString(), $"Updated tech stack: {techStack.Name}").ConfigureAwait(false);
 
@@ -88,7 +89,7 @@ public sealed class AdminService(
         existing.Description = product.Description;
         existing.CurrentVersion = product.CurrentVersion;
         existing.TechStackId = product.TechStackId;
-        await repo.SaveChangesAsync().ConfigureAwait(false);
+        await repo.UnitOfWork.SaveChangesAsync().ConfigureAwait(false);
 
         await auditService.LogActionSafeAsync("UPDATE_PRODUCT", "Product", product.Id.ToString(), $"Updated product: {product.Name}").ConfigureAwait(false);
 
@@ -111,7 +112,7 @@ public sealed class AdminService(
         }
 
         await repo.TechStacks.DeleteAsync(id).ConfigureAwait(false);
-        await repo.SaveChangesAsync().ConfigureAwait(false);
+        await repo.UnitOfWork.SaveChangesAsync().ConfigureAwait(false);
 
         await auditService.LogActionSafeAsync("DELETE_TECH_STACK", "TechStack", id.ToString(), $"Deleted tech stack: {techStack.Name}").ConfigureAwait(false);
 
@@ -134,7 +135,7 @@ public sealed class AdminService(
         }
 
         await repo.Products.DeleteAsync(id).ConfigureAwait(false);
-        await repo.SaveChangesAsync().ConfigureAwait(false);
+        await repo.UnitOfWork.SaveChangesAsync().ConfigureAwait(false);
 
         await auditService.LogActionSafeAsync("DELETE_PRODUCT", "Product", id.ToString(), $"Deleted product: {product.Name}").ConfigureAwait(false);
 
@@ -148,12 +149,8 @@ public sealed class AdminService(
         return users.ToList();
     }
 
-    public async Task<bool> UpdateUserRoleAsync(int userId, string newRole)
+    public async Task<bool> UpdateUserRoleAsync(int userId, UserRole newRole)
     {
-        if (string.IsNullOrWhiteSpace(newRole))
-        {
-            return false;
-        }
 
         var dbContext = await contextFactory.CreateDbContextAsync().ConfigureAwait(false);
         await using (dbContext.ConfigureAwait(false))

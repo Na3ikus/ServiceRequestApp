@@ -8,6 +8,7 @@ using ServiceDeskSystem.Application.Services.Audit.Interfaces;
 using ServiceDeskSystem.Application.Services.Auth.Interfaces;
 using ServiceDeskSystem.Components.UI.Base;
 using ServiceDeskSystem.Domain.Entities;
+using ServiceDeskSystem.Domain.Enums;
 
 namespace ServiceDeskSystem.Components.Pages.Admin;
 
@@ -39,7 +40,7 @@ public partial class AuditLogs : BaseComponent
 
     protected override async Task OnInitializedAsync()
     {
-        if (this.AuthService.CurrentUser?.Role == "Admin")
+        if (this.AuthService.CurrentUser?.Role == UserRole.Admin)
         {
             await this.LoadLogsAsync();
             this.StartAutoRefresh();

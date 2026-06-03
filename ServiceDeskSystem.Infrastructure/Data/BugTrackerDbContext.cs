@@ -1,10 +1,12 @@
 using Microsoft.EntityFrameworkCore;
 using ServiceDeskSystem.Infrastructure.Data.DataSeeding;
 using ServiceDeskSystem.Domain.Entities;
+using ServiceDeskSystem.Domain.Enums;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace ServiceDeskSystem.Infrastructure.Data
 {
-    public class BugTrackerDbContext : DbContext, IDataSeed
+    public class BugTrackerDbContext : DbContext
     {
         public BugTrackerDbContext(DbContextOptions<BugTrackerDbContext> options)
                     : base(options)
@@ -38,6 +40,29 @@ namespace ServiceDeskSystem.Infrastructure.Data
             ArgumentNullException.ThrowIfNull(modelBuilder);
 
             base.OnModelCreating(modelBuilder);
+
+            var statusConverter = new ValueConverter<TicketStatus, string>(
+                v => v == TicketStatus.InProgress ? "In Progress" : 
+                     v == TicketStatus.CodeReview ? "Code Review" : v.ToString(),
+                v => v == "In Progress" ? TicketStatus.InProgress :
+                     v == "Code Review" ? TicketStatus.CodeReview : 
+                     Enum.Parse<TicketStatus>(v));
+
+            modelBuilder.Entity<Ticket>()
+                .Property(t => t.Status)
+                .HasConversion(statusConverter);
+
+            modelBuilder.Entity<Ticket>()
+                .Property(t => t.Priority)
+                .HasConversion<string>();
+
+            modelBuilder.Entity<Ticket>()
+                .Property(t => t.Type)
+                .HasConversion<string>();
+
+            modelBuilder.Entity<User>()
+                .Property(u => u.Role)
+                .HasConversion<string>();
 
             modelBuilder.Entity<User>()
                 .HasOne(u => u.Person)

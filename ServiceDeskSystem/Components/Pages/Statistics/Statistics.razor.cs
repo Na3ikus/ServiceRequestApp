@@ -6,6 +6,7 @@ using ServiceDeskSystem.Application.Services.Tickets;
 using ServiceDeskSystem.Application.Services.Tickets.Interfaces;
 using ServiceDeskSystem.Components.Features;
 using ServiceDeskSystem.Components.UI.Base;
+using ServiceDeskSystem.Domain.Enums;
 
 namespace ServiceDeskSystem.Components.Pages.Statistics;
 
@@ -17,24 +18,24 @@ public partial class Statistics : BaseComponent
 #pragma warning restore CA1724
 {
     // Status display order and colors (static first per SA1204)
-    private static readonly (string Status, string Color, string HexColor)[] StatusOrder =
+    private static readonly (TicketStatus Status, string Color, string HexColor)[] StatusOrder =
     [
-        ("New",         "from-purple-500 to-purple-600", "#a855f7"),
-        ("Open",        "from-blue-500 to-blue-600", "#3b82f6"),
-        ("In Progress", "from-amber-500 to-orange-500", "#f59e0b"),
-        ("Testing",     "from-cyan-500 to-cyan-600", "#06b6d4"),
-        ("Code Review", "from-indigo-500 to-indigo-600", "#6366f1"),
-        ("Done",        "from-emerald-500 to-green-500", "#10b981"),
-        ("Resolved",    "from-green-500 to-green-600", "#22c55e"),
-        ("Closed",      "from-gray-400 to-gray-500", "#9ca3af"),
+        (TicketStatus.New,         "from-purple-500 to-purple-600", "#a855f7"),
+        (TicketStatus.Open,        "from-blue-500 to-blue-600", "#3b82f6"),
+        (TicketStatus.InProgress, "from-amber-500 to-orange-500", "#f59e0b"),
+        (TicketStatus.Testing,     "from-cyan-500 to-cyan-600", "#06b6d4"),
+        (TicketStatus.CodeReview, "from-indigo-500 to-indigo-600", "#6366f1"),
+        (TicketStatus.Done,        "from-emerald-500 to-green-500", "#10b981"),
+        (TicketStatus.Resolved,    "from-green-500 to-green-600", "#22c55e"),
+        (TicketStatus.Closed,      "from-gray-400 to-gray-500", "#9ca3af"),
     ];
 
-    private static readonly (string Priority, string Color, string HexColor)[] PriorityOrder =
+    private static readonly (TicketPriority Priority, string Color, string HexColor)[] PriorityOrder =
     [
-        ("Critical", "from-red-500 to-rose-600", "#ef4444"),
-        ("High",     "from-orange-500 to-orange-600", "#f97316"),
-        ("Medium",   "from-yellow-500 to-yellow-600", "#eab308"),
-        ("Low",      "from-green-500 to-emerald-500", "#22c55e"),
+        (TicketPriority.Critical, "from-red-500 to-rose-600", "#ef4444"),
+        (TicketPriority.High,     "from-orange-500 to-orange-600", "#f97316"),
+        (TicketPriority.Medium,   "from-yellow-500 to-yellow-600", "#eab308"),
+        (TicketPriority.Low,      "from-green-500 to-emerald-500", "#22c55e"),
     ];
 
     // Fields
@@ -69,10 +70,10 @@ public partial class Statistics : BaseComponent
     [Inject]
     private IJSRuntime JS { get; set; } = null!;
 
-    private string CurrentUserRole => this.AuthService.CurrentUser?.Role ?? string.Empty;
+    private UserRole? CurrentUserRole => this.AuthService.CurrentUser?.Role;
 
-    private bool HasAccess => string.Equals(this.CurrentUserRole, "Developer", StringComparison.OrdinalIgnoreCase)
-                           || string.Equals(this.CurrentUserRole, "Admin", StringComparison.OrdinalIgnoreCase);
+    private bool HasAccess => this.CurrentUserRole == UserRole.Developer
+                           || this.CurrentUserRole == UserRole.Admin;
 
     protected override async Task OnInitializedAsync()
     {
@@ -99,13 +100,13 @@ public partial class Statistics : BaseComponent
             await this.JS.InvokeVoidAsync("chartInterop.animateCountUp", "resolvedCount", 0, this.resolvedTickets, 1000);
 
             var statusLabels = StatusOrder.Select(s => this.GetStatusText(s.Status)).ToArray();
-            var statusData = StatusOrder.Select(s => this.byStatus.TryGetValue(s.Status, out var v) ? v : 0).ToArray();
+            var statusData = StatusOrder.Select(s => this.byStatus.TryGetValue(s.Status.ToString(), out var v) ? v : 0).ToArray();
             var statusColors = StatusOrder.Select(s => s.HexColor).ToArray();
 
             await this.JS.InvokeVoidAsync("chartInterop.renderStatusChart", "statusChart", statusLabels, statusData, statusColors);
 
             var priorityLabels = PriorityOrder.Select(p => this.GetPriorityText(p.Priority)).ToArray();
-            var priorityData = PriorityOrder.Select(p => this.byPriority.TryGetValue(p.Priority, out var v) ? v : 0).ToArray();
+            var priorityData = PriorityOrder.Select(p => this.byPriority.TryGetValue(p.Priority.ToString(), out var v) ? v : 0).ToArray();
             var priorityColors = PriorityOrder.Select(p => p.HexColor).ToArray();
 
             await this.JS.InvokeVoidAsync("chartInterop.renderPriorityChart", "priorityChart", priorityLabels, priorityData, priorityColors);
@@ -123,10 +124,10 @@ public partial class Statistics : BaseComponent
         this.topDevs = await this.TicketStatisticsService.GetTopDevelopersAsync(5);
 
         this.totalTickets = this.byStatus.Values.Sum();
-        this.openTickets = this.byStatus.TryGetValue("Open", out var o) ? o : 0;
-        this.criticalTickets = this.byPriority.TryGetValue("Critical", out var c) ? c : 0;
-        this.resolvedTickets = (this.byStatus.TryGetValue("Resolved", out var r) ? r : 0)
-                             + (this.byStatus.TryGetValue("Closed", out var cl) ? cl : 0)
-                             + (this.byStatus.TryGetValue("Done", out var d) ? d : 0);
+        this.openTickets = this.byStatus.TryGetValue(TicketStatus.Open.ToString(), out var o) ? o : 0;
+        this.criticalTickets = this.byPriority.TryGetValue(TicketPriority.Critical.ToString(), out var c) ? c : 0;
+        this.resolvedTickets = (this.byStatus.TryGetValue(TicketStatus.Resolved.ToString(), out var r) ? r : 0)
+                             + (this.byStatus.TryGetValue(TicketStatus.Closed.ToString(), out var cl) ? cl : 0)
+                             + (this.byStatus.TryGetValue(TicketStatus.Done.ToString(), out var d) ? d : 0);
     }
 }

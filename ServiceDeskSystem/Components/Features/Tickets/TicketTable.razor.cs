@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using ServiceDeskSystem.Domain.Entities;
+using ServiceDeskSystem.Domain.Enums;
 
 namespace ServiceDeskSystem.Components.Features.Tickets;
 
@@ -23,23 +24,23 @@ public partial class TicketTable
     [Parameter]
     public bool ShowAssignee { get; set; } = true;
 
-    private static string GetPriorityColorClass(string priority) => priority switch
+    private static string GetPriorityColorClass(TicketPriority priority) => priority switch
     {
-        "Critical" => "bg-gradient-to-br from-red-500 to-rose-600",
-        "High" => "bg-gradient-to-br from-orange-400 to-red-500",
-        "Medium" => "bg-gradient-to-br from-amber-400 to-orange-500",
-        "Low" => "bg-gradient-to-br from-green-400 to-emerald-500",
+        TicketPriority.Critical => "bg-gradient-to-br from-red-500 to-rose-600",
+        TicketPriority.High => "bg-gradient-to-br from-orange-400 to-red-500",
+        TicketPriority.Medium => "bg-gradient-to-br from-amber-400 to-orange-500",
+        TicketPriority.Low => "bg-gradient-to-br from-green-400 to-emerald-500",
         _ => "bg-gradient-to-br from-gray-400 to-gray-500",
     };
 
-    private static string GetStatusDotColor(string status) => status switch
+    private static string GetStatusDotColor(TicketStatus status) => status switch
     {
-        "Open" => "bg-blue-500",
-        "In Progress" => "bg-amber-500",
-        "Testing" => "bg-cyan-500",
-        "Code Review" => "bg-indigo-500",
-        "Resolved" => "bg-green-500",
-        "Closed" => "bg-gray-500",
+        TicketStatus.Open => "bg-blue-500",
+        TicketStatus.InProgress => "bg-amber-500",
+        TicketStatus.Testing => "bg-cyan-500",
+        TicketStatus.CodeReview => "bg-indigo-500",
+        TicketStatus.Resolved => "bg-green-500",
+        TicketStatus.Closed => "bg-gray-500",
         _ => "bg-purple-500",
     };
 }

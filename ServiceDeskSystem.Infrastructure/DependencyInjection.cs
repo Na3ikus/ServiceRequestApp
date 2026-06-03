@@ -56,7 +56,9 @@ public static class DependencyInjection
         }
 
         services.AddScoped<IEmailSender, SmtpEmailSender>();
+        services.AddScoped<IUnitOfWork, ServiceDeskSystem.Infrastructure.Data.UnitOfWork>();
         services.AddScoped<IRepositoryFacadeFactory, RepositoryFacadeFactory>();
+        services.AddScoped<ServiceDeskSystem.Infrastructure.Data.DataSeeding.DbInitializer>();
 
         return services;
     }

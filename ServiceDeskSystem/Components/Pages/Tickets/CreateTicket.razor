@@ -1,7 +1,7 @@
 @page "/create-ticket"
 @inherits BaseComponent
 @rendermode InteractiveServer
-@using ServiceDeskSystem.Domain.Constants
+@using ServiceDeskSystem.Domain.Enums
 
 <!-- Created by Nazar "N1h3" Hutsol -->
 <div class="ticket-create-page max-w-3xl mx-auto p-4 sm:p-6">
@@ -57,9 +57,9 @@
                                      @bind-Value:after="OnTicketTypeChanged"
                                      class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors">
                             <option value="">@L.Translate("create.selectTicketType")</option>
-                            @foreach (var type in TicketConstants.Types.All)
+                            @foreach (var type in Enum.GetValues<TicketType>())
                             {
-                                <option value="@type">@L.Translate($"ticketType.{type.ToLowerInvariant()}")</option>
+                                <option value="@type">@L.Translate($"ticketType.{type.ToString().ToLowerInvariant()}")</option>
                             }
                         </InputSelect>
                         <ValidationMessage For="@(() => ticketModel.TicketType)" class="text-red-500 text-sm mt-1" />
@@ -74,9 +74,9 @@
                                      @bind-Value="ticketModel.Priority"
                                      class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors">
                             <option value="">@L.Translate("create.selectPriority")</option>
-                            @foreach (var priority in TicketConstants.Priorities.All)
+                            @foreach (var priority in Enum.GetValues<TicketPriority>())
                             {
-                                <option value="@priority">@L.Translate($"priority.{priority.ToLowerInvariant()}")</option>
+                                <option value="@priority">@L.Translate($"priority.{priority.ToString().ToLowerInvariant()}")</option>
                             }
                         </InputSelect>
                         <ValidationMessage For="@(() => ticketModel.Priority)" class="text-red-500 text-sm mt-1" />

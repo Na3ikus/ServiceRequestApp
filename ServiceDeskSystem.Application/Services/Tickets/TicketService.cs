@@ -3,6 +3,7 @@ using ServiceDeskSystem.Infrastructure.Data;
 using ServiceDeskSystem.Infrastructure.Data.Repository;
 using ServiceDeskSystem.Domain.Constants;
 using ServiceDeskSystem.Domain.Entities;
+using ServiceDeskSystem.Domain.Enums;
 using ServiceDeskSystem.Domain.Interfaces;
 using ServiceDeskSystem.Application.Services.Notifications.Interfaces;
 using ServiceDeskSystem.Application.Services.Realtime;
@@ -18,13 +19,15 @@ public sealed class TicketService(
     IDbContextFactory<BugTrackerDbContext> contextFactory,
     INotificationService notificationService,
     IRealtimeNotifier realtimeNotifier,
+    ServiceDeskSystem.Application.Common.IDomainEventDispatcher domainEventDispatcher,
     IAuditService? auditService = null)
     : ITicketService, ITicketAssignmentService, ITicketStatisticsService
 {
     public TicketService(
         IDbContextFactory<BugTrackerDbContext> contextFactory,
-        INotificationService notificationService)
-        : this(new RepositoryFacadeFactory(contextFactory), contextFactory, notificationService, NoOpRealtimeNotifier.Instance, null)
+        INotificationService notificationService,
+        ServiceDeskSystem.Application.Common.IDomainEventDispatcher domainEventDispatcher)
+        : this(new RepositoryFacadeFactory(contextFactory), contextFactory, notificationService, NoOpRealtimeNotifier.Instance, domainEventDispatcher, null)
     {
     }
 
@@ -48,23 +51,28 @@ public sealed class TicketService(
 
         await using var repo = repositoryFacadeFactory.Create();
         ticket.CreatedAt = DateTime.UtcNow;
-        ticket.Status = TicketConstants.Statuses.Open;
+        ticket.Status = TicketStatus.Open;
 
-        if (string.IsNullOrWhiteSpace(ticket.Type))
-        {
-            ticket.Type = TicketConstants.Types.Support;
-        }
-
-        if (ticket.Type != TicketConstants.Types.Project && !ticket.ProductId.HasValue)
+        if (ticket.Type != TicketType.Project && !ticket.ProductId.HasValue)
         {
             throw new ArgumentException("Product is required for non-project tickets.", nameof(ticket));
         }
 
-        await repo.Tickets.CreateAsync(ticket).ConfigureAwait(false);
-        await repo.SaveChangesAsync().ConfigureAwait(false);
-        await realtimeNotifier.NotifyTicketsChangedAsync().ConfigureAwait(false);
+        ticket.AddDomainEvent(new ServiceDeskSystem.Domain.Events.TicketCreatedEvent(0, ticket.AuthorId, ticket.Title));
 
-        await auditService.LogActionSafeAsync("CREATE", "Ticket", ticket.Id.ToString(), $"Created ticket: {ticket.Title}", ticket.AuthorId).ConfigureAwait(false);
+        await repo.Tickets.CreateAsync(ticket).ConfigureAwait(false);
+        await repo.UnitOfWork.SaveChangesAsync().ConfigureAwait(false);
+        
+        var events = ticket.DomainEvents.ToList();
+        for (int i = 0; i < events.Count; i++)
+        {
+            if (events[i] is ServiceDeskSystem.Domain.Events.TicketCreatedEvent createdEvent && createdEvent.TicketId == 0)
+            {
+                events[i] = createdEvent with { TicketId = ticket.Id };
+            }
+        }
+        await domainEventDispatcher.DispatchAsync(events).ConfigureAwait(false);
+        ticket.ClearDomainEvents();
 
         return ticket;
     }
@@ -77,13 +85,13 @@ public sealed class TicketService(
         comment.CreatedAt = DateTime.UtcNow;
 
         await repo.Comments.CreateAsync(comment).ConfigureAwait(false);
-        await repo.SaveChangesAsync().ConfigureAwait(false);
+        await repo.UnitOfWork.SaveChangesAsync().ConfigureAwait(false);
 
         var result = await repo.Comments.GetByIdWithAuthorAsync(comment.Id).ConfigureAwait(false);
         return result ?? comment;
     }
 
-    public async Task<bool> UpdateTicketStatusAsync(int ticketId, string newStatus)
+    public async Task<bool> UpdateTicketStatusAsync(int ticketId, TicketStatus newStatus)
     {
         await using var repo = repositoryFacadeFactory.Create();
         var ticket = await repo.Tickets.GetByIdAsync(ticketId).ConfigureAwait(false);
@@ -94,19 +102,14 @@ public sealed class TicketService(
         }
 
         var oldStatus = ticket.Status;
-        ticket.Status = newStatus;
-        await repo.SaveChangesAsync().ConfigureAwait(false);
+        ticket.ChangeStatus(newStatus, ticket.DeveloperId); // Use Domain Entity method
+        await repo.UnitOfWork.SaveChangesAsync().ConfigureAwait(false);
 
-        if (!string.Equals(oldStatus, newStatus, StringComparison.OrdinalIgnoreCase))
-        {
-            await notificationService
-                .CreateStatusChangedNotificationAsync(ticketId, oldStatus, newStatus, ticket.DeveloperId)
-                .ConfigureAwait(false);
-                
-            await auditService.LogActionSafeAsync("STATUS_UPDATE", "Ticket", ticket.Id.ToString(), $"Status changed from {oldStatus} to {newStatus}").ConfigureAwait(false);
-        }
+        await domainEventDispatcher.DispatchAsync(ticket.DomainEvents).ConfigureAwait(false);
+        ticket.ClearDomainEvents();
 
-        await realtimeNotifier.NotifyTicketsChangedAsync().ConfigureAwait(false);
+        // The remaining code (notification, audit, realtimeNotifier) is handled by DomainEvent handlers.
+        // But what if oldStatus == newStatus? The DomainEvents collection will be empty, so DispatchAsync does nothing.
 
         return true;
     }
@@ -125,7 +128,7 @@ public sealed class TicketService(
 
         ticket.StartDate = startDate;
         ticket.DueDate = dueDate;
-        await repo.SaveChangesAsync().ConfigureAwait(false);
+        await repo.UnitOfWork.SaveChangesAsync().ConfigureAwait(false);
 
         if (datesChanged)
         {
@@ -148,7 +151,7 @@ public sealed class TicketService(
         }
 
         await repo.Tickets.DeleteAsync(ticketId).ConfigureAwait(false);
-        await repo.SaveChangesAsync().ConfigureAwait(false);
+        await repo.UnitOfWork.SaveChangesAsync().ConfigureAwait(false);
         await realtimeNotifier.NotifyTicketsChangedAsync().ConfigureAwait(false);
         
         await auditService.LogActionSafeAsync("DELETE", "Ticket", ticket.Id.ToString(), $"Deleted ticket: {ticket.Title}").ConfigureAwait(false);
@@ -174,7 +177,7 @@ public sealed class TicketService(
         await using var context = contextFactory.CreateDbContext();
         return await context.Tickets
             .AsNoTracking()
-            .CountAsync(t => t.Status == TicketConstants.Statuses.Open)
+            .CountAsync(t => t.Status == TicketStatus.Open)
             .ConfigureAwait(false);
     }
 
@@ -183,7 +186,7 @@ public sealed class TicketService(
         await using var context = contextFactory.CreateDbContext();
         return await context.Tickets
             .AsNoTracking()
-            .CountAsync(t => t.Priority == TicketConstants.Priorities.Critical)
+            .CountAsync(t => t.Priority == TicketPriority.Critical)
             .ConfigureAwait(false);
     }
 
@@ -221,7 +224,7 @@ public sealed class TicketService(
         }
 
         ticket.DeveloperId = developerId;
-        await repo.SaveChangesAsync().ConfigureAwait(false);
+        await repo.UnitOfWork.SaveChangesAsync().ConfigureAwait(false);
         await realtimeNotifier.NotifyTicketsChangedAsync().ConfigureAwait(false);
 
         return true;
@@ -238,7 +241,7 @@ public sealed class TicketService(
         }
 
         ticket.DeveloperId = null;
-        await repo.SaveChangesAsync().ConfigureAwait(false);
+        await repo.UnitOfWork.SaveChangesAsync().ConfigureAwait(false);
         await realtimeNotifier.NotifyTicketsChangedAsync().ConfigureAwait(false);
 
         return true;
@@ -265,7 +268,7 @@ public sealed class TicketService(
         await using var context = contextFactory.CreateDbContext();
         return await context.Tickets
             .AsNoTracking()
-            .CountAsync(t => t.DeveloperId == developerId && t.Status == TicketConstants.Statuses.InProgress)
+            .CountAsync(t => t.DeveloperId == developerId && t.Status == TicketStatus.InProgress)
             .ConfigureAwait(false);
     }
 
@@ -275,7 +278,7 @@ public sealed class TicketService(
         return await context.Tickets
             .AsNoTracking()
             .CountAsync(t => t.DeveloperId == developerId &&
-                             (t.Status == TicketConstants.Statuses.Resolved || t.Status == TicketConstants.Statuses.Closed))
+                             (t.Status == TicketStatus.Resolved || t.Status == TicketStatus.Closed))
             .ConfigureAwait(false);
     }
 
@@ -289,8 +292,8 @@ public sealed class TicketService(
             .GroupBy(_ => 1)
             .Select(g => new DeveloperDashboardStatsDto(
                 g.Count(),
-                g.Count(t => t.Status == TicketConstants.Statuses.InProgress),
-                g.Count(t => t.Status == TicketConstants.Statuses.Resolved || t.Status == TicketConstants.Statuses.Closed)))
+                g.Count(t => t.Status == TicketStatus.InProgress),
+                g.Count(t => t.Status == TicketStatus.Resolved || t.Status == TicketStatus.Closed)))
             .SingleOrDefaultAsync()
             .ConfigureAwait(false);
 
@@ -304,7 +307,7 @@ public sealed class TicketService(
             .AsNoTracking()
             .GroupBy(t => t.Status)
             .Select(g => new { g.Key, Count = g.Count() })
-            .ToDictionaryAsync(x => x.Key, x => x.Count)
+            .ToDictionaryAsync(x => x.Key.ToString(), x => x.Count)
             .ConfigureAwait(false);
     }
 
@@ -315,7 +318,7 @@ public sealed class TicketService(
             .AsNoTracking()
             .GroupBy(t => t.Priority)
             .Select(g => new { g.Key, Count = g.Count() })
-            .ToDictionaryAsync(x => x.Key, x => x.Count)
+            .ToDictionaryAsync(x => x.Key.ToString(), x => x.Count)
             .ConfigureAwait(false);
     }
 
@@ -324,7 +327,7 @@ public sealed class TicketService(
         await using var repo = repositoryFacadeFactory.Create();
         var tickets = await repo.Tickets.GetAllWithIncludesAsync().ConfigureAwait(false);
         return tickets
-            .Where(t => t.Developer != null && (t.Status == "Resolved" || t.Status == "Closed" || t.Status == "Done"))
+            .Where(t => t.Developer != null && (t.Status == TicketStatus.Resolved || t.Status == TicketStatus.Closed || t.Status == TicketStatus.Done))
             .GroupBy(t => t.Developer!.Login ?? "?")
             .Select(g => (Login: g.Key, Count: g.Count()))
             .OrderByDescending(x => x.Count)

@@ -1,6 +1,7 @@
 using FluentAssertions;
 using NUnit.Framework;
 using ServiceDeskSystem.Domain.Entities;
+using ServiceDeskSystem.Domain.Enums;
 
 namespace ServiceDeskSystem.Tests.Backend.Unit.Domain.Entities;
 
@@ -17,7 +18,7 @@ public class UserTests
         user.Id.Should().Be(0);
         user.Login.Should().BeEmpty();
         user.PasswordHash.Should().BeEmpty();
-        user.Role.Should().BeEmpty();
+        user.Role.Should().Be(default);
         user.IsActive.Should().BeTrue(); // Default is true
     }
 
@@ -30,14 +31,14 @@ public class UserTests
         // Act
         user.Login = "testuser";
         user.PasswordHash = "hashedpassword";
-        user.Role = "Admin";
+        user.Role = UserRole.Admin;
         user.IsActive = true;
         user.PersonId = 1;
 
         // Assert
         user.Login.Should().Be("testuser");
         user.PasswordHash.Should().Be("hashedpassword");
-        user.Role.Should().Be("Admin");
+        user.Role.Should().Be(UserRole.Admin);
         user.IsActive.Should().BeTrue();
         user.PersonId.Should().Be(1);
     }

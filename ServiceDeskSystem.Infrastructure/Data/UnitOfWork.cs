@@ -1,5 +1,5 @@
 using ServiceDeskSystem.Domain.Interfaces;
-namespace ServiceDeskSystem.Infrastructure.Data.Repository.Templates
+namespace ServiceDeskSystem.Infrastructure.Data
 {
     public sealed class UnitOfWork : IUnitOfWork
     {

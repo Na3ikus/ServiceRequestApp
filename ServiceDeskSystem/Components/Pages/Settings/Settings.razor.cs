@@ -3,6 +3,7 @@ using Microsoft.JSInterop;
 using ServiceDeskSystem.Application.Services.Auth.Interfaces;
 using ServiceDeskSystem.Components.UI.Base;
 using ServiceDeskSystem.Domain.Interfaces;
+using ServiceDeskSystem.Domain.Enums;
 
 namespace ServiceDeskSystem.Components.Pages.Settings;
 
@@ -53,7 +54,7 @@ public partial class Settings : BaseComponent
             return;
         }
 
-        this.isAdmin = this.AuthService.CurrentUser.Role == "Admin";
+        this.isAdmin = this.AuthService.CurrentUser.Role == UserRole.Admin;
 
         try
         {

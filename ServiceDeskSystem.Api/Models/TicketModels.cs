@@ -1,6 +1,8 @@
+using ServiceDeskSystem.Domain.Enums;
+
 namespace ServiceDeskSystem.Api.Models;
 
-public sealed record UpdateStatusRequest(string Status);
+public sealed record UpdateStatusRequest(TicketStatus Status);
 
 public sealed record AssignDeveloperRequest(int DeveloperId);
 

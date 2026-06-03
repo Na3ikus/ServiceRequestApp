@@ -4,6 +4,7 @@ using ServiceDeskSystem.Api.Models;
 using ServiceDeskSystem.Application.Services.Admin;
 using ServiceDeskSystem.Application.Services.Admin.Interfaces;
 using ServiceDeskSystem.Domain.Entities;
+using ServiceDeskSystem.Domain.Enums;
 using ServiceDeskSystem.Domain.Interfaces;
 using System.Net.Mail;
 
@@ -122,7 +123,7 @@ public sealed class AdminController(
     }
 
     [HttpPut("users/{userId:int}/role")]
-    public async Task<IActionResult> UpdateUserRole(int userId, [FromBody] string newRole)
+    public async Task<IActionResult> UpdateUserRole(int userId, [FromBody] UserRole newRole)
     {
         logger.LogInformation("Updating role of user {UserId} to {Role}", userId, newRole);
         var success = await adminService.UpdateUserRoleAsync(userId, newRole).ConfigureAwait(false);

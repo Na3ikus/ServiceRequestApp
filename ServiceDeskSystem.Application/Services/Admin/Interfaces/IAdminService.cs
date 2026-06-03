@@ -1,4 +1,5 @@
 using ServiceDeskSystem.Domain.Entities;
+using ServiceDeskSystem.Domain.Enums;
 
 namespace ServiceDeskSystem.Application.Services.Admin.Interfaces;
 
@@ -23,7 +24,7 @@ public interface IAdminService
     // User Management
     Task<List<User>> GetAllUsersAsync();
 
-    Task<bool> UpdateUserRoleAsync(int userId, string newRole);
+    Task<bool> UpdateUserRoleAsync(int userId, UserRole newRole);
 
     Task<bool> ToggleUserActiveStatusAsync(int userId);
 

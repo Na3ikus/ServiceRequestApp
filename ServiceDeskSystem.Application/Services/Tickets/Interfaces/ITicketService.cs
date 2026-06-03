@@ -1,4 +1,5 @@
 using ServiceDeskSystem.Domain.Entities;
+using ServiceDeskSystem.Domain.Enums;
 
 namespace ServiceDeskSystem.Application.Services.Tickets.Interfaces;
 
@@ -10,7 +11,7 @@ public interface ITicketService
 
     Task<Ticket> CreateTicketAsync(Ticket ticket);
 
-    Task<bool> UpdateTicketStatusAsync(int ticketId, string newStatus);
+    Task<bool> UpdateTicketStatusAsync(int ticketId, TicketStatus newStatus);
 
     Task<bool> UpdateTicketDatesAsync(int ticketId, DateTime? startDate, DateTime? dueDate, int? actorUserId = null);
 

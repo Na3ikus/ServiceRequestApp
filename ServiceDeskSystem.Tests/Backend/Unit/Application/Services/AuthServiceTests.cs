@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
 using ServiceDeskSystem.Application.Services.Auth;
 using ServiceDeskSystem.Domain.Entities;
+using ServiceDeskSystem.Domain.Enums;
 using ServiceDeskSystem.Infrastructure.Data;
 
 namespace ServiceDeskSystem.Tests.Backend.Unit.Application.Services;
@@ -48,7 +49,7 @@ public class AuthServiceTests
         {
             Login = login,
             PasswordHash = Convert.ToBase64String(salt) + ":" + Convert.ToBase64String(hash),
-            Role = "User",
+            Role = UserRole.User,
             PersonId = person.Id,
             IsActive = isActive
         };
@@ -201,7 +202,7 @@ public class AuthServiceTests
         // Verify user was created in DB
         var user = await context.Users.FirstOrDefaultAsync(u => u.Login == "newuser");
         user.Should().NotBeNull();
-        user!.Role.Should().Be("User");
+        user!.Role.Should().Be(UserRole.User);
         user.IsActive.Should().BeTrue();
         user.PasswordHash.Should().Contain(":"); // PBKDF2 format
 

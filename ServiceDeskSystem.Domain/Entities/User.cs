@@ -1,14 +1,15 @@
+using ServiceDeskSystem.Domain.Enums;
+
 namespace ServiceDeskSystem.Domain.Entities;
+using ServiceDeskSystem.Domain.Common;
 
-public class User
+public class User : AggregateRoot
 {
-    public int Id { get; set; }
-
     public string Login { get; set; } = string.Empty;
 
     public string PasswordHash { get; set; } = string.Empty;
 
-    public string Role { get; set; } = string.Empty;
+    public UserRole Role { get; set; } = UserRole.User;
 
     public bool IsActive { get; set; } = true;
 

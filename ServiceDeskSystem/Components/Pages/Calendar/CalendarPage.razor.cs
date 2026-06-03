@@ -3,6 +3,7 @@ using ServiceDeskSystem.Application.Services.Auth.Interfaces;
 using ServiceDeskSystem.Application.Services.Tickets.Interfaces;
 using ServiceDeskSystem.Components.UI.Base;
 using ServiceDeskSystem.Domain.Entities;
+using ServiceDeskSystem.Domain.Enums;
 
 namespace ServiceDeskSystem.Components.Pages.Calendar;
 
@@ -35,11 +36,11 @@ public partial class CalendarPage : BaseComponent
             return;
         }
 
-        if (this.AuthService.CurrentUser.Role == "Admin")
+        if (this.AuthService.CurrentUser.Role == UserRole.Admin)
         {
             this.tickets = await this.TicketService.GetAllTicketsAsync();
         }
-        else if (this.AuthService.CurrentUser.Role == "Developer")
+        else if (this.AuthService.CurrentUser.Role == UserRole.Developer)
         {
             this.tickets = await this.TicketService.GetDeveloperTicketsAsync(this.AuthService.CurrentUser.Id);
         }

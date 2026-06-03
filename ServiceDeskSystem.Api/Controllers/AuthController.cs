@@ -108,7 +108,7 @@ public sealed class AuthController(
     }
 
     private static UserDto MapToDto(User user) =>
-        new(user.Id, user.Login, user.Role, user.IsActive,
+        new(user.Id, user.Login, user.Role.ToString(), user.IsActive,
             user.Person?.FirstName, user.Person?.LastName);
 }
 

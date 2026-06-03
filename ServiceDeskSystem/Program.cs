@@ -27,6 +27,12 @@ internal static class Program
 
         var app = builder.Build();
 
+        using (var scope = app.Services.CreateScope())
+        {
+            var dbInitializer = scope.ServiceProvider.GetRequiredService<ServiceDeskSystem.Infrastructure.Data.DataSeeding.DbInitializer>();
+            await dbInitializer.InitializeAsync();
+        }
+
         if (!app.Environment.IsDevelopment())
         {
             app.UseExceptionHandler("/Error", createScopeForErrors: true);

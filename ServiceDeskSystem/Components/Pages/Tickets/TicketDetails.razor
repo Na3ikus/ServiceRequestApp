@@ -1,5 +1,7 @@
 @page "/ticket/{Id:int}"
 @using ServiceDeskSystem.Components.Features
+@using ServiceDeskSystem.Domain.Entities
+@using ServiceDeskSystem.Domain.Enums
 @inherits BaseComponent
 @rendermode InteractiveServer
 
@@ -416,113 +418,135 @@
                             @L.Translate("details.actions")
                         </h3>
                         <div class="space-y-3 relative z-10 flex flex-col">
-                            @* Start working on ticket *@
-                            @if (Ticket.Status == "New" || Ticket.Status == "Open")
+                            @if (Ticket.Status == TicketStatus.New || Ticket.Status == TicketStatus.Open)
                             {
-                                <button @onclick="@(() => UpdateStatusAsync("In Progress"))" 
-                                        class="action-btn ui-btn ui-btn--block ui-btn--warning btn-animate">
-                                    <span>🚀</span>
-                                    <span>@L.Translate("details.startProgress")</span>
+                                <button @onclick="@(() => UpdateStatusAsync(TicketStatus.InProgress))" 
+                                    class="w-full text-left px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 flex items-center gap-3 transition-colors border-l-2 border-transparent hover:border-blue-500">
+                                    <div class="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center">
+                                        <svg class="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+                                        </svg>
+                                    </div>
+                                    <span class="font-medium text-slate-700 dark:text-slate-200">@L.Translate("statusAction.startProgress")</span>
+                                </button>
+                            }
+
+                            @if (Ticket.Status == TicketStatus.InProgress)
+                            {
+                                <button @onclick="@(() => UpdateStatusAsync(TicketStatus.Testing))" 
+                                    class="w-full text-left px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 flex items-center gap-3 transition-colors border-l-2 border-transparent hover:border-yellow-500">
+                                    <div class="w-8 h-8 rounded-full bg-yellow-100 dark:bg-yellow-900/50 flex items-center justify-center">
+                                        <svg class="w-4 h-4 text-yellow-600 dark:text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                    </div>
+                                    <span class="font-medium text-slate-700 dark:text-slate-200">@L.Translate("statusAction.submitTesting")</span>
+                                </button>
+                                <button @onclick="@(() => UpdateStatusAsync(TicketStatus.CodeReview))" 
+                                    class="w-full text-left px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 flex items-center gap-3 transition-colors border-l-2 border-transparent hover:border-indigo-500">
+                                    <div class="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center">
+                                        <svg class="w-4 h-4 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+                                    </div>
+                                    <span class="font-medium text-slate-700 dark:text-slate-200">@L.Translate("statusAction.submitCodeReview")</span>
+                                </button>
+                                <button @onclick="@(() => UpdateStatusAsync(TicketStatus.Resolved))" 
+                                    class="w-full text-left px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 flex items-center gap-3 transition-colors border-l-2 border-transparent hover:border-emerald-500">
+                                    <div class="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-900/50 flex items-center justify-center">
+                                        <svg class="w-4 h-4 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                    </div>
+                                    <span class="font-medium text-slate-700 dark:text-slate-200">@L.Translate("statusAction.markResolved")</span>
+                                </button>
+                            }
+
+                            @if (Ticket.Status == TicketStatus.Testing)
+                            {
+                                <button @onclick="@(() => UpdateStatusAsync(TicketStatus.CodeReview))" 
+                                    class="w-full text-left px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 flex items-center gap-3 transition-colors border-l-2 border-transparent hover:border-indigo-500">
+                                    <div class="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center">
+                                        <svg class="w-4 h-4 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+                                    </div>
+                                    <span class="font-medium text-slate-700 dark:text-slate-200">@L.Translate("statusAction.submitCodeReview")</span>
+                                </button>
+                                <button @onclick="@(() => UpdateStatusAsync(TicketStatus.Done))" 
+                                    class="w-full text-left px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 flex items-center gap-3 transition-colors border-l-2 border-transparent hover:border-emerald-500">
+                                    <div class="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-900/50 flex items-center justify-center">
+                                        <svg class="w-4 h-4 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                    </div>
+                                    <span class="font-medium text-slate-700 dark:text-slate-200">@L.Translate("statusAction.markDone")</span>
+                                </button>
+                                <button @onclick="@(() => UpdateStatusAsync(TicketStatus.InProgress))" 
+                                    class="w-full text-left px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 flex items-center gap-3 transition-colors border-l-2 border-transparent hover:border-red-500">
+                                    <div class="w-8 h-8 rounded-full bg-red-100 dark:bg-red-900/50 flex items-center justify-center">
+                                        <svg class="w-4 h-4 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                    </div>
+                                    <span class="font-medium text-slate-700 dark:text-slate-200">@L.Translate("statusAction.rejectTesting")</span>
+                                </button>
+                            }
+
+                            @if (Ticket.Status == TicketStatus.CodeReview)
+                            {
+                                <button @onclick="@(() => UpdateStatusAsync(TicketStatus.Done))" 
+                                    class="w-full text-left px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 flex items-center gap-3 transition-colors border-l-2 border-transparent hover:border-emerald-500">
+                                    <div class="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-900/50 flex items-center justify-center">
+                                        <svg class="w-4 h-4 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                    </div>
+                                    <span class="font-medium text-slate-700 dark:text-slate-200">@L.Translate("statusAction.approveCode")</span>
+                                </button>
+                                <button @onclick="@(() => UpdateStatusAsync(TicketStatus.InProgress))" 
+                                    class="w-full text-left px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 flex items-center gap-3 transition-colors border-l-2 border-transparent hover:border-red-500">
+                                    <div class="w-8 h-8 rounded-full bg-red-100 dark:bg-red-900/50 flex items-center justify-center">
+                                        <svg class="w-4 h-4 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                    </div>
+                                    <span class="font-medium text-slate-700 dark:text-slate-200">@L.Translate("statusAction.rejectCode")</span>
                                 </button>
                             }
                             
-                            @* From In Progress - multiple options *@
-                            @if (Ticket.Status == "In Progress")
+                            @if (Ticket.Status == TicketStatus.Resolved)
                             {
-                                <button @onclick="@(() => UpdateStatusAsync("Testing"))" 
-                                        class="action-btn ui-btn ui-btn--block ui-btn--info btn-animate">
-                                    <span>🧪</span>
-                                    <span>@L.Translate("details.sendToTesting")</span>
+                                <button @onclick="@(() => UpdateStatusAsync(TicketStatus.Closed))" 
+                                    class="w-full text-left px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 flex items-center gap-3 transition-colors border-l-2 border-transparent hover:border-gray-500">
+                                    <div class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+                                        <svg class="w-4 h-4 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                    </div>
+                                    <span class="font-medium text-slate-700 dark:text-slate-200">@L.Translate("statusAction.closeTicket")</span>
                                 </button>
-                                <button @onclick="@(() => UpdateStatusAsync("Code Review"))" 
-                                        class="action-btn ui-btn ui-btn--block ui-btn--violet btn-animate">
-                                    <span>👀</span>
-                                    <span>@L.Translate("details.sendToCodeReview")</span>
-                                </button>
-                                <button @onclick="@(() => UpdateStatusAsync("Resolved"))" 
-                                        class="action-btn ui-btn ui-btn--block ui-btn--success btn-animate">
-                                    <span>✅</span>
-                                    <span>@L.Translate("details.markResolved")</span>
+                                <button @onclick="@(() => UpdateStatusAsync(TicketStatus.InProgress))" 
+                                    class="w-full text-left px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 flex items-center gap-3 transition-colors border-l-2 border-transparent hover:border-red-500">
+                                    <div class="w-8 h-8 rounded-full bg-red-100 dark:bg-red-900/50 flex items-center justify-center">
+                                        <svg class="w-4 h-4 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                    </div>
+                                    <span class="font-medium text-slate-700 dark:text-slate-200">@L.Translate("statusAction.reopenTicket")</span>
                                 </button>
                             }
-                            
-                            @* From Testing *@
-                            @if (Ticket.Status == "Testing")
+
+                            @if (Ticket.Status == TicketStatus.Done)
                             {
-                                <button @onclick="@(() => UpdateStatusAsync("Code Review"))" 
-                                        class="action-btn ui-btn ui-btn--block ui-btn--violet btn-animate">
-                                    <span>👀</span>
-                                    <span>@L.Translate("details.moveToCodeReview")</span>
-                                </button>
-                                <button @onclick="@(() => UpdateStatusAsync("Done"))" 
-                                        class="action-btn ui-btn ui-btn--block ui-btn--success btn-animate">
-                                    <span>✅</span>
-                                    <span>@L.Translate("details.testingPassed")</span>
-                                </button>
-                                <button @onclick="@(() => UpdateStatusAsync("In Progress"))" 
-                                        class="action-btn ui-btn ui-btn--block ui-btn--orange btn-animate">
-                                    <span>🔙</span>
-                                    <span>@L.Translate("details.returnToDevelopment")</span>
+                                <button @onclick="@(() => UpdateStatusAsync(TicketStatus.Closed))" 
+                                    class="w-full text-left px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 flex items-center gap-3 transition-colors border-l-2 border-transparent hover:border-gray-500">
+                                    <div class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+                                        <svg class="w-4 h-4 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                    </div>
+                                    <span class="font-medium text-slate-700 dark:text-slate-200">@L.Translate("statusAction.closeTicket")</span>
                                 </button>
                             }
-                            
-                            @* From Code Review *@
-                            @if (Ticket.Status == "Code Review")
+
+                            @if (Ticket.Status != TicketStatus.Closed && Ticket.Status != TicketStatus.Done && Ticket.Status != TicketStatus.Resolved)
                             {
-                                <button @onclick="@(() => UpdateStatusAsync("Done"))" 
-                                        class="action-btn ui-btn ui-btn--block ui-btn--success btn-animate">
-                                    <span>✅</span>
-                                    <span>@L.Translate("details.approveChanges")</span>
-                                </button>
-                                <button @onclick="@(() => UpdateStatusAsync("In Progress"))" 
-                                        class="action-btn ui-btn ui-btn--block ui-btn--orange btn-animate">
-                                    <span>🔙</span>
-                                    <span>@L.Translate("details.requestChanges")</span>
+                                <button @onclick="@(() => UpdateStatusAsync(TicketStatus.Closed))" 
+                                    class="w-full text-left px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 flex items-center gap-3 transition-colors border-l-2 border-transparent hover:border-gray-500">
+                                    <div class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+                                        <svg class="w-4 h-4 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                    </div>
+                                    <span class="font-medium text-slate-700 dark:text-slate-200">@L.Translate("statusAction.closeDirectly")</span>
                                 </button>
                             }
-                            
-                            @* From Resolved *@
-                            @if (Ticket.Status == "Resolved")
+
+                            @if (Ticket.Status == TicketStatus.Closed)
                             {
-                                <button @onclick="@(() => UpdateStatusAsync("Closed"))" 
-                                        class="action-btn ui-btn ui-btn--block ui-btn--neutral btn-animate">
-                                    <span>🔒</span>
-                                    <span>@L.Translate("details.closeTicketBtn")</span>
-                                </button>
-                                <button @onclick="@(() => UpdateStatusAsync("In Progress"))" 
-                                        class="action-btn ui-btn ui-btn--block ui-btn--orange btn-animate">
-                                    <span>🔙</span>
-                                    <span>@L.Translate("details.reopenForChanges")</span>
-                                </button>
-                            }
-                            
-                            @* From Done *@
-                            @if (Ticket.Status == "Done")
-                            {
-                                <button @onclick="@(() => UpdateStatusAsync("Closed"))" 
-                                        class="action-btn ui-btn ui-btn--block ui-btn--neutral btn-animate">
-                                    <span>🔒</span>
-                                    <span>@L.Translate("details.markAsClosed")</span>
-                                </button>
-                            }
-                            
-                            @* Force Close - from any status except Closed *@
-                            @if (Ticket.Status != "Closed" && Ticket.Status != "Done" && Ticket.Status != "Resolved")
-                            {
-                                <button @onclick="@(() => UpdateStatusAsync("Closed"))" 
-                                        class="action-btn ui-btn ui-btn--block ui-btn--danger btn-animate">
-                                    <span>⛔</span>
-                                    <span>@L.Translate("details.forceClose")</span>
-                                </button>
-                            }
-                            
-                            @* Reopen Closed ticket *@
-                            @if (Ticket.Status == "Closed")
-                            {
-                                <button @onclick="@(() => UpdateStatusAsync("Open"))" 
-                                        class="action-btn ui-btn ui-btn--block ui-btn--primary-soft btn-animate">
-                                    <span>🔓</span>
-                                    <span>@L.Translate("details.reopenTicket")</span>
+                                <button @onclick="@(() => UpdateStatusAsync(TicketStatus.Open))" 
+                                    class="w-full text-left px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 flex items-center gap-3 transition-colors border-l-2 border-transparent hover:border-blue-500">
+                                    <div class="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center">
+                                        <svg class="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                                    </div>
+                                    <span class="font-medium text-slate-700 dark:text-slate-200">@L.Translate("statusAction.reopenTicket")</span>
                                 </button>
                             }
                         </div>
