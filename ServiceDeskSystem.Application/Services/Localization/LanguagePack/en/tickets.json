@@ -112,5 +112,16 @@
   "kanban.viewTable": "Table",
   "kanban.viewKanban": "Kanban",
   "kanban.dropHere": "Drop ticket here",
-  "kanban.noTickets": "No tickets"
+  "kanban.noTickets": "No tickets",
+  "statusAction.startProgress": "Start Progress",
+  "statusAction.submitTesting": "Send to Testing",
+  "statusAction.submitCodeReview": "Send to Code Review",
+  "statusAction.markResolved": "Mark Resolved",
+  "statusAction.markDone": "Mark Done",
+  "statusAction.rejectTesting": "Reject Testing",
+  "statusAction.approveCode": "Approve Code",
+  "statusAction.rejectCode": "Reject Code",
+  "statusAction.closeTicket": "Close Ticket",
+  "statusAction.reopenTicket": "Reopen Ticket",
+  "statusAction.closeDirectly": "Close Directly"
 }

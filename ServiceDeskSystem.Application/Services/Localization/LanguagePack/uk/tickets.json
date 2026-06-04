@@ -112,5 +112,16 @@
   "kanban.viewTable": "Таблиця",
   "kanban.viewKanban": "Канбан",
   "kanban.dropHere": "Перетягніть тікет сюди",
-  "kanban.noTickets": "Немає тікетів"
+  "kanban.noTickets": "Немає тікетів",
+  "statusAction.startProgress": "Розпочати роботу",
+  "statusAction.submitTesting": "Відправити на тестування",
+  "statusAction.submitCodeReview": "Відправити на код-рев'ю",
+  "statusAction.markResolved": "Позначити вирішеною",
+  "statusAction.markDone": "Позначити виконаним",
+  "statusAction.rejectTesting": "Повернути з тестування",
+  "statusAction.approveCode": "Затвердити код",
+  "statusAction.rejectCode": "Відхилити код",
+  "statusAction.closeTicket": "Закрити заявку",
+  "statusAction.reopenTicket": "Відкрити знову",
+  "statusAction.closeDirectly": "Примусово закрити"
 }
