@@ -3,7 +3,7 @@ using ServiceDeskSystem.Application.Services.Theme;
 
 namespace ServiceDeskSystem.Application.Services.Theme;
 
-public sealed class ThemeService : IThemeService, IAsyncDisposable
+public sealed class ThemeService : IThemeService
 {
     private readonly IJSRuntime jsRuntime;
     private string currentTheme = "light";
@@ -55,40 +55,10 @@ public sealed class ThemeService : IThemeService, IAsyncDisposable
         }
     }
 
-    private bool toggling;
-
-    public async void ToggleTheme()
+    public void ToggleTheme()
     {
-        if (this.toggling)
-        {
-            return;
-        }
-
-        this.toggling = true;
-
         var newTheme = this.currentTheme == "light" ? "dark" : "light";
-        this.currentTheme = newTheme;
-
-        try
-        {
-            await this.jsRuntime.InvokeVoidAsync("themeManager.setTheme", newTheme);
-        }
-        catch
-        {
-            // Ignore JS interop errors during prerendering
-        }
-        finally
-        {
-            this.toggling = false;
-        }
-
-        this.ThemeChanged?.Invoke(this, EventArgs.Empty);
-    }
-
-    public async ValueTask DisposeAsync()
-    {
-        // Cleanup if needed
-        await Task.CompletedTask;
+        SetTheme(newTheme);
     }
 }
 

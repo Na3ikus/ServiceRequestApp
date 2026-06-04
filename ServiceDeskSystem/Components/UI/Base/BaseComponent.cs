@@ -16,6 +16,9 @@ public abstract class BaseComponent : ComponentBase, IDisposable
     [Inject]
     protected IThemeService Theme { get; set; } = null!;
 
+    [Inject]
+    protected NavigationManager Navigation { get; set; } = null!;
+
     public void Dispose()
     {
         this.Dispose(true);
@@ -43,6 +46,28 @@ public abstract class BaseComponent : ComponentBase, IDisposable
         TicketPriority.Low => "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
         _ => "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200",
     };
+
+    protected static string GetPriorityColorClass(TicketPriority priority) => priority switch
+    {
+        TicketPriority.Critical => "bg-gradient-to-br from-red-500 to-rose-600",
+        TicketPriority.High => "bg-gradient-to-br from-orange-400 to-red-500",
+        TicketPriority.Medium => "bg-gradient-to-br from-amber-400 to-orange-500",
+        TicketPriority.Low => "bg-gradient-to-br from-green-400 to-emerald-500",
+        _ => "bg-gradient-to-br from-gray-400 to-gray-500",
+    };
+
+    protected static string GetStatusDotColor(TicketStatus status) => status switch
+    {
+        TicketStatus.Open => "bg-blue-500",
+        TicketStatus.InProgress => "bg-amber-500",
+        TicketStatus.Testing => "bg-cyan-500",
+        TicketStatus.CodeReview => "bg-indigo-500",
+        TicketStatus.Resolved => "bg-green-500",
+        TicketStatus.Closed => "bg-gray-500",
+        _ => "bg-purple-500",
+    };
+
+    protected void ViewTicket(int id) => this.Navigation.NavigateTo($"/ticket/{id}");
 
     protected override void OnInitialized()
     {
@@ -89,5 +114,5 @@ public abstract class BaseComponent : ComponentBase, IDisposable
         _ => priority.ToString(),
     };
 
-    private void OnStateChanged(object? sender, EventArgs e) => this.InvokeAsync(this.StateHasChanged);
+    protected virtual void OnStateChanged(object? sender, EventArgs e) => this.InvokeAsync(this.StateHasChanged);
 }

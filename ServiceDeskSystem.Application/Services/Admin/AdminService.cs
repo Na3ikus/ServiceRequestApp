@@ -160,10 +160,7 @@ public sealed class AdminService(
         user.Role = newRole;
         await repo.UnitOfWork.SaveChangesAsync().ConfigureAwait(false);
 
-        if (auditService is not null)
-        {
-            await auditService.LogActionSafeAsync("UPDATE_USER_ROLE", "User", userId.ToString(), $"Updated user role to: {newRole}").ConfigureAwait(false);
-        }
+        await auditService.LogActionSafeAsync("UPDATE_USER_ROLE", "User", userId.ToString(), $"Updated user role to: {newRole}").ConfigureAwait(false);
 
         return true;
     }
@@ -183,10 +180,7 @@ public sealed class AdminService(
         var actionStr = user.IsActive ? "ACTIVATE_USER" : "DEACTIVATE_USER";
         var detailStr = user.IsActive ? "Activated user account" : "Deactivated user account";
 
-        if (auditService is not null)
-        {
-            await auditService.LogActionSafeAsync(actionStr, "User", userId.ToString(), detailStr).ConfigureAwait(false);
-        }
+        await auditService.LogActionSafeAsync(actionStr, "User", userId.ToString(), detailStr).ConfigureAwait(false);
 
         return true;
     }
@@ -213,10 +207,7 @@ public sealed class AdminService(
         await repo.Users.DeleteAsync(userId).ConfigureAwait(false);
         await repo.UnitOfWork.SaveChangesAsync().ConfigureAwait(false);
 
-        if (auditService is not null)
-        {
-            await auditService.LogActionSafeAsync("DELETE_USER", "User", userId.ToString(), $"Deleted user: {user.Login}").ConfigureAwait(false);
-        }
+        await auditService.LogActionSafeAsync("DELETE_USER", "User", userId.ToString(), $"Deleted user: {user.Login}").ConfigureAwait(false);
 
         return true;
     }

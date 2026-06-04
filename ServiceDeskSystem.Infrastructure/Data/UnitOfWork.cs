@@ -15,11 +15,6 @@ namespace ServiceDeskSystem.Infrastructure.Data
             return await this._context.SaveChangesAsync().ConfigureAwait(false);
         }
 
-        public int SaveChanges()
-        {
-            return this._context.SaveChanges();
-        }
-
         public void Dispose()
         {
             this._context.Dispose();

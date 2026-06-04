@@ -14,15 +14,6 @@ namespace ServiceDeskSystem.Infrastructure.Data.Repository
 
         protected override DbSet<Product> DbSet => this.Context.Products;
 
-        public IEnumerable<Product> GetAllWithTechStack()
-        {
-            return this.Context.Products
-                .Include(p => p.TechStack)
-                .Include(p => p.Tickets)
-                .OrderBy(p => p.Name)
-                .ToList();
-        }
-
         public async Task<IEnumerable<Product>> GetAllWithTechStackAsync()
         {
             return await this.Context.Products

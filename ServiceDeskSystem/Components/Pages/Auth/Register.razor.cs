@@ -15,9 +15,6 @@ public partial class Register : BaseComponent
     [Inject]
     private IAuthService AuthService { get; set; } = null!;
 
-    [Inject]
-    private NavigationManager Navigation { get; set; } = null!;
-
     private string? ErrorMessage { get; set; }
 
     private string? SuccessMessage { get; set; }

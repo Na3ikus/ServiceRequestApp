@@ -2,7 +2,6 @@
 @using ServiceDeskSystem.Domain.Enums
 @using Microsoft.JSInterop
 @inject IJSRuntime JSRuntime
-@inject NavigationManager Navigation
 
 @inherits ServiceDeskSystem.Components.UI.Base.BaseComponent
 
@@ -81,8 +80,5 @@
         }
     }
 
-    private void HandleClick()
-    {
-        Navigation.NavigateTo($"/ticket/{Ticket.Id}");
-    }
+    private void HandleClick() => ViewTicket(Ticket.Id);
 }

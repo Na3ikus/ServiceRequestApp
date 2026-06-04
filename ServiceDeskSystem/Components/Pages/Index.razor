@@ -1,12 +1,10 @@
 @page "/"
 @using ServiceDeskSystem.Domain.Entities
 @using ServiceDeskSystem.Domain.Enums
+@inherits ServiceDeskSystem.Components.UI.Base.BaseComponent
 @inject IAuthService AuthService
 @inject ITicketService TicketService
-@inject ILocalizationService L
-@inject NavigationManager Navigation
 @rendermode InteractiveServer
-@implements IDisposable
 
 <!-- Created by Nazar "N1h3" Hutsol -->
 <div class="max-w-7xl mx-auto p-4 sm:p-6 animate-fade-in">
@@ -167,8 +165,6 @@
 
     protected override async Task OnInitializedAsync()
     {
-        L.LanguageChanged += OnStateChanged;
-        
         currentUser = AuthService.CurrentUser;
         
         if (currentUser == null)
@@ -200,44 +196,4 @@
             isLoading = false;
         }
     }
-    
-    private void OnStateChanged(object? sender, EventArgs e) => InvokeAsync(StateHasChanged);
-
-    public void Dispose()
-    {
-        L.LanguageChanged -= OnStateChanged;
-    }
-
-    private string GetPriorityColorClass(TicketPriority priority) => priority switch
-    {
-        TicketPriority.Critical => "bg-gradient-to-br from-red-500 to-rose-600",
-        TicketPriority.High => "bg-gradient-to-br from-orange-400 to-red-500",
-        TicketPriority.Medium => "bg-gradient-to-br from-amber-400 to-orange-500",
-        TicketPriority.Low => "bg-gradient-to-br from-green-400 to-emerald-500",
-        _ => "bg-gradient-to-br from-gray-400 to-gray-500"
-    };
-
-    private string GetStatusDotColor(TicketStatus status) => status switch
-    {
-        TicketStatus.Open => "bg-blue-500",
-        TicketStatus.InProgress => "bg-amber-500",
-        TicketStatus.Testing => "bg-cyan-500",
-        TicketStatus.CodeReview => "bg-indigo-500",
-        TicketStatus.Resolved => "bg-green-500",
-        TicketStatus.Closed => "bg-gray-500",
-        _ => "bg-purple-500"
-    };
-
-    private string GetStatusText(TicketStatus status) => status switch
-    {
-        TicketStatus.New => L.Translate("status.new"),
-        TicketStatus.Open => L.Translate("status.open"),
-        TicketStatus.InProgress => L.Translate("status.inProgress"),
-        TicketStatus.Testing => L.Translate("status.testing"),
-        TicketStatus.CodeReview => L.Translate("status.codeReview"),
-        TicketStatus.Resolved => L.Translate("status.resolved"),
-        TicketStatus.Done => L.Translate("status.done"),
-        TicketStatus.Closed => L.Translate("status.closed"),
-        _ => status.ToString(),
-    };
 }

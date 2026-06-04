@@ -85,10 +85,7 @@ public sealed class ProfileService(IRepositoryFacadeFactory repositoryFacadeFact
         try
         {
             await repo.UnitOfWork.SaveChangesAsync().ConfigureAwait(false);
-            if (auditService is not null)
-            {
-                await auditService.LogActionSafeAsync("UPDATE_PROFILE", "User", userId.ToString(), $"Updated user profile: {user.Login}", userId).ConfigureAwait(false);
-            }
+            await auditService.LogActionSafeAsync("UPDATE_PROFILE", "User", userId.ToString(), $"Updated user profile: {user.Login}", userId).ConfigureAwait(false);
             return (true, null);
         }
         catch (Exception ex)

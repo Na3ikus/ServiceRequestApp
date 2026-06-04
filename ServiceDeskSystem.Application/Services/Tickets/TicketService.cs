@@ -74,19 +74,7 @@ public sealed class TicketService(
         return ticket;
     }
 
-    public async Task<Comment> AddCommentAsync(Comment comment)
-    {
-        ArgumentNullException.ThrowIfNull(comment);
 
-        await using var repo = repositoryFacadeFactory.Create();
-        comment.CreatedAt = DateTime.UtcNow;
-
-        await repo.Comments.CreateAsync(comment).ConfigureAwait(false);
-        await repo.UnitOfWork.SaveChangesAsync().ConfigureAwait(false);
-
-        var result = await repo.Comments.GetByIdWithAuthorAsync(comment.Id).ConfigureAwait(false);
-        return result ?? comment;
-    }
 
     public async Task<bool> UpdateTicketStatusAsync(int ticketId, TicketStatus newStatus)
     {

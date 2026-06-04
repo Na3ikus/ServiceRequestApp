@@ -18,9 +18,6 @@ public partial class CreateTicket
     [Inject]
     private IAuthService AuthService { get; set; } = null!;
 
-    [Inject]
-    private NavigationManager Navigation { get; set; } = null!;
-
     private TicketCreateModel ticketModel { get; set; } = new TicketCreateModel();
 
     private List<Product> products { get; set; } = [];

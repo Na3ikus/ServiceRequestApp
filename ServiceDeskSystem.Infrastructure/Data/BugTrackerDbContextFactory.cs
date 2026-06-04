@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.Extensions.Configuration;
 using System.Text.Json;
 
 namespace ServiceDeskSystem.Infrastructure.Data
@@ -8,67 +9,23 @@ namespace ServiceDeskSystem.Infrastructure.Data
     {
         public BugTrackerDbContext CreateDbContext(string[] args)
         {
-            var connectionString =
-                TryReadConnectionStringFromConfig()
-                ?? Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection");
+            var configuration = new Microsoft.Extensions.Configuration.ConfigurationBuilder()
+                .AddEnvironmentVariables()
+                .SetBasePath(Directory.GetCurrentDirectory());
 
-            if (string.IsNullOrWhiteSpace(connectionString))
+            foreach (var configPath in GetConfigurationFiles())
             {
-                throw new InvalidOperationException("Connection string 'DefaultConnection' was not found for EF Core design-time tools.");
+                configuration.AddJsonFile(configPath, optional: true);
             }
 
-            var serverVersionValue = TryReadMySqlVersionFromConfig() ?? "8.0.45";
-            if (!Version.TryParse(serverVersionValue, out var parsedVersion))
-            {
-                throw new InvalidOperationException("Configuration key 'Database:MySqlVersion' must be a valid version.");
-            }
+            var config = configuration.Build();
+
+            var (connectionString, serverVersion) = DatabaseConfigurationHelper.GetDatabaseConfiguration(config);
 
             var optionsBuilder = new DbContextOptionsBuilder<BugTrackerDbContext>();
-            optionsBuilder.UseMySql(connectionString, new MySqlServerVersion(parsedVersion));
+            optionsBuilder.UseMySql(connectionString, serverVersion);
 
             return new BugTrackerDbContext(optionsBuilder.Options);
-        }
-
-        private static string? TryReadConnectionStringFromConfig()
-        {
-            foreach (var configPath in GetConfigurationFiles())
-            {
-                using var document = JsonDocument.Parse(
-                    File.ReadAllText(configPath),
-                    new JsonDocumentOptions { CommentHandling = JsonCommentHandling.Skip, AllowTrailingCommas = true });
-                if (document.RootElement.TryGetProperty("ConnectionStrings", out var connectionStrings)
-                    && connectionStrings.TryGetProperty("DefaultConnection", out var connectionString))
-                {
-                    var value = connectionString.GetString();
-                    if (!string.IsNullOrWhiteSpace(value))
-                    {
-                        return value;
-                    }
-                }
-            }
-
-            return null;
-        }
-
-        private static string? TryReadMySqlVersionFromConfig()
-        {
-            foreach (var configPath in GetConfigurationFiles())
-            {
-                using var document = JsonDocument.Parse(
-                    File.ReadAllText(configPath),
-                    new JsonDocumentOptions { CommentHandling = JsonCommentHandling.Skip, AllowTrailingCommas = true });
-                if (document.RootElement.TryGetProperty("Database", out var database)
-                    && database.TryGetProperty("MySqlVersion", out var mySqlVersion))
-                {
-                    var value = mySqlVersion.GetString();
-                    if (!string.IsNullOrWhiteSpace(value))
-                    {
-                        return value;
-                    }
-                }
-            }
-
-            return null;
         }
 
         private static IEnumerable<string> GetConfigurationFiles()

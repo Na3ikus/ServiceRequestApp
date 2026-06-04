@@ -21,9 +21,6 @@ public partial class MyTickets : BaseComponent
     [Inject]
     private IAuthService AuthService { get; set; } = null!;
 
-    [Inject]
-    private NavigationManager Navigation { get; set; } = null!;
-
     private List<Ticket>? tickets { get; set; }
 
     private int CurrentUserId => this.AuthService.CurrentUser?.Id ?? 0;
@@ -49,8 +46,6 @@ public partial class MyTickets : BaseComponent
 
         base.Dispose(disposing);
     }
-
-    private void ViewTicket(int id) => this.Navigation.NavigateTo($"/ticket/{id}");
 
     private void StartAutoRefresh()
     {

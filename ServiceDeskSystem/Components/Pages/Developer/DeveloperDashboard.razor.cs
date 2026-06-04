@@ -32,9 +32,6 @@ public partial class DeveloperDashboard : BaseComponent
     private IAuthService AuthService { get; set; } = null!;
 
     [Inject]
-    private NavigationManager Navigation { get; set; } = null!;
-
-    [Inject]
     private IJSRuntime JS { get; set; } = null!;
 
     private List<Ticket>? tickets { get; set; }
@@ -178,15 +175,11 @@ public partial class DeveloperDashboard : BaseComponent
         }
     }
 
-    private void OnStateChanged(object? sender, EventArgs e) => this.InvokeAsync(this.StateHasChanged);
-
     private async void OnAuthStateChanged(object? sender, EventArgs e)
     {
         await this.LoadDataAsync();
         await this.InvokeAsync(this.StateHasChanged);
     }
-
-    private void ViewTicket(int id) => this.Navigation.NavigateTo($"/ticket/{id}");
 
     private void SetViewMode(string mode)
     {

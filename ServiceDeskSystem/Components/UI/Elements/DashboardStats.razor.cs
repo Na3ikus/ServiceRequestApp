@@ -5,7 +5,7 @@ namespace ServiceDeskSystem.Components.UI.Elements;
 /// <summary>
 /// Dashboard statistics component that displays ticket counts with animated transitions.
 /// </summary>
-public partial class DashboardStats : ComponentBase, IDisposable
+public partial class DashboardStats : ServiceDeskSystem.Components.UI.Base.BaseComponent
 {
     protected int displayTotalTickets;
     protected int displayOpenTickets;
@@ -25,34 +25,19 @@ public partial class DashboardStats : ComponentBase, IDisposable
     [Inject]
     protected IAuthService AuthService { get; set; } = null!;
 
-    [Inject]
-    protected ILocalizationService L { get; set; } = null!;
-
-    [Inject]
-    protected IThemeService Theme { get; set; } = null!;
-
-    public void Dispose()
-    {
-        this.Dispose(true);
-        GC.SuppressFinalize(this);
-    }
-
-    protected virtual void Dispose(bool disposing)
+    protected override void Dispose(bool disposing)
     {
         if (disposing)
         {
-            this.L.LanguageChanged -= this.OnStateChanged;
-            this.Theme.ThemeChanged -= this.OnStateChanged;
             this.animationCts.Cancel();
             this.animationCts.Dispose();
         }
+
+        base.Dispose(disposing);
     }
 
     protected override async Task OnInitializedAsync()
     {
-        this.L.LanguageChanged += this.OnStateChanged;
-        this.Theme.ThemeChanged += this.OnStateChanged;
-
         Task<int> totalTicketsTask = this.TicketStatisticsService.GetTotalTicketsCountAsync();
         Task<int> openTicketsTask = this.TicketStatisticsService.GetOpenTicketsCountAsync();
         Task<int> criticalTicketsTask = this.TicketStatisticsService.GetCriticalTicketsCountAsync();
@@ -103,6 +88,4 @@ public partial class DashboardStats : ComponentBase, IDisposable
         this.displayMyTickets = this.myTickets;
         await this.InvokeAsync(this.StateHasChanged);
     }
-
-    private void OnStateChanged(object? sender, EventArgs e) => _ = this.InvokeAsync(this.StateHasChanged);
 }

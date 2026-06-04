@@ -13,21 +13,7 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
     {
-        var connectionString = configuration.GetConnectionString("DefaultConnection");
-        if (string.IsNullOrWhiteSpace(connectionString))
-        {
-            connectionString = "server=127.0.0.1;user=root;password=;database=BugTrackerDB";
-            Console.WriteLine("WARNING: Connection string 'DefaultConnection' not found. Using fallback value. Please configure appsettings.json.");
-        }
-
-        var serverVersionValue = configuration["Database:MySqlVersion"] ?? "8.0.45";
-        if (!Version.TryParse(serverVersionValue, out var parsedVersion))
-        {
-            parsedVersion = new Version(8, 0, 45);
-            Console.WriteLine($"WARNING: Configuration key 'Database:MySqlVersion' has invalid value '{serverVersionValue}'. Falling back to 8.0.45.");
-        }
-
-        var serverVersion = new MySqlServerVersion(parsedVersion);
+        var (connectionString, serverVersion) = DatabaseConfigurationHelper.GetDatabaseConfiguration(configuration);
 
         services.AddDbContextFactory<BugTrackerDbContext>(options =>
             options.UseMySql(connectionString, serverVersion, mySqlOptions =>

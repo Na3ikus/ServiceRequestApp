@@ -1,7 +1,5 @@
-@inject ILocalizationService L
-@inject IThemeService Theme
+@inherits ServiceDeskSystem.Components.UI.Base.BaseComponent
 @inject IAuthService AuthService
-@implements IDisposable
 
 <!-- Created by Nazar "N1h3" Hutsol -->
 <nav class="sidebar-root @(IsCollapsed ? "is-collapsed" : string.Empty) @(Theme.IsDarkMode ? "is-dark" : string.Empty)">

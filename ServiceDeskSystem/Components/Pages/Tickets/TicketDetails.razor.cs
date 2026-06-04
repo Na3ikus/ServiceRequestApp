@@ -38,9 +38,6 @@ public partial class TicketDetails : BaseComponent
     [Inject]
     private IAuthService AuthService { get; set; } = null!;
 
-    [Inject]
-    private NavigationManager Navigation { get; set; } = null!;
-
     private Ticket? Ticket { get; set; }
 
     private string NewCommentMessage { get; set; } = string.Empty;

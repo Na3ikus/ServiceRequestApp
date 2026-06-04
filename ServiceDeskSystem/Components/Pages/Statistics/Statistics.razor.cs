@@ -62,9 +62,6 @@ public partial class Statistics : BaseComponent
     private IAuthService AuthService { get; set; } = null!;
 
     [Inject]
-    private NavigationManager Navigation { get; set; } = null!;
-
-    [Inject]
     private IJSRuntime JS { get; set; } = null!;
 
     private UserRole? CurrentUserRole => this.AuthService.CurrentUser?.Role;

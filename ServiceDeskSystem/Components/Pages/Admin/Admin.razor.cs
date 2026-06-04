@@ -26,9 +26,6 @@ public partial class Admin : BaseComponent
     private IToastService ToastService { get; set; } = null!;
 
     [Inject]
-    private NavigationManager Navigation { get; set; } = null!;
-
-    [Inject]
     private IEmailSender EmailSender { get; set; } = null!;
 
     private List<Product>? products { get; set; }

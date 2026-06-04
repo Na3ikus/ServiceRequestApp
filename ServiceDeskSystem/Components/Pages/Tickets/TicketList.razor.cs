@@ -26,9 +26,6 @@ public partial class TicketList : BaseComponent
     private IAuthService AuthService { get; set; } = null!;
 
     [Inject]
-    private NavigationManager Navigation { get; set; } = null!;
-
-    [Inject]
     private IJSRuntime JS { get; set; } = null!;
 
     private List<Ticket>? tickets { get; set; }
@@ -96,8 +93,6 @@ public partial class TicketList : BaseComponent
 
         base.Dispose(disposing);
     }
-
-    private void ViewTicket(int id) => this.Navigation.NavigateTo($"/ticket/{id}");
 
     private async Task SetViewMode(string mode)
     {

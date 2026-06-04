@@ -38,9 +38,6 @@ public partial class Settings : BaseComponent
     private IJSRuntime JS { get; set; } = null!;
 
     [Inject]
-    private NavigationManager Navigation { get; set; } = null!;
-
-    [Inject]
     private IHttpClientFactory HttpClientFactory { get; set; } = null!;
 
     [Inject]

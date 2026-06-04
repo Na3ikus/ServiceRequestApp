@@ -183,10 +183,7 @@ public sealed class AuthService(
             await repo.Users.CreateAsync(user).ConfigureAwait(false);
             await repo.UnitOfWork.SaveChangesAsync().ConfigureAwait(false);
 
-            if (auditService is not null)
-            {
-                await auditService.LogActionSafeAsync("REGISTER", "User", user.Id.ToString(), $"User registered: {user.Login}", user.Id).ConfigureAwait(false);
-            }
+            await auditService.LogActionSafeAsync("REGISTER", "User", user.Id.ToString(), $"User registered: {user.Login}", user.Id).ConfigureAwait(false);
 
             return (true, null);
         }

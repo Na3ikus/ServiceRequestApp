@@ -8,7 +8,7 @@ namespace ServiceDeskSystem.Components.Layout;
 /// <summary>
 /// Sidebar navigation component with role-aware sections and collapsible mode.
 /// </summary>
-public partial class NavMenu : ComponentBase, IDisposable
+public partial class NavMenu : ServiceDeskSystem.Components.UI.Base.BaseComponent
 {
     private List<MenuSection> sections = [];
 
@@ -18,30 +18,15 @@ public partial class NavMenu : ComponentBase, IDisposable
     [Parameter]
     public EventCallback ToggleCollapseRequested { get; set; }
 
-    public void Dispose()
-    {
-        this.Dispose(true);
-        GC.SuppressFinalize(this);
-    }
-
-    protected override void OnInitialized()
-    {
-        this.L.LanguageChanged += this.OnStateChanged;
-        this.Theme.ThemeChanged += this.OnStateChanged;
-    }
-
     protected override void OnParametersSet()
     {
         this.BuildMenu();
     }
 
-    protected virtual void Dispose(bool disposing)
+    protected override void OnStateChanged(object? sender, EventArgs e)
     {
-        if (disposing)
-        {
-            this.L.LanguageChanged -= this.OnStateChanged;
-            this.Theme.ThemeChanged -= this.OnStateChanged;
-        }
+        this.BuildMenu();
+        base.OnStateChanged(sender, e);
     }
 
     private static string GetIconPath(string key) => key switch
@@ -124,12 +109,6 @@ public partial class NavMenu : ComponentBase, IDisposable
 
         section.IsExpanded = !section.IsExpanded;
     }
-
-    private void OnStateChanged(object? sender, EventArgs e) => this.InvokeAsync(() =>
-    {
-        this.BuildMenu();
-        this.StateHasChanged();
-    });
 
     private sealed class MenuSection(string id, string title)
     {
