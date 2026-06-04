@@ -4,26 +4,41 @@ using ServiceDeskSystem.Domain.Interfaces;
 using ServiceDeskSystem.Application.Services.Admin;
 using ServiceDeskSystem.Application.Services.Audit;
 using ServiceDeskSystem.Domain.Enums;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace ServiceDeskSystem.Application.Services.Admin;
 
 public sealed class AdminService(
     IRepositoryFacadeFactory repositoryFacadeFactory,
+    IMemoryCache memoryCache,
     IAuditService? auditService = null) : IAdminService
 {
+    private void ClearCache()
+    {
+        memoryCache.Remove("AllTechStacks");
+        memoryCache.Remove("AllProducts");
+    }
 
     public async Task<List<TechStack>> GetAllTechStacksAsync()
     {
-        await using var repo = repositoryFacadeFactory.Create();
-        var techStacks = await repo.TechStacks.GetAllWithProductsAsync().ConfigureAwait(false);
-        return techStacks.ToList();
+        return await memoryCache.GetOrCreateAsync("AllTechStacks", async entry =>
+        {
+            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30);
+            await using var repo = repositoryFacadeFactory.Create();
+            var techStacks = await repo.TechStacks.GetAllWithProductsAsync().ConfigureAwait(false);
+            return techStacks.ToList();
+        }) ?? [];
     }
 
     public async Task<List<Product>> GetAllProductsAsync()
     {
-        await using var repo = repositoryFacadeFactory.Create();
-        var products = await repo.Products.GetAllWithTechStackAsync().ConfigureAwait(false);
-        return products.ToList();
+        return await memoryCache.GetOrCreateAsync("AllProducts", async entry =>
+        {
+            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30);
+            await using var repo = repositoryFacadeFactory.Create();
+            var products = await repo.Products.GetAllWithTechStackAsync().ConfigureAwait(false);
+            return products.ToList();
+        }) ?? [];
     }
 
     public async Task<TechStack> CreateTechStackAsync(TechStack techStack)
@@ -33,6 +48,8 @@ public sealed class AdminService(
         await using var repo = repositoryFacadeFactory.Create();
         await repo.TechStacks.CreateAsync(techStack).ConfigureAwait(false);
         await repo.UnitOfWork.SaveChangesAsync().ConfigureAwait(false);
+
+        ClearCache();
 
         await auditService.LogActionSafeAsync("CREATE_TECH_STACK", "TechStack", techStack.Id.ToString(), $"Created tech stack: {techStack.Name}").ConfigureAwait(false);
 
@@ -46,6 +63,8 @@ public sealed class AdminService(
         await using var repo = repositoryFacadeFactory.Create();
         await repo.Products.CreateAsync(product).ConfigureAwait(false);
         await repo.UnitOfWork.SaveChangesAsync().ConfigureAwait(false);
+
+        ClearCache();
 
         await auditService.LogActionSafeAsync("CREATE_PRODUCT", "Product", product.Id.ToString(), $"Created product: {product.Name}").ConfigureAwait(false);
 
@@ -66,6 +85,8 @@ public sealed class AdminService(
         existing.Name = techStack.Name;
         existing.Type = techStack.Type;
         await repo.UnitOfWork.SaveChangesAsync().ConfigureAwait(false);
+
+        ClearCache();
 
         await auditService.LogActionSafeAsync("UPDATE_TECH_STACK", "TechStack", techStack.Id.ToString(), $"Updated tech stack: {techStack.Name}").ConfigureAwait(false);
 
@@ -88,6 +109,8 @@ public sealed class AdminService(
         existing.CurrentVersion = product.CurrentVersion;
         existing.TechStackId = product.TechStackId;
         await repo.UnitOfWork.SaveChangesAsync().ConfigureAwait(false);
+
+        ClearCache();
 
         await auditService.LogActionSafeAsync("UPDATE_PRODUCT", "Product", product.Id.ToString(), $"Updated product: {product.Name}").ConfigureAwait(false);
 
@@ -112,6 +135,8 @@ public sealed class AdminService(
         await repo.TechStacks.DeleteAsync(id).ConfigureAwait(false);
         await repo.UnitOfWork.SaveChangesAsync().ConfigureAwait(false);
 
+        ClearCache();
+
         await auditService.LogActionSafeAsync("DELETE_TECH_STACK", "TechStack", id.ToString(), $"Deleted tech stack: {techStack.Name}").ConfigureAwait(false);
 
         return true;
@@ -134,6 +159,8 @@ public sealed class AdminService(
 
         await repo.Products.DeleteAsync(id).ConfigureAwait(false);
         await repo.UnitOfWork.SaveChangesAsync().ConfigureAwait(false);
+
+        ClearCache();
 
         await auditService.LogActionSafeAsync("DELETE_PRODUCT", "Product", id.ToString(), $"Deleted product: {product.Name}").ConfigureAwait(false);
 
@@ -188,18 +215,15 @@ public sealed class AdminService(
     public async Task<bool> DeleteUserAsync(int userId)
     {
         await using var repo = repositoryFacadeFactory.Create();
-        var users = await repo.Users.GetAllAsync().ConfigureAwait(false);
-        var user = users.FirstOrDefault(u => u.Id == userId);
+        var user = await repo.Users.GetByIdAsync(userId).ConfigureAwait(false);
         
         if (user is null)
         {
             return false;
         }
 
-        // We can't easily check created/assigned tickets without repository methods.
-        // Let's assume we can use the repository to check if any exist.
-        var tickets = await repo.Tickets.GetAllAsync().ConfigureAwait(false);
-        if (tickets.Any(t => t.AuthorId == userId || t.DeveloperId == userId))
+        var hasTickets = await repo.Tickets.HasTicketsForUserAsync(userId).ConfigureAwait(false);
+        if (hasTickets)
         {
             return false;
         }

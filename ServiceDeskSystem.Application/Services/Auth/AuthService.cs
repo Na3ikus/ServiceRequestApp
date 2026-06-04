@@ -128,8 +128,7 @@ public sealed class AuthService(
         try
         {
             await using var repo = repositoryFacadeFactory.Create();
-            var existingUsers = await repo.Users.GetAllAsync().ConfigureAwait(false);
-            var existingUser = existingUsers.FirstOrDefault(u => u.Login == username);
+            var existingUser = await repo.Users.GetByLoginAsync(username).ConfigureAwait(false);
 
             if (existingUser is not null)
             {
@@ -144,8 +143,7 @@ public sealed class AuthService(
 
                 if (emailContactType is not null)
                 {
-                    var contactInfos = await repo.ContactInfos.GetAllAsync().ConfigureAwait(false);
-                    var existingEmail = contactInfos.Any(ci => ci.ContactTypeId == emailContactType.Id && ci.Value == email);
+                    var existingEmail = await repo.ContactInfos.ExistsByEmailAsync(email, emailContactType.Id).ConfigureAwait(false);
 
                     if (existingEmail)
                     {

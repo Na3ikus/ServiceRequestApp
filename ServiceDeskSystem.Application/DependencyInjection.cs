@@ -26,6 +26,7 @@ public static class DependencyInjection
 
     public static IServiceCollection AddCoreServices(this IServiceCollection services)
     {
+        services.AddMemoryCache();
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly()));
         services.AddScoped<ServiceDeskSystem.Application.Common.IDomainEventDispatcher, ServiceDeskSystem.Application.Common.MediatRDomainEventDispatcher>();
 

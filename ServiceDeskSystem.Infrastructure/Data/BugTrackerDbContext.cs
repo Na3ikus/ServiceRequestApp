@@ -149,6 +149,29 @@ namespace ServiceDeskSystem.Infrastructure.Data
             modelBuilder.Entity<Notification>()
                 .HasIndex(n => new { n.RecipientUserId, n.IsRead, n.CreatedAt });
 
+            modelBuilder.Entity<Ticket>()
+                .HasIndex(t => t.DeveloperId);
+
+            modelBuilder.Entity<Ticket>()
+                .HasIndex(t => t.AuthorId);
+
+            modelBuilder.Entity<Ticket>()
+                .HasIndex(t => t.Status);
+
+            modelBuilder.Entity<Ticket>()
+                .HasIndex(t => t.Priority);
+
+            modelBuilder.Entity<Ticket>()
+                .HasIndex(t => t.CreatedAt)
+                .IsDescending();
+
+            modelBuilder.Entity<AuditLog>()
+                .HasIndex(a => a.Timestamp)
+                .IsDescending();
+
+            modelBuilder.Entity<AuditLog>()
+                .HasIndex(a => a.UserId);
+
             PersonConfiguration.Seed(modelBuilder);
             ContactTypeConfiguration.Seed(modelBuilder);
             UserConfiguration.Seed(modelBuilder);

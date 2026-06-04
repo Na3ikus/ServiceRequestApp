@@ -28,6 +28,41 @@ namespace ServiceDeskSystem.Infrastructure.Data.Repository
                 .ConfigureAwait(false);
         }
 
+        public async Task<IEnumerable<Ticket>> GetByAuthorIdAsync(int authorId)
+        {
+            return await this.Context.Tickets
+                .Include(t => t.Author)
+                .Include(t => t.Developer)
+                .Include(t => t.Product)
+                .Where(t => t.AuthorId == authorId)
+                .OrderByDescending(t => t.CreatedAt)
+                .AsNoTracking()
+                .ToListAsync()
+                .ConfigureAwait(false);
+        }
+
+        public async Task<bool> HasTicketsForUserAsync(int userId)
+        {
+            return await this.Context.Tickets
+                .AnyAsync(t => t.AuthorId == userId || t.DeveloperId == userId)
+                .ConfigureAwait(false);
+        }
+
+        public async Task<List<(string Login, int Count)>> GetTopDevelopersByResolvedTicketsAsync(int top)
+        {
+            var topDevs = await this.Context.Tickets
+                .Where(t => t.Developer != null && (t.Status == TicketStatus.Resolved || t.Status == TicketStatus.Closed || t.Status == TicketStatus.Done))
+                .GroupBy(t => t.Developer!.Login)
+                .Select(g => new { Login = g.Key, Count = g.Count() })
+                .OrderByDescending(x => x.Count)
+                .Take(top)
+                .AsNoTracking()
+                .ToListAsync()
+                .ConfigureAwait(false);
+
+            return topDevs.Select(x => (x.Login ?? "?", x.Count)).ToList();
+        }
+
         public async Task<IEnumerable<Ticket>> GetAllWithIncludesAsync()
         {
             return await this.Context.Tickets

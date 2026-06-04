@@ -11,6 +11,9 @@ public interface ITicketRepository : IRepository<Ticket>
     Task<Ticket?> GetByIdWithIncludesAsync(int id);
 
     Task<IEnumerable<Ticket>> GetByDeveloperIdAsync(int developerId);
+    Task<IEnumerable<Ticket>> GetByAuthorIdAsync(int authorId);
+    Task<bool> HasTicketsForUserAsync(int userId);
+    Task<List<(string Login, int Count)>> GetTopDevelopersByResolvedTicketsAsync(int top);
     Task<int> GetTotalCountAsync();
     Task<int> GetCountByStatusAsync(TicketStatus status);
     Task<int> GetCountByPriorityAsync(TicketPriority priority);

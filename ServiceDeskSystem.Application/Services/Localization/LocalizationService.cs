@@ -5,13 +5,18 @@ namespace ServiceDeskSystem.Application.Services.Localization;
 
 public sealed class LocalizationService : ILocalizationService
 {
-    private readonly Dictionary<string, Dictionary<string, string>> translations = new();
+    private static readonly Dictionary<string, Dictionary<string, string>> Translations = new();
+    private static readonly SemaphoreSlim _semaphore = new(1, 1);
+    private static bool isLoaded;
+
     private string currentLanguage = "en";
-    private bool isLoaded;
 
     public LocalizationService()
     {
-        _ = Task.Run(async () => await this.LoadTranslationsAsync());
+        if (!isLoaded)
+        {
+            _ = Task.Run(async () => await LoadTranslationsAsync());
+        }
     }
 
     public event EventHandler? LanguageChanged;
@@ -20,7 +25,7 @@ public sealed class LocalizationService : ILocalizationService
 
     public void SetLanguage(string language)
     {
-        if (this.translations.ContainsKey(language) && this.currentLanguage != language)
+        if (Translations.ContainsKey(language) && this.currentLanguage != language)
         {
             this.currentLanguage = language;
             this.LanguageChanged?.Invoke(this, EventArgs.Empty);
@@ -29,18 +34,18 @@ public sealed class LocalizationService : ILocalizationService
 
     public string Translate(string key)
     {
-        if (!this.isLoaded)
+        if (!isLoaded)
         {
             return key;
         }
 
-        if (this.translations.TryGetValue(this.currentLanguage, out var langDict) &&
+        if (Translations.TryGetValue(this.currentLanguage, out var langDict) &&
             langDict.TryGetValue(key, out var value))
         {
             return value;
         }
 
-        if (this.translations.TryGetValue("en", out var enDict) &&
+        if (Translations.TryGetValue("en", out var enDict) &&
             enDict.TryGetValue(key, out var enValue))
         {
             return enValue;
@@ -49,50 +54,60 @@ public sealed class LocalizationService : ILocalizationService
         return key;
     }
 
-    private async Task LoadTranslationsAsync()
+    private static async Task LoadTranslationsAsync()
     {
-        var languages = new[] { "en", "uk" };
-
-        foreach (var lang in languages)
+        await _semaphore.WaitAsync();
+        try
         {
-            this.translations[lang] = new Dictionary<string, string>();
+            if (isLoaded) return;
 
-            try
+            var languages = new[] { "en", "uk" };
+
+            foreach (var lang in languages)
             {
-                // Load root-level language file first (e.g. en.json, uk.json)
-                var basePath = Path.Combine(AppContext.BaseDirectory, "Localization", "LanguagePack");
-                var rootFile = Path.Combine(basePath, $"{lang}.json");
-                if (File.Exists(rootFile))
-                {
-                    await this.LoadJsonFileAsync(rootFile, lang).ConfigureAwait(false);
-                }
+                Translations[lang] = new Dictionary<string, string>();
 
-                // Load subdirectory language files (e.g. en/system.json, en/tickets.json)
-                var directoryPath = Path.Combine(basePath, lang);
-                if (Directory.Exists(directoryPath))
+                try
                 {
-                    var files = Directory.GetFiles(directoryPath, "*.json", SearchOption.AllDirectories);
-
-                    foreach (var filePath in files)
+                    // Load root-level language file first (e.g. en.json, uk.json)
+                    var basePath = Path.Combine(AppContext.BaseDirectory, "Localization", "LanguagePack");
+                    var rootFile = Path.Combine(basePath, $"{lang}.json");
+                    if (File.Exists(rootFile))
                     {
-                        await this.LoadJsonFileAsync(filePath, lang).ConfigureAwait(false);
+                        await LoadJsonFileAsync(rootFile, lang).ConfigureAwait(false);
+                    }
+
+                    // Load subdirectory language files (e.g. en/system.json, en/tickets.json)
+                    var directoryPath = Path.Combine(basePath, lang);
+                    if (Directory.Exists(directoryPath))
+                    {
+                        var files = Directory.GetFiles(directoryPath, "*.json", SearchOption.AllDirectories);
+
+                        foreach (var filePath in files)
+                        {
+                            await LoadJsonFileAsync(filePath, lang).ConfigureAwait(false);
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Warning: Localization directory '{directoryPath}' not found.");
                     }
                 }
-                else
+                catch (Exception ex)
                 {
-                    Console.WriteLine($"Warning: Localization directory '{directoryPath}' not found.");
+                    Console.WriteLine($"Error loading localization for '{lang}': {ex.Message}");
                 }
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error loading localization for '{lang}': {ex.Message}");
-            }
-        }
 
-        this.isLoaded = true;
+            isLoaded = true;
+        }
+        finally
+        {
+            _semaphore.Release();
+        }
     }
 
-    private async Task LoadJsonFileAsync(string filePath, string lang)
+    private static async Task LoadJsonFileAsync(string filePath, string lang)
     {
         var json = await File.ReadAllTextAsync(filePath).ConfigureAwait(false);
         if (string.IsNullOrWhiteSpace(json))
@@ -105,7 +120,7 @@ public sealed class LocalizationService : ILocalizationService
         {
             foreach (var kvp in dict)
             {
-                this.translations[lang][kvp.Key] = kvp.Value;
+                Translations[lang][kvp.Key] = kvp.Value;
             }
         }
     }

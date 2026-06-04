@@ -8,6 +8,7 @@ using ServiceDeskSystem.Application.Services.Notifications;
 using ServiceDeskSystem.Application.Services.Realtime;
 using ServiceDeskSystem.Application.Services.Tickets.Models;
 using ServiceDeskSystem.Application.Services.Audit;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace ServiceDeskSystem.Application.Services.Tickets;
 
@@ -16,9 +17,15 @@ public sealed class TicketService(
     INotificationService notificationService,
     IRealtimeNotifier realtimeNotifier,
     ServiceDeskSystem.Application.Common.IDomainEventDispatcher domainEventDispatcher,
+    IMemoryCache memoryCache,
     IAuditService? auditService = null)
     : ITicketService, ITicketAssignmentService, ITicketStatisticsService
 {
+    private void ClearDashboardCache()
+    {
+        memoryCache.Remove("TicketCountByStatus");
+        memoryCache.Remove("TicketCountByPriority");
+    }
 
 
     public async Task<List<Ticket>> GetAllTicketsAsync()
@@ -71,6 +78,8 @@ public sealed class TicketService(
         await domainEventDispatcher.DispatchAsync(events).ConfigureAwait(false);
         ticket.ClearDomainEvents();
 
+        ClearDashboardCache();
+
         return ticket;
     }
 
@@ -92,6 +101,8 @@ public sealed class TicketService(
 
         await domainEventDispatcher.DispatchAsync(ticket.DomainEvents).ConfigureAwait(false);
         ticket.ClearDomainEvents();
+
+        ClearDashboardCache();
 
         // The remaining code (notification, audit, realtimeNotifier) is handled by DomainEvent handlers.
         // But what if oldStatus == newStatus? The DomainEvents collection will be empty, so DispatchAsync does nothing.
@@ -141,6 +152,8 @@ public sealed class TicketService(
         
         await auditService.LogActionSafeAsync("DELETE", "Ticket", ticket.Id.ToString(), $"Deleted ticket: {ticket.Title}").ConfigureAwait(false);
         
+        ClearDashboardCache();
+
         return true;
     }
 
@@ -178,8 +191,8 @@ public sealed class TicketService(
     public async Task<List<Ticket>> GetUserTicketsAsync(int userId)
     {
         await using var repo = repositoryFacadeFactory.Create();
-        var tickets = await repo.Tickets.GetAllWithIncludesAsync().ConfigureAwait(false);
-        return tickets.Where(t => t.AuthorId == userId).OrderByDescending(t => t.CreatedAt).ToList();
+        var tickets = await repo.Tickets.GetByAuthorIdAsync(userId).ConfigureAwait(false);
+        return tickets.ToList();
     }
 
     public async Task<bool> AssignDeveloperAsync(int ticketId, int developerId)
@@ -252,29 +265,30 @@ public sealed class TicketService(
 
     public async Task<Dictionary<string, int>> GetTicketCountByStatusAsync()
     {
-        await using var repo = repositoryFacadeFactory.Create();
-        var counts = await repo.Tickets.GetTicketCountGroupedByStatusAsync().ConfigureAwait(false);
-        return counts.ToDictionary(k => k.Key.ToString(), v => v.Value);
+        return await memoryCache.GetOrCreateAsync("TicketCountByStatus", async entry =>
+        {
+            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(1);
+            await using var repo = repositoryFacadeFactory.Create();
+            var counts = await repo.Tickets.GetTicketCountGroupedByStatusAsync().ConfigureAwait(false);
+            return counts.ToDictionary(k => k.Key.ToString(), v => v.Value);
+        }) ?? [];
     }
 
     public async Task<Dictionary<string, int>> GetTicketCountByPriorityAsync()
     {
-        await using var repo = repositoryFacadeFactory.Create();
-        var counts = await repo.Tickets.GetTicketCountGroupedByPriorityAsync().ConfigureAwait(false);
-        return counts.ToDictionary(k => k.Key.ToString(), v => v.Value);
+        return await memoryCache.GetOrCreateAsync("TicketCountByPriority", async entry =>
+        {
+            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(1);
+            await using var repo = repositoryFacadeFactory.Create();
+            var counts = await repo.Tickets.GetTicketCountGroupedByPriorityAsync().ConfigureAwait(false);
+            return counts.ToDictionary(k => k.Key.ToString(), v => v.Value);
+        }) ?? [];
     }
 
     public async Task<List<(string Login, int Count)>> GetTopDevelopersAsync(int top = 5)
     {
         await using var repo = repositoryFacadeFactory.Create();
-        var tickets = await repo.Tickets.GetAllWithIncludesAsync().ConfigureAwait(false);
-        return tickets
-            .Where(t => t.Developer != null && (t.Status == TicketStatus.Resolved || t.Status == TicketStatus.Closed || t.Status == TicketStatus.Done))
-            .GroupBy(t => t.Developer!.Login ?? "?")
-            .Select(g => (Login: g.Key, Count: g.Count()))
-            .OrderByDescending(x => x.Count)
-            .Take(top)
-            .ToList();
+        return await repo.Tickets.GetTopDevelopersByResolvedTicketsAsync(top).ConfigureAwait(false);
     }
 }
 

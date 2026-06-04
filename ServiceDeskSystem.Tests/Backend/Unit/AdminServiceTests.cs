@@ -30,7 +30,8 @@ public class AdminServiceTests
     [Test]
     public async Task GetAllUsersAsync_ReturnsUserList()
     {
-        var service = new AdminService(_mockFactory.Object);
+        var memoryCache = new Microsoft.Extensions.Caching.Memory.MemoryCache(new Microsoft.Extensions.Caching.Memory.MemoryCacheOptions());
+        var service = new AdminService(_mockFactory.Object, memoryCache);
         var users = new List<User> { new User { Id = 1, Login = "test" } };
         _mockUserRepo.Setup(r => r.GetAllWithPersonAsync()).ReturnsAsync(users);
 
@@ -43,7 +44,8 @@ public class AdminServiceTests
     [Test]
     public async Task UpdateUserRoleAsync_ValidUser_ChangesRole()
     {
-        var service = new AdminService(_mockFactory.Object);
+        var memoryCache = new Microsoft.Extensions.Caching.Memory.MemoryCache(new Microsoft.Extensions.Caching.Memory.MemoryCacheOptions());
+        var service = new AdminService(_mockFactory.Object, memoryCache);
         var user = new User { Id = 1, Role = UserRole.User };
         _mockUserRepo.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(user);
 

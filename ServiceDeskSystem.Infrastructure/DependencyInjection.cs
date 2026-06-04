@@ -15,7 +15,7 @@ public static class DependencyInjection
     {
         var (connectionString, serverVersion) = DatabaseConfigurationHelper.GetDatabaseConfiguration(configuration);
 
-        services.AddDbContextFactory<BugTrackerDbContext>(options =>
+        services.AddPooledDbContextFactory<BugTrackerDbContext>(options =>
             options.UseMySql(connectionString, serverVersion, mySqlOptions =>
                 mySqlOptions.EnableRetryOnFailure()));
 
