@@ -37,22 +37,57 @@
             </div>
 
             <div class="p-6 space-y-6">
-                <!-- Theme -->
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <!-- Theme - Preview Cards -->
+                <div class="flex flex-col gap-3">
                     <div>
                         <p class="text-sm font-medium text-gray-900 dark:text-white">@L.Translate("settings.theme")</p>
                         <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">@L.Translate("settings.themeDesc")</p>
                     </div>
-                    <div class="flex gap-3">
-                        <button @onclick="() => SetTheme(false)"
-                                class="@(Theme.IsDarkMode ? "ring-1 ring-gray-500" : "ring-2 ring-blue-500 shadow-md shadow-blue-500/20") flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-200 font-medium text-sm transition-all hover:shadow-md">
-                            <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-                            @L.Translate("theme.light")
+                    <div class="flex gap-4">
+                        <!-- Light theme card -->
+                        <button class="theme-preview-card" @onclick="() => SetTheme(false)">
+                            <div class="theme-preview-thumb theme-preview-thumb--light @(!Theme.IsDarkMode ? "is-selected" : "")">
+                                <div class="theme-mock">
+                                    <div class="theme-mock-topbar"></div>
+                                    <div class="theme-mock-rows">
+                                        <div class="theme-mock-row" style="width:100%"></div>
+                                        <div class="theme-mock-row" style="width:80%"></div>
+                                        <div class="theme-mock-row" style="width:60%"></div>
+                                    </div>
+                                    <div class="theme-mock-accent" style="background: linear-gradient(90deg, #3b82f6, #6366f1);"></div>
+                                </div>
+                            </div>
+                            <span class="theme-preview-label">
+                                <svg class="w-3.5 h-3.5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                                @L.Translate("theme.light")
+                                @if (!Theme.IsDarkMode)
+                                {
+                                    <span class="theme-preview-badge">✓ @L.Translate("settings.activeTheme")</span>
+                                }
+                            </span>
                         </button>
-                        <button @onclick="() => SetTheme(true)"
-                                class="@(Theme.IsDarkMode ? "ring-2 ring-blue-500 shadow-md shadow-blue-500/20" : "ring-1 ring-gray-300 dark:ring-gray-600") flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gray-900 border border-gray-700 text-white font-medium text-sm transition-all hover:shadow-md">
-                            <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
-                            @L.Translate("theme.dark")
+
+                        <!-- Dark theme card -->
+                        <button class="theme-preview-card" @onclick="() => SetTheme(true)">
+                            <div class="theme-preview-thumb theme-preview-thumb--dark @(Theme.IsDarkMode ? "is-selected" : "")">
+                                <div class="theme-mock">
+                                    <div class="theme-mock-topbar" style="background:#334155;"></div>
+                                    <div class="theme-mock-rows">
+                                        <div class="theme-mock-row" style="width:100%; background:#334155;"></div>
+                                        <div class="theme-mock-row" style="width:80%; background:#334155;"></div>
+                                        <div class="theme-mock-row" style="width:60%; background:#334155;"></div>
+                                    </div>
+                                    <div class="theme-mock-accent" style="background: linear-gradient(90deg, #6366f1, #8b5cf6);"></div>
+                                </div>
+                            </div>
+                            <span class="theme-preview-label">
+                                <svg class="w-3.5 h-3.5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+                                @L.Translate("theme.dark")
+                                @if (Theme.IsDarkMode)
+                                {
+                                    <span class="theme-preview-badge">✓ @L.Translate("settings.activeTheme")</span>
+                                }
+                            </span>
                         </button>
                     </div>
                 </div>
@@ -75,6 +110,97 @@
                                 class="@(L.CurrentLanguage == "uk" ? "ring-2 ring-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 shadow-md shadow-blue-500/20" : "ring-1 ring-gray-300 dark:ring-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300") flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm transition-all hover:shadow-md">
                             <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"></circle><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10A15.3 15.3 0 0112 2z"></path></svg>
                             Українська
+                        </button>
+                    </div>
+                </div>
+
+                <hr class="border-gray-100 dark:border-gray-700/50" />
+
+                <!-- Date Format -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <p class="text-sm font-medium text-gray-900 dark:text-white">@L.Translate("settings.dateFormat")</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">@L.Translate("settings.dateFormatDesc")</p>
+                    </div>
+                    <div class="flex gap-2 flex-wrap">
+                        @foreach (var fmt in new[] { "DD/MM/YYYY", "MM/DD/YYYY", "YYYY-MM-DD" })
+                        {
+                            var f = fmt;
+                            <button @onclick="() => SetDateFormat(f)"
+                                    class="@(dateFormat == f ? "ring-2 ring-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 shadow-md shadow-blue-500/20" : "ring-1 ring-gray-300 dark:ring-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300") px-3 py-2 rounded-xl font-mono font-semibold text-xs transition-all hover:shadow-md whitespace-nowrap">
+                                @f
+                            </button>
+                        }
+                    </div>
+                </div>
+
+                <hr class="border-gray-100 dark:border-gray-700/50" />
+
+                <!-- Card Style -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <p class="text-sm font-medium text-gray-900 dark:text-white">@L.Translate("settings.cardStyle")</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">@L.Translate("settings.cardStyleDesc")</p>
+                    </div>
+                    <div class="flex gap-2 flex-wrap">
+                        <button @onclick='() => SetCardStyle("flat")'
+                                class="@(cardStyle == "flat" ? "ring-2 ring-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 shadow-md shadow-blue-500/20" : "ring-1 ring-gray-300 dark:ring-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300") px-4 py-2 rounded-xl font-medium text-sm transition-all hover:shadow-md whitespace-nowrap">
+                            @L.Translate("settings.cardFlat")
+                        </button>
+                        <button @onclick='() => SetCardStyle("elevated")'
+                                class="@(cardStyle == "elevated" ? "ring-2 ring-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 shadow-md shadow-blue-500/20" : "ring-1 ring-gray-300 dark:ring-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300") px-4 py-2 rounded-xl font-medium text-sm transition-all hover:shadow-md whitespace-nowrap">
+                            @L.Translate("settings.cardElevated")
+                        </button>
+                        <button @onclick='() => SetCardStyle("glassmorphism")'
+                                class="@(cardStyle == "glassmorphism" ? "ring-2 ring-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 shadow-md shadow-blue-500/20" : "ring-1 ring-gray-300 dark:ring-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300") px-4 py-2 rounded-xl font-medium text-sm transition-all hover:shadow-md whitespace-nowrap">
+                            @L.Translate("settings.cardGlass")
+                        </button>
+                    </div>
+                </div>
+
+                <hr class="border-gray-100 dark:border-gray-700/50" />
+
+                <!-- Sidebar Layout -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <p class="text-sm font-medium text-gray-900 dark:text-white">@L.Translate("settings.sidebarLayout")</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">@L.Translate("settings.sidebarLayoutDesc")</p>
+                    </div>
+                    <div class="flex gap-2 flex-wrap">
+                        <button @onclick='() => SetSidebarMode("full")'
+                                class="@(!Theme.IsSidebarCollapsed ? "ring-2 ring-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 shadow-md shadow-blue-500/20" : "ring-1 ring-gray-300 dark:ring-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300") px-4 py-2 rounded-xl font-medium text-sm transition-all hover:shadow-md whitespace-nowrap flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                            @L.Translate("settings.sidebarFull")
+                        </button>
+                        <button @onclick='() => SetSidebarMode("compact")'
+                                class="@(Theme.IsSidebarCollapsed ? "ring-2 ring-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 shadow-md shadow-blue-500/20" : "ring-1 ring-gray-300 dark:ring-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300") px-4 py-2 rounded-xl font-medium text-sm transition-all hover:shadow-md whitespace-nowrap flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h8M4 18h16"></path></svg>
+                            @L.Translate("settings.sidebarCompact")
+                        </button>
+                    </div>
+                </div>
+
+                <hr class="border-gray-100 dark:border-gray-700/50" />
+
+                <!-- Page Background Texture -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <p class="text-sm font-medium text-gray-900 dark:text-white">@L.Translate("settings.bgTexture")</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">@L.Translate("settings.bgTextureDesc")</p>
+                    </div>
+                    <div class="flex gap-2 flex-wrap">
+                        <button @onclick='() => SetBgTexture("clean")'
+                                class="@(bgTexture == "clean" ? "ring-2 ring-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 shadow-md shadow-blue-500/20" : "ring-1 ring-gray-300 dark:ring-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300") px-4 py-2 rounded-xl font-medium text-sm transition-all hover:shadow-md whitespace-nowrap">
+                            @L.Translate("settings.bgClean")
+                        </button>
+                        <button @onclick='() => SetBgTexture("dot-grid")'
+                                class="@(bgTexture == "dot-grid" ? "ring-2 ring-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 shadow-md shadow-blue-500/20" : "ring-1 ring-gray-300 dark:ring-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300") px-4 py-2 rounded-xl font-medium text-sm transition-all hover:shadow-md whitespace-nowrap">
+                            @L.Translate("settings.bgDotGrid")
+                        </button>
+                        <button @onclick='() => SetBgTexture("mesh-gradient")'
+                                class="@(bgTexture == "mesh-gradient" ? "ring-2 ring-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 shadow-md shadow-blue-500/20" : "ring-1 ring-gray-300 dark:ring-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300") px-4 py-2 rounded-xl font-medium text-sm transition-all hover:shadow-md whitespace-nowrap flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-gradient-to-r from-blue-400 to-purple-500"></span>
+                            @L.Translate("settings.bgMesh")
                         </button>
                     </div>
                 </div>
@@ -107,26 +233,108 @@
 
                 <hr class="border-gray-100 dark:border-gray-700/50" />
 
-                <!-- Accent Color Picker -->
+                <!-- Accent Color Picker - Enhanced with 8 colors + labels + live preview -->
+                <div class="flex flex-col gap-4">
+                    <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                        <div>
+                            <p class="text-sm font-medium text-gray-900 dark:text-white">@L.Translate("settings.accentColor")</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">@L.Translate("settings.accentColorDesc")</p>
+                        </div>
+                        <div class="flex gap-3 flex-wrap">
+                            @foreach (var colorInfo in AccentColors)
+                            {
+                                var c = colorInfo.Key;
+                                var label = colorInfo.Value;
+                                <div class="accent-swatch-wrapper @(accentColor == c ? "is-active" : "")"
+                                     @onclick="() => SetAccentColor(c)">
+                                    <button class="accent-swatch @(accentColor == c ? "is-active" : "")"
+                                            style="@GetAccentSwatchStyle(c)"
+                                            title="@c">
+                                        @if (accentColor == c)
+                                        {
+                                            <span class="accent-swatch-check">✓</span>
+                                        }
+                                    </button>
+                                    <span class="accent-swatch-label">@label</span>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Live preview panel -->
+                    <div class="settings-live-preview">
+                        <span class="settings-live-preview-label">Preview</span>
+                        <div class="settings-preview-card">
+                            <div class="settings-preview-dot" style="background: @GetAccentPreviewColor(accentColor);"></div>
+                            <span class="settings-preview-text" style="font-size: @GetFontSizePx(fontSize);">
+                                @L.Translate("settings.previewText")
+                            </span>
+                            <span class="settings-preview-btn" style="background: @GetAccentPreviewColor(accentColor);">
+                                @L.Translate("settings.previewBtn")
+                            </span>
+                        </div>
+                        <div class="settings-preview-card">
+                            <div class="settings-preview-dot" style="background: #10b981;"></div>
+                            <span class="settings-preview-text" style="font-size: @GetFontSizePx(fontSize);">
+                                @FormatPreviewDate()
+                            </span>
+                            <span class="text-xs text-gray-400 dark:text-gray-500 ml-auto font-mono">@dateFormat</span>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="border-gray-100 dark:border-gray-700/50" />
+
+                <!-- Hover Effect -->
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>
-                        <p class="text-sm font-medium text-gray-900 dark:text-white">@L.Translate("settings.accentColor")</p>
-                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">@L.Translate("settings.accentColorDesc")</p>
+                        <p class="text-sm font-medium text-gray-900 dark:text-white">@L.Translate("settings.hoverStyle")</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">@L.Translate("settings.hoverStyleDesc")</p>
                     </div>
-                    <div class="flex gap-2.5">
-                        @foreach (var color in new[] { "blue", "purple", "emerald", "rose", "amber" })
-                        {
-                            var c = color;
-                            <button @onclick="() => SetAccentColor(c)"
-                                    class="accent-swatch @(accentColor == c ? "is-active" : "")"
-                                    style="@GetAccentSwatchStyle(c)"
-                                    title="@c">
-                                @if (accentColor == c)
-                                {
-                                    <span class="accent-swatch-check">✓</span>
-                                }
-                            </button>
-                        }
+                    <div class="flex gap-2 flex-wrap">
+                        <button @onclick='() => SetHoverStyle("standard")'
+                                class="@(hoverStyle == "standard" ? "ring-2 ring-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 shadow-md shadow-blue-500/20" : "ring-1 ring-gray-300 dark:ring-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300") px-4 py-2 rounded-xl font-medium text-sm transition-all hover:shadow-md whitespace-nowrap">
+                            @L.Translate("settings.hoverStandard")
+                        </button>
+                        <button @onclick='() => SetHoverStyle("border")'
+                                class="@(hoverStyle == "border" ? "ring-2 ring-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 shadow-md shadow-blue-500/20" : "ring-1 ring-gray-300 dark:ring-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300") px-4 py-2 rounded-xl font-medium text-sm transition-all hover:shadow-md whitespace-nowrap">
+                            @L.Translate("settings.hoverBorder")
+                        </button>
+                        <button @onclick='() => SetHoverStyle("elevated")'
+                                class="@(hoverStyle == "elevated" ? "ring-2 ring-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 shadow-md shadow-blue-500/20" : "ring-1 ring-gray-300 dark:ring-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300") px-4 py-2 rounded-xl font-medium text-sm transition-all hover:shadow-md whitespace-nowrap">
+                            @L.Translate("settings.hoverElevated")
+                        </button>
+                    </div>
+                </div>
+
+                <hr class="border-gray-100 dark:border-gray-700/50" />
+
+                <!-- Font Size Slider -->
+                <div class="flex flex-col gap-3">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-900 dark:text-white">@L.Translate("settings.fontSize")</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">@L.Translate("settings.fontSizeDesc")</p>
+                        </div>
+                        <span class="font-size-value-badge">@fontSize%</span>
+                    </div>
+                    <div class="font-size-slider-track">
+                        <span class="font-size-label-sm">A</span>
+                        <input type="range"
+                               min="85"
+                               max="115"
+                               step="5"
+                               value="@fontSize"
+                               class="font-size-slider"
+                               style="--slider-pct: @(((fontSize - 85.0) / 30.0 * 100).ToString("F0"))%"
+                               @oninput="OnFontSizeInput"
+                               @onchange="OnFontSizeChanged" />
+                        <span class="font-size-label-lg">A</span>
+                    </div>
+                    <div class="flex justify-between text-xs text-gray-400 dark:text-gray-500 px-5">
+                        <span>85%</span>
+                        <span>100%</span>
+                        <span>115%</span>
                     </div>
                 </div>
 
@@ -359,5 +567,5 @@
             </section>
         }
     </div>
-</div>
 
+</div>

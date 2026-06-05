@@ -21,7 +21,6 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
     private bool isLanguageDropdownOpen;
     private bool isNotificationsOpen;
     private bool isSidebarOpen;
-    private bool isSidebarCollapsed;
     private bool hotkeyRegistered;
     private bool databaseConnectionLost;
     private bool hasNewNotificationPulse;
@@ -149,7 +148,6 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
         await this.Theme.InitializeAsync();
         await this.AuthService.EnsureRestoredAsync();
 
-        this.isSidebarCollapsed = await this.JS.InvokeAsync<bool>("sidebarManager.getCollapsed");
         this.dotNetRef = DotNetObjectReference.Create(this);
         await this.JS.InvokeVoidAsync("sidebarManager.registerHotkey", this.dotNetRef!);
         this.hotkeyRegistered = true;
@@ -219,8 +217,7 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
 
     private async Task ToggleSidebarCollapseAsync()
     {
-        this.isSidebarCollapsed = !this.isSidebarCollapsed;
-        await this.JS.InvokeVoidAsync("sidebarManager.setCollapsed", this.isSidebarCollapsed);
+        await this.Theme.SetSidebarCollapsedAsync(!this.Theme.IsSidebarCollapsed);
     }
 
     private async Task HandleLogout()

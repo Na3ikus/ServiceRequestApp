@@ -8,6 +8,7 @@ public sealed class ThemeService : IThemeService
     private readonly IJSRuntime jsRuntime;
     private string currentTheme = "light";
     private bool initialized;
+    private bool isSidebarCollapsed;
 
     public ThemeService(IJSRuntime jsRuntime)
     {
@@ -20,6 +21,8 @@ public sealed class ThemeService : IThemeService
 
     public bool IsDarkMode => this.currentTheme == "dark";
 
+    public bool IsSidebarCollapsed => this.isSidebarCollapsed;
+
     public async Task InitializeAsync()
     {
         if (!this.initialized)
@@ -27,6 +30,7 @@ public sealed class ThemeService : IThemeService
             try
             {
                 this.currentTheme = await this.jsRuntime.InvokeAsync<string>("themeManager.getTheme");
+                this.isSidebarCollapsed = await this.jsRuntime.InvokeAsync<bool>("sidebarManager.getCollapsed");
                 this.initialized = true;
             }
             catch
@@ -58,7 +62,26 @@ public sealed class ThemeService : IThemeService
     public void ToggleTheme()
     {
         var newTheme = this.currentTheme == "light" ? "dark" : "light";
-        SetTheme(newTheme);
+        this.SetTheme(newTheme);
+    }
+
+    public async Task SetSidebarCollapsedAsync(bool collapsed)
+    {
+        if (this.isSidebarCollapsed != collapsed)
+        {
+            this.isSidebarCollapsed = collapsed;
+
+            try
+            {
+                await this.jsRuntime.InvokeVoidAsync("sidebarManager.setCollapsed", collapsed);
+            }
+            catch
+            {
+                // Ignore JS interop errors during prerendering
+            }
+
+            this.ThemeChanged?.Invoke(this, EventArgs.Empty);
+        }
     }
 }
 

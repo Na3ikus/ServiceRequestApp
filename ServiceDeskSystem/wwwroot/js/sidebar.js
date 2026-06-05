@@ -81,5 +81,22 @@ window.sidebarManager = {
     if (density && density !== 'comfortable') {
         document.documentElement.setAttribute('data-density', density);
     }
+
+    var cardStyle = localStorage.getItem('settings.cardStyle');
+    if (cardStyle) {
+        document.documentElement.setAttribute('data-card-style', cardStyle);
+    } else {
+        document.documentElement.setAttribute('data-card-style', 'elevated');
+    }
+
+    var hoverStyle = localStorage.getItem('settings.hoverStyle');
+    if (hoverStyle) {
+        document.documentElement.setAttribute('data-hover-style', hoverStyle);
+    }
+
+    var bgTexture = localStorage.getItem('settings.bgTexture');
+    if (bgTexture && bgTexture !== 'clean') {
+        document.documentElement.setAttribute('data-bg-texture', bgTexture);
+    }
 })();
 
