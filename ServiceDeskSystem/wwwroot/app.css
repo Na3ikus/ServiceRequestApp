@@ -2471,7 +2471,11 @@ h3[tabindex] {
 }
 
 /* Mesh Gradient Blobs */
+.mesh-bg-container {
+    display: none;
+}
 [data-bg-texture="mesh-gradient"] .mesh-bg-container {
+    display: block;
     opacity: 1 !important;
 }
 

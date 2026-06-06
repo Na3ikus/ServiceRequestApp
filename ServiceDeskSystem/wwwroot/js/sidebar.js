@@ -100,3 +100,12 @@ window.sidebarManager = {
     }
 })();
 
+// Close header dropdown details when clicking outside
+document.addEventListener('click', function (event) {
+    var details = document.querySelectorAll('details.header-dropdown');
+    details.forEach(function (detail) {
+        if (detail.hasAttribute('open') && !detail.contains(event.target)) {
+            detail.removeAttribute('open');
+        }
+    });
+});

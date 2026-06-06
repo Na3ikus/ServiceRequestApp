@@ -13,7 +13,7 @@ namespace ServiceDeskSystem.Components.Pages.Settings;
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Naming", "CA1724:TypeNamesShouldNotMatchNamespaces", Justification = "Blazor page component must match .razor file name")]
 public partial class Settings : BaseComponent
 {
-    private static readonly Dictionary<string, string> AccentColors = new()
+    private static readonly Dictionary<string, string> AccentColors = new ()
     {
         { "blue", "Blue" },
         { "purple", "Purple" },
