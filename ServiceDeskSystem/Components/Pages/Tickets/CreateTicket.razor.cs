@@ -24,6 +24,8 @@ public partial class CreateTicket
 
     private bool isSubmitting { get; set; }
 
+    private bool isTypeSelected { get; set; }
+
     private string? productValidationError { get; set; }
 
     private bool IsProductRequired => this.ticketModel.TicketType != TicketType.Project;
@@ -34,7 +36,6 @@ public partial class CreateTicket
     {
         this.products = await this.TicketService.GetProductsAsync();
         this.ticketModel.Priority = TicketPriority.Medium;
-        this.ticketModel.TicketType = TicketType.Support;
     }
 
     private async Task HandleSubmitAsync()
@@ -70,6 +71,18 @@ public partial class CreateTicket
     private void Cancel()
     {
         this.Navigation.NavigateTo("/");
+    }
+
+    private void SelectType(TicketType type)
+    {
+        this.ticketModel.TicketType = type;
+        this.isTypeSelected = true;
+        this.OnTicketTypeChanged();
+    }
+
+    private void BackToTypeSelection()
+    {
+        this.isTypeSelected = false;
     }
 
     private void OnTicketTypeChanged()

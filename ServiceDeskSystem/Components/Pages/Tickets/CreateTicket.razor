@@ -6,19 +6,90 @@
 <!-- Created by Nazar "N1h3" Hutsol -->
 <div class="ticket-create-page max-w-3xl mx-auto p-4 sm:p-6">
 <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-5 sm:p-8 transition-colors duration-200">
-    <div class="mb-6 p-4 rounded-xl border border-slate-200 dark:border-slate-500 bg-slate-50 dark:bg-slate-700/70 shadow-sm">
-        <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-lg bg-blue-600 dark:bg-blue-500 text-white flex items-center justify-center shadow-sm ring-1 ring-white/20">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div class="mb-8 p-6 rounded-2xl border border-slate-200/60 dark:border-slate-700/50 bg-gradient-to-r from-slate-50 to-white dark:from-slate-800/80 dark:to-slate-800/40 shadow-sm relative overflow-hidden">
+        <div class="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="flex items-center gap-4 relative">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 dark:from-blue-500 dark:to-indigo-500 text-white flex items-center justify-center shadow-lg shadow-blue-500/20 ring-1 ring-white/20 transform transition-transform hover:scale-105">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                 </svg>
             </div>
             <div>
-                <h1 class="text-2xl font-bold text-slate-800 dark:text-slate-100">@L.Translate("create.title")</h1>
-                <p class="text-slate-600 dark:text-slate-200/90 mt-1">@L.Translate("create.subtitle")</p>
+                <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">@L.Translate("create.title")</h1>
+                <p class="text-slate-500 dark:text-slate-400 mt-1 text-sm sm:text-base">@L.Translate("create.subtitle")</p>
             </div>
         </div>
+
+        @if (!isTypeSelected)
+        {
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mt-8">
+                <!-- Помилка -->
+                <div @onclick="() => SelectType(TicketType.Bug)" class="group relative overflow-hidden bg-white dark:bg-slate-800/60 backdrop-blur-sm rounded-2xl p-6 border border-slate-200/60 dark:border-slate-700/50 cursor-pointer transition-all duration-300 ease-out hover:scale-[1.02] hover:shadow-xl hover:shadow-red-500/10 hover:border-red-500/30 dark:hover:border-red-500/30 flex items-start gap-5">
+                    <div class="absolute inset-0 bg-gradient-to-br from-red-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+                    <div class="relative w-12 h-12 rounded-xl bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3 shadow-inner">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                        </svg>
+                    </div>
+                    <div class="relative">
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-white group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors">@L.Translate("ticketType.bug")</h3>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1.5 leading-relaxed">@L.Translate("ticketType.bug.desc")</p>
+                    </div>
+                </div>
+
+                <!-- Підтримка -->
+                <div @onclick="() => SelectType(TicketType.Support)" class="group relative overflow-hidden bg-white dark:bg-slate-800/60 backdrop-blur-sm rounded-2xl p-6 border border-slate-200/60 dark:border-slate-700/50 cursor-pointer transition-all duration-300 ease-out hover:scale-[1.02] hover:shadow-xl hover:shadow-blue-500/10 hover:border-blue-500/30 dark:hover:border-blue-500/30 flex items-start gap-5">
+                    <div class="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+                    <div class="relative w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-3 shadow-inner">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                        </svg>
+                    </div>
+                    <div class="relative">
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">@L.Translate("ticketType.support")</h3>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1.5 leading-relaxed">@L.Translate("ticketType.support.desc")</p>
+                    </div>
+                </div>
+
+                <!-- Консультація -->
+                <div @onclick="() => SelectType(TicketType.Consultation)" class="group relative overflow-hidden bg-white dark:bg-slate-800/60 backdrop-blur-sm rounded-2xl p-6 border border-slate-200/60 dark:border-slate-700/50 cursor-pointer transition-all duration-300 ease-out hover:scale-[1.02] hover:shadow-xl hover:shadow-purple-500/10 hover:border-purple-500/30 dark:hover:border-purple-500/30 flex items-start gap-5">
+                    <div class="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+                    <div class="relative w-12 h-12 rounded-xl bg-purple-50 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3 shadow-inner">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                        </svg>
+                    </div>
+                    <div class="relative">
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">@L.Translate("ticketType.consultation")</h3>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1.5 leading-relaxed">@L.Translate("ticketType.consultation.desc")</p>
+                    </div>
+                </div>
+
+                <!-- Проєкт -->
+                <div @onclick="() => SelectType(TicketType.Project)" class="group relative overflow-hidden bg-white dark:bg-slate-800/60 backdrop-blur-sm rounded-2xl p-6 border border-slate-200/60 dark:border-slate-700/50 cursor-pointer transition-all duration-300 ease-out hover:scale-[1.02] hover:shadow-xl hover:shadow-emerald-500/10 hover:border-emerald-500/30 dark:hover:border-emerald-500/30 flex items-start gap-5">
+                    <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+                    <div class="relative w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-3 shadow-inner">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+                        </svg>
+                    </div>
+                    <div class="relative">
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">@L.Translate("ticketType.project")</h3>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1.5 leading-relaxed">@L.Translate("ticketType.project.desc")</p>
+                    </div>
+                </div>
+            </div>
+        }
     </div>
+
+    @if (isTypeSelected)
+    {
+        <div class="mb-6">
+            <button type="button" @onclick="BackToTypeSelection" class="group flex items-center gap-2 px-4 py-2 rounded-lg text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200 font-medium bg-transparent border-none cursor-pointer">
+                <svg class="w-4 h-4 transform transition-transform group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                @L.Translate("create.cancel") <!-- Can be improved to 'Back' but cancel is fine -->
+            </button>
+        </div>
 
         <EditForm Model="ticketModel" OnValidSubmit="HandleSubmitAsync" FormName="CreateTicketForm">
             <DataAnnotationsValidator />
@@ -26,135 +97,138 @@
             <div class="space-y-6">
                 <!-- Title -->
                 <div>
-                    <label for="title" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <label for="title" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5 ml-1">
                         @L.Translate("create.ticketTitle") <span class="text-red-500">*</span>
                     </label>
                     <InputText id="title" 
                                @bind-Value="ticketModel.Title" 
                                placeholder="@L.Translate("create.titlePlaceholder")"
-                               class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 transition-colors" />
-                    <ValidationMessage For="@(() => ticketModel.Title)" class="text-red-500 text-sm mt-1" />
+                               class="w-full px-4 py-2.5 border border-slate-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 bg-slate-50 dark:bg-slate-900/50 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 transition-all shadow-sm" />
+                    <ValidationMessage For="@(() => ticketModel.Title)" class="text-red-500 text-sm mt-1.5 ml-1" />
                 </div>
 
                 <!-- Description -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5 ml-1">
                         @L.Translate("create.description") <span class="text-red-500">*</span>
                     </label>
-                    <ServiceDeskSystem.Components.UI.Elements.RichTextEditor @bind-Value="ticketModel.Description" Placeholder="@L.Translate("create.descriptionPlaceholder")" />
-                    <ValidationMessage For="@(() => ticketModel.Description)" class="text-red-500 text-sm mt-1" />
+                    <div class="rounded-xl overflow-hidden shadow-sm border border-slate-300 dark:border-slate-600 focus-within:ring-2 focus-within:ring-blue-500/50 focus-within:border-blue-500 transition-all bg-slate-50 dark:bg-slate-900/50">
+                        <ServiceDeskSystem.Components.UI.Elements.RichTextEditor @bind-Value="ticketModel.Description" Placeholder="@L.Translate("create.descriptionPlaceholder")" />
+                    </div>
+                    <ValidationMessage For="@(() => ticketModel.Description)" class="text-red-500 text-sm mt-1.5 ml-1" />
                 </div>
 
                 <!-- Type, Priority and Product Row -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <!-- Type -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <!-- Type (Readonly) -->
                     <div>
-                        <label for="type" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                            @L.Translate("create.ticketType") <span class="text-red-500">*</span>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5 ml-1">
+                            @L.Translate("create.ticketType")
                         </label>
-                        <InputSelect id="type"
-                                     @bind-Value="ticketModel.TicketType"
-                                     @bind-Value:after="OnTicketTypeChanged"
-                                     class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors">
-                            <option value="">@L.Translate("create.selectTicketType")</option>
-                            @foreach (var type in Enum.GetValues<TicketType>())
-                            {
-                                <option value="@type">@L.Translate($"ticketType.{type.ToString().ToLowerInvariant()}")</option>
-                            }
-                        </InputSelect>
-                        <ValidationMessage For="@(() => ticketModel.TicketType)" class="text-red-500 text-sm mt-1" />
+                        <div class="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-between shadow-inner">
+                            <span class="font-medium">@L.Translate($"ticketType.{ticketModel.TicketType.ToString().ToLowerInvariant()}")</span>
+                            <button type="button" @onclick="BackToTypeSelection" class="text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 text-sm focus:outline-none flex items-center gap-1 bg-blue-50 dark:bg-blue-900/30 px-2 py-1 rounded-md transition-colors">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                Змінити
+                            </button>
+                        </div>
                     </div>
 
                     <!-- Priority -->
                     <div>
-                        <label for="priority" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        <label for="priority" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5 ml-1">
                             @L.Translate("create.priority") <span class="text-red-500">*</span>
                         </label>
                         <InputSelect id="priority" 
                                      @bind-Value="ticketModel.Priority"
-                                     class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors">
+                                     class="w-full px-4 py-2.5 border border-slate-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 bg-slate-50 dark:bg-slate-900/50 text-slate-900 dark:text-white transition-all shadow-sm">
                             <option value="">@L.Translate("create.selectPriority")</option>
                             @foreach (var priority in Enum.GetValues<TicketPriority>())
                             {
                                 <option value="@priority">@L.Translate($"priority.{priority.ToString().ToLowerInvariant()}")</option>
                             }
                         </InputSelect>
-                        <ValidationMessage For="@(() => ticketModel.Priority)" class="text-red-500 text-sm mt-1" />
+                        <ValidationMessage For="@(() => ticketModel.Priority)" class="text-red-500 text-sm mt-1.5 ml-1" />
                     </div>
 
                     <!-- Product -->
-                    <div>
-                        <label for="product" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                            @L.Translate("create.product")
-                            @if (IsProductRequired)
+                    @if (ticketModel.TicketType != TicketType.Project)
+                    {
+                        <div class="md:col-span-2">
+                            <label for="product" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5 ml-1">
+                                @L.Translate("create.product")
+                                @if (IsProductRequired)
+                                {
+                                    <span class="text-red-500">*</span>
+                                }
+                                else
+                                {
+                                    <span class="text-slate-400 dark:text-slate-500 font-normal"> (@L.Translate("create.optional"))</span>
+                                }
+                            </label>
+                            <InputSelect id="product" 
+                                         @bind-Value="ticketModel.ProductId"
+                                         class="w-full px-4 py-2.5 border border-slate-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 bg-slate-50 dark:bg-slate-900/50 text-slate-900 dark:text-white transition-all shadow-sm">
+                                <option value="">@L.Translate("create.selectProduct")</option>
+                                @foreach (var product in products)
+                                {
+                                    <option value="@product.Id">@product.Name</option>
+                                }
+                            </InputSelect>
+                            @if (!string.IsNullOrWhiteSpace(productValidationError))
                             {
-                                <span class="text-red-500">*</span>
+                                <div class="text-red-500 text-sm mt-1.5 ml-1">@productValidationError</div>
                             }
-                            else
-                            {
-                                <span class="text-gray-500 dark:text-gray-400"> (@L.Translate("create.optional"))</span>
-                            }
-                        </label>
-                        <InputSelect id="product" 
-                                     @bind-Value="ticketModel.ProductId"
-                                     class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors">
-                            <option value="">@L.Translate("create.selectProduct")</option>
-                            @foreach (var product in products)
-                            {
-                                <option value="@product.Id">@product.Name</option>
-                            }
-                        </InputSelect>
-                        @if (!string.IsNullOrWhiteSpace(productValidationError))
-                        {
-                            <div class="text-red-500 text-sm mt-1">@productValidationError</div>
-                        }
-                    </div>
+                        </div>
+                    }
                 </div>
 
                 <!-- Steps to Reproduce (Optional) -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5 ml-1">
                         @L.Translate("create.stepsToReproduce")
                     </label>
-                    <ServiceDeskSystem.Components.UI.Elements.RichTextEditor @bind-Value="ticketModel.StepsToReproduce" Placeholder="@L.Translate("create.stepsPlaceholder")" />
+                    <div class="rounded-xl overflow-hidden shadow-sm border border-slate-300 dark:border-slate-600 focus-within:ring-2 focus-within:ring-blue-500/50 focus-within:border-blue-500 transition-all bg-slate-50 dark:bg-slate-900/50">
+                        <ServiceDeskSystem.Components.UI.Elements.RichTextEditor @bind-Value="ticketModel.StepsToReproduce" Placeholder="@L.Translate("create.stepsPlaceholder")" />
+                    </div>
                 </div>
 
                 <!-- Environment (Optional) -->
                 <div>
-                    <label for="environment" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <label for="environment" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5 ml-1">
                         @L.Translate("create.environment")
                     </label>
                     <InputText id="environment" 
                                @bind-Value="ticketModel.Environment" 
                                placeholder="@L.Translate("create.environmentPlaceholder")"
-                               class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 transition-colors" />
+                               class="w-full px-4 py-2.5 border border-slate-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 bg-slate-50 dark:bg-slate-900/50 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 transition-all shadow-sm" />
                 </div>
 
                 <!-- Affected Version (Optional) -->
                 <div>
-                    <label for="affectedVersion" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <label for="affectedVersion" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5 ml-1">
                         @L.Translate("details.affectedVersion")
                     </label>
                     <InputText id="affectedVersion" 
                                @bind-Value="ticketModel.AffectedVersion" 
                                placeholder="e.g., 1.0.4, 2.1.0-beta"
-                               class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 transition-colors" />
+                               class="w-full px-4 py-2.5 border border-slate-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 bg-slate-50 dark:bg-slate-900/50 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 transition-all shadow-sm" />
                 </div>
 
                 <!-- Form Actions -->
-                <div class="form-actions flex items-center justify-end gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div class="form-actions flex items-center justify-end gap-3 pt-6 border-t border-slate-200 dark:border-slate-700 mt-8">
                     <button type="button" 
                             @onclick="Cancel"
-                            class="px-6 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                            class="px-5 py-2.5 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors font-medium">
                         @L.Translate("create.cancel")
                     </button>
                     <button type="submit" 
                             disabled="@isSubmitting"
-                            class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors">
+                            class="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl shadow-md shadow-blue-500/30 hover:shadow-lg hover:shadow-blue-500/40 transform transition-all hover:-translate-y-0.5 disabled:translate-y-0 disabled:bg-slate-400 disabled:from-slate-400 disabled:to-slate-400 disabled:shadow-none disabled:cursor-not-allowed font-medium">
                         @if (isSubmitting)
                         {
                             <span class="flex items-center gap-2">
-                                <svg class="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                                <svg class="animate-spin h-5 w-5" viewBox="0 0 24 24">
                                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
                                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                 </svg>
@@ -169,5 +243,6 @@
                 </div>
             </div>
         </EditForm>
+    }
     </div>
 </div>
