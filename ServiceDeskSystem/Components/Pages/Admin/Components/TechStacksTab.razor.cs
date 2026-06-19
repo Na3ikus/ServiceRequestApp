@@ -34,6 +34,64 @@ public partial class TechStacksTab : BaseComponent
 
     private string? errorMessage { get; set; }
 
+    private string searchQuery { get; set; } = string.Empty;
+
+    private string sortColumn { get; set; } = "name";
+
+    private bool sortAscending { get; set; } = true;
+
+    private List<TechStack>? FilteredStacks =>
+        this.TechStacks?
+            .Where(ts =>
+                string.IsNullOrWhiteSpace(this.searchQuery) ||
+                ts.Name.Contains(this.searchQuery, StringComparison.OrdinalIgnoreCase) ||
+                ts.Type.Contains(this.searchQuery, StringComparison.OrdinalIgnoreCase))
+            .OrderBy(ts => this.sortColumn switch
+            {
+                "type" => ts.Type,
+                "count" => (ts.Products?.Count ?? 0).ToString("D10"),
+                _ => ts.Name,
+            }, this.sortAscending ? StringComparer.OrdinalIgnoreCase : new ReverseStringComparer())
+            .ToList();
+
+    private void SetSort(string column)
+    {
+        if (this.sortColumn == column)
+        {
+            this.sortAscending = !this.sortAscending;
+        }
+        else
+        {
+            this.sortColumn = column;
+            this.sortAscending = true;
+        }
+    }
+
+    private string GetSortArrow(string column)
+    {
+        if (this.sortColumn != column)
+        {
+            return "↕";
+        }
+
+        return this.sortAscending ? "↑" : "↓";
+    }
+
+    private static string GetTypeColorClass(string type)
+    {
+        return type?.ToUpperInvariant() switch
+        {
+            var t when t != null && (t.Contains("BACKEND", StringComparison.Ordinal) || t.Contains("SERVER", StringComparison.Ordinal) || t.Contains(".NET", StringComparison.Ordinal) || t.Contains("JAVA", StringComparison.Ordinal) || t.Contains("PYTHON", StringComparison.Ordinal) || t.Contains("NODE", StringComparison.Ordinal) || t.Contains("PHP", StringComparison.Ordinal) || t.Contains("GO", StringComparison.Ordinal) || t.Contains("RUST", StringComparison.Ordinal)) => "type-backend",
+            var t when t != null && (t.Contains("FRONTEND", StringComparison.Ordinal) || t.Contains("REACT", StringComparison.Ordinal) || t.Contains("VUE", StringComparison.Ordinal) || t.Contains("ANGULAR", StringComparison.Ordinal) || t.Contains("UI", StringComparison.Ordinal) || t.Contains("WEB", StringComparison.Ordinal)) => "type-frontend",
+            var t when t != null && (t.Contains("MOBILE", StringComparison.Ordinal) || t.Contains("ANDROID", StringComparison.Ordinal) || t.Contains("IOS", StringComparison.Ordinal) || t.Contains("KOTLIN", StringComparison.Ordinal) || t.Contains("SWIFT", StringComparison.Ordinal)) => "type-mobile",
+            var t when t != null && (t.Contains("EMBED", StringComparison.Ordinal) || t.Contains("FIRMWARE", StringComparison.Ordinal) || t.Contains("C++", StringComparison.Ordinal) || t.Contains("HARDWARE", StringComparison.Ordinal)) => "type-embedded",
+            var t when t != null && (t.Contains("INFRA", StringComparison.Ordinal) || t.Contains("NETWORK", StringComparison.Ordinal) || t.Contains("DEVOPS", StringComparison.Ordinal) || t.Contains("CLOUD", StringComparison.Ordinal) || t.Contains("DOCKER", StringComparison.Ordinal) || t.Contains("K8S", StringComparison.Ordinal)) => "type-infra",
+            var t when t != null && (t.Contains("DATA", StringComparison.Ordinal) || t.Contains("ML", StringComparison.Ordinal) || t.Contains("AI", StringComparison.Ordinal) || t.Contains("ANALYTICS", StringComparison.Ordinal)) => "type-data",
+            _ => "type-default",
+        };
+    }
+
+
     private void ShowAddTechStack()
     {
         this.editingTechStack = new TechStack();
@@ -131,5 +189,11 @@ public partial class TechStacksTab : BaseComponent
         {
             this.isSaving = false;
         }
+    }
+
+    private sealed class ReverseStringComparer : IComparer<string>
+    {
+        public int Compare(string? x, string? y) =>
+            StringComparer.OrdinalIgnoreCase.Compare(y, x);
     }
 }

@@ -27,6 +27,39 @@ public partial class UsersTab : BaseComponent
     [Inject]
     private IToastService ToastService { get; set; } = null!;
 
+    private string searchQuery { get; set; } = string.Empty;
+
+    private List<User>? FilteredUsers =>
+        this.Users?
+            .Where(u =>
+                string.IsNullOrWhiteSpace(this.searchQuery) ||
+                u.Login.Contains(this.searchQuery, StringComparison.OrdinalIgnoreCase) ||
+                u.Person.FirstName.Contains(this.searchQuery, StringComparison.OrdinalIgnoreCase) ||
+                u.Person.LastName.Contains(this.searchQuery, StringComparison.OrdinalIgnoreCase))
+            .OrderBy(u => u.Person.LastName, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+    private static string GetInitials(string firstName, string lastName)
+    {
+        var f = string.IsNullOrWhiteSpace(firstName) ? string.Empty : firstName[0].ToString().ToUpperInvariant();
+        var l = string.IsNullOrWhiteSpace(lastName) ? string.Empty : lastName[0].ToString().ToUpperInvariant();
+        return $"{f}{l}";
+    }
+
+    private static string GetAvatarClass(UserRole role) => role switch
+    {
+        UserRole.Admin => "avatar-admin",
+        UserRole.Developer => "avatar-dev",
+        _ => "avatar-user",
+    };
+
+    private static string GetRoleSelectClass(UserRole role) => role switch
+    {
+        UserRole.Admin => "role-admin",
+        UserRole.Developer => "role-dev",
+        _ => "role-user",
+    };
+
     private static bool CanDeleteUser(User user) => user.Role != UserRole.Admin;
 
     private static bool CanToggleUserStatus(User user) => user.Role != UserRole.Admin;

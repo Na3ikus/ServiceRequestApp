@@ -19,6 +19,7 @@ public partial class Admin : BaseComponent
     #pragma warning restore CA1724
     [Inject]
     private IAdminService AdminService { get; set; } = null!;
+
     [Inject]
     private IAuthService AuthService { get; set; } = null!;
 
@@ -36,7 +37,7 @@ public partial class Admin : BaseComponent
 
     private string activeTab { get; set; } = "products";
 
-    private bool isQuickAdminMenuOpen { get; set; }
+    private bool isMobileNavOpen { get; set; }
 
     private bool isCheckingSmtp { get; set; }
 
@@ -67,26 +68,28 @@ public partial class Admin : BaseComponent
         this.users = await this.AdminService.GetAllUsersAsync();
     }
 
-    private void SetActiveTab(string tab) => this.activeTab = tab;
-
-    private void ToggleQuickAdminMenu() => this.isQuickAdminMenuOpen = !this.isQuickAdminMenuOpen;
-
-    private void CloseQuickAdminMenu() => this.isQuickAdminMenuOpen = false;
-
-    private void SetActiveTabFromQuickMenu(string tab)
+    private void SetActiveTab(string tab)
     {
         this.activeTab = tab;
-        this.isQuickAdminMenuOpen = false;
+        this.isMobileNavOpen = false;
     }
+
+    private void ToggleMobileNav() => this.isMobileNavOpen = !this.isMobileNavOpen;
+
+    private void CloseMobileNav() => this.isMobileNavOpen = false;
+
+    private string GetActiveTabLabel() => this.activeTab switch
+    {
+        "products" => this.L.Translate("admin.products"),
+        "techstacks" => this.L.Translate("admin.techStacks"),
+        "users" => this.L.Translate("admin.users"),
+        "smtp" => this.L.Translate("admin.smtp"),
+        _ => string.Empty,
+    };
 
     private async Task CheckSmtpAsync()
     {
         await this.CheckSmtpStatusAsync(showToast: true);
-    }
-
-    private async Task CheckSmtpStatusFromCardAsync()
-    {
-        await this.CheckSmtpStatusAsync(showToast: false);
     }
 
     private async Task CheckSmtpStatusAsync(bool showToast)

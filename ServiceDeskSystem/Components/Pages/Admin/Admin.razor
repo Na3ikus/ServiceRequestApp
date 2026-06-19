@@ -6,159 +6,192 @@
 @rendermode InteractiveServer
 
 <!-- Created by Nazar "N1h3" Hutsol -->
-<div class="admin-panel-container max-w-7xl mx-auto p-4 sm:p-6">
+<div class="admin-shell @(Theme.IsDarkMode ? "is-dark" : "is-light")">
     @if (AuthService.CurrentUser?.Role != UserRole.Admin)
     {
-        <div class="bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-700 text-red-700 dark:text-red-400 px-6 py-4 rounded-xl">
-            <div class="flex items-center gap-3">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
-                    </path>
-                </svg>
-                <span class="font-medium">@L.Translate("admin.accessDenied")</span>
+        <div class="admin-access-denied">
+            <div class="admin-access-denied-inner">
+                <div class="admin-access-denied-icon">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+                        </path>
+                    </svg>
+                </div>
+                <span class="admin-access-denied-text">@L.Translate("admin.accessDenied")</span>
             </div>
         </div>
     }
     else
     {
-        <div class="relative overflow-hidden bg-gradient-to-br from-indigo-600 via-blue-700 to-indigo-800 rounded-3xl shadow-lg p-6 sm:p-8 mb-6 border border-white/10 dark:border-gray-800 group">
-            <div class="absolute top-0 right-0 -mr-10 -mt-10 w-48 h-48 rounded-full bg-white/10 blur-2xl pointer-events-none group-hover:scale-110 transition-transform duration-700"></div>
-            <div class="absolute bottom-0 left-0 -ml-10 -mb-10 w-64 h-64 rounded-full bg-blue-500/20 blur-2xl pointer-events-none group-hover:scale-110 transition-transform duration-700"></div>
-
-            <div class="relative z-10 flex flex-col gap-6">
-                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <div class="text-white">
-                        <h1 class="text-2xl sm:text-3xl font-extrabold mb-1 tracking-tight flex items-center gap-3">
-                            <span class="p-2 bg-white/10 rounded-lg backdrop-blur-sm inline-flex">
-                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                </svg>
-                            </span>
-                            @L.Translate("admin.title")
-                        </h1>
-                        <p class="text-indigo-100 text-sm sm:text-base">@L.Translate("admin.subtitle")</p>
+        <!-- Hero Header -->
+        <div class="admin-hero">
+            <div class="admin-hero-glow admin-hero-glow-1"></div>
+            <div class="admin-hero-glow admin-hero-glow-2"></div>
+            <div class="admin-hero-content">
+                <div class="admin-hero-title-row">
+                    <div class="admin-hero-icon">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z">
+                            </path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="admin-hero-heading">@L.Translate("admin.title")</h1>
+                        <p class="admin-hero-sub">@L.Translate("admin.subtitle")</p>
                     </div>
                 </div>
 
-                <div class="admin-stats-grid grid grid-cols-2 lg:grid-cols-4 gap-3">
-                    <div class="admin-stat-card bg-white/10 border border-white/20 rounded-xl px-4 py-3 backdrop-blur-sm">
-                        <div class="text-xs uppercase tracking-wide text-indigo-100">@L.Translate("admin.products")</div>
-                        <div class="text-2xl font-bold text-white">@(products?.Count ?? 0)</div>
+                <div class="admin-stats-strip">
+                    <div class="admin-stat">
+                        <svg class="admin-stat-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                        </svg>
+                        <div class="admin-stat-value">@(products?.Count ?? 0)</div>
+                        <div class="admin-stat-label">@L.Translate("admin.products")</div>
                     </div>
-                    <div class="admin-stat-card bg-white/10 border border-white/20 rounded-xl px-4 py-3 backdrop-blur-sm">
-                        <div class="text-xs uppercase tracking-wide text-indigo-100">@L.Translate("admin.techStacks")</div>
-                        <div class="text-2xl font-bold text-white">@(techStacks?.Count ?? 0)</div>
+                    <div class="admin-stat-divider"></div>
+                    <div class="admin-stat">
+                        <svg class="admin-stat-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                        </svg>
+                        <div class="admin-stat-value">@(techStacks?.Count ?? 0)</div>
+                        <div class="admin-stat-label">@L.Translate("admin.techStacks")</div>
                     </div>
-                    <div class="admin-stat-card bg-white/10 border border-white/20 rounded-xl px-4 py-3 backdrop-blur-sm">
-                        <div class="text-xs uppercase tracking-wide text-indigo-100">@L.Translate("admin.users")</div>
-                        <div class="text-2xl font-bold text-white">@(users?.Count ?? 0)</div>
+                    <div class="admin-stat-divider"></div>
+                    <div class="admin-stat">
+                        <svg class="admin-stat-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        <div class="admin-stat-value">@(users?.Count ?? 0)</div>
+                        <div class="admin-stat-label">@L.Translate("admin.users")</div>
                     </div>
-                    <div class="admin-stat-card admin-stat-card-smtp bg-white/10 border border-white/20 rounded-xl px-4 py-3 backdrop-blur-sm">
-                        <div class="text-xs uppercase tracking-wide text-indigo-100">@L.Translate("admin.smtp")</div>
-                        <div class="mt-1 flex items-center justify-between gap-2">
-                            <span class="smtp-health-flag @(smtpCheckSuccess == true ? "is-ok" : smtpCheckSuccess == false ? "is-fail" : "is-unknown")">
-                                <span class="smtp-health-dot"></span>
-                                @(isCheckingSmtp ? L.Translate("admin.smtp.checking") : smtpCheckSuccess == true ? L.Translate("admin.smtp.connected") : smtpCheckSuccess == false ? L.Translate("admin.smtp.noConnection") : L.Translate("admin.smtp.unknown"))
-                            </span>
-                            <button @onclick="CheckSmtpStatusFromCardAsync"
-                                    class="smtp-health-refresh-btn"
-                                    disabled="@isCheckingSmtp">
-                                @L.Translate("admin.smtp.check")
-                            </button>
+                    <div class="admin-stat-divider"></div>
+                    <div class="admin-stat">
+                        <svg class="admin-stat-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
+                        <div class="admin-stat-value">
+                            <span class="admin-smtp-dot @(smtpCheckSuccess == true ? "ok" : smtpCheckSuccess == false ? "fail" : "unknown")"></span>
+                            @(isCheckingSmtp ? L.Translate("admin.smtp.checking") : smtpCheckSuccess == true ? L.Translate("admin.smtp.connected") : smtpCheckSuccess == false ? L.Translate("admin.smtp.noConnection") : L.Translate("admin.smtp.unknown"))
                         </div>
+                        <div class="admin-stat-label">SMTP</div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Tab Navigation -->
-        <div class="admin-tab-nav hidden md:flex items-center gap-2 mb-6 overflow-x-auto pb-1 bg-white dark:bg-gray-800/80 rounded-2xl p-2 border border-gray-200 dark:border-gray-700/50 shadow-sm">
-            <button @onclick="@(() => SetActiveTab("products"))"
-                class="admin-tab-btn px-4 py-2 rounded-xl font-semibold transition-all @(activeTab == "products" ? "is-active bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg" : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700")">
-            @L.Translate("admin.products")
-            </button>
-            <button @onclick="@(() => SetActiveTab("techstacks"))"
-                class="admin-tab-btn px-4 py-2 rounded-xl font-semibold transition-all @(activeTab == "techstacks" ? "is-active bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg" : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700")">
-            @L.Translate("admin.techStacks")
-            </button>
-            <button @onclick="@(() => SetActiveTab("users"))"
-                class="admin-tab-btn px-4 py-2 rounded-xl font-semibold transition-all @(activeTab == "users" ? "is-active bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg" : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700")">
-            @L.Translate("admin.users")
-            </button>
-            <button @onclick="@(() => SetActiveTab("smtp"))"
-                class="admin-tab-btn px-4 py-2 rounded-xl font-semibold transition-all @(activeTab == "smtp" ? "is-active bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg" : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700")">
-                @L.Translate("admin.smtp")
-            </button>
-        </div>
+        <!-- Two-column Layout -->
+        <div class="admin-body">
+            <!-- Sub-Sidebar -->
+            <aside class="admin-sub-sidebar @(isMobileNavOpen ? "mobile-open" : "")">
+                <div class="admin-sub-sidebar-overlay" @onclick="CloseMobileNav"></div>
+                <nav class="admin-sub-nav">
+                    <div class="admin-sub-nav-header">
+                        <span class="admin-sub-nav-title">@L.Translate("nav.section.management")</span>
+                    </div>
 
-        <div class="md:hidden mb-4">
-            <button @onclick="ToggleQuickAdminMenu"
-                    class="w-full px-4 py-3 rounded-xl bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 shadow-sm flex items-center justify-between">
-                <span class="font-medium">Адмін-панель</span>
-                <svg class="w-5 h-5 transition-transform @(isQuickAdminMenuOpen ? "rotate-180" : "")" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    <button @onclick="@(() => SetActiveTab("products"))"
+                            class="admin-nav-item @(activeTab == "products" ? "is-active" : "")">
+                        <span class="admin-nav-item-icon">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                            </svg>
+                        </span>
+                        <span class="admin-nav-item-label">@L.Translate("admin.products")</span>
+                        @if (products is not null)
+                        {
+                            <span class="admin-nav-badge">@products.Count</span>
+                        }
+                    </button>
+
+                    <button @onclick="@(() => SetActiveTab("techstacks"))"
+                            class="admin-nav-item @(activeTab == "techstacks" ? "is-active" : "")">
+                        <span class="admin-nav-item-icon">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                            </svg>
+                        </span>
+                        <span class="admin-nav-item-label">@L.Translate("admin.techStacks")</span>
+                        @if (techStacks is not null)
+                        {
+                            <span class="admin-nav-badge">@techStacks.Count</span>
+                        }
+                    </button>
+
+                    <button @onclick="@(() => SetActiveTab("users"))"
+                            class="admin-nav-item @(activeTab == "users" ? "is-active" : "")">
+                        <span class="admin-nav-item-icon">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                        </span>
+                        <span class="admin-nav-item-label">@L.Translate("admin.users")</span>
+                        @if (users is not null)
+                        {
+                            <span class="admin-nav-badge">@users.Count</span>
+                        }
+                    </button>
+
+                    <div class="admin-nav-separator"></div>
+
+                    <button @onclick="@(() => SetActiveTab("smtp"))"
+                            class="admin-nav-item @(activeTab == "smtp" ? "is-active" : "")">
+                        <span class="admin-nav-item-icon">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                            </svg>
+                        </span>
+                        <span class="admin-nav-item-label">@L.Translate("admin.smtp")</span>
+                        <span class="admin-nav-smtp-dot @(smtpCheckSuccess == true ? "ok" : smtpCheckSuccess == false ? "fail" : "unknown")"></span>
+                    </button>
+                </nav>
+            </aside>
+
+            <!-- Mobile Nav Toggle -->
+            <button class="admin-mobile-nav-toggle" @onclick="ToggleMobileNav">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="@(isMobileNavOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h7")" />
+                </svg>
+                <span>@GetActiveTabLabel()</span>
+                <svg class="admin-mobile-nav-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                 </svg>
             </button>
-        </div>
 
-        <div @key="activeTab" class="admin-tab-content">
-            @if (activeTab == "products")
-            {
-                <ProductsTab Products="products" TechStacks="techStacks" OnProductsChanged="LoadDataAsync" />
-            }
-            else if (activeTab == "techstacks")
-            {
-                <TechStacksTab TechStacks="techStacks" OnTechStacksChanged="LoadDataAsync" />
-            }
-            else if (activeTab == "users")
-            {
-                <UsersTab Users="users" OnUsersChanged="LoadDataAsync" />
-            }
-            else if (activeTab == "smtp")
-            {
-                <SmtpTab SmtpCheckSuccess="smtpCheckSuccess" 
-                         SmtpCheckMessage="@smtpCheckMessage"
-                         IsCheckingSmtp="@isCheckingSmtp" 
-                         OnCheckSmtp="CheckSmtpAsync" />
-            }
+            <!-- Content Area -->
+            <main class="admin-content" @key="activeTab">
+                @if (activeTab == "products")
+                {
+                    <ProductsTab Products="products" TechStacks="techStacks" OnProductsChanged="LoadDataAsync" />
+                }
+                else if (activeTab == "techstacks")
+                {
+                    <TechStacksTab TechStacks="techStacks" OnTechStacksChanged="LoadDataAsync" />
+                }
+                else if (activeTab == "users")
+                {
+                    <UsersTab Users="users" OnUsersChanged="LoadDataAsync" />
+                }
+                else if (activeTab == "smtp")
+                {
+                    <SmtpTab SmtpCheckSuccess="smtpCheckSuccess"
+                             SmtpCheckMessage="@smtpCheckMessage"
+                             IsCheckingSmtp="@isCheckingSmtp"
+                             OnCheckSmtp="CheckSmtpAsync" />
+                }
+            </main>
         </div>
     }
 </div>
-
-@if (AuthService.CurrentUser?.Role == UserRole.Admin)
-{
-    <div class="admin-quick-nav md:hidden @(isQuickAdminMenuOpen ? "open" : "")">
-        <div class="admin-quick-nav-overlay" @onclick="CloseQuickAdminMenu"></div>
-        <div class="admin-quick-nav-sheet">
-            <div class="admin-quick-nav-header">
-                <span class="font-semibold text-gray-800 dark:text-white">Адмін-панель</span>
-                <button @onclick="CloseQuickAdminMenu"
-                        class="p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                </button>
-            </div>
-
-            <div class="admin-quick-nav-grid">
-                <button @onclick="@(() => SetActiveTabFromQuickMenu("products"))"
-                        class="admin-quick-nav-item @(activeTab == "products" ? "is-active" : "")">
-                    @L.Translate("admin.products")
-                </button>
-                <button @onclick="@(() => SetActiveTabFromQuickMenu("techstacks"))"
-                        class="admin-quick-nav-item @(activeTab == "techstacks" ? "is-active" : "")">
-                    @L.Translate("admin.techStacks")
-                </button>
-                <button @onclick="@(() => SetActiveTabFromQuickMenu("users"))"
-                        class="admin-quick-nav-item @(activeTab == "users" ? "is-active" : "")">
-                    @L.Translate("admin.users")
-                </button>
-                <button @onclick="@(() => SetActiveTabFromQuickMenu("smtp"))"
-                        class="admin-quick-nav-item @(activeTab == "smtp" ? "is-active" : "")">
-                    @L.Translate("admin.smtp")
-                </button>
-            </div>
-        </div>
-    </div>
-}

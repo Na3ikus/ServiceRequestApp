@@ -1,0 +1,488 @@
+/* =============================================
+   ADMIN SHELL — Hero, Sub-Sidebar, Content
+   ============================================= */
+
+/* Shell wrapper */
+.admin-shell {
+    display: flex;
+    flex-direction: column;
+    min-height: calc(100vh - 2rem);
+    gap: 0;
+    padding: 1.25rem 1.5rem 2rem;
+    box-sizing: border-box;
+}
+
+/* ── Hero ─────────────────────────────────── */
+.admin-hero {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, #1e40af 0%, #2563eb 45%, #4f46e5 100%);
+    border-radius: 1.25rem;
+    padding: 1.5rem 2rem;
+    margin-bottom: 1.25rem;
+    box-shadow: 0 8px 32px rgb(37 99 235 / 0.28);
+    border: 1px solid rgb(255 255 255 / 0.08);
+}
+
+.admin-hero-glow {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+    filter: blur(40px);
+}
+
+.admin-hero-glow-1 {
+    top: -40px;
+    right: -40px;
+    width: 180px;
+    height: 180px;
+    background: rgb(255 255 255 / 0.12);
+}
+
+.admin-hero-glow-2 {
+    bottom: -50px;
+    left: -30px;
+    width: 220px;
+    height: 220px;
+    background: rgb(99 102 241 / 0.28);
+}
+
+.admin-hero-content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.admin-hero-title-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.admin-hero-icon {
+    width: 3rem;
+    height: 3rem;
+    background: rgb(255 255 255 / 0.15);
+    border-radius: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    backdrop-blur: 4px;
+    border: 1px solid rgb(255 255 255 / 0.2);
+}
+
+.admin-hero-icon svg {
+    width: 1.5rem;
+    height: 1.5rem;
+    color: #fff;
+}
+
+.admin-hero-heading {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #fff;
+    margin: 0 0 0.15rem;
+    letter-spacing: -0.01em;
+}
+
+.admin-hero-sub {
+    font-size: 0.875rem;
+    color: rgb(199 210 254);
+    margin: 0;
+}
+
+/* Stats Strip */
+.admin-stats-strip {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    background: rgb(0 0 0 / 0.12);
+    border-radius: 0.85rem;
+    padding: 0.5rem 1rem;
+    border: 1px solid rgb(255 255 255 / 0.1);
+    flex-wrap: wrap;
+    gap: 0;
+}
+
+.admin-stat {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.4rem 1rem;
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.admin-stat-icon {
+    width: 1.1rem;
+    height: 1.1rem;
+    color: rgb(199 210 254);
+    flex-shrink: 0;
+}
+
+.admin-stat-value {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    line-height: 1;
+}
+
+.admin-stat-label {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: rgb(199 210 254);
+    font-weight: 600;
+}
+
+.admin-stat-divider {
+    width: 1px;
+    height: 2rem;
+    background: rgb(255 255 255 / 0.18);
+    flex-shrink: 0;
+}
+
+/* SMTP dot in hero */
+.admin-smtp-dot {
+    display: inline-block;
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 50%;
+    background: rgb(148 163 184);
+    flex-shrink: 0;
+}
+
+.admin-smtp-dot.ok   { background: #34d399; box-shadow: 0 0 6px #34d399; }
+.admin-smtp-dot.fail { background: #f87171; box-shadow: 0 0 6px #f87171; }
+
+/* ── Body: sidebar + content ──────────────── */
+.admin-body {
+    display: flex;
+    gap: 1.25rem;
+    align-items: flex-start;
+    flex: 1;
+}
+
+/* ── Sub Sidebar ──────────────────────────── */
+.admin-sub-sidebar {
+    width: 220px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 1rem;
+}
+
+.admin-sub-sidebar-overlay {
+    display: none;
+}
+
+.admin-sub-nav {
+    background: rgb(248 250 252);
+    border: 1px solid rgb(226 232 240);
+    padding: 0.5rem;
+    border-radius: 1rem;
+    box-shadow: none;
+}
+
+.admin-shell.is-dark .admin-sub-nav {
+    background: rgb(30 41 59 / 0.6);
+    border: 1px solid rgb(51 65 85 / 0.8);
+    box-shadow: none;
+}
+
+.admin-sub-nav-header {
+    padding: 0.35rem 0.75rem 0.5rem;
+}
+
+.admin-sub-nav-title {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    color: rgb(100 116 139);
+}
+
+/* Nav Items */
+.admin-nav-item {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: 0.65rem;
+    padding: 0.6rem 0.75rem;
+    border-radius: 0.65rem;
+    border: 0;
+    background: transparent;
+    color: rgb(51 65 85);
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-align: left;
+    cursor: pointer;
+    transition: background 160ms ease, color 160ms ease, transform 160ms ease;
+    position: relative;
+    line-height: 1;
+}
+
+.admin-shell.is-dark .admin-nav-item {
+    color: rgb(203 213 225);
+}
+
+.admin-nav-item:hover {
+    background: rgb(59 130 246 / 0.1);
+    color: rgb(37 99 235);
+    transform: translateX(2px);
+}
+
+.admin-shell.is-dark .admin-nav-item:hover {
+    background: rgb(59 130 246 / 0.15);
+    color: rgb(147 197 253);
+}
+
+.admin-nav-item.is-active {
+    background: linear-gradient(90deg, rgb(37 99 235 / 0.12), rgb(79 70 229 / 0.08));
+    color: rgb(37 99 235);
+    font-weight: 700;
+    border-left: 3px solid rgb(37 99 235);
+    padding-left: calc(0.75rem - 3px);
+}
+
+.admin-shell.is-dark .admin-nav-item.is-active {
+    background: linear-gradient(90deg, rgb(37 99 235 / 0.22), rgb(79 70 229 / 0.14));
+    color: rgb(147 197 253);
+    border-left-color: rgb(96 165 250);
+}
+
+.admin-nav-item-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 1.1rem;
+    height: 1.1rem;
+}
+
+.admin-nav-item-icon svg {
+    width: 1.1rem;
+    height: 1.1rem;
+}
+
+.admin-nav-item-label {
+    flex: 1;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.admin-nav-badge {
+    font-size: 0.7rem;
+    font-weight: 700;
+    background: rgb(226 232 240);
+    color: rgb(71 85 105);
+    padding: 0.1rem 0.45rem;
+    border-radius: 999px;
+    min-width: 1.5rem;
+    text-align: center;
+    line-height: 1.4;
+    flex-shrink: 0;
+}
+
+.admin-nav-item.is-active .admin-nav-badge {
+    background: rgb(37 99 235 / 0.15);
+    color: rgb(37 99 235);
+}
+
+.admin-shell.is-dark .admin-nav-badge {
+    background: rgb(51 65 85);
+    color: rgb(148 163 184);
+}
+
+.admin-nav-separator {
+    height: 1px;
+    margin: 0.4rem 0.5rem;
+    background: rgb(226 232 240);
+}
+
+.admin-shell.is-dark .admin-nav-separator {
+    background: rgb(51 65 85);
+}
+
+.admin-nav-smtp-dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: rgb(148 163 184);
+    flex-shrink: 0;
+}
+
+.admin-nav-smtp-dot.ok   { background: #10b981; box-shadow: 0 0 5px #10b98166; }
+.admin-nav-smtp-dot.fail { background: #ef4444; box-shadow: 0 0 5px #ef444466; }
+
+/* ── Content Area ─────────────────────────── */
+.admin-content {
+    flex: 1;
+    min-width: 0;
+}
+
+/* ── Mobile nav toggle ────────────────────── */
+.admin-mobile-nav-toggle {
+    display: none;
+}
+
+/* ── Access Denied ────────────────────────── */
+.admin-access-denied {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+}
+
+.admin-access-denied-inner {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1.25rem 1.75rem;
+    background: rgb(254 226 226);
+    border: 1px solid rgb(252 165 165);
+    border-radius: 1rem;
+    color: rgb(185 28 28);
+}
+
+.admin-shell.is-dark .admin-access-denied-inner {
+    background: rgb(127 29 29 / 0.25);
+    border-color: rgb(153 27 27 / 0.5);
+    color: rgb(252 165 165);
+}
+
+.admin-access-denied-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+    flex-shrink: 0;
+}
+
+.admin-access-denied-icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+.admin-access-denied-text {
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+/* ── Responsive ───────────────────────────── */
+@media (max-width: 1023px) {
+    .admin-shell {
+        padding: 0.75rem 1rem 1.5rem;
+    }
+
+    .admin-body {
+        flex-direction: column;
+    }
+
+    .admin-sub-sidebar {
+        width: 100%;
+        position: static;
+    }
+
+    .admin-sub-nav {
+        display: none;
+    }
+
+    .admin-sub-sidebar.mobile-open .admin-sub-nav {
+        display: block;
+        position: fixed;
+        background: var(--app-bg-main, #fff);
+        inset: 0;
+        z-index: 50;
+        border-radius: 0;
+        top: auto;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        border-top-left-radius: 1.25rem;
+        border-top-right-radius: 1.25rem;
+        box-shadow: 0 -8px 40px rgb(0 0 0 / 0.18);
+        padding: 1rem;
+        max-height: 60vh;
+        overflow-y: auto;
+    }
+
+    .admin-shell.is-dark .admin-sub-sidebar.mobile-open .admin-sub-nav {
+        background: rgb(30 41 59);
+        border-top: 1px solid rgb(51 65 85);
+    }
+
+    .admin-sub-sidebar.mobile-open .admin-sub-sidebar-overlay {
+        display: block;
+        position: fixed;
+        inset: 0;
+        z-index: 49;
+        background: rgb(0 0 0 / 0.35);
+        backdrop-filter: blur(2px);
+    }
+
+    .admin-mobile-nav-toggle {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        padding: 0.65rem 1rem;
+        background: #fff;
+        border: 1px solid rgb(226 232 240);
+        border-radius: 0.75rem;
+        color: rgb(30 41 59);
+        font-size: 0.875rem;
+        font-weight: 600;
+        cursor: pointer;
+        width: 100%;
+        margin-bottom: 0.75rem;
+        box-shadow: 0 1px 4px rgb(0 0 0 / 0.06);
+    }
+
+    .admin-shell.is-dark .admin-mobile-nav-toggle {
+        background: rgb(30 41 59);
+        border-color: rgb(51 65 85);
+        color: rgb(226 232 240);
+    }
+
+    .admin-mobile-nav-toggle svg:first-child {
+        width: 1.1rem;
+        height: 1.1rem;
+        color: rgb(37 99 235);
+    }
+
+    .admin-mobile-nav-chevron {
+        width: 1rem;
+        height: 1rem;
+        margin-left: auto;
+        color: rgb(100 116 139);
+    }
+}
+
+@media (max-width: 640px) {
+    .admin-hero {
+        padding: 1.25rem 1.25rem;
+    }
+
+    .admin-hero-heading {
+        font-size: 1.2rem;
+    }
+
+    .admin-stats-strip {
+        flex-wrap: wrap;
+        gap: 0.25rem;
+    }
+
+    .admin-stat {
+        flex: 1 1 40%;
+        padding: 0.35rem 0.6rem;
+    }
+
+    .admin-stat-divider {
+        display: none;
+    }
+}
