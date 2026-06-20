@@ -27,13 +27,21 @@ public partial class MyTickets : BaseComponent
 
     protected override async Task OnInitializedAsync()
     {
-        if (this.CurrentUserId == 0)
+        var currentUser = this.AuthService.CurrentUser;
+        if (currentUser is null)
         {
-            this.Navigation.NavigateTo("/login");
+            this.Navigation.NavigateTo("/login", replace: true);
             return;
         }
 
-        this.tickets = await this.TicketService.GetUserTicketsAsync(this.CurrentUserId);
+        if (currentUser.Role != Domain.Enums.UserRole.User)
+        {
+            // Admin and Developer have the full ticket list.
+            this.Navigation.NavigateTo("/tickets", replace: true);
+            return;
+        }
+
+        this.tickets = await this.TicketService.GetUserTicketsAsync(currentUser.Id);
         this.StartAutoRefresh();
     }
 

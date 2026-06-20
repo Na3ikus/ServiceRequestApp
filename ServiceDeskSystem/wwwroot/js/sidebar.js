@@ -43,7 +43,13 @@ window.sidebarManager = {
                 window.location.href = '/create-ticket';
             } else if (key === 't') {
                 event.preventDefault();
-                window.location.href = '/tickets';
+                // Route to the correct tickets page based on the user's role
+                var userRole = localStorage.getItem('user.role');
+                if (userRole && userRole.toLowerCase() === 'user') {
+                    window.location.href = '/my-tickets';
+                } else {
+                    window.location.href = '/tickets';
+                }
             } else if (key === '/') {
                 event.preventDefault();
                 const searchInput = document.querySelector('.search-input');
@@ -76,9 +82,9 @@ window.sidebarManager = {
     if (accent && accent !== 'blue') {
         document.documentElement.setAttribute('data-accent', accent);
     }
-    
+
     var density = localStorage.getItem('settings.tableDensity');
-    if (density && density !== 'comfortable') {
+    if (density) {
         document.documentElement.setAttribute('data-density', density);
     }
 
@@ -97,6 +103,15 @@ window.sidebarManager = {
     var bgTexture = localStorage.getItem('settings.bgTexture');
     if (bgTexture && bgTexture !== 'clean') {
         document.documentElement.setAttribute('data-bg-texture', bgTexture);
+    }
+
+    // Apply font size setting on every page load
+    var fontSize = localStorage.getItem('settings.fontSize');
+    if (fontSize) {
+        var pct = parseInt(fontSize, 10);
+        if (!isNaN(pct) && pct >= 85 && pct <= 115) {
+            document.documentElement.style.fontSize = pct + '%';
+        }
     }
 })();
 

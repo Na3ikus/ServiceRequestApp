@@ -156,6 +156,24 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
         this.StartDatabaseMonitor();
         await this.LoadNotificationsAsync();
         await this.StartNotificationsHubAsync();
+
+        // Persist the current user role to localStorage so that JS hotkeys (e.g. T) can
+        // route to the correct page without a Blazor round-trip.
+        if (this.AuthService.CurrentUser is not null)
+        {
+            try
+            {
+                await this.JS.InvokeVoidAsync(
+                    "localStorage.setItem",
+                    "user.role",
+                    this.AuthService.CurrentUser.Role.ToString().ToLowerInvariant());
+            }
+            catch
+            {
+                // Ignore JS interop errors during prerendering.
+            }
+        }
+
         await this.InvokeAsync(this.StateHasChanged);
     }
 
@@ -231,6 +249,17 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
         this.lastKnownUnreadCount = 0;
         this.StopNotificationPulse();
         this.isNotificationsOpen = false;
+
+        // Remove cached role from localStorage on logout.
+        try
+        {
+            await this.JS.InvokeVoidAsync("localStorage.removeItem", "user.role");
+        }
+        catch
+        {
+            // Ignore JS interop errors.
+        }
+
         this.Navigation.NavigateTo("/login");
     }
 

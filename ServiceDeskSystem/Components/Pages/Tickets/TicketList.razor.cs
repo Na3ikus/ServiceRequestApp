@@ -57,6 +57,21 @@ public partial class TicketList : BaseComponent
 
     protected override async Task OnInitializedAsync()
     {
+        // Guard: redirect unauthenticated users and those without the required role.
+        var currentUser = this.AuthService.CurrentUser;
+        if (currentUser is null)
+        {
+            this.Navigation.NavigateTo("/login", replace: true);
+            return;
+        }
+
+        if (currentUser.Role == UserRole.User)
+        {
+            // Regular users have their own tickets page.
+            this.Navigation.NavigateTo("/my-tickets", replace: true);
+            return;
+        }
+
         this.tickets = await this.TicketService.GetAllTicketsAsync();
         this.ApplyFilters();
         await this.StartTicketsHubAsync();
