@@ -5,6 +5,7 @@ using ServiceDeskSystem.Application.Services.Admin;
 using ServiceDeskSystem.Domain.Entities;
 using ServiceDeskSystem.Domain.Enums;
 using ServiceDeskSystem.Domain.Interfaces;
+using ServiceDeskSystem.Api.Services;
 using System.Net.Mail;
 
 namespace ServiceDeskSystem.Api.Controllers;
@@ -15,6 +16,7 @@ namespace ServiceDeskSystem.Api.Controllers;
 public sealed class AdminController(
     IAdminService adminService,
     IEmailSender emailSender,
+    ICurrentUserService currentUserService,
     ILogger<AdminController> logger) : ControllerBase
 {
     // ───────── Tech Stacks ─────────
@@ -28,19 +30,20 @@ public sealed class AdminController(
     }
 
     [HttpPost("techstacks")]
-    public async Task<IActionResult> CreateTechStack([FromBody] TechStack techStack)
+    public async Task<IActionResult> CreateTechStack([FromBody] TechStackRequest request)
     {
-        logger.LogInformation("Creating tech stack: {Name}", techStack.Name);
-        var created = await adminService.CreateTechStackAsync(techStack).ConfigureAwait(false);
+        logger.LogInformation("Creating tech stack: {Name}", request.Name);
+        var entity = new TechStack { Name = request.Name, Type = request.Type };
+        var created = await adminService.CreateTechStackAsync(entity).ConfigureAwait(false);
         return CreatedAtAction(nameof(GetAllTechStacks), new { id = created.Id }, created);
     }
 
     [HttpPut("techstacks/{id:int}")]
-    public async Task<IActionResult> UpdateTechStack(int id, [FromBody] TechStack techStack)
+    public async Task<IActionResult> UpdateTechStack(int id, [FromBody] TechStackRequest request)
     {
-        techStack.Id = id;
         logger.LogInformation("Updating tech stack {TechStackId}", id);
-        var success = await adminService.UpdateTechStackAsync(techStack).ConfigureAwait(false);
+        var entity = new TechStack { Id = id, Name = request.Name, Type = request.Type };
+        var success = await adminService.UpdateTechStackAsync(entity).ConfigureAwait(false);
 
         if (!success)
         {
@@ -75,19 +78,33 @@ public sealed class AdminController(
     }
 
     [HttpPost("products")]
-    public async Task<IActionResult> CreateProduct([FromBody] Product product)
+    public async Task<IActionResult> CreateProduct([FromBody] ProductRequest request)
     {
-        logger.LogInformation("Creating product: {Name}", product.Name);
-        var created = await adminService.CreateProductAsync(product).ConfigureAwait(false);
+        logger.LogInformation("Creating product: {Name}", request.Name);
+        var entity = new Product
+        {
+            Name = request.Name,
+            Description = request.Description,
+            CurrentVersion = request.CurrentVersion,
+            TechStackId = request.TechStackId,
+        };
+        var created = await adminService.CreateProductAsync(entity).ConfigureAwait(false);
         return CreatedAtAction(nameof(GetAllProducts), new { id = created.Id }, created);
     }
 
     [HttpPut("products/{id:int}")]
-    public async Task<IActionResult> UpdateProduct(int id, [FromBody] Product product)
+    public async Task<IActionResult> UpdateProduct(int id, [FromBody] ProductRequest request)
     {
-        product.Id = id;
         logger.LogInformation("Updating product {ProductId}", id);
-        var success = await adminService.UpdateProductAsync(product).ConfigureAwait(false);
+        var entity = new Product
+        {
+            Id = id,
+            Name = request.Name,
+            Description = request.Description,
+            CurrentVersion = request.CurrentVersion,
+            TechStackId = request.TechStackId,
+        };
+        var success = await adminService.UpdateProductAsync(entity).ConfigureAwait(false);
 
         if (!success)
         {
@@ -124,6 +141,12 @@ public sealed class AdminController(
     [HttpPut("users/{userId:int}/role")]
     public async Task<IActionResult> UpdateUserRole(int userId, [FromBody] UserRole newRole)
     {
+        // Prevent an admin from removing their own admin role (self-demotion lockout)
+        if (currentUserService.UserId == userId)
+        {
+            return BadRequest(new ApiErrorResponse(400, "You cannot change your own role."));
+        }
+
         logger.LogInformation("Updating role of user {UserId} to {Role}", userId, newRole);
         var success = await adminService.UpdateUserRoleAsync(userId, newRole).ConfigureAwait(false);
 
@@ -138,6 +161,12 @@ public sealed class AdminController(
     [HttpPut("users/{userId:int}/toggle")]
     public async Task<IActionResult> ToggleUserActive(int userId)
     {
+        // Prevent an admin from deactivating their own account
+        if (currentUserService.UserId == userId)
+        {
+            return BadRequest(new ApiErrorResponse(400, "You cannot deactivate your own account."));
+        }
+
         logger.LogInformation("Toggling active status of user {UserId}", userId);
         var success = await adminService.ToggleUserActiveStatusAsync(userId).ConfigureAwait(false);
 

@@ -217,7 +217,7 @@ public partial class TicketDetails : BaseComponent
             return;
         }
 
-        var updated = await this.CommentService.UpdateCommentAsync(commentId, this.EditingCommentMessage.Trim());
+        var updated = await this.CommentService.UpdateCommentAsync(commentId, this.EditingCommentMessage.Trim(), this.CurrentUserId, this.IsAdmin);
         if (updated is not null && this.Ticket?.Comments is not null)
         {
             var existing = this.Ticket.Comments.FirstOrDefault(c => c.Id == commentId);

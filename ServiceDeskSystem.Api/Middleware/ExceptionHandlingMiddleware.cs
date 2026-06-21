@@ -17,7 +17,7 @@ public sealed class ExceptionHandlingMiddleware(
         catch (ArgumentException ex)
         {
             logger.LogWarning(ex, "Validation error: {Message}", ex.Message);
-            await WriteErrorResponseAsync(context, HttpStatusCode.BadRequest, ex.Message).ConfigureAwait(false);
+            await WriteErrorResponseAsync(context, HttpStatusCode.BadRequest, "Invalid request data.").ConfigureAwait(false);
         }
         catch (UnauthorizedAccessException ex)
         {

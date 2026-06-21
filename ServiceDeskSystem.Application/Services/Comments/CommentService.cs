@@ -36,7 +36,13 @@ public sealed class CommentService(
         return result ?? comment;
     }
 
-    public async Task<Comment?> UpdateCommentAsync(int commentId, string newMessage)
+    /// <summary>
+    /// Sentinel instance returned from <see cref="UpdateCommentAsync"/> when the requester
+    /// is not the comment author and is not an Admin.
+    /// </summary>
+    public static readonly Comment Forbidden = new() { Id = -1 };
+
+    public async Task<Comment?> UpdateCommentAsync(int commentId, string newMessage, int? requesterId, bool isAdmin)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(newMessage);
 
@@ -48,6 +54,12 @@ public sealed class CommentService(
             return null;
         }
 
+        // Ownership check: only the author or an Admin may edit
+        if (!isAdmin && existing.AuthorId != requesterId)
+        {
+            return Forbidden;
+        }
+
         existing.Message = newMessage;
         await repo.UnitOfWork.SaveChangesAsync().ConfigureAwait(false);
 
@@ -55,6 +67,7 @@ public sealed class CommentService(
 
         return existing;
     }
+
 
     public async Task<bool> DeleteCommentAsync(int commentId)
     {

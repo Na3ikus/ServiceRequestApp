@@ -22,6 +22,10 @@ public sealed class TicketsController(
     [HttpGet]
     public async Task<IActionResult> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
     {
+        if (page < 1) page = 1;
+        if (pageSize < 1) pageSize = 10;
+        if (pageSize > 100) pageSize = 100;
+
         var tickets = await ticketService.GetPagedTicketsAsync(page, pageSize).ConfigureAwait(false);
         return Ok(tickets);
     }
@@ -150,11 +154,20 @@ public sealed class TicketsController(
     public async Task<IActionResult> UpdateComment(int commentId, [FromBody] UpdateCommentRequest request)
     {
         logger.LogInformation("Updating comment {CommentId}", commentId);
-        var updated = await commentService.UpdateCommentAsync(commentId, request.Message).ConfigureAwait(false);
+        var updated = await commentService.UpdateCommentAsync(
+            commentId,
+            request.Message,
+            currentUserService.UserId,
+            isAdmin: User.IsInRole("Admin")).ConfigureAwait(false);
 
         if (updated is null)
         {
             return NotFound(new ApiErrorResponse(404, $"Comment with ID {commentId} not found."));
+        }
+
+        if (updated == CommentService.Forbidden)
+        {
+            return Forbid();
         }
 
         return Ok(updated);
@@ -189,6 +202,13 @@ public sealed class TicketsController(
     [HttpGet("user/{userId:int}")]
     public async Task<IActionResult> GetUserTickets(int userId)
     {
+        // Non-admin users may only view their own tickets
+        var requesterId = currentUserService.UserId;
+        if (!User.IsInRole("Admin") && requesterId != userId)
+        {
+            return Forbid();
+        }
+
         logger.LogInformation("Fetching tickets for user {UserId}", userId);
         var tickets = await ticketService.GetUserTicketsAsync(userId).ConfigureAwait(false);
         return Ok(tickets);
@@ -197,6 +217,13 @@ public sealed class TicketsController(
     [HttpGet("developer/{developerId:int}")]
     public async Task<IActionResult> GetDeveloperTickets(int developerId)
     {
+        // Non-admin users may only view their own assigned tickets
+        var requesterId = currentUserService.UserId;
+        if (!User.IsInRole("Admin") && requesterId != developerId)
+        {
+            return Forbid();
+        }
+
         logger.LogInformation("Fetching tickets for developer {DeveloperId}", developerId);
         var tickets = await ticketService.GetDeveloperTicketsAsync(developerId).ConfigureAwait(false);
         return Ok(tickets);

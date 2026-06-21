@@ -141,7 +141,7 @@
                             <h3 class="text-lg font-bold text-gray-800 dark:text-gray-100">@L.Translate("details.description")</h3>
                         </div>
                         <div class="prose prose-sm sm:prose-base dark:prose-invert max-w-none text-gray-600 dark:text-gray-300 leading-relaxed bg-slate-50 dark:bg-slate-900/30 p-5 rounded-xl border border-slate-100 dark:border-slate-700/50 ql-editor px-0 py-0">
-                            @((MarkupString)Ticket.Description)
+                            @QuillSanitizer.Sanitize(Ticket.Description)
                         </div>
                     </div>
 
@@ -157,7 +157,7 @@
                                 <h3 class="text-lg font-bold text-gray-800 dark:text-gray-100">@L.Translate("details.stepsToReproduce")</h3>
                             </div>
                             <div class="text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-900 shadow-inner rounded-xl p-5 text-sm font-mono border border-gray-200 dark:border-gray-700 leading-relaxed overflow-x-auto ql-editor px-0 py-0">
-                                @((MarkupString)Ticket.StepsToReproduce)
+                                @QuillSanitizer.Sanitize(Ticket.StepsToReproduce)
                             </div>
                         </div>
                     }
@@ -235,7 +235,7 @@
                                         else
                                         {
                                             <div class="text-sm text-gray-600 dark:text-gray-300 ql-editor px-0 py-0">
-                                                @((MarkupString)comment.Message)
+                                                @QuillSanitizer.Sanitize(comment.Message)
                                             </div>
                                         }
                                     </div>

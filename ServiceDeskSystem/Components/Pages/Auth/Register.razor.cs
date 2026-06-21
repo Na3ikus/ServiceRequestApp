@@ -131,7 +131,9 @@ public partial class Register : BaseComponent
         public string? Email { get; set; }
 
         [Required(ErrorMessage = "Password is required")]
-        [MinLength(6, ErrorMessage = "Password must be at least 6 characters")]
+        [MinLength(8, ErrorMessage = "Password must be at least 8 characters")]
+        [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d]).+$",
+            ErrorMessage = "Password must contain uppercase, lowercase, digit and special character")]
         public string Password { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Please confirm your password")]

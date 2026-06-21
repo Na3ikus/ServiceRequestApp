@@ -101,6 +101,7 @@ public static class DependencyInjection
 
         services.AddRateLimiter(options =>
         {
+            // Tight limiter for authentication endpoints (brute-force protection)
             options.AddFixedWindowLimiter("AuthRateLimiter", limiterOptions =>
             {
                 limiterOptions.PermitLimit = 5;
@@ -108,6 +109,27 @@ public static class DependencyInjection
                 limiterOptions.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
                 limiterOptions.QueueLimit = 0;
             });
+
+            // General limiter applied globally to all other endpoints
+            options.AddFixedWindowLimiter("GlobalRateLimiter", limiterOptions =>
+            {
+                limiterOptions.PermitLimit = 60;
+                limiterOptions.Window = TimeSpan.FromMinutes(1);
+                limiterOptions.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+                limiterOptions.QueueLimit = 5;
+            });
+
+            options.GlobalLimiter = System.Threading.RateLimiting.PartitionedRateLimiter.Create<HttpContext, string>(context =>
+                System.Threading.RateLimiting.RateLimitPartition.GetFixedWindowLimiter(
+                    partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+                    factory: _ => new System.Threading.RateLimiting.FixedWindowRateLimiterOptions
+                    {
+                        PermitLimit = 120,
+                        Window = TimeSpan.FromMinutes(1),
+                        QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                        QueueLimit = 0,
+                    }));
+
             options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
         });
 
