@@ -165,6 +165,13 @@ public partial class MainLayout
             {
                 this.StartNotificationPulse();
                 await this.PlayNotificationSoundAsync();
+
+                // Show visual toast notification for the newest received notification
+                var newest = this.notifications.FirstOrDefault();
+                if (newest != null)
+                {
+                    await this.ToastService.ShowToastAsync(newest.Message, ToastType.Info);
+                }
             }
 
             this.StateHasChanged();

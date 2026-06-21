@@ -21,9 +21,6 @@ public partial class Admin : BaseComponent
     private IAdminService AdminService { get; set; } = null!;
 
     [Inject]
-    private IAuthService AuthService { get; set; } = null!;
-
-    [Inject]
     private IToastService ToastService { get; set; } = null!;
 
     [Inject]

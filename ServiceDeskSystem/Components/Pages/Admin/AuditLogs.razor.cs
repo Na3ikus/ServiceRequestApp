@@ -21,9 +21,6 @@ public partial class AuditLogs : BaseComponent
     private CancellationTokenSource? cts;
 
     [Inject]
-    protected IAuthService AuthService { get; set; } = null!;
-
-    [Inject]
     protected IAuditService AuditService { get; set; } = null!;
 
     protected IEnumerable<AuditLog> FilteredLogs =>
@@ -74,7 +71,7 @@ public partial class AuditLogs : BaseComponent
         this.StateHasChanged();
     }
 
-    protected string GetActionClass(string action) => action.ToUpperInvariant() switch
+    protected static string GetActionClass(string action) => action.ToUpperInvariant() switch
     {
         "CREATE" => "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
         "UPDATESTATUS" => "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",

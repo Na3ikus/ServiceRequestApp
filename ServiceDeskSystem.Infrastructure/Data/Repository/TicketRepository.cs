@@ -76,6 +76,25 @@ namespace ServiceDeskSystem.Infrastructure.Data.Repository
                 .ConfigureAwait(false);
         }
 
+        public async Task<IEnumerable<Ticket>> GetActiveTicketsForSlaAsync()
+        {
+            return await this.Context.Tickets
+                .Include(t => t.Author)
+                    .ThenInclude(a => a.Person)
+                        .ThenInclude(p => p.ContactInfos)
+                            .ThenInclude(ci => ci.ContactType)
+                .Include(t => t.Developer)
+                    .ThenInclude(d => d.Person)
+                        .ThenInclude(p => p.ContactInfos)
+                            .ThenInclude(ci => ci.ContactType)
+                .Where(t => t.Status != TicketStatus.Resolved 
+                            && t.Status != TicketStatus.Closed 
+                            && t.Status != TicketStatus.Done 
+                            && t.DueDate != null)
+                .ToListAsync()
+                .ConfigureAwait(false);
+        }
+
         public async Task<Ticket?> GetByIdWithIncludesAsync(int id)
         {
             return await this.Context.Tickets

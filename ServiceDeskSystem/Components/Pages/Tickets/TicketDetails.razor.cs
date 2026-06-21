@@ -35,9 +35,6 @@ public partial class TicketDetails : BaseComponent
     [Inject]
     private ICommentService CommentService { get; set; } = null!;
 
-    [Inject]
-    private IAuthService AuthService { get; set; } = null!;
-
     private Ticket? Ticket { get; set; }
 
     private string NewCommentMessage { get; set; } = string.Empty;
@@ -52,18 +49,13 @@ public partial class TicketDetails : BaseComponent
 
     private DateTime? editDueDate { get; set; }
 
+    private TicketPriority editPriority { get; set; }
+
     private int CurrentUserId => this.AuthService.CurrentUser?.Id ?? 0;
 
     private UserRole? CurrentUserRole => this.AuthService.CurrentUser?.Role;
 
     private bool IsAdmin => this.CurrentUserRole == UserRole.Admin;
-
-    private bool IsDeveloper => this.CurrentUserRole == UserRole.Developer;
-
-    /// <summary>
-    /// Gets a value indicating whether the user is admin or developer (both can take/release tickets).
-    /// </summary>
-    private bool IsAdminOrDeveloper => this.AuthService.IsAuthenticated && (this.IsAdmin || this.IsDeveloper);
 
     private bool CanManageTicket => this.Ticket is not null && this.AuthService.IsAuthenticated && (this.Ticket.AuthorId == this.CurrentUserId || this.IsAdmin);
 
@@ -117,6 +109,7 @@ public partial class TicketDetails : BaseComponent
         {
             this.editStartDate = this.Ticket.StartDate;
             this.editDueDate = this.Ticket.DueDate;
+            this.editPriority = this.Ticket.Priority;
         }
 
         this.StateHasChanged();
@@ -125,6 +118,33 @@ public partial class TicketDetails : BaseComponent
     private void StartAutoRefresh()
     {
         this.refreshTimer = new Timer(async _ => await this.RefreshCommentsAsync(), null, this.refreshInterval, this.refreshInterval);
+    }
+
+    private async Task OnPriorityChangedAsync(ChangeEventArgs e)
+    {
+        if (Enum.TryParse<TicketPriority>(e.Value?.ToString(), out var priority))
+        {
+            this.editPriority = priority;
+        }
+
+        await Task.CompletedTask;
+    }
+
+    private async Task SavePriorityAsync()
+    {
+        if (this.Ticket is null || !this.IsAdminOrDeveloper)
+        {
+            return;
+        }
+
+        var success = await this.TicketService.UpdateTicketPriorityAsync(this.Ticket.Id, this.editPriority);
+        if (success)
+        {
+            this.Ticket.Priority = this.editPriority;
+            this.Ticket.IsPriorityAssessed = true;
+            await this.LoadTicketAsync();
+            await this.ToastService.ShowToastAsync(this.L.Translate("details.priorityUpdated") ?? "Priority updated successfully.", ToastType.Success);
+        }
     }
 
     private async Task SaveDatesAsync()

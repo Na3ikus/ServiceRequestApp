@@ -7,13 +7,23 @@
 
 <!-- Created by Nazar "N1h3" Hutsol -->
 <div class="kanban-card @(CanDrag ? "cursor-grab active:cursor-grabbing" : "cursor-pointer") 
-     bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700/60 
-     p-4 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 hover:border-blue-300 dark:hover:border-blue-600/60"
+     rounded-xl shadow-sm border p-4 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5
+     @(!Ticket.IsPriorityAssessed && IsAdminOrDeveloper
+         ? "border-dashed border-amber-400 dark:border-amber-600/80 bg-amber-50/20 dark:bg-amber-950/10 hover:border-amber-500" 
+         : "bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700/60 hover:border-blue-300 dark:hover:border-blue-600/60")"
 @ref="cardElement" draggable="@(CanDrag ? "true" : "false")" @onclick="HandleClick">
 
     <!-- Header: ID + Priority -->
     <div class="flex items-start justify-between gap-2 mb-2">
-        <span class="text-xs font-mono text-gray-400 dark:text-gray-500 flex-shrink-0">#@Ticket.Id</span>
+        <div class="flex items-center gap-1.5 min-w-0">
+            <span class="text-xs font-mono text-gray-400 dark:text-gray-500 flex-shrink-0">#@Ticket.Id</span>
+            @if (!Ticket.IsPriorityAssessed && IsAdminOrDeveloper)
+            {
+                <span class="px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300 text-[10px] font-bold border border-amber-200 dark:border-amber-800 animate-pulse shrink-0">
+                    ⚠️ @L.Translate("tickets.triageCompact")
+                </span>
+            }
+        </div>
         <span class="@GetPriorityBadgeClass(Ticket.Priority) px-2 py-0.5 rounded text-xs font-semibold flex-shrink-0">
             @GetPriorityText(Ticket.Priority)
         </span>

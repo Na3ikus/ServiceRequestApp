@@ -17,9 +17,6 @@ public partial class UserProfile : BaseComponent
     private List<ContactTypeDto> contactTypes = new List<ContactTypeDto>();
 
     [Inject]
-    public IAuthService AuthService { get; set; } = null!;
-
-    [Inject]
     public IProfileService ProfileService { get; set; } = null!;
 
     protected override async Task OnInitializedAsync()

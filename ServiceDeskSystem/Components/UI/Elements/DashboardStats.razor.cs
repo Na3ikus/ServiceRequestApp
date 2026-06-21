@@ -22,9 +22,6 @@ public partial class DashboardStats : ServiceDeskSystem.Components.UI.Base.BaseC
     [Inject]
     protected ITicketStatisticsService TicketStatisticsService { get; set; } = null!;
 
-    [Inject]
-    protected IAuthService AuthService { get; set; } = null!;
-
     protected override void Dispose(bool disposing)
     {
         if (disposing)

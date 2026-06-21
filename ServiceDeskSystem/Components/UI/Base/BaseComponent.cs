@@ -19,6 +19,11 @@ public abstract class BaseComponent : ComponentBase, IDisposable
     [Inject]
     protected NavigationManager Navigation { get; set; } = null!;
 
+    [Inject]
+    protected ServiceDeskSystem.Application.Services.Auth.IAuthService AuthService { get; set; } = null!;
+
+    protected bool IsAdminOrDeveloper => AuthService.CurrentUser?.Role is UserRole.Admin or UserRole.Developer;
+
     public void Dispose()
     {
         this.Dispose(true);

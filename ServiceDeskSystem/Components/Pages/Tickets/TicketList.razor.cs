@@ -23,9 +23,6 @@ public partial class TicketList : BaseComponent
     private ITicketService TicketService { get; set; } = null!;
 
     [Inject]
-    private IAuthService AuthService { get; set; } = null!;
-
-    [Inject]
     private IJSRuntime JS { get; set; } = null!;
 
     private List<Ticket>? tickets { get; set; }

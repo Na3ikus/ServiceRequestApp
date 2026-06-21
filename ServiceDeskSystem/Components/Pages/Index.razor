@@ -2,7 +2,6 @@
 @using ServiceDeskSystem.Domain.Entities
 @using ServiceDeskSystem.Domain.Enums
 @inherits ServiceDeskSystem.Components.UI.Base.BaseComponent
-@inject IAuthService AuthService
 @inject ITicketService TicketService
 @rendermode InteractiveServer
 
@@ -59,6 +58,24 @@
                 </div>
             </div>
         </div>
+
+        @if (unassessedCount > 0 && (currentUser.Role == UserRole.Admin || currentUser.Role == UserRole.Developer))
+        {
+            <div class="mb-8 p-5 bg-amber-50 dark:bg-amber-950/20 border border-amber-300 dark:border-amber-900/50 rounded-2xl flex items-center justify-between gap-4 shadow-md animate-pulse">
+                <div class="flex items-center gap-3">
+                    <span class="text-xl sm:text-2xl shrink-0">⚠️</span>
+                    <div>
+                        <h4 class="font-bold text-amber-900 dark:text-amber-300 text-sm sm:text-base">@L.Translate("tickets.triageAlertTitle")</h4>
+                        <p class="text-amber-800 dark:text-amber-400 text-xs sm:text-sm mt-1">
+                            @string.Format(L.Translate("tickets.triageAlertDesc"), unassessedCount)
+                        </p>
+                    </div>
+                </div>
+                <a href="tickets" class="px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs sm:text-sm font-bold transition-all shadow-md shrink-0 whitespace-nowrap">
+                    @L.Translate("tickets.viewTriageQueue")
+                </a>
+            </div>
+        }
 
         @if (currentUser.Role == UserRole.Admin || currentUser.Role == UserRole.Developer)
         {
@@ -117,7 +134,10 @@
                                 <div class="timeline-dot-inner"></div>
                             </div>
                             <a href="@($"/ticket/{ticket.Id}")" class="block group/card">
-                                <div class="flex items-center gap-4 p-4 rounded-xl border border-gray-100 dark:border-gray-700/50 bg-gray-50/50 dark:bg-gray-800/30 hover:bg-white dark:hover:bg-gray-700/50 hover:shadow-lg hover:border-blue-200 dark:hover:border-blue-500/30 transition-all duration-300 transform group-hover/card:-translate-y-0.5">
+                                <div class="flex items-center gap-4 p-4 rounded-xl border transition-all duration-300 transform group-hover/card:-translate-y-0.5 shadow-sm hover:shadow-lg
+                                            @(!ticket.IsPriorityAssessed && (currentUser.Role == UserRole.Admin || currentUser.Role == UserRole.Developer)
+                                                ? "border-dashed border-amber-400 bg-amber-50/20 dark:bg-amber-950/10 hover:border-amber-500" 
+                                                : "border-gray-100 dark:border-gray-700/50 bg-gray-50/50 dark:bg-gray-800/30 hover:bg-white dark:hover:bg-gray-700/50 hover:border-blue-200 dark:hover:border-blue-500/30")">
                                     <div class="w-10 h-10 rounded-full flex shrink-0 items-center justify-center shadow-sm @GetPriorityColorClass(ticket.Priority)">
                                         <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path>
@@ -130,11 +150,18 @@
                                             </p>
                                             <span class="text-xs font-mono font-medium text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded-full whitespace-nowrap border border-gray-200 dark:border-gray-600">#@ticket.Id</span>
                                         </div>
-                                        <div class="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400 font-medium">
-                                            <span class="flex items-center gap-1.5 px-2 py-0.5 rounded bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 shadow-sm">
+                                        <div class="flex flex-wrap items-center gap-3 text-xs text-gray-500 dark:text-gray-400 font-medium">
+                                            <span class="flex items-center gap-1.5 px-2 py-0.5 rounded bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 shadow-sm shrink-0">
                                                 <span class="w-2 h-2 rounded-full @GetStatusDotColor(ticket.Status)"></span>
                                                 @GetStatusText(ticket.Status)
                                             </span>
+                                            
+                                            @if (!ticket.IsPriorityAssessed && (currentUser.Role == UserRole.Admin || currentUser.Role == UserRole.Developer))
+                                            {
+                                                <span class="flex items-center gap-1 px-2 py-0.5 rounded bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300 font-bold border border-amber-200 dark:border-amber-800 animate-pulse shrink-0">
+                                                    ⚠️ @L.Translate("tickets.triageRequired")
+                                                </span>
+                                            }
                                             <span class="text-gray-300 dark:text-gray-600">&bull;</span>
                                             <span class="flex items-center gap-1.5 whitespace-nowrap">
                                                 <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -162,6 +189,7 @@
     private User? currentUser;
     private List<Ticket>? recentTickets;
     private bool isLoading = true;
+    private int unassessedCount;
 
     protected override async Task OnInitializedAsync()
     {
@@ -184,11 +212,15 @@
             {
                 var devTickets = await TicketService.GetDeveloperTicketsAsync(currentUser.Id);
                 recentTickets = devTickets.OrderByDescending(t => t.CreatedAt).Take(5).ToList();
+
+                var allTickets = await TicketService.GetAllTicketsAsync();
+                unassessedCount = allTickets.Count(t => !t.IsPriorityAssessed);
             }
             else // Admin
             {
                 var allTickets = await TicketService.GetAllTicketsAsync();
                 recentTickets = allTickets.OrderByDescending(t => t.CreatedAt).Take(5).ToList();
+                unassessedCount = allTickets.Count(t => !t.IsPriorityAssessed);
             }
         }
         finally

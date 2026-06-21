@@ -254,5 +254,32 @@ public sealed class NotificationService(
             // Notifications are best-effort and must not break user actions.
         }
     }
+
+    public async Task CreateSlaNotificationAsync(int ticketId, string type, string message, int recipientUserId)
+    {
+        try
+        {
+            await using var repo = repositoryFacadeFactory.Create();
+
+            var notification = new Notification
+            {
+                RecipientUserId = recipientUserId,
+                ActorUserId = null,
+                TicketId = ticketId,
+                Type = type,
+                Message = message,
+                IsRead = false,
+                CreatedAt = DateTime.UtcNow,
+            };
+
+            await repo.Notifications.CreateAsync(notification).ConfigureAwait(false);
+            await repo.UnitOfWork.SaveChangesAsync().ConfigureAwait(false);
+            await realtimeNotifier.NotifyNotificationsChangedAsync([recipientUserId]).ConfigureAwait(false);
+        }
+        catch
+        {
+            // Notifications are best-effort and must not break user actions.
+        }
+    }
 }
 

@@ -14,9 +14,6 @@ public partial class CalendarPage : BaseComponent
     [Inject]
     private ITicketService TicketService { get; set; } = null!;
 
-    [Inject]
-    private IAuthService AuthService { get; set; } = null!;
-
     protected override async Task OnInitializedAsync()
     {
         await this.LoadTicketsAsync();

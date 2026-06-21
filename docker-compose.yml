@@ -2,22 +2,23 @@ version: '3.8'
 
 services:
   db:
-    image: postgres:15
+    image: mysql:8.0
     environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: ServiceDeskDB
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: ServiceDeskDB
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: password
     ports:
-      - "5432:5432"
+      - "3306:3306"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - mysql_data:/var/lib/mysql
 
   api:
     build:
       context: .
       dockerfile: Dockerfile
     environment:
-      - ConnectionStrings__DefaultConnection=Host=db;Database=ServiceDeskDB;Username=admin;Password=password
+      - ConnectionStrings__DefaultConnection=server=db;database=ServiceDeskDB;user=admin;password=password;port=3306
       - Jwt__Issuer=ServiceDeskSystem
       - Jwt__Audience=ServiceDeskSystem
       - Jwt__Key=SuperSecretKeyThatIsAtLeast32BytesLong!!!
@@ -38,4 +39,5 @@ services:
       - api
 
 volumes:
-  postgres_data:
+  mysql_data:
+

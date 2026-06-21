@@ -18,5 +18,7 @@ public interface INotificationService
     Task CreateStatusChangedNotificationAsync(int ticketId, TicketStatus oldStatus, TicketStatus newStatus, int? actorUserId);
 
     Task CreateDatesChangedNotificationAsync(int ticketId, int? actorUserId);
+
+    Task CreateSlaNotificationAsync(int ticketId, string type, string message, int recipientUserId);
 }
 

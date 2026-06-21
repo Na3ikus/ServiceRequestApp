@@ -12,9 +12,6 @@ public partial class Register : BaseComponent
 {
     private readonly RegisterModel registerModel = new RegisterModel();
 
-    [Inject]
-    private IAuthService AuthService { get; set; } = null!;
-
     private string? ErrorMessage { get; set; }
 
     private string? SuccessMessage { get; set; }
@@ -132,7 +129,8 @@ public partial class Register : BaseComponent
 
         [Required(ErrorMessage = "Password is required")]
         [MinLength(8, ErrorMessage = "Password must be at least 8 characters")]
-        [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d]).+$",
+        [RegularExpression(
+            @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d]).+$",
             ErrorMessage = "Password must contain uppercase, lowercase, digit and special character")]
         public string Password { get; set; } = string.Empty;
 

@@ -53,17 +53,22 @@ public sealed class TicketsController(
             return Unauthorized(new ApiErrorResponse(401, "User not authenticated or extracted properly from token."));
         }
 
-        var ticket = new Ticket
-        {
-            Title = request.Title,
-            Description = request.Description,
-            Priority = request.Priority,
-            Type = request.Type,
-            ProductId = request.ProductId,
-            AuthorId = authorId.Value
-        };
+        var role = currentUserService.UserRole;
+        bool isDevOrAdmin = role is "Admin" or "Developer";
 
-        logger.LogInformation("Creating new ticket: {Title} by AuthorId: {AuthorId}", ticket.Title, ticket.AuthorId);
+        var priority = isDevOrAdmin ? request.Priority : ServiceDeskSystem.Domain.Enums.TicketPriority.Medium;
+        bool isPriorityAssessed = isDevOrAdmin;
+
+        var ticket = Ticket.Create(
+            request.Title,
+            request.Description,
+            request.Type,
+            priority,
+            authorId.Value,
+            request.ProductId,
+            isPriorityAssessed);
+
+        logger.LogInformation("Creating new ticket: {Title} by AuthorId: {AuthorId} (IsPriorityAssessed: {IsAssessed})", ticket.Title, ticket.AuthorId, ticket.IsPriorityAssessed);
 
         var created = await ticketService.CreateTicketAsync(ticket).ConfigureAwait(false);
         return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
@@ -75,6 +80,21 @@ public sealed class TicketsController(
     {
         logger.LogInformation("Updating ticket {TicketId} status to {Status}", id, request.Status);
         var success = await ticketService.UpdateTicketStatusAsync(id, request.Status).ConfigureAwait(false);
+
+        if (!success)
+        {
+            return NotFound(new ApiErrorResponse(404, $"Ticket with ID {id} not found."));
+        }
+
+        return NoContent();
+    }
+
+    [HttpPut("{id:int}/priority")]
+    [Authorize(Roles = "Admin,Developer")]
+    public async Task<IActionResult> UpdatePriority(int id, [FromBody] UpdatePriorityRequest request)
+    {
+        logger.LogInformation("Updating ticket {TicketId} priority to {Priority}", id, request.Priority);
+        var success = await ticketService.UpdateTicketPriorityAsync(id, request.Priority).ConfigureAwait(false);
 
         if (!success)
         {

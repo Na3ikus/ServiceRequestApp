@@ -57,12 +57,28 @@ public sealed class TicketService(
         ticket.CreatedAt = DateTime.UtcNow;
         ticket.Status = TicketStatus.Open;
 
+        if (!ticket.DueDate.HasValue)
+        {
+            var baseDate = ticket.CreatedAt;
+            ticket.DueDate = ticket.Priority switch
+            {
+                TicketPriority.Critical => baseDate.AddHours(4),
+                TicketPriority.High => baseDate.AddDays(2).Date.AddHours(16),
+                TicketPriority.Medium => baseDate.AddDays(5).Date.AddHours(16),
+                TicketPriority.Low => baseDate.AddDays(14).Date.AddHours(16),
+                _ => baseDate.AddDays(5).Date.AddHours(16)
+            };
+        }
+
         if (ticket.Type != TicketType.Project && !ticket.ProductId.HasValue)
         {
             throw new ArgumentException("Product is required for non-project tickets.", nameof(ticket));
         }
 
-        ticket.AddDomainEvent(new ServiceDeskSystem.Domain.Events.TicketCreatedEvent(0, ticket.AuthorId, ticket.Title));
+        if (!ticket.DomainEvents.Any(e => e is ServiceDeskSystem.Domain.Events.TicketCreatedEvent))
+        {
+            ticket.AddDomainEvent(new ServiceDeskSystem.Domain.Events.TicketCreatedEvent(0, ticket.AuthorId, ticket.Title));
+        }
 
         await repo.Tickets.CreateAsync(ticket).ConfigureAwait(false);
         await repo.UnitOfWork.SaveChangesAsync().ConfigureAwait(false);
@@ -99,13 +115,61 @@ public sealed class TicketService(
         ticket.ChangeStatus(newStatus, ticket.DeveloperId); // Use Domain Entity method
         await repo.UnitOfWork.SaveChangesAsync().ConfigureAwait(false);
 
-        await domainEventDispatcher.DispatchAsync(ticket.DomainEvents).ConfigureAwait(false);
+        var events = ticket.DomainEvents.ToList();
+        await domainEventDispatcher.DispatchAsync(events).ConfigureAwait(false);
         ticket.ClearDomainEvents();
 
         ClearDashboardCache();
 
         // The remaining code (notification, audit, realtimeNotifier) is handled by DomainEvent handlers.
         // But what if oldStatus == newStatus? The DomainEvents collection will be empty, so DispatchAsync does nothing.
+
+        return true;
+    }
+
+    public async Task<bool> UpdateTicketPriorityAsync(int ticketId, TicketPriority newPriority)
+    {
+        await using var repo = repositoryFacadeFactory.Create();
+        var ticket = await repo.Tickets.GetByIdAsync(ticketId).ConfigureAwait(false);
+
+        if (ticket is null)
+        {
+            return false;
+        }
+
+        var oldPriority = ticket.Priority;
+        ticket.Priority = newPriority;
+        ticket.IsPriorityAssessed = true;
+
+        // Recalculate SLA due date based on new priority
+        var baseDate = ticket.CreatedAt;
+        ticket.DueDate = newPriority switch
+        {
+            TicketPriority.Critical => baseDate.AddHours(4),
+            TicketPriority.High => baseDate.AddDays(2).Date.AddHours(16),
+            TicketPriority.Medium => baseDate.AddDays(5).Date.AddHours(16),
+            TicketPriority.Low => baseDate.AddDays(14).Date.AddHours(16),
+            _ => baseDate.AddDays(5).Date.AddHours(16)
+        };
+        ticket.IsSlaBreached = false;
+        ticket.SlaWarningSent = false;
+
+        await repo.UnitOfWork.SaveChangesAsync().ConfigureAwait(false);
+
+        ClearDashboardCache();
+
+        await realtimeNotifier.NotifyTicketsChangedAsync().ConfigureAwait(false);
+
+        if (auditService != null)
+        {
+            await auditService.LogActionAsync(
+                "UpdateTicketPriority",
+                "Ticket",
+                ticketId.ToString(),
+                $"Updated priority from {oldPriority} to {newPriority}",
+                null
+            ).ConfigureAwait(false);
+        }
 
         return true;
     }

@@ -49,8 +49,6 @@ public partial class Settings : BaseComponent
     private bool isCheckingDb;
     private bool isCheckingSmtp;
     private string smtpMessage = "SMTP";
-    [Inject]
-    private IAuthService AuthService { get; set; } = null!;
 
     [Inject]
     private IJSRuntime JS { get; set; } = null!;

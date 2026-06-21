@@ -4,6 +4,8 @@ namespace ServiceDeskSystem.Api.Models;
 
 public sealed record UpdateStatusRequest(TicketStatus Status);
 
+public sealed record UpdatePriorityRequest(TicketPriority Priority);
+
 public sealed record AssignDeveloperRequest(int DeveloperId);
 
 public sealed record CreateCommentRequest(string Message, int AuthorId);

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ServiceDeskSystem.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using ServiceDeskSystem.Infrastructure.Data;
 namespace ServiceDeskSystem.Infrastructure.Migrations
 {
     [DbContext(typeof(BugTrackerDbContext))]
-    partial class BugTrackerDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260621173118_AddSlaTrackingFields")]
+    partial class AddSlaTrackingFields
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -590,9 +593,6 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<bool>("IsPriorityAssessed")
-                        .HasColumnType("tinyint(1)");
-
                     b.Property<bool>("IsSlaBreached")
                         .HasColumnType("tinyint(1)");
 
@@ -652,7 +652,6 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                             Description = "При спробі сформувати звіт з ПДВ за останній квартал програма видає помилку 'Invalid date range'.",
                             DeveloperId = 2,
                             Environment = "Windows 11 / Chrome",
-                            IsPriorityAssessed = false,
                             IsSlaBreached = false,
                             Priority = "High",
                             ProductId = 1,
@@ -670,7 +669,6 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                             CreatedAt = new DateTime(2024, 4, 18, 14, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Функція експорту документів в Excel формат не працює - файл створюється порожнім.",
                             Environment = "Windows 10 / Edge",
-                            IsPriorityAssessed = false,
                             IsSlaBreached = false,
                             Priority = "Medium",
                             ProductId = 1,
@@ -689,7 +687,6 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                             Description = "After synchronizing with barcode scanners, the inventory count shows incorrect values for some items.",
                             DeveloperId = 5,
                             Environment = "Windows Server 2022",
-                            IsPriorityAssessed = false,
                             IsSlaBreached = false,
                             Priority = "Critical",
                             ProductId = 2,
@@ -708,7 +705,6 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                             Description = "Product search takes more than 10 seconds when warehouse has more than 50,000 items.",
                             DeveloperId = 2,
                             Environment = "Windows 11",
-                            IsPriorityAssessed = false,
                             IsSlaBreached = false,
                             Priority = "Medium",
                             ProductId = 2,
@@ -727,7 +723,6 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                             Description = "В особистому кабінеті працівника не відображається залишок днів відпустки за поточний рік.",
                             DeveloperId = 5,
                             Environment = "Windows 10 / Firefox",
-                            IsPriorityAssessed = false,
                             IsSlaBreached = false,
                             Priority = "High",
                             ProductId = 3,
@@ -745,7 +740,6 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                             CreatedAt = new DateTime(2024, 4, 20, 8, 45, 0, 0, DateTimeKind.Utc),
                             Description = "When generating PDF reports for employee attendance, the system throws an error.",
                             Environment = "macOS Ventura / Safari",
-                            IsPriorityAssessed = false,
                             IsSlaBreached = false,
                             Priority = "Medium",
                             ProductId = 3,
@@ -764,7 +758,6 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                             Description = "Клієнти не можуть завершити оплату через LiqPay - з'являється помилка 'Payment gateway timeout'.",
                             DeveloperId = 2,
                             Environment = "Android / Chrome Mobile",
-                            IsPriorityAssessed = false,
                             IsSlaBreached = false,
                             Priority = "Critical",
                             ProductId = 4,
@@ -783,7 +776,6 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                             Description = "Items added to cart as guest user disappear after logging in to account.",
                             DeveloperId = 5,
                             Environment = "iOS / Safari",
-                            IsPriorityAssessed = false,
                             IsSlaBreached = false,
                             Priority = "High",
                             ProductId = 4,
@@ -801,7 +793,6 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                             CreatedAt = new DateTime(2024, 4, 21, 9, 15, 0, 0, DateTimeKind.Utc),
                             Description = "Users are not receiving push notifications for new tasks assigned to them.",
                             Environment = "Android 14",
-                            IsPriorityAssessed = false,
                             IsSlaBreached = false,
                             Priority = "High",
                             ProductId = 5,
@@ -820,7 +811,6 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                             Description = "При синхронізації великої кількості контактів (>1000) додаток зависає і потребує перезапуску.",
                             DeveloperId = 2,
                             Environment = "iOS 17",
-                            IsPriorityAssessed = false,
                             IsSlaBreached = false,
                             Priority = "Medium",
                             ProductId = 5,
@@ -838,7 +828,6 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                             CreatedAt = new DateTime(2024, 4, 23, 12, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Було б зручно мати можливість переключатися на темну тему в інтерфейсі програми.",
                             Environment = "Windows 11",
-                            IsPriorityAssessed = false,
                             IsSlaBreached = false,
                             Priority = "Low",
                             ProductId = 1,
@@ -892,7 +881,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                             Id = 1,
                             IsActive = true,
                             Login = "admin",
-                            PasswordHash = "dt/ylVxnzrxSoV06M5k35Q==:1eYeWTFkvs5+eOMbdIXiXN/OPWzKzfa29Nl1yKXm/f8=",
+                            PasswordHash = "3nf9LZKd77y1N+MIuviUQg==:KF7f6nR2+FjYy8yaKw7YLtvKREf1eSXRnPbd29JkfKU=",
                             PersonId = 1,
                             Role = "Admin"
                         },
@@ -901,7 +890,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                             Id = 2,
                             IsActive = true,
                             Login = "o.kovalenko",
-                            PasswordHash = "jw3UYcLHggFpPkNN5uPfAQ==:aXdmGsjnFb5bQ3wWmYeoRU6cHxrrflVZscqyNrRV+/g=",
+                            PasswordHash = "+DAdxYwknBeBMbzQScDLyw==:dOYyleCb8ob7SSOW8ed6l+xIm5rmv1lVCDmBDpuZJ0w=",
                             PersonId = 2,
                             Role = "Developer"
                         },
@@ -910,7 +899,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                             Id = 3,
                             IsActive = true,
                             Login = "m.shevchenko",
-                            PasswordHash = "7eTtWNEwgh7n7f0Vt5De0A==:doKwhhr7yUrwnaPj9JzdRQPGfWkE1G4ZnNV3aiRjZSg=",
+                            PasswordHash = "rRxhNPGMY+MC00h1e5Gltw==:QtpRAn8+ETbPRrek5XvdvKCQVwrDRQseoPNJraRzAOA=",
                             PersonId = 3,
                             Role = "User"
                         },
@@ -919,7 +908,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                             Id = 4,
                             IsActive = true,
                             Login = "j.smith",
-                            PasswordHash = "Y6v/KdObGtxavxGIAw12Gw==:P7hUl7FEZ42g5Kh8abeBJ7qm+JEZ6HycXO6OqodROLg=",
+                            PasswordHash = "kMtaCLckiN+pWNgSopMNPQ==:letxNFAOp/FyBi78DXpYj5wz/1Rvei03Z+u6ZtTSwdQ=",
                             PersonId = 4,
                             Role = "User"
                         },
@@ -928,7 +917,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                             Id = 5,
                             IsActive = true,
                             Login = "a.bondarenko",
-                            PasswordHash = "fyliyjkYoO34hfJmfB2aHA==:TqNXiZrfcTfA23QGb3ohLz8eJzyQC+1DGZE1MIYlfb0=",
+                            PasswordHash = "aQEIQi87vUh5DDAXy7Hemg==:6+rSb8NQTYe0/mHjT2I6rvEiE+6zdJLyiYWGwtxkm8w=",
                             PersonId = 5,
                             Role = "Developer"
                         });

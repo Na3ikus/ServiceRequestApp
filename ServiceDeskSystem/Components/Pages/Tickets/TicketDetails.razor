@@ -69,6 +69,17 @@
     else
     {
         <div class="space-y-6">
+            @if (!Ticket.IsPriorityAssessed && IsAdminOrDeveloper)
+            {
+                <div class="bg-amber-50 dark:bg-amber-950/20 border border-amber-300 dark:border-amber-900/50 rounded-2xl p-4 sm:p-5 flex items-start gap-3 shadow-md animate-pulse">
+                    <span class="text-xl sm:text-2xl shrink-0">⚠️</span>
+                    <div>
+                        <h4 class="font-bold text-amber-900 dark:text-amber-300 text-sm sm:text-base">@L.Translate("tickets.triageBannerTitle")</h4>
+                        <p class="text-amber-800 dark:text-amber-400 text-xs sm:text-sm mt-1">@L.Translate("tickets.triageBannerDesc")</p>
+                    </div>
+                </div>
+            }
+
             <!-- Ticket Premium Header -->
             <div class="ticket-header-surface relative overflow-hidden bg-white dark:bg-gradient-to-br dark:from-gray-900 dark:via-gray-800 dark:to-slate-900 rounded-2xl p-6 sm:p-8 shadow-md dark:shadow-xl border border-gray-200 dark:border-gray-700/50">
                 <!-- Decorative background blur -->
@@ -296,11 +307,41 @@
                             <span class="text-sm font-medium text-gray-800 dark:text-gray-200 text-right max-w-[190px] break-words whitespace-normal leading-5">@(Ticket.Product?.Name ?? L.Translate("table.noProduct"))</span>
                         </div>
                         
-                        <div class="flex items-center justify-between gap-4 p-2.5 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
-                            <span class="text-sm font-medium text-gray-500 dark:text-gray-400">@L.Translate("table.priority")</span>
-                            <span class="ticket-priority-badge @GetPriorityBadgeClass(Ticket.Priority) inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-semibold shadow-sm leading-5">
-                                @GetPriorityText(Ticket.Priority)
-                            </span>
+                        <div class="flex flex-col gap-2 p-2.5 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
+                            <div class="flex items-center justify-between gap-4 w-full">
+                                <span class="text-sm font-medium text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
+                                    @L.Translate("table.priority")
+                                    @if (!Ticket.IsPriorityAssessed && IsAdminOrDeveloper)
+                                    {
+                                        <span class="inline-flex h-2.5 w-2.5 rounded-full bg-amber-500 border border-amber-300 dark:border-amber-700 animate-pulse" title="Triage Required"></span>
+                                    }
+                                </span>
+                                @if (IsAdminOrDeveloper)
+                                {
+                                    <div class="relative min-w-[125px]">
+                                        <select @onchange="OnPriorityChangedAsync" value="@editPriority"
+                                                class="w-full px-2 py-1.5 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all hover:border-gray-400 dark:hover:border-gray-500 shadow-sm outline-none cursor-pointer">
+                                            @foreach (var priority in Enum.GetValues<TicketPriority>())
+                                            {
+                                                <option value="@priority">@GetPriorityText(priority)</option>
+                                            }
+                                        </select>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <span class="ticket-priority-badge @GetPriorityBadgeClass(Ticket.Priority) inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-semibold shadow-sm leading-5">
+                                        @GetPriorityText(Ticket.Priority)
+                                    </span>
+                                }
+                            </div>
+                            @if (IsAdminOrDeveloper && editPriority != Ticket.Priority)
+                            {
+                                <button @onclick="SavePriorityAsync" class="w-full mt-2 px-3 py-1.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-lg text-xs font-semibold shadow-sm transition-all flex justify-center items-center gap-1.5">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                    @L.Translate("details.savePriority")
+                                </button>
+                            }
                         </div>
                         
                         <div class="flex items-center justify-between gap-4 p-2.5 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
@@ -335,13 +376,13 @@
                                     @if (IsAdminOrDeveloper)
                                     {
                                         <div class="relative">
-                                            <input type="date" @bind="editStartDate" @bind:event="onchange" 
+                                            <input type="datetime-local" @bind="editStartDate" @bind:event="onchange" 
                                                    class="w-full pl-3 pr-2 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all hover:border-gray-400 dark:hover:border-gray-500 shadow-sm outline-none [color-scheme:light] dark:[color-scheme:dark]" />
                                         </div>
                                     }
                                     else
                                     {
-                                        <span class="text-sm text-gray-800 dark:text-gray-200 font-medium px-1">@(Ticket.StartDate?.ToString("yyyy-MM-dd") ?? Ticket.CreatedAt.ToString("yyyy-MM-dd"))</span>
+                                        <span class="text-sm text-gray-800 dark:text-gray-200 font-medium px-1">@(Ticket.StartDate?.ToString("yyyy-MM-dd HH:mm") ?? Ticket.CreatedAt.ToString("yyyy-MM-dd HH:mm"))</span>
                                     }
                                 </div>
                                 <div>
@@ -352,13 +393,13 @@
                                     @if (IsAdminOrDeveloper)
                                     {
                                         <div class="relative">
-                                            <input type="date" @bind="editDueDate" @bind:event="onchange" 
+                                            <input type="datetime-local" @bind="editDueDate" @bind:event="onchange" 
                                                    class="w-full pl-3 pr-2 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all hover:border-gray-400 dark:hover:border-gray-500 shadow-sm outline-none [color-scheme:light] dark:[color-scheme:dark]" />
                                         </div>
                                     }
                                     else
                                     {
-                                        <span class="text-sm text-gray-800 dark:text-gray-200 font-medium px-1">@(Ticket.DueDate?.ToString("yyyy-MM-dd") ?? "—")</span>
+                                        <span class="text-sm text-gray-800 dark:text-gray-200 font-medium px-1">@(Ticket.DueDate?.ToString("yyyy-MM-dd HH:mm") ?? "—")</span>
                                     }
                                 </div>
                                 @if (IsAdminOrDeveloper && (editStartDate != Ticket.StartDate || editDueDate != Ticket.DueDate))

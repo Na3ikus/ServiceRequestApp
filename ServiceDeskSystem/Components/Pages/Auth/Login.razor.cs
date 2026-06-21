@@ -12,9 +12,6 @@ public partial class Login : BaseComponent
 {
     private readonly LoginModel loginModel = new LoginModel();
 
-    [Inject]
-    private IAuthService AuthService { get; set; } = null!;
-
     private string? ErrorMessage { get; set; }
 
     private bool IsLoading { get; set; }

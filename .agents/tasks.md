@@ -1,0 +1,23 @@
+# Tasks - Ticket Priority Triage & Assessment
+
+- `[ ]` Update Domain & Database
+    - `[ ]` Add `IsPriorityAssessed` to `Ticket` entity
+    - `[ ]` Create EF migration `AddPriorityAssessedField` and update database
+- `[ ]` Update Application Layer
+    - `[ ]` Add `UpdateTicketPriorityAsync` to `ITicketService` and implement it in `TicketService`
+- `[ ]` Update Presentation Layer & Controllers
+    - `[ ]` Update `TicketsController` creation flow and add `PUT /api/tickets/{id}/priority` endpoint
+    - `[ ]` Restrict priority dropdown in `CreateTicket.razor` to Admin/Developer
+- `[ ]` Implement Triage UI & Visual Highlights
+    - `[ ]` Add `IsAdminOrDeveloper` helpers to `BaseComponent`
+    - `[ ]` Update `TicketTable.razor` with dashed amber border and triage badge for unassessed tickets
+    - `[ ]` Update `KanbanCard.razor` with dashed amber outline and triage badge
+    - `[ ]` Update `TicketDetails.razor` with triage warning banner, select dropdown, and save button
+- `[ ]` Add Localization Keys
+    - `[ ]` Add triage-related keys to localization resources
+- `[ ]` Write Unit Tests
+    - `[ ]` Add unit test for `UpdateTicketPriorityAsync`
+    - `[ ]` Add unit test for default priority/assessment flag on creation
+- `[ ]` Verification
+    - `[ ]` Run `dotnet test`
+    - `[ ]` Create walkthrough.md

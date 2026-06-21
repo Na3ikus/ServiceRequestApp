@@ -1,5 +1,6 @@
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using ServiceDeskSystem.Application.Services.Admin;
 using ServiceDeskSystem.Application.Services.Audit;
 using ServiceDeskSystem.Application.Services.Auth;
@@ -39,7 +40,8 @@ public static class DependencyInjection
         services.AddScoped<IAuditService, AuditService>();
         services.AddScoped<IProfileService, ProfileService>();
         services.AddScoped<INotificationService, NotificationService>();
-        services.AddSingleton<IRealtimeNotifier>(NoOpRealtimeNotifier.Instance);
+        services.TryAddSingleton<IRealtimeNotifier>(NoOpRealtimeNotifier.Instance);
+        services.AddHostedService<SlaBackgroundService>();
 
         return services;
     }

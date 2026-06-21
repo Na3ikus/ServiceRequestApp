@@ -27,6 +27,12 @@ public class Ticket : AggregateRoot
 
     public DateTime? DueDate { get; set; }
 
+    public bool IsSlaBreached { get; set; }
+
+    public bool SlaWarningSent { get; set; }
+
+    public bool IsPriorityAssessed { get; set; }
+
     public int? ProductId { get; set; }
 
     public Product? Product { get; set; }
@@ -45,7 +51,7 @@ public class Ticket : AggregateRoot
 
     public ICollection<Notification> Notifications { get; set; } = new List<Notification>();
 
-    public static Ticket Create(string title, string description, TicketType type, TicketPriority priority, int authorId, int? productId = null)
+    public static Ticket Create(string title, string description, TicketType type, TicketPriority priority, int authorId, int? productId = null, bool isPriorityAssessed = true)
     {
         var ticket = new Ticket
         {
@@ -56,7 +62,8 @@ public class Ticket : AggregateRoot
             Status = TicketStatus.Open,
             CreatedAt = DateTime.UtcNow,
             AuthorId = authorId,
-            ProductId = productId
+            ProductId = productId,
+            IsPriorityAssessed = isPriorityAssessed
         };
         
         ticket.AddDomainEvent(new ServiceDeskSystem.Domain.Events.TicketCreatedEvent(ticket.Id, authorId, title));

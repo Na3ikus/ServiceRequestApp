@@ -15,9 +15,6 @@ public partial class CreateTicket
     [Inject]
     private ITicketService TicketService { get; set; } = null!;
 
-    [Inject]
-    private IAuthService AuthService { get; set; } = null!;
-
     private TicketCreateModel ticketModel { get; set; } = new TicketCreateModel();
 
     private List<Product> products { get; set; } = [];
@@ -50,18 +47,24 @@ public partial class CreateTicket
 
         this.isSubmitting = true;
 
-        var ticket = new Ticket
-        {
-            Title = this.ticketModel.Title,
-            Description = this.ticketModel.Description,
-            Type = this.ticketModel.TicketType,
-            Priority = this.ticketModel.Priority,
-            ProductId = this.ticketModel.ProductId,
-            StepsToReproduce = this.ticketModel.StepsToReproduce ?? string.Empty,
-            Environment = this.ticketModel.Environment ?? string.Empty,
-            AffectedVersion = this.ticketModel.AffectedVersion ?? string.Empty,
-            AuthorId = this.CurrentUserId,
-        };
+        var role = this.AuthService.CurrentUser?.Role;
+        bool isDevOrAdmin = role is UserRole.Admin or UserRole.Developer;
+
+        var priority = isDevOrAdmin ? this.ticketModel.Priority : TicketPriority.Medium;
+        bool isPriorityAssessed = isDevOrAdmin;
+
+        var ticket = Ticket.Create(
+            this.ticketModel.Title,
+            this.ticketModel.Description,
+            this.ticketModel.TicketType,
+            priority,
+            this.CurrentUserId,
+            this.ticketModel.ProductId,
+            isPriorityAssessed);
+
+        ticket.StepsToReproduce = this.ticketModel.StepsToReproduce ?? string.Empty;
+        ticket.Environment = this.ticketModel.Environment ?? string.Empty;
+        ticket.AffectedVersion = this.ticketModel.AffectedVersion ?? string.Empty;
 
         await this.TicketService.CreateTicketAsync(ticket);
 

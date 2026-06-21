@@ -7,7 +7,10 @@
     @foreach (var (ticket, index) in Tickets.Select((t, i) => (t, i)))
     {
         <div class="block group/card cursor-pointer ticket-row-enter" style="animation-delay: @(index * 40)ms" @onclick="@(() => OnTicketClick.InvokeAsync(ticket.Id))">
-            <div class="flex sm:items-center flex-col sm:flex-row gap-4 p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/80 shadow-sm hover:shadow-lg hover:border-blue-300 dark:hover:border-blue-500/50 transition-all duration-300 transform group-hover/card:-translate-y-0.5">
+            <div class="flex sm:items-center flex-col sm:flex-row gap-4 p-4 rounded-xl border transition-all duration-300 transform group-hover/card:-translate-y-0.5 shadow-sm hover:shadow-lg
+                        @(!ticket.IsPriorityAssessed && IsAdminOrDeveloper 
+                            ? "border-dashed border-amber-400/80 dark:border-amber-600/60 bg-amber-50/20 dark:bg-amber-950/10 hover:border-amber-500" 
+                            : "border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/80 hover:border-blue-300 dark:hover:border-blue-500/50")">
                 
                 <!-- Icon & Title Section -->
                 <div class="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
@@ -31,6 +34,13 @@
                                 <span class="w-2 h-2 rounded-full @GetStatusDotColor(ticket.Status)"></span>
                                 @GetStatusText(ticket.Status)
                             </span>
+                            
+                            @if (!ticket.IsPriorityAssessed && IsAdminOrDeveloper)
+                            {
+                                <span class="flex items-center gap-1 px-2 py-0.5 rounded bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300 font-bold border border-amber-200 dark:border-amber-800 animate-pulse shrink-0">
+                                    ⚠️ @L.Translate("tickets.triageRequired")
+                                </span>
+                            }
                             
                             <!-- Product Badge -->
                             @if (ShowProduct && ticket.Product is not null)

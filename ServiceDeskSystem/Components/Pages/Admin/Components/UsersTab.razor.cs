@@ -22,22 +22,18 @@ public partial class UsersTab : BaseComponent
     private IAdminService AdminService { get; set; } = null!;
 
     [Inject]
-    private IAuthService AuthService { get; set; } = null!;
-
-    [Inject]
     private IToastService ToastService { get; set; } = null!;
 
     private string searchQuery { get; set; } = string.Empty;
 
-    private List<User>? FilteredUsers =>
+    private IEnumerable<User>? GetFilteredUsers() =>
         this.Users?
             .Where(u =>
                 string.IsNullOrWhiteSpace(this.searchQuery) ||
                 u.Login.Contains(this.searchQuery, StringComparison.OrdinalIgnoreCase) ||
                 u.Person.FirstName.Contains(this.searchQuery, StringComparison.OrdinalIgnoreCase) ||
                 u.Person.LastName.Contains(this.searchQuery, StringComparison.OrdinalIgnoreCase))
-            .OrderBy(u => u.Person.LastName, StringComparer.OrdinalIgnoreCase)
-            .ToList();
+            .OrderBy(u => u.Person.LastName, StringComparer.OrdinalIgnoreCase);
 
     private static string GetInitials(string firstName, string lastName)
     {

@@ -6,9 +6,9 @@
     <div class="atab-toolbar">
         <div class="atab-toolbar-left">
             <h2 class="atab-title">@L.Translate("admin.users")</h2>
-            @if (FilteredUsers is not null)
+            @if (GetFilteredUsers() is not null)
             {
-                <span class="atab-count-badge">@FilteredUsers.Count</span>
+                <span class="atab-count-badge">@GetFilteredUsers().Count()</span>
             }
         </div>
         <div class="atab-toolbar-right">
@@ -36,7 +36,7 @@
             <span>@L.Translate("common.loading")</span>
         </div>
     }
-    else if (FilteredUsers is not null && FilteredUsers.Count == 0)
+    else if (GetFilteredUsers() is not null && !GetFilteredUsers().Any())
     {
         <div class="atab-empty">
             <div class="atab-empty-icon">
@@ -67,7 +67,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var user in FilteredUsers!)
+                    @foreach (var user in GetFilteredUsers()!)
                     {
                         var initials = GetInitials(user.Person.FirstName, user.Person.LastName);
                         var avatarClass = GetAvatarClass(user.Role);
@@ -128,7 +128,7 @@
             <span class="atab-footer-info">
                 @if (!string.IsNullOrWhiteSpace(searchQuery))
                 {
-                    @($"{FilteredUsers!.Count} / {Users?.Count ?? 0}")
+                    @($"{GetFilteredUsers()!.Count()} / {Users?.Count ?? 0}")
                 }
                 else
                 {
