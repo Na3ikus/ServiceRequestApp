@@ -1568,85 +1568,41 @@ h3[tabindex] {
 
 .notification-item {
     display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    border-bottom: 1px solid rgba(226, 232, 240, 0.8);
-    padding: 0.35rem 0.4rem 0.35rem 0.75rem;
-}
-
-.dark .notification-item {
-    border-bottom-color: rgba(71, 85, 105, 0.55);
-}
-
-.notification-item:hover {
-    background: rgba(59, 130, 246, 0.08);
-}
-
-.dark .notification-item:hover {
-    background: rgba(59, 130, 246, 0.18);
-}
-
-.notification-item.is-unread {
-    background: rgba(59, 130, 246, 0.1);
-}
-
-.dark .notification-item.is-unread {
-    background: rgba(59, 130, 246, 0.2);
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.875rem 1rem;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
 }
 
 .notification-open-btn {
     flex: 1;
     border: 0;
     background: transparent;
-    padding: 0.4rem 0.25rem;
+    padding: 0;
     text-align: left;
     display: flex;
     flex-direction: column;
-    gap: 0.2rem;
+    gap: 0.25rem;
+    cursor: pointer;
 }
 
 .notification-delete-btn {
-    width: 1.8rem;
-    height: 1.8rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     border: 0;
-    border-radius: 9999px;
     background: transparent;
-    color: #64748b;
-    font-size: 0.95rem;
-    line-height: 1;
-}
-
-.notification-delete-btn:hover {
-    background: rgba(239, 68, 68, 0.14);
-    color: #b91c1c;
-}
-
-.dark .notification-delete-btn {
-    color: #94a3b8;
-}
-
-.dark .notification-delete-btn:hover {
-    background: rgba(239, 68, 68, 0.2);
-    color: #fca5a5;
+    cursor: pointer;
 }
 
 .notification-message {
-    font-size: 0.82rem;
-    font-weight: 600;
-    color: #1f2937;
-}
-
-.dark .notification-message {
-    color: #e5e7eb;
+    font-size: 0.875rem;
+    line-height: 1.4;
+    word-break: break-word;
 }
 
 .notification-time {
-    font-size: 0.7rem;
-    color: #64748b;
-}
-
-.dark .notification-time {
-    color: #94a3b8;
+    font-size: 0.75rem;
 }
 
 .notification-wrapper.has-new .theme-toggle {
