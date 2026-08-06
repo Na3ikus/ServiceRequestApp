@@ -40,6 +40,29 @@ public static class DependencyInjection
                     Version = "v1",
                     Description = "REST API for the Service Desk System",
                 });
+
+                // ───────── JWT Bearer Auth for Swagger UI ─────────
+                var securityScheme = new OpenApiSecurityScheme
+                {
+                    Name = "Authorization",
+                    Description = "Enter your JWT token: **Bearer {token}**\n\n" +
+                                  "Get a token via `POST /api/auth/login`",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.Http,
+                    Scheme = "bearer",
+                    BearerFormat = "JWT",
+                    Reference = new OpenApiReference
+                    {
+                        Type = ReferenceType.SecurityScheme,
+                        Id = "Bearer",
+                    },
+                };
+
+                options.AddSecurityDefinition("Bearer", securityScheme);
+                options.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    { securityScheme, Array.Empty<string>() },
+                });
             });
         }
 

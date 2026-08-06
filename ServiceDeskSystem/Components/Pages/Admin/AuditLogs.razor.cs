@@ -33,6 +33,21 @@ public partial class AuditLogs : BaseComponent
                 (l.EntityId?.Contains(this.searchTerm, StringComparison.OrdinalIgnoreCase) ?? false) ||
                 (l.Changes?.Contains(this.searchTerm, StringComparison.OrdinalIgnoreCase) ?? false));
 
+    protected static string GetActionClass(string action)
+    {
+        ArgumentNullException.ThrowIfNull(action);
+
+        return action.ToUpperInvariant() switch
+        {
+            "CREATE" => "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
+            "UPDATESTATUS" => "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
+            "UPDATEDATES" => "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400",
+            "ASSIGN" => "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400",
+            "DELETE" => "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
+            _ => "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300",
+        };
+    }
+
     protected override async Task OnInitializedAsync()
     {
         if (this.AuthService.CurrentUser?.Role == UserRole.Admin)
@@ -70,16 +85,6 @@ public partial class AuditLogs : BaseComponent
         await this.LoadLogsAsync();
         this.StateHasChanged();
     }
-
-    protected static string GetActionClass(string action) => action.ToUpperInvariant() switch
-    {
-        "CREATE" => "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
-        "UPDATESTATUS" => "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
-        "UPDATEDATES" => "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400",
-        "ASSIGN" => "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400",
-        "DELETE" => "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
-        _ => "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300"
-    };
 
     private async Task LoadLogsAsync()
     {

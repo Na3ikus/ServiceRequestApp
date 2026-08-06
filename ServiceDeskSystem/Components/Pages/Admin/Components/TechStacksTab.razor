@@ -1,13 +1,17 @@
 @inherits BaseComponent
 
+@{
+    var filteredStacks = GetFilteredStacks();
+}
+
 <div class="atab-card">
     <!-- Toolbar -->
     <div class="atab-toolbar">
         <div class="atab-toolbar-left">
             <h2 class="atab-title">@L.Translate("admin.techStacks")</h2>
-            @if (FilteredStacks is not null)
+            @if (filteredStacks is not null)
             {
-                <span class="atab-count-badge">@FilteredStacks.Count</span>
+                <span class="atab-count-badge">@filteredStacks.Count</span>
             }
         </div>
         <div class="atab-toolbar-right">
@@ -19,7 +23,7 @@
                 <input type="search"
                        class="atab-search-input"
                        placeholder="@(L.Translate("search.label"))..."
-                       @bind="searchQuery"
+                       @bind="SearchQuery"
                        @bind:event="oninput" />
             </div>
             <button @onclick="ShowAddTechStack" class="atab-add-btn">
@@ -41,7 +45,7 @@
             <span>@L.Translate("common.loading")</span>
         </div>
     }
-    else if (FilteredStacks is not null && FilteredStacks.Count == 0)
+    else if (filteredStacks is not null && filteredStacks.Count == 0)
     {
         <div class="atab-empty">
             <div class="atab-empty-icon">
@@ -50,10 +54,10 @@
                         d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
                 </svg>
             </div>
-            <p class="atab-empty-title">@(string.IsNullOrWhiteSpace(searchQuery) ? L.Translate("admin.noTechStacks") : L.Translate("admin.noSearchResults"))</p>
-            @if (!string.IsNullOrWhiteSpace(searchQuery))
+            <p class="atab-empty-title">@(string.IsNullOrWhiteSpace(SearchQuery) ? L.Translate("admin.noTechStacks") : L.Translate("admin.noSearchResults"))</p>
+            @if (!string.IsNullOrWhiteSpace(SearchQuery))
             {
-                <button class="atab-empty-clear" @onclick="@(() => searchQuery = string.Empty)">
+                <button class="atab-empty-clear" @onclick="@(() => SearchQuery = string.Empty)">
                     @L.Translate("admin.clearSearch")
                 </button>
             }
@@ -65,17 +69,17 @@
             <table class="atab-table">
                 <thead>
                     <tr>
-                        <th class="atab-th sortable @(sortColumn == "name" ? "sort-active" : "")"
+                        <th class="atab-th sortable @(SortColumn == "name" ? "sort-active" : "")"
                             @onclick="@(() => SetSort("name"))">
                             @L.Translate("admin.name")
                             <span class="sort-arrow">@GetSortArrow("name")</span>
                         </th>
-                        <th class="atab-th sortable @(sortColumn == "type" ? "sort-active" : "")"
+                        <th class="atab-th sortable @(SortColumn == "type" ? "sort-active" : "")"
                             @onclick="@(() => SetSort("type"))">
                             @L.Translate("admin.type")
                             <span class="sort-arrow">@GetSortArrow("type")</span>
                         </th>
-                        <th class="atab-th sortable @(sortColumn == "count" ? "sort-active" : "")"
+                        <th class="atab-th sortable @(SortColumn == "count" ? "sort-active" : "")"
                             @onclick="@(() => SetSort("count"))">
                             @L.Translate("admin.productsCount")
                             <span class="sort-arrow">@GetSortArrow("count")</span>
@@ -84,7 +88,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var ts in FilteredStacks!)
+                    @foreach (var ts in filteredStacks!)
                     {
                         var count = ts.Products?.Count ?? 0;
                         var maxCount = TechStacks!.Max(t => t.Products?.Count ?? 0);
@@ -136,9 +140,9 @@
 
         <div class="atab-footer">
             <span class="atab-footer-info">
-                @if (!string.IsNullOrWhiteSpace(searchQuery))
+                @if (!string.IsNullOrWhiteSpace(SearchQuery))
                 {
-                    @($"{FilteredStacks!.Count} / {TechStacks?.Count ?? 0}")
+                    @($"{filteredStacks!.Count} / {TechStacks?.Count ?? 0}")
                 }
                 else
                 {
@@ -150,7 +154,7 @@
 </div>
 
 <!-- Modal -->
-@if (showModal)
+@if (ShowModal)
 {
     <div class="amodal-overlay" @onclick="CloseModal">
         <div class="amodal-box animate-fade-in" @onclick:stopPropagation>
@@ -168,7 +172,7 @@
                     </svg>
                 </div>
                 <div>
-                    <h3 class="amodal-title">@modalTitle</h3>
+                    <h3 class="amodal-title">@ModalTitle</h3>
                     <p class="amodal-subtitle">@L.Translate("admin.techStacks")</p>
                 </div>
             </div>
@@ -176,18 +180,18 @@
             <div class="amodal-body">
                 <div class="amodal-field">
                     <label class="amodal-label">@L.Translate("admin.name")</label>
-                    <input type="text" @bind="editingTechStack.Name" class="amodal-input"
+                    <input type="text" @bind="EditingTechStack.Name" class="amodal-input"
                            placeholder="@L.Translate("admin.techStackNamePlaceholder")" />
                 </div>
                 <div class="amodal-field">
                     <label class="amodal-label">@L.Translate("admin.type")</label>
-                    <input type="text" @bind="editingTechStack.Type" class="amodal-input"
+                    <input type="text" @bind="EditingTechStack.Type" class="amodal-input"
                            placeholder="@L.Translate("admin.techStackTypePlaceholder")" />
                 </div>
 
-                @if (!string.IsNullOrEmpty(errorMessage))
+                @if (!string.IsNullOrEmpty(ErrorMessage))
                 {
-                    <div class="amodal-error">@errorMessage</div>
+                    <div class="amodal-error">@ErrorMessage</div>
                 }
             </div>
 
@@ -195,8 +199,8 @@
                 <button @onclick="CloseModal" class="amodal-btn-cancel">
                     @L.Translate("common.cancel")
                 </button>
-                <button @onclick="SaveModal" disabled="@isSaving" class="amodal-btn-save">
-                    @if (isSaving)
+                <button @onclick="SaveModal" disabled="@IsSaving" class="amodal-btn-save">
+                    @if (IsSaving)
                     {
                         <svg class="amodal-spin" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>

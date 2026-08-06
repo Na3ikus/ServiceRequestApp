@@ -9,6 +9,9 @@ using ServiceDeskSystem.Domain.Enums;
 
 namespace ServiceDeskSystem.Components.Pages.Admin.Components;
 
+/// <summary>
+/// Admin panel users management tab component.
+/// </summary>
 public partial class UsersTab : BaseComponent
 {
     [Parameter]
@@ -19,50 +22,63 @@ public partial class UsersTab : BaseComponent
     public EventCallback OnUsersChanged { get; set; }
 
     [Inject]
-    private IAdminService AdminService { get; set; } = null!;
+    protected IAdminService AdminService { get; set; } = null!;
 
     [Inject]
-    private IToastService ToastService { get; set; } = null!;
+    protected IToastService ToastService { get; set; } = null!;
 
-    private string searchQuery { get; set; } = string.Empty;
+    protected string SearchQuery { get; set; } = string.Empty;
 
-    private IEnumerable<User>? GetFilteredUsers() =>
-        this.Users?
-            .Where(u =>
-                string.IsNullOrWhiteSpace(this.searchQuery) ||
-                u.Login.Contains(this.searchQuery, StringComparison.OrdinalIgnoreCase) ||
-                u.Person.FirstName.Contains(this.searchQuery, StringComparison.OrdinalIgnoreCase) ||
-                u.Person.LastName.Contains(this.searchQuery, StringComparison.OrdinalIgnoreCase))
-            .OrderBy(u => u.Person.LastName, StringComparer.OrdinalIgnoreCase);
-
-    private static string GetInitials(string firstName, string lastName)
+    protected static string GetInitials(string firstName, string lastName)
     {
         var f = string.IsNullOrWhiteSpace(firstName) ? string.Empty : firstName[0].ToString().ToUpperInvariant();
         var l = string.IsNullOrWhiteSpace(lastName) ? string.Empty : lastName[0].ToString().ToUpperInvariant();
         return $"{f}{l}";
     }
 
-    private static string GetAvatarClass(UserRole role) => role switch
+    protected static string GetAvatarClass(UserRole role) => role switch
     {
         UserRole.Admin => "avatar-admin",
         UserRole.Developer => "avatar-dev",
         _ => "avatar-user",
     };
 
-    private static string GetRoleSelectClass(UserRole role) => role switch
+    protected static string GetRoleSelectClass(UserRole role) => role switch
     {
         UserRole.Admin => "role-admin",
         UserRole.Developer => "role-dev",
         _ => "role-user",
     };
 
-    private static bool CanDeleteUser(User user) => user.Role != UserRole.Admin;
+    protected static bool CanDeleteUser(User user)
+    {
+        ArgumentNullException.ThrowIfNull(user);
+        return user.Role != UserRole.Admin;
+    }
 
-    private static bool CanToggleUserStatus(User user) => user.Role != UserRole.Admin;
+    protected static bool CanToggleUserStatus(User user)
+    {
+        ArgumentNullException.ThrowIfNull(user);
+        return user.Role != UserRole.Admin;
+    }
 
-    private bool CanEditUserRole(User user) => user.Id != this.AuthService.CurrentUser?.Id;
+    protected List<User>? GetFilteredUsers() =>
+        this.Users?
+            .Where(u =>
+                string.IsNullOrWhiteSpace(this.SearchQuery) ||
+                u.Login.Contains(this.SearchQuery, StringComparison.OrdinalIgnoreCase) ||
+                u.Person.FirstName.Contains(this.SearchQuery, StringComparison.OrdinalIgnoreCase) ||
+                u.Person.LastName.Contains(this.SearchQuery, StringComparison.OrdinalIgnoreCase))
+            .OrderBy(u => u.Person.LastName, StringComparer.OrdinalIgnoreCase)
+            .ToList();
 
-    private async Task UpdateUserRole(int userId, UserRole newRole)
+    protected bool CanEditUserRole(User user)
+    {
+        ArgumentNullException.ThrowIfNull(user);
+        return user.Id != this.AuthService.CurrentUser?.Id;
+    }
+
+    protected async Task UpdateUserRole(int userId, UserRole newRole)
     {
         var user = this.Users?.FirstOrDefault(u => u.Id == userId);
         if (user is not null && !this.CanEditUserRole(user))
@@ -86,7 +102,7 @@ public partial class UsersTab : BaseComponent
         }
     }
 
-    private async Task ToggleUserStatus(int userId)
+    protected async Task ToggleUserStatus(int userId)
     {
         var user = this.Users?.FirstOrDefault(u => u.Id == userId);
         if (user?.Role == UserRole.Admin)
@@ -105,8 +121,10 @@ public partial class UsersTab : BaseComponent
         }
     }
 
-    private async Task DeleteUser(User user)
+    protected async Task DeleteUser(User user)
     {
+        ArgumentNullException.ThrowIfNull(user);
+
         try
         {
             if (user.Role == UserRole.Admin)

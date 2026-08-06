@@ -1,14 +1,18 @@
 @inherits BaseComponent
 @using ServiceDeskSystem.Domain.Enums
 
+@{
+    var filteredUsers = GetFilteredUsers();
+}
+
 <div class="atab-card">
     <!-- Toolbar -->
     <div class="atab-toolbar">
         <div class="atab-toolbar-left">
             <h2 class="atab-title">@L.Translate("admin.users")</h2>
-            @if (GetFilteredUsers() is not null)
+            @if (filteredUsers is not null)
             {
-                <span class="atab-count-badge">@GetFilteredUsers().Count()</span>
+                <span class="atab-count-badge">@filteredUsers.Count</span>
             }
         </div>
         <div class="atab-toolbar-right">
@@ -20,7 +24,7 @@
                 <input type="search"
                        class="atab-search-input"
                        placeholder="@(L.Translate("search.label"))..."
-                       @bind="searchQuery"
+                       @bind="SearchQuery"
                        @bind:event="oninput" />
             </div>
         </div>
@@ -36,7 +40,7 @@
             <span>@L.Translate("common.loading")</span>
         </div>
     }
-    else if (GetFilteredUsers() is not null && !GetFilteredUsers().Any())
+    else if (filteredUsers is not null && filteredUsers.Count == 0)
     {
         <div class="atab-empty">
             <div class="atab-empty-icon">
@@ -45,10 +49,10 @@
                         d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
             </div>
-            <p class="atab-empty-title">@(string.IsNullOrWhiteSpace(searchQuery) ? L.Translate("admin.noUsers") : L.Translate("admin.noSearchResults"))</p>
-            @if (!string.IsNullOrWhiteSpace(searchQuery))
+            <p class="atab-empty-title">@(string.IsNullOrWhiteSpace(SearchQuery) ? L.Translate("admin.noUsers") : L.Translate("admin.noSearchResults"))</p>
+            @if (!string.IsNullOrWhiteSpace(SearchQuery))
             {
-                <button class="atab-empty-clear" @onclick="@(() => searchQuery = string.Empty)">
+                <button class="atab-empty-clear" @onclick="@(() => SearchQuery = string.Empty)">
                     @L.Translate("admin.clearSearch")
                 </button>
             }
@@ -67,7 +71,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var user in GetFilteredUsers()!)
+                    @foreach (var user in filteredUsers!)
                     {
                         var initials = GetInitials(user.Person.FirstName, user.Person.LastName);
                         var avatarClass = GetAvatarClass(user.Role);
@@ -126,9 +130,9 @@
 
         <div class="atab-footer">
             <span class="atab-footer-info">
-                @if (!string.IsNullOrWhiteSpace(searchQuery))
+                @if (!string.IsNullOrWhiteSpace(SearchQuery))
                 {
-                    @($"{GetFilteredUsers()!.Count()} / {Users?.Count ?? 0}")
+                    @($"{filteredUsers!.Count} / {Users?.Count ?? 0}")
                 }
                 else
                 {

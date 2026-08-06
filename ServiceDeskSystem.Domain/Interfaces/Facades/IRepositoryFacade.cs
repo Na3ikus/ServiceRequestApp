@@ -20,6 +20,7 @@ public interface IRepositoryFacade : IAsyncDisposable
 
     IAuditLogRepository AuditLogs { get; }
     INotificationRepository Notifications { get; }
+    ITagRepository Tags { get; }
 
     IUnitOfWork UnitOfWork { get; }
 }

@@ -5,6 +5,12 @@ namespace ServiceDeskSystem.Application.Services.Localization;
 
 public sealed class LocalizationService : ILocalizationService
 {
+    public static readonly IReadOnlyList<LanguageInfo> AvailableLanguages = new List<LanguageInfo>
+    {
+        new("en", "English", "English"),
+        new("uk", "Ukrainian", "Українська"),
+    };
+
     private static readonly Dictionary<string, Dictionary<string, string>> Translations = new();
     private static readonly SemaphoreSlim _semaphore = new(1, 1);
     private static bool isLoaded;
@@ -22,6 +28,8 @@ public sealed class LocalizationService : ILocalizationService
     public event EventHandler? LanguageChanged;
 
     public string CurrentLanguage => this.currentLanguage;
+
+    public IReadOnlyList<LanguageInfo> SupportedLanguages => AvailableLanguages;
 
     public void SetLanguage(string language)
     {
@@ -61,7 +69,7 @@ public sealed class LocalizationService : ILocalizationService
         {
             if (isLoaded) return;
 
-            var languages = new[] { "en", "uk" };
+            var languages = AvailableLanguages.Select(l => l.Code).ToArray();
 
             foreach (var lang in languages)
             {

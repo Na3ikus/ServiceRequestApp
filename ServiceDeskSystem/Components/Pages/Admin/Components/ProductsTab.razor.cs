@@ -7,6 +7,9 @@ using ServiceDeskSystem.Domain.Entities;
 
 namespace ServiceDeskSystem.Components.Pages.Admin.Components;
 
+/// <summary>
+/// Admin panel products management tab component.
+/// </summary>
 public partial class ProductsTab : BaseComponent
 {
     [Parameter]
@@ -21,93 +24,132 @@ public partial class ProductsTab : BaseComponent
     public EventCallback OnProductsChanged { get; set; }
 
     [Inject]
-    private IAdminService AdminService { get; set; } = null!;
+    protected IAdminService AdminService { get; set; } = null!;
 
     [Inject]
-    private IToastService ToastService { get; set; } = null!;
+    protected IToastService ToastService { get; set; } = null!;
 
-    private Product editingProduct { get; set; } = new Product();
+    protected Product EditingProduct { get; set; } = new ();
 
-    private bool showModal { get; set; }
+    protected bool ShowModal { get; set; }
 
-    private string modalTitle { get; set; } = string.Empty;
+    protected string ModalTitle { get; set; } = string.Empty;
 
-    private bool isEditing { get; set; }
+    protected bool IsEditing { get; set; }
 
-    private bool isSaving { get; set; }
+    protected bool IsSaving { get; set; }
 
-    private string? errorMessage { get; set; }
+    protected string? ErrorMessage { get; set; }
 
-    private string searchQuery { get; set; } = string.Empty;
+    protected string SearchQuery { get; set; } = string.Empty;
 
-    private string sortColumn { get; set; } = "name";
+    protected string SortColumn { get; set; } = "name";
 
-    private bool sortAscending { get; set; } = true;
+    protected bool SortAscending { get; set; } = true;
 
-    private List<Product>? FilteredProducts =>
+    protected static string GetStackColorClass(string type)
+    {
+        if (string.IsNullOrWhiteSpace(type))
+        {
+            return "stack-default";
+        }
+
+        var t = type.ToUpperInvariant();
+
+        if (t.Contains("C#", StringComparison.OrdinalIgnoreCase) || t.Contains(".NET", StringComparison.OrdinalIgnoreCase) || t.Contains("DOTNET", StringComparison.OrdinalIgnoreCase))
+        {
+            return "stack-dotnet";
+        }
+
+        if (t.Contains("C++", StringComparison.OrdinalIgnoreCase) || t.Contains("EMBED", StringComparison.OrdinalIgnoreCase))
+        {
+            return "stack-cpp";
+        }
+
+        if (t.Contains("JAVA", StringComparison.OrdinalIgnoreCase) && !t.Contains("SCRIPT", StringComparison.OrdinalIgnoreCase))
+        {
+            return "stack-java";
+        }
+
+        if (t.Contains("JAVASCRIPT", StringComparison.OrdinalIgnoreCase) || t.Contains("JS", StringComparison.OrdinalIgnoreCase) || t.Contains("NODE", StringComparison.OrdinalIgnoreCase) || t.Contains("REACT", StringComparison.OrdinalIgnoreCase) || t.Contains("VUE", StringComparison.OrdinalIgnoreCase) || t.Contains("ANGULAR", StringComparison.OrdinalIgnoreCase))
+        {
+            return "stack-js";
+        }
+
+        if (t.Contains("PYTHON", StringComparison.OrdinalIgnoreCase) || t.Contains("PY", StringComparison.OrdinalIgnoreCase))
+        {
+            return "stack-python";
+        }
+
+        if (t.Contains("ANDROID", StringComparison.OrdinalIgnoreCase) || t.Contains("KOTLIN", StringComparison.OrdinalIgnoreCase) || t.Contains("IOS", StringComparison.OrdinalIgnoreCase) || t.Contains("SWIFT", StringComparison.OrdinalIgnoreCase) || t.Contains("MOBILE", StringComparison.OrdinalIgnoreCase))
+        {
+            return "stack-mobile";
+        }
+
+        if (t.Contains("PHP", StringComparison.OrdinalIgnoreCase))
+        {
+            return "stack-php";
+        }
+
+        if (t.Contains("GO", StringComparison.OrdinalIgnoreCase) || t.Contains("RUST", StringComparison.OrdinalIgnoreCase))
+        {
+            return "stack-go";
+        }
+
+        return "stack-default";
+    }
+
+    protected List<Product>? GetFilteredProducts() =>
         this.Products?
             .Where(p =>
-                string.IsNullOrWhiteSpace(this.searchQuery) ||
-                p.Name.Contains(this.searchQuery, StringComparison.OrdinalIgnoreCase) ||
-                p.Description.Contains(this.searchQuery, StringComparison.OrdinalIgnoreCase) ||
-                (p.TechStack?.Name ?? string.Empty).Contains(this.searchQuery, StringComparison.OrdinalIgnoreCase) ||
-                p.CurrentVersion.Contains(this.searchQuery, StringComparison.OrdinalIgnoreCase))
-            .OrderBy(p => this.sortColumn switch
+                string.IsNullOrWhiteSpace(this.SearchQuery) ||
+                p.Name.Contains(this.SearchQuery, StringComparison.OrdinalIgnoreCase) ||
+                p.Description.Contains(this.SearchQuery, StringComparison.OrdinalIgnoreCase) ||
+                (p.TechStack?.Name ?? string.Empty).Contains(this.SearchQuery, StringComparison.OrdinalIgnoreCase) ||
+                p.CurrentVersion.Contains(this.SearchQuery, StringComparison.OrdinalIgnoreCase))
+            .OrderBy(
+                p => this.SortColumn switch
             {
                 "version" => p.CurrentVersion,
                 "techstack" => p.TechStack?.Name ?? string.Empty,
                 _ => p.Name,
-            }, this.sortAscending ? StringComparer.OrdinalIgnoreCase : new ReverseStringComparer())
+            }, this.SortAscending ? StringComparer.OrdinalIgnoreCase : new ReverseStringComparer())
             .ToList();
 
-    private void SetSort(string column)
+    protected void SetSort(string column)
     {
-        if (this.sortColumn == column)
+        if (this.SortColumn == column)
         {
-            this.sortAscending = !this.sortAscending;
+            this.SortAscending = !this.SortAscending;
         }
         else
         {
-            this.sortColumn = column;
-            this.sortAscending = true;
+            this.SortColumn = column;
+            this.SortAscending = true;
         }
     }
 
-    private string GetSortArrow(string column)
+    protected string GetSortArrow(string column)
     {
-        if (this.sortColumn != column)
+        if (this.SortColumn != column)
         {
             return "↕";
         }
 
-        return this.sortAscending ? "↑" : "↓";
+        return this.SortAscending ? "↑" : "↓";
     }
 
-    private static string GetStackColorClass(string type)
+    protected void ShowAddProduct()
     {
-        return type?.ToUpperInvariant() switch
-        {
-            var t when t != null && (t.Contains("C#") || t.Contains(".NET") || t.Contains("DOTNET")) => "stack-dotnet",
-            var t when t != null && (t.Contains("C++") || t.Contains("EMBED")) => "stack-cpp",
-            var t when t != null && (t.Contains("JAVA") && !t.Contains("SCRIPT")) => "stack-java",
-            var t when t != null && (t.Contains("JAVASCRIPT") || t.Contains("JS") || t.Contains("NODE") || t.Contains("REACT") || t.Contains("VUE") || t.Contains("ANGULAR")) => "stack-js",
-            var t when t != null && (t.Contains("PYTHON") || t.Contains("PY")) => "stack-python",
-            var t when t != null && (t.Contains("ANDROID") || t.Contains("KOTLIN") || t.Contains("IOS") || t.Contains("SWIFT") || t.Contains("MOBILE")) => "stack-mobile",
-            var t when t != null && (t.Contains("PHP")) => "stack-php",
-            var t when t != null && (t.Contains("GO") || t.Contains("RUST")) => "stack-go",
-            _ => "stack-default",
-        };
-    }
-
-    private void ShowAddProduct()
-    {
-        this.editingProduct = new Product { TechStackId = this.TechStacks?.FirstOrDefault()?.Id ?? 0 };
+        this.EditingProduct = new Product { TechStackId = this.TechStacks?.FirstOrDefault()?.Id ?? 0 };
         this.OpenModal(this.L.Translate("admin.addProduct"), isEdit: false);
     }
 
-    private void EditProduct(Product product)
+    protected void EditProduct(Product product)
     {
-        this.editingProduct = new Product
+        ArgumentNullException.ThrowIfNull(product);
+
+        this.EditingProduct = new Product
         {
             Id = product.Id,
             Name = product.Name,
@@ -118,8 +160,10 @@ public partial class ProductsTab : BaseComponent
         this.OpenModal(this.L.Translate("admin.editProduct"), isEdit: true);
     }
 
-    private async Task DeleteProduct(Product product)
+    protected async Task DeleteProduct(Product product)
     {
+        ArgumentNullException.ThrowIfNull(product);
+
         try
         {
             var success = await this.AdminService.DeleteProductAsync(product.Id);
@@ -139,50 +183,22 @@ public partial class ProductsTab : BaseComponent
         }
     }
 
-    private async Task SaveProductAsync()
+    protected void CloseModal()
     {
-        if (string.IsNullOrWhiteSpace(this.editingProduct.Name))
-        {
-            this.errorMessage = this.L.Translate("admin.nameRequired");
-            return;
-        }
-
-        if (this.isEditing)
-        {
-            await this.AdminService.UpdateProductAsync(this.editingProduct);
-            await this.ToastService.ShowToastAsync(this.L.Translate("admin.productUpdated"), ToastType.Success);
-        }
-        else
-        {
-            await this.AdminService.CreateProductAsync(this.editingProduct);
-            await this.ToastService.ShowToastAsync(this.L.Translate("admin.productCreated"), ToastType.Success);
-        }
+        this.ShowModal = false;
+        this.ErrorMessage = null;
     }
 
-    private void OpenModal(string title, bool isEdit)
+    protected async Task SaveModal()
     {
-        this.modalTitle = title;
-        this.isEditing = isEdit;
-        this.errorMessage = null;
-        this.showModal = true;
-    }
-
-    private void CloseModal()
-    {
-        this.showModal = false;
-        this.errorMessage = null;
-    }
-
-    private async Task SaveModal()
-    {
-        this.isSaving = true;
-        this.errorMessage = null;
+        this.IsSaving = true;
+        this.ErrorMessage = null;
 
         try
         {
             await this.SaveProductAsync();
 
-            if (this.errorMessage is null)
+            if (this.ErrorMessage is null)
             {
                 await this.OnProductsChanged.InvokeAsync();
                 this.CloseModal();
@@ -190,17 +206,48 @@ public partial class ProductsTab : BaseComponent
         }
         catch (Exception ex)
         {
-            this.errorMessage = ex.Message;
+            this.ErrorMessage = ex.Message;
         }
         finally
         {
-            this.isSaving = false;
+            this.IsSaving = false;
         }
+    }
+
+    private async Task SaveProductAsync()
+    {
+        if (string.IsNullOrWhiteSpace(this.EditingProduct.Name))
+        {
+            this.ErrorMessage = this.L.Translate("admin.nameRequired");
+            return;
+        }
+
+        if (this.IsEditing)
+        {
+            await this.AdminService.UpdateProductAsync(this.EditingProduct);
+            await this.ToastService.ShowToastAsync(this.L.Translate("admin.productUpdated"), ToastType.Success);
+        }
+        else
+        {
+            await this.AdminService.CreateProductAsync(this.EditingProduct);
+            await this.ToastService.ShowToastAsync(this.L.Translate("admin.productCreated"), ToastType.Success);
+        }
+    }
+
+    private void OpenModal(string title, bool isEdit)
+    {
+        this.ModalTitle = title;
+        this.IsEditing = isEdit;
+        this.ErrorMessage = null;
+        this.ShowModal = true;
     }
 
     private sealed class ReverseStringComparer : IComparer<string>
     {
-        public int Compare(string? x, string? y) =>
-            StringComparer.OrdinalIgnoreCase.Compare(y, x);
+        public int Compare(string? x, string? y)
+        {
+            var result = StringComparer.OrdinalIgnoreCase.Compare(x, y);
+            return -result;
+        }
     }
 }

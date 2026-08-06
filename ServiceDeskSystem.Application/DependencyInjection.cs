@@ -9,6 +9,7 @@ using ServiceDeskSystem.Application.Services.Localization;
 using ServiceDeskSystem.Application.Services.Notifications;
 using ServiceDeskSystem.Application.Services.Profile;
 using ServiceDeskSystem.Application.Services.Realtime;
+using ServiceDeskSystem.Application.Services.Tags;
 using ServiceDeskSystem.Application.Services.Theme;
 using ServiceDeskSystem.Application.Services.Tickets;
 using ServiceDeskSystem.Application.Services.Toasts;
@@ -40,6 +41,7 @@ public static class DependencyInjection
         services.AddScoped<IAuditService, AuditService>();
         services.AddScoped<IProfileService, ProfileService>();
         services.AddScoped<INotificationService, NotificationService>();
+        services.AddScoped<ITagService, TagService>();
         services.TryAddSingleton<IRealtimeNotifier>(NoOpRealtimeNotifier.Instance);
         services.AddHostedService<SlaBackgroundService>();
 

@@ -200,6 +200,35 @@ public sealed class TicketService(
         return true;
     }
 
+    public async Task<bool> UpdateAnalyticalNoteAsync(int ticketId, string? analyticalNote, int? actorUserId = null)
+    {
+        await using var repo = repositoryFacadeFactory.Create();
+        var ticket = await repo.Tickets.GetByIdAsync(ticketId).ConfigureAwait(false);
+
+        if (ticket is null)
+        {
+            return false;
+        }
+
+        ticket.AnalyticalNote = analyticalNote;
+        await repo.UnitOfWork.SaveChangesAsync().ConfigureAwait(false);
+
+        if (auditService != null)
+        {
+            await auditService.LogActionAsync(
+                "UpdateAnalyticalNote",
+                "Ticket",
+                ticketId.ToString(),
+                "Updated analytical note",
+                actorUserId
+            ).ConfigureAwait(false);
+        }
+
+        await realtimeNotifier.NotifyTicketsChangedAsync().ConfigureAwait(false);
+
+        return true;
+    }
+
     public async Task<bool> DeleteTicketAsync(int ticketId)
     {
         await using var repo = repositoryFacadeFactory.Create();
@@ -349,10 +378,167 @@ public sealed class TicketService(
         }) ?? [];
     }
 
+    public async Task<Dictionary<string, int>> GetTicketCountByTypeAsync()
+    {
+        return await memoryCache.GetOrCreateAsync("TicketCountByType", async entry =>
+        {
+            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(1);
+            await using var repo = repositoryFacadeFactory.Create();
+            var allTickets = await repo.Tickets.GetAllAsync().ConfigureAwait(false);
+            return allTickets
+                .GroupBy(t => t.Type)
+                .ToDictionary(g => g.Key.ToString(), g => g.Count());
+        }) ?? [];
+    }
+
     public async Task<List<(string Login, int Count)>> GetTopDevelopersAsync(int top = 5)
     {
         await using var repo = repositoryFacadeFactory.Create();
         return await repo.Tickets.GetTopDevelopersByResolvedTicketsAsync(top).ConfigureAwait(false);
+    }
+
+    public async Task<ExtendedAnalyticsDto> GetExtendedAnalyticsAsync(int days = 30)
+    {
+        if (days <= 0)
+        {
+            days = 30;
+        }
+
+        await using var repo = repositoryFacadeFactory.Create();
+        var allTickets = (await repo.Tickets.GetAllWithIncludesAsync().ConfigureAwait(false)).ToList();
+        var allTags = (await repo.Tags.GetAllAsync().ConfigureAwait(false)).ToList();
+        var developers = (await repo.Users.GetAllAsync().ConfigureAwait(false))
+            .Where(u => u.Role == UserRole.Developer || u.Role == UserRole.Admin)
+            .ToList();
+
+        var today = DateTime.UtcNow.Date;
+        var startDate = today.AddDays(-days + 1);
+
+        // 1. Daily Trends
+        var trends = new List<DailyTicketTrendDto>();
+        for (var date = startDate; date <= today; date = date.AddDays(1))
+        {
+            var targetDate = date;
+            var created = allTickets.Count(t => t.CreatedAt.Date == targetDate);
+            var resolved = allTickets.Count(t =>
+                (t.Status == TicketStatus.Resolved || t.Status == TicketStatus.Closed || t.Status == TicketStatus.Done) &&
+                ((t.DueDate.HasValue ? t.DueDate.Value.Date : t.CreatedAt.Date) == targetDate));
+
+            trends.Add(new DailyTicketTrendDto(
+                targetDate,
+                targetDate.ToString("dd MMM", System.Globalization.CultureInfo.InvariantCulture),
+                created,
+                resolved
+            ));
+        }
+
+        // 2. Developer Workloads
+        var devWorkloads = new List<DeveloperWorkloadDto>();
+        foreach (var dev in developers)
+        {
+            var devTickets = allTickets.Where(t => t.DeveloperId == dev.Id).ToList();
+            var active = devTickets.Count(t => t.Status != TicketStatus.Resolved && t.Status != TicketStatus.Closed && t.Status != TicketStatus.Done);
+            var inProgress = devTickets.Count(t => t.Status == TicketStatus.InProgress || t.Status == TicketStatus.Testing || t.Status == TicketStatus.CodeReview);
+            var completed = devTickets.Count(t => t.Status == TicketStatus.Resolved || t.Status == TicketStatus.Closed || t.Status == TicketStatus.Done);
+            var score = (inProgress * 2.0) + (active - inProgress);
+
+            if (active > 0 || completed > 0 || dev.Role == UserRole.Developer)
+            {
+                devWorkloads.Add(new DeveloperWorkloadDto(
+                    dev.Id,
+                    dev.Login,
+                    active,
+                    inProgress,
+                    completed,
+                    score
+                ));
+            }
+        }
+        devWorkloads = devWorkloads.OrderByDescending(d => d.WorkloadScore).ThenByDescending(d => d.AssignedCount).ToList();
+
+        // 3. Product Resolution Performance
+        var productPerformances = allTickets
+            .Where(t => t.Product != null)
+            .GroupBy(t => new { t.Product!.Id, t.Product.Name })
+            .Select(g =>
+            {
+                var total = g.Count();
+                var resolvedGroup = g.Where(t => t.Status == TicketStatus.Resolved || t.Status == TicketStatus.Closed || t.Status == TicketStatus.Done).ToList();
+                var avgHours = resolvedGroup.Count > 0
+                    ? resolvedGroup.Average(t =>
+                    {
+                        var lastDate = t.DueDate ?? (t.Comments.Count > 0 ? t.Comments.Max(c => c.CreatedAt) : t.CreatedAt.AddHours(24));
+                        return Math.Max(0.5, (lastDate - t.CreatedAt).TotalHours);
+                    })
+                    : 0.0;
+
+                return new ProductResolutionPerformanceDto(
+                    g.Key.Id,
+                    g.Key.Name,
+                    total,
+                    resolvedGroup.Count,
+                    Math.Round(avgHours, 1)
+                );
+            })
+            .OrderByDescending(p => p.TotalTickets)
+            .ToList();
+
+        // 4. Tag Distributions
+        var tagDistributions = allTags
+            .Select(tag =>
+            {
+                var count = allTickets.Count(t => t.Tags != null && t.Tags.Any(tg => tg.Id == tag.Id));
+                return new TagAnalyticsDto(tag.Id, tag.Name, tag.Color, count);
+            })
+            .Where(t => t.TicketCount > 0)
+            .OrderByDescending(t => t.TicketCount)
+            .ToList();
+
+        // 5. Type Distributions
+        var totalTicketsCount = allTickets.Count;
+        var typeDistributions = Enum.GetValues<TicketType>()
+            .Select(type =>
+            {
+                var count = allTickets.Count(t => t.Type == type);
+                var pct = totalTicketsCount > 0 ? Math.Round((double)count / totalTicketsCount * 100.0, 1) : 0.0;
+                return new TicketTypeAnalyticsDto(type, type.ToString(), count, pct);
+            })
+            .OrderByDescending(t => t.TicketCount)
+            .ToList();
+
+        // 6. KPIs
+        var openTicketsCount = allTickets.Count(t => t.Status != TicketStatus.Resolved && t.Status != TicketStatus.Closed && t.Status != TicketStatus.Done);
+        var resolvedTicketsCount = allTickets.Count(t => t.Status == TicketStatus.Resolved || t.Status == TicketStatus.Closed || t.Status == TicketStatus.Done);
+        var allResolved = allTickets.Where(t => t.Status == TicketStatus.Resolved || t.Status == TicketStatus.Closed || t.Status == TicketStatus.Done).ToList();
+        var overallAvgHours = allResolved.Count > 0
+            ? Math.Round(allResolved.Average(t =>
+            {
+                var lastDate = t.DueDate ?? (t.Comments.Count > 0 ? t.Comments.Max(c => c.CreatedAt) : t.CreatedAt.AddHours(24));
+                return Math.Max(0.5, (lastDate - t.CreatedAt).TotalHours);
+            }), 1)
+            : 0.0;
+        var activeDevsCount = devWorkloads.Count(d => d.AssignedCount > 0);
+        var resRate = totalTicketsCount > 0
+            ? Math.Round((double)resolvedTicketsCount / totalTicketsCount * 100.0, 1)
+            : 0.0;
+
+        var kpis = new AnalyticsKpiDto(
+            totalTicketsCount,
+            openTicketsCount,
+            resolvedTicketsCount,
+            overallAvgHours,
+            activeDevsCount,
+            resRate
+        );
+
+        return new ExtendedAnalyticsDto(
+            kpis,
+            trends,
+            devWorkloads,
+            productPerformances,
+            tagDistributions,
+            typeDistributions
+        );
     }
 }
 

@@ -499,6 +499,76 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                         });
                 });
 
+            modelBuilder.Entity("ServiceDeskSystem.Domain.Entities.Tag", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Color")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<int?>("CreatedById")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("varchar(255)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedById");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("Tags");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Color = "#EF4444",
+                            Name = "Bug"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Color = "#8B5CF6",
+                            Name = "UI/UX"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Color = "#3B82F6",
+                            Name = "Backend"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Color = "#F59E0B",
+                            Name = "Urgent"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Color = "#10B981",
+                            Name = "Feature"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Color = "#EC4899",
+                            Name = "Security"
+                        });
+                });
+
             modelBuilder.Entity("ServiceDeskSystem.Domain.Entities.TechStack", b =>
                 {
                     b.Property<int>("Id")
@@ -568,6 +638,9 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
 
                     b.Property<string>("AffectedVersion")
                         .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("AnalyticalNote")
                         .HasColumnType("longtext");
 
                     b.Property<int>("AuthorId")
@@ -892,7 +965,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                             Id = 1,
                             IsActive = true,
                             Login = "admin",
-                            PasswordHash = "dt/ylVxnzrxSoV06M5k35Q==:1eYeWTFkvs5+eOMbdIXiXN/OPWzKzfa29Nl1yKXm/f8=",
+                            PasswordHash = "4h3kKJ5IfHWD3UhFj7dOGA==:WyyYQwsYPy//2sLonxNrwkz5TvYZ6tAZBSq21o1W4aY=",
                             PersonId = 1,
                             Role = "Admin"
                         },
@@ -901,7 +974,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                             Id = 2,
                             IsActive = true,
                             Login = "o.kovalenko",
-                            PasswordHash = "jw3UYcLHggFpPkNN5uPfAQ==:aXdmGsjnFb5bQ3wWmYeoRU6cHxrrflVZscqyNrRV+/g=",
+                            PasswordHash = "bc1QjspvMSNW/qJ315kVfw==:xr2KczAVhVF9uGOrLvd4gwFUQelXhkZ6mTz7OTErlQk=",
                             PersonId = 2,
                             Role = "Developer"
                         },
@@ -910,7 +983,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                             Id = 3,
                             IsActive = true,
                             Login = "m.shevchenko",
-                            PasswordHash = "7eTtWNEwgh7n7f0Vt5De0A==:doKwhhr7yUrwnaPj9JzdRQPGfWkE1G4ZnNV3aiRjZSg=",
+                            PasswordHash = "P/BzIDQsLoonU0MWhFX8YA==:EpqoLhECNQjbT9ZiwxSO5FtclDg9Myk+wRREh6vfBGM=",
                             PersonId = 3,
                             Role = "User"
                         },
@@ -919,7 +992,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                             Id = 4,
                             IsActive = true,
                             Login = "j.smith",
-                            PasswordHash = "Y6v/KdObGtxavxGIAw12Gw==:P7hUl7FEZ42g5Kh8abeBJ7qm+JEZ6HycXO6OqodROLg=",
+                            PasswordHash = "VUTiO6i3DPu088vp54Ai5Q==:Qxei+3zWH9OzxqixMINz8oHvCEuZnKaWdEYya+yytrE=",
                             PersonId = 4,
                             Role = "User"
                         },
@@ -928,10 +1001,25 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                             Id = 5,
                             IsActive = true,
                             Login = "a.bondarenko",
-                            PasswordHash = "fyliyjkYoO34hfJmfB2aHA==:TqNXiZrfcTfA23QGb3ohLz8eJzyQC+1DGZE1MIYlfb0=",
+                            PasswordHash = "H9dgm+d/6toOGcKKSKLw4A==:lbLOHesCMRXzdH28FsFgcxdKu62lyUdTlpi8O8wFK9g=",
                             PersonId = 5,
                             Role = "Developer"
                         });
+                });
+
+            modelBuilder.Entity("TagTicket", b =>
+                {
+                    b.Property<int>("TagsId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TicketsId")
+                        .HasColumnType("int");
+
+                    b.HasKey("TagsId", "TicketsId");
+
+                    b.HasIndex("TicketsId");
+
+                    b.ToTable("TicketTags", (string)null);
                 });
 
             modelBuilder.Entity("ServiceDeskSystem.Domain.Entities.Attachment", b =>
@@ -1029,6 +1117,15 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                     b.Navigation("TechStack");
                 });
 
+            modelBuilder.Entity("ServiceDeskSystem.Domain.Entities.Tag", b =>
+                {
+                    b.HasOne("ServiceDeskSystem.Domain.Entities.User", "CreatedBy")
+                        .WithMany()
+                        .HasForeignKey("CreatedById");
+
+                    b.Navigation("CreatedBy");
+                });
+
             modelBuilder.Entity("ServiceDeskSystem.Domain.Entities.Ticket", b =>
                 {
                     b.HasOne("ServiceDeskSystem.Domain.Entities.User", "Author")
@@ -1063,6 +1160,21 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Person");
+                });
+
+            modelBuilder.Entity("TagTicket", b =>
+                {
+                    b.HasOne("ServiceDeskSystem.Domain.Entities.Tag", null)
+                        .WithMany()
+                        .HasForeignKey("TagsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ServiceDeskSystem.Domain.Entities.Ticket", null)
+                        .WithMany()
+                        .HasForeignKey("TicketsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("ServiceDeskSystem.Domain.Entities.ContactType", b =>

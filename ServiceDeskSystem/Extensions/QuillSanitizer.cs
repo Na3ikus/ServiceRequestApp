@@ -1,5 +1,5 @@
-using System.Text.RegularExpressions;
 using System.Text.Encodings.Web;
+using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Components;
 
 namespace ServiceDeskSystem.Extensions;
@@ -11,9 +11,7 @@ namespace ServiceDeskSystem.Extensions;
 /// </summary>
 public static partial class QuillSanitizer
 {
-    // ── Whitelist ──────────────────────────────────────────────────────────────
-
-    private static readonly HashSet<string> AllowedTags = new(StringComparer.OrdinalIgnoreCase)
+    private static readonly HashSet<string> AllowedTags = new (StringComparer.OrdinalIgnoreCase)
     {
         "p", "br", "hr",
         "strong", "b", "em", "i", "u", "s", "strike", "code", "pre",
@@ -25,30 +23,16 @@ public static partial class QuillSanitizer
     };
 
     // Only these attributes are ever kept (on any tag)
-    private static readonly HashSet<string> AllowedAttributes = new(StringComparer.OrdinalIgnoreCase)
+    private static readonly HashSet<string> AllowedAttributes = new (StringComparer.OrdinalIgnoreCase)
     {
         "class",
     };
 
-    // ── Compiled regexes ───────────────────────────────────────────────────────
-
-    /// <summary>Matches any HTML tag: opening, closing, or self-closing.</summary>
-    [GeneratedRegex(@"<(/?)(\w+)([^>]*)(/?)>", RegexOptions.IgnoreCase | RegexOptions.Singleline)]
-    private static partial Regex TagPattern();
-
-    /// <summary>Matches individual attribute key=value pairs inside a tag.</summary>
-    [GeneratedRegex("""(\w[\w-]*)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|(\S+)))?""", RegexOptions.IgnoreCase)]
-    private static partial Regex AttrPattern();
-
-    /// <summary>Matches href attribute specifically (for link sanitization).</summary>
-    [GeneratedRegex("""href\s*=\s*(?:"([^"]*)"|'([^']*)'|(\S+))""", RegexOptions.IgnoreCase)]
-    private static partial Regex HrefPattern();
-
-    // ── Public API ─────────────────────────────────────────────────────────────
-
     /// <summary>
     /// Sanitizes a Quill HTML string and returns a safe <see cref="MarkupString"/> for Blazor rendering.
     /// </summary>
+    /// <param name="html">The raw HTML string from Quill editor.</param>
+    /// <returns>A sanitized <see cref="MarkupString"/>.</returns>
     public static MarkupString Sanitize(string? html)
     {
         if (string.IsNullOrWhiteSpace(html))
@@ -60,14 +44,21 @@ public static partial class QuillSanitizer
         return new MarkupString(result);
     }
 
-    // ── Private helpers ────────────────────────────────────────────────────────
+    [GeneratedRegex(@"<(/?)(\w+)([^>]*)(/?)>", RegexOptions.IgnoreCase | RegexOptions.Singleline)]
+    private static partial Regex TagPattern();
+
+    [GeneratedRegex("""(\w[\w-]*)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|(\S+)))?""", RegexOptions.IgnoreCase)]
+    private static partial Regex AttrPattern();
+
+    [GeneratedRegex("""href\s*=\s*(?:"([^"]*)"|'([^']*)'|(\S+))""", RegexOptions.IgnoreCase)]
+    private static partial Regex HrefPattern();
 
     private static string SanitizeTag(Match match)
     {
-        var slash      = match.Groups[1].Value;   // "/" for closing tags
-        var tagName    = match.Groups[2].Value;
+        var slash = match.Groups[1].Value;
+        var tagName = match.Groups[2].Value;
         var attrString = match.Groups[3].Value;
-        var selfClose  = match.Groups[4].Value;   // "/" for self-closing
+        var selfClose = match.Groups[4].Value;
 
         // Drop any tag not on the whitelist
         if (!AllowedTags.Contains(tagName))
@@ -147,7 +138,7 @@ public static partial class QuillSanitizer
         return trimmed.StartsWith("HTTP://", StringComparison.Ordinal)
             || trimmed.StartsWith("HTTPS://", StringComparison.Ordinal)
             || trimmed.StartsWith("MAILTO:", StringComparison.Ordinal)
-            || trimmed.StartsWith("/", StringComparison.Ordinal)
-            || trimmed.StartsWith("#", StringComparison.Ordinal);
+            || trimmed.StartsWith('/')
+            || trimmed.StartsWith('#');
     }
 }

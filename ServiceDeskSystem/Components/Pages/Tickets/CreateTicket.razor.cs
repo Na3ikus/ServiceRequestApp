@@ -13,92 +13,92 @@ namespace ServiceDeskSystem.Components.Pages.Tickets;
 public partial class CreateTicket
 {
     [Inject]
-    private ITicketService TicketService { get; set; } = null!;
+    protected ITicketService TicketService { get; set; } = null!;
 
-    private TicketCreateModel ticketModel { get; set; } = new TicketCreateModel();
+    protected TicketCreateModel Model { get; set; } = new ();
 
-    private List<Product> products { get; set; } = [];
+    protected List<Product> Products { get; set; } = [];
 
-    private bool isSubmitting { get; set; }
+    protected bool IsSubmitting { get; set; }
 
-    private bool isTypeSelected { get; set; }
+    protected bool IsTypeSelected { get; set; }
 
-    private string? productValidationError { get; set; }
+    protected string? ProductValidationError { get; set; }
 
-    private bool IsProductRequired => this.ticketModel.TicketType != TicketType.Project;
+    protected bool IsProductRequired => this.Model.TicketType != TicketType.Project;
 
-    private int CurrentUserId => this.AuthService.CurrentUser?.Id ?? 0;
+    protected int CurrentUserId => this.AuthService.CurrentUser?.Id ?? 0;
 
     protected override async Task OnInitializedAsync()
     {
-        this.products = await this.TicketService.GetProductsAsync();
-        this.ticketModel.Priority = TicketPriority.Medium;
+        this.Products = await this.TicketService.GetProductsAsync();
+        this.Model.Priority = TicketPriority.Medium;
     }
 
-    private async Task HandleSubmitAsync()
+    protected async Task HandleSubmitAsync()
     {
-        this.productValidationError = null;
+        this.ProductValidationError = null;
 
-        if (this.IsProductRequired && !this.ticketModel.ProductId.HasValue)
+        if (this.IsProductRequired && !this.Model.ProductId.HasValue)
         {
-            this.productValidationError = "Please select a product";
+            this.ProductValidationError = "Please select a product";
             return;
         }
 
-        this.isSubmitting = true;
+        this.IsSubmitting = true;
 
         var role = this.AuthService.CurrentUser?.Role;
         bool isDevOrAdmin = role is UserRole.Admin or UserRole.Developer;
 
-        var priority = isDevOrAdmin ? this.ticketModel.Priority : TicketPriority.Medium;
+        var priority = isDevOrAdmin ? this.Model.Priority : TicketPriority.Medium;
         bool isPriorityAssessed = isDevOrAdmin;
 
         var ticket = Ticket.Create(
-            this.ticketModel.Title,
-            this.ticketModel.Description,
-            this.ticketModel.TicketType,
+            this.Model.Title,
+            this.Model.Description,
+            this.Model.TicketType,
             priority,
             this.CurrentUserId,
-            this.ticketModel.ProductId,
+            this.Model.ProductId,
             isPriorityAssessed);
 
-        ticket.StepsToReproduce = this.ticketModel.StepsToReproduce ?? string.Empty;
-        ticket.Environment = this.ticketModel.Environment ?? string.Empty;
-        ticket.AffectedVersion = this.ticketModel.AffectedVersion ?? string.Empty;
+        ticket.StepsToReproduce = this.Model.StepsToReproduce ?? string.Empty;
+        ticket.Environment = this.Model.Environment ?? string.Empty;
+        ticket.AffectedVersion = this.Model.AffectedVersion ?? string.Empty;
 
         await this.TicketService.CreateTicketAsync(ticket);
 
         this.Navigation.NavigateTo("/");
     }
 
-    private void Cancel()
+    protected void Cancel()
     {
         this.Navigation.NavigateTo("/");
     }
 
-    private void SelectType(TicketType type)
+    protected void SelectType(TicketType type)
     {
-        this.ticketModel.TicketType = type;
-        this.isTypeSelected = true;
+        this.Model.TicketType = type;
+        this.IsTypeSelected = true;
         this.OnTicketTypeChanged();
     }
 
-    private void BackToTypeSelection()
+    protected void BackToTypeSelection()
     {
-        this.isTypeSelected = false;
+        this.IsTypeSelected = false;
     }
 
-    private void OnTicketTypeChanged()
+    protected void OnTicketTypeChanged()
     {
-        this.productValidationError = null;
+        this.ProductValidationError = null;
 
         if (!this.IsProductRequired)
         {
-            this.ticketModel.ProductId = null;
+            this.Model.ProductId = null;
         }
     }
 
-    private sealed class TicketCreateModel
+    protected sealed class TicketCreateModel
     {
         [Required(ErrorMessage = "Title is required")]
         [StringLength(200, MinimumLength = 5, ErrorMessage = "Title must be between 5 and 200 characters")]

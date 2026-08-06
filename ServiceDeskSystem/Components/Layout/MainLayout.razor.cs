@@ -166,7 +166,7 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
                 await this.JS.InvokeVoidAsync(
                     "localStorage.setItem",
                     "user.role",
-                    this.AuthService.CurrentUser.Role.ToString().ToLowerInvariant());
+                    this.AuthService.CurrentUser.Role.ToString().ToUpperInvariant());
             }
             catch
             {
@@ -412,6 +412,6 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
 
     private sealed class DatabaseHealthResponse
     {
-        public bool IsAvailable { get; init; }
+        public bool IsAvailable { get; set; }
     }
 }

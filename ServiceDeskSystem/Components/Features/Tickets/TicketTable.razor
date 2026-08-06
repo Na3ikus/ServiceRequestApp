@@ -29,6 +29,11 @@
                         
                         <!-- Badges row -->
                         <div class="flex flex-wrap items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400">
+                            <!-- Type Badge -->
+                            <span class="@GetTicketTypeBadgeClass(ticket.Type) px-2 py-0.5 text-xs font-semibold rounded shadow-xs shrink-0">
+                                @GetTicketTypeText(ticket.Type)
+                            </span>
+
                             <!-- Status Badge -->
                             <span class="flex items-center gap-1.5 px-2 py-0.5 text-xs font-semibold rounded bg-gray-50 dark:bg-gray-700 border border-gray-100 dark:border-gray-600 shadow-sm shrink-0">
                                 <span class="w-2 h-2 rounded-full @GetStatusDotColor(ticket.Status)"></span>
@@ -49,6 +54,24 @@
                                 <span class="px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 truncate max-w-[120px]">
                                     @ticket.Product.Name
                                 </span>
+                            }
+
+                            <!-- Tags -->
+                            @if (ticket.Tags != null && ticket.Tags.Count > 0)
+                            {
+                                @foreach (var tag in ticket.Tags.Take(3))
+                                {
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold text-white shadow-xs shrink-0"
+                                          style="background-color: @tag.Color;">
+                                        @tag.Name
+                                    </span>
+                                }
+                                @if (ticket.Tags.Count > 3)
+                                {
+                                    <span class="text-[10px] font-medium text-gray-400 dark:text-gray-500">
+                                        +@(ticket.Tags.Count - 3)
+                                    </span>
+                                }
                             }
 
                             <!-- Author -->

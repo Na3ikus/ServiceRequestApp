@@ -37,7 +37,7 @@
         </div>
     </div>
 
-@if (tickets is null)
+@if (Tickets is null)
 {
     <div class="animate-pulse space-y-4">
         @for (int i = 0; i < 4; i++)
@@ -58,7 +58,7 @@
         }
     </div>
 }
-else if (!tickets.Any())
+else if (!Tickets.Any())
 {
     <div class="bg-white dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-lg p-8 sm:p-12 text-center border border-transparent dark:border-gray-700/50">
         <div class="w-20 h-20 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -78,6 +78,6 @@ else if (!tickets.Any())
 }
     else
     {
-        <TicketTable Tickets="tickets" OnTicketClick="ViewTicket" ShowAuthor="false" />
+        <TicketTable Tickets="Tickets" OnTicketClick="ViewTicket" ShowAuthor="false" />
     }
 </div>

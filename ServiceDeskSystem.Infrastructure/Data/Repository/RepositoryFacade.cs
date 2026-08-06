@@ -16,6 +16,7 @@ namespace ServiceDeskSystem.Infrastructure.Data.Repository
         private readonly Lazy<ContactInfoRepository> _contactInfoRepository;
         private readonly Lazy<AuditLogRepository> _auditLogRepository;
         private readonly Lazy<NotificationRepository> _notificationRepository;
+        private readonly Lazy<TagRepository> _tagRepository;
 
         public RepositoryFacade(IDbContextFactory<BugTrackerDbContext> contextFactory)
         {
@@ -31,6 +32,7 @@ namespace ServiceDeskSystem.Infrastructure.Data.Repository
             this._contactInfoRepository = new Lazy<ContactInfoRepository>(() => new ContactInfoRepository(this._context));
             this._auditLogRepository = new Lazy<AuditLogRepository>(() => new AuditLogRepository(this._context));
             this._notificationRepository = new Lazy<NotificationRepository>(() => new NotificationRepository(this._context));
+            this._tagRepository = new Lazy<TagRepository>(() => new TagRepository(this._context));
             this.UnitOfWork = new ServiceDeskSystem.Infrastructure.Data.UnitOfWork(this._context);
         }
 
@@ -44,6 +46,7 @@ namespace ServiceDeskSystem.Infrastructure.Data.Repository
         public IContactInfoRepository ContactInfos => this._contactInfoRepository.Value;
         public IAuditLogRepository AuditLogs => this._auditLogRepository.Value;
         public INotificationRepository Notifications => this._notificationRepository.Value;
+        public ITagRepository Tags => this._tagRepository.Value;
         public IUnitOfWork UnitOfWork { get; }
 
         public async ValueTask DisposeAsync()

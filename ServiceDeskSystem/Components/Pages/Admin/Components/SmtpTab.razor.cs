@@ -7,6 +7,9 @@ using ServiceDeskSystem.Domain.Interfaces;
 
 namespace ServiceDeskSystem.Components.Pages.Admin.Components;
 
+/// <summary>
+/// SMTP configuration and diagnostics tab component.
+/// </summary>
 public partial class SmtpTab : BaseComponent
 {
     [Parameter]
@@ -22,62 +25,62 @@ public partial class SmtpTab : BaseComponent
     public EventCallback OnCheckSmtp { get; set; }
 
     [Inject]
-    private IToastService ToastService { get; set; } = null!;
+    protected IToastService ToastService { get; set; } = null!;
 
     [Inject]
-    private IEmailSender EmailSender { get; set; } = null!;
+    protected IEmailSender EmailSender { get; set; } = null!;
 
-    private string smtpTestRecipient { get; set; } = string.Empty;
+    protected string SmtpTestRecipient { get; set; } = string.Empty;
 
-    private string smtpTestSubject { get; set; } = "ServiceDesk SMTP test";
+    protected string SmtpTestSubject { get; set; } = "ServiceDesk SMTP test";
 
-    private bool isSendingTestEmail { get; set; }
+    protected bool IsSendingTestEmail { get; set; }
 
-    private bool? smtpSendSuccess { get; set; }
+    protected bool? SmtpSendSuccess { get; set; }
 
-    private string? smtpSendMessage { get; set; }
+    protected string? SmtpSendMessage { get; set; }
 
-    private async Task SendSmtpTestEmailAsync()
+    protected async Task SendSmtpTestEmailAsync()
     {
-        if (this.isSendingTestEmail)
+        if (this.IsSendingTestEmail)
         {
             return;
         }
 
-        var recipient = this.smtpTestRecipient.Trim();
+        var recipient = this.SmtpTestRecipient.Trim();
         if (string.IsNullOrWhiteSpace(recipient) || !MailAddress.TryCreate(recipient, out _))
         {
-            this.smtpSendSuccess = false;
-            this.smtpSendMessage = "Enter a valid recipient email.";
-            await this.ToastService.ShowToastAsync(this.smtpSendMessage, ToastType.Warning).ConfigureAwait(false);
+            this.SmtpSendSuccess = false;
+            this.SmtpSendMessage = "Enter a valid recipient email.";
+            await this.ToastService.ShowToastAsync(this.SmtpSendMessage, ToastType.Warning).ConfigureAwait(false);
             return;
         }
 
-        this.isSendingTestEmail = true;
-        this.smtpSendMessage = null;
+        this.IsSendingTestEmail = true;
+        this.SmtpSendMessage = null;
 
         try
         {
-            var subject = string.IsNullOrWhiteSpace(this.smtpTestSubject) ? "ServiceDesk SMTP test" : this.smtpTestSubject.Trim();
+            var subject = string.IsNullOrWhiteSpace(this.SmtpTestSubject) ? "ServiceDesk SMTP test" : this.SmtpTestSubject.Trim();
             var utcNow = DateTime.UtcNow;
             var textBody = $"SMTP test email from ServiceDeskSystem at {utcNow:O}.";
             var htmlBody = $"<p><strong>SMTP test email</strong> from ServiceDeskSystem.</p><p>UTC: {utcNow:O}</p>";
 
             await this.EmailSender.SendAsync(recipient, subject, htmlBody, textBody).ConfigureAwait(false);
 
-            this.smtpSendSuccess = true;
-            this.smtpSendMessage = "Test email sent successfully.";
-            await this.ToastService.ShowToastAsync(this.smtpSendMessage, ToastType.Success).ConfigureAwait(false);
+            this.SmtpSendSuccess = true;
+            this.SmtpSendMessage = "Test email sent successfully.";
+            await this.ToastService.ShowToastAsync(this.SmtpSendMessage, ToastType.Success).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
-            this.smtpSendSuccess = false;
-            this.smtpSendMessage = ex.Message;
+            this.SmtpSendSuccess = false;
+            this.SmtpSendMessage = ex.Message;
             await this.ToastService.ShowToastAsync($"Test email failed: {ex.Message}", ToastType.Error).ConfigureAwait(false);
         }
         finally
         {
-            this.isSendingTestEmail = false;
+            this.IsSendingTestEmail = false;
         }
     }
 }

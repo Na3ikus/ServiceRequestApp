@@ -21,6 +21,8 @@ public class Ticket : AggregateRoot
 
     public string Environment { get; set; } = string.Empty;
 
+    public string? AnalyticalNote { get; set; }
+
     public DateTime CreatedAt { get; set; }
 
     public DateTime? StartDate { get; set; }
@@ -51,6 +53,8 @@ public class Ticket : AggregateRoot
 
     public ICollection<Notification> Notifications { get; set; } = new List<Notification>();
 
+    public ICollection<Tag> Tags { get; set; } = new List<Tag>();
+
     public static Ticket Create(string title, string description, TicketType type, TicketPriority priority, int authorId, int? productId = null, bool isPriorityAssessed = true)
     {
         var ticket = new Ticket
@@ -72,11 +76,14 @@ public class Ticket : AggregateRoot
 
     public void ChangeStatus(TicketStatus newStatus, int? actorUserId)
     {
-        if (this.Status == newStatus) return;
-        
+        if (this.Status == newStatus)
+        {
+            return;
+        }
+
         var oldStatus = this.Status;
         this.Status = newStatus;
-        
+
         this.AddDomainEvent(new ServiceDeskSystem.Domain.Events.TicketStatusChangedEvent(this.Id, oldStatus, newStatus, actorUserId));
     }
 }

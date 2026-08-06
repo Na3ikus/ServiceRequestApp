@@ -35,6 +35,8 @@ namespace ServiceDeskSystem.Infrastructure.Data
 
         public DbSet<AuditLog> AuditLogs { get; set; } = null!;
 
+        public DbSet<Tag> Tags { get; set; } = null!;
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             ArgumentNullException.ThrowIfNull(modelBuilder);
@@ -169,8 +171,14 @@ namespace ServiceDeskSystem.Infrastructure.Data
                 .HasIndex(a => a.Timestamp)
                 .IsDescending();
 
-            modelBuilder.Entity<AuditLog>()
-                .HasIndex(a => a.UserId);
+            modelBuilder.Entity<Tag>()
+                .HasIndex(t => t.Name)
+                .IsUnique();
+
+            modelBuilder.Entity<Ticket>()
+                .HasMany(t => t.Tags)
+                .WithMany(t => t.Tickets)
+                .UsingEntity(j => j.ToTable("TicketTags"));
 
             PersonConfiguration.Seed(modelBuilder);
             ContactTypeConfiguration.Seed(modelBuilder);
@@ -179,6 +187,7 @@ namespace ServiceDeskSystem.Infrastructure.Data
             ProductConfiguration.Seed(modelBuilder);
             TicketConfiguration.Seed(modelBuilder);
             CommentConfiguration.Seed(modelBuilder);
+            TagConfiguration.Seed(modelBuilder);
         }
     }
 }

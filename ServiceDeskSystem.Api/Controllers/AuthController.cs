@@ -44,7 +44,7 @@ public sealed class AuthController(
 
         logger.LogInformation("User {Username} logged in successfully", request.Username);
 
-        return Ok(new { Message = "Login successful.", User = MapToDto(user) });
+        return Ok(new LoginResponse(token, MapToDto(user)));
     }
 
     [HttpPost("logout")]

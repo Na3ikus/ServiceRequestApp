@@ -16,11 +16,11 @@ public partial class MyTickets : BaseComponent
     private bool isRefreshing;
 
     [Inject]
-    private ITicketService TicketService { get; set; } = null!;
+    protected ITicketService TicketService { get; set; } = null!;
 
-    private List<Ticket>? tickets { get; set; }
+    protected List<Ticket>? Tickets { get; set; }
 
-    private int CurrentUserId => this.AuthService.CurrentUser?.Id ?? 0;
+    protected int CurrentUserId => this.AuthService.CurrentUser?.Id ?? 0;
 
     protected override async Task OnInitializedAsync()
     {
@@ -38,7 +38,7 @@ public partial class MyTickets : BaseComponent
             return;
         }
 
-        this.tickets = await this.TicketService.GetUserTicketsAsync(currentUser.Id);
+        this.Tickets = await this.TicketService.GetUserTicketsAsync(currentUser.Id).ConfigureAwait(false);
         this.StartAutoRefresh();
     }
 
@@ -52,12 +52,12 @@ public partial class MyTickets : BaseComponent
         base.Dispose(disposing);
     }
 
-    private void StartAutoRefresh()
+    protected void StartAutoRefresh()
     {
-        this.refreshTimer ??= new Timer(async _ => await this.RefreshTicketsAsync(), null, this.refreshInterval, this.refreshInterval);
+        this.refreshTimer ??= new Timer(async _ => await this.RefreshTicketsAsync().ConfigureAwait(false), null, this.refreshInterval, this.refreshInterval);
     }
 
-    private async Task RefreshTicketsAsync()
+    protected async Task RefreshTicketsAsync()
     {
         if (this.isRefreshing)
         {
@@ -71,10 +71,10 @@ public partial class MyTickets : BaseComponent
             {
                 if (this.CurrentUserId != 0)
                 {
-                    this.tickets = await this.TicketService.GetUserTicketsAsync(this.CurrentUserId);
+                    this.Tickets = await this.TicketService.GetUserTicketsAsync(this.CurrentUserId).ConfigureAwait(false);
                     this.StateHasChanged();
                 }
-            });
+            }).ConfigureAwait(false);
         }
         finally
         {

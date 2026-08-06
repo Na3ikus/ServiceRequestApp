@@ -1,5 +1,9 @@
 @inherits BaseComponent
 
+@{
+    var filteredProducts = GetFilteredProducts();
+}
+
 <!-- Table Section Card -->
 <div class="atab-card">
 
@@ -7,9 +11,9 @@
     <div class="atab-toolbar">
         <div class="atab-toolbar-left">
             <h2 class="atab-title">@L.Translate("admin.products")</h2>
-            @if (FilteredProducts is not null)
+            @if (filteredProducts is not null)
             {
-                <span class="atab-count-badge">@FilteredProducts.Count</span>
+                <span class="atab-count-badge">@filteredProducts.Count</span>
             }
         </div>
         <div class="atab-toolbar-right">
@@ -21,7 +25,7 @@
                 <input type="search"
                        class="atab-search-input"
                        placeholder="@(L.Translate("search.label"))..."
-                       @bind="searchQuery"
+                       @bind="SearchQuery"
                        @bind:event="oninput" />
             </div>
             <button @onclick="ShowAddProduct" class="atab-add-btn">
@@ -44,7 +48,7 @@
             <span>@L.Translate("common.loading")</span>
         </div>
     }
-    else if (FilteredProducts is not null && FilteredProducts.Count == 0)
+    else if (filteredProducts is not null && filteredProducts.Count == 0)
     {
         <div class="atab-empty">
             <div class="atab-empty-icon">
@@ -53,10 +57,10 @@
                         d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                 </svg>
             </div>
-            <p class="atab-empty-title">@(string.IsNullOrWhiteSpace(searchQuery) ? L.Translate("admin.noProducts") : L.Translate("admin.noSearchResults"))</p>
-            @if (!string.IsNullOrWhiteSpace(searchQuery))
+            <p class="atab-empty-title">@(string.IsNullOrWhiteSpace(SearchQuery) ? L.Translate("admin.noProducts") : L.Translate("admin.noSearchResults"))</p>
+            @if (!string.IsNullOrWhiteSpace(SearchQuery))
             {
-                <button class="atab-empty-clear" @onclick="@(() => searchQuery = string.Empty)">
+                <button class="atab-empty-clear" @onclick="@(() => SearchQuery = string.Empty)">
                     @L.Translate("admin.clearSearch")
                 </button>
             }
@@ -68,18 +72,18 @@
             <table class="atab-table">
                 <thead>
                     <tr>
-                        <th class="atab-th sortable @(sortColumn == "name" ? "sort-active" : "")"
+                        <th class="atab-th sortable @(SortColumn == "name" ? "sort-active" : "")"
                             @onclick="@(() => SetSort("name"))">
                             @L.Translate("admin.name")
                             <span class="sort-arrow">@GetSortArrow("name")</span>
                         </th>
                         <th class="atab-th">@L.Translate("admin.description")</th>
-                        <th class="atab-th sortable @(sortColumn == "version" ? "sort-active" : "")"
+                        <th class="atab-th sortable @(SortColumn == "version" ? "sort-active" : "")"
                             @onclick="@(() => SetSort("version"))">
                             @L.Translate("admin.version")
                             <span class="sort-arrow">@GetSortArrow("version")</span>
                         </th>
-                        <th class="atab-th sortable @(sortColumn == "techstack" ? "sort-active" : "")"
+                        <th class="atab-th sortable @(SortColumn == "techstack" ? "sort-active" : "")"
                             @onclick="@(() => SetSort("techstack"))">
                             @L.Translate("admin.techStack")
                             <span class="sort-arrow">@GetSortArrow("techstack")</span>
@@ -94,7 +98,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var product in FilteredProducts!)
+                    @foreach (var product in filteredProducts!)
                     {
                         <tr class="atab-row">
                             <td class="atab-td atab-td-primary">@product.Name</td>
@@ -144,9 +148,9 @@
 
         <div class="atab-footer">
             <span class="atab-footer-info">
-                @if (!string.IsNullOrWhiteSpace(searchQuery))
+                @if (!string.IsNullOrWhiteSpace(SearchQuery))
                 {
-                    @($"{FilteredProducts!.Count} / {Products?.Count ?? 0}")
+                    @($"{filteredProducts!.Count} / {Products?.Count ?? 0}")
                 }
                 else
                 {
@@ -158,7 +162,7 @@
 </div>
 
 <!-- Modal -->
-@if (showModal)
+@if (ShowModal)
 {
     <div class="amodal-overlay" @onclick="CloseModal">
         <div class="amodal-box animate-fade-in" @onclick:stopPropagation>
@@ -176,7 +180,7 @@
                     </svg>
                 </div>
                 <div>
-                    <h3 class="amodal-title">@modalTitle</h3>
+                    <h3 class="amodal-title">@ModalTitle</h3>
                     <p class="amodal-subtitle">@L.Translate("admin.products")</p>
                 </div>
             </div>
@@ -184,23 +188,23 @@
             <div class="amodal-body">
                 <div class="amodal-field">
                     <label class="amodal-label">@L.Translate("admin.name")</label>
-                    <input type="text" @bind="editingProduct.Name" class="amodal-input"
+                    <input type="text" @bind="EditingProduct.Name" class="amodal-input"
                            placeholder="@L.Translate("admin.productNamePlaceholder")" />
                 </div>
                 <div class="amodal-field">
                     <label class="amodal-label">@L.Translate("admin.description")</label>
-                    <textarea @bind="editingProduct.Description" rows="3" class="amodal-input amodal-textarea"
+                    <textarea @bind="EditingProduct.Description" rows="3" class="amodal-input amodal-textarea"
                               placeholder="@L.Translate("admin.productDescriptionPlaceholder")"></textarea>
                 </div>
                 <div class="amodal-row-2">
                     <div class="amodal-field">
                         <label class="amodal-label">@L.Translate("admin.version")</label>
-                        <input type="text" @bind="editingProduct.CurrentVersion" class="amodal-input"
+                        <input type="text" @bind="EditingProduct.CurrentVersion" class="amodal-input"
                                placeholder="1.0.0" />
                     </div>
                     <div class="amodal-field">
                         <label class="amodal-label">@L.Translate("admin.techStack")</label>
-                        <select @bind="editingProduct.TechStackId" class="amodal-input amodal-select">
+                        <select @bind="EditingProduct.TechStackId" class="amodal-input amodal-select">
                             @foreach (var ts in TechStacks ?? [])
                             {
                                 <option value="@ts.Id">@ts.Name (@ts.Type)</option>
@@ -209,9 +213,9 @@
                     </div>
                 </div>
 
-                @if (!string.IsNullOrEmpty(errorMessage))
+                @if (!string.IsNullOrEmpty(ErrorMessage))
                 {
-                    <div class="amodal-error">@errorMessage</div>
+                    <div class="amodal-error">@ErrorMessage</div>
                 }
             </div>
 
@@ -219,8 +223,8 @@
                 <button @onclick="CloseModal" class="amodal-btn-cancel">
                     @L.Translate("common.cancel")
                 </button>
-                <button @onclick="SaveModal" disabled="@isSaving" class="amodal-btn-save">
-                    @if (isSaving)
+                <button @onclick="SaveModal" disabled="@IsSaving" class="amodal-btn-save">
+                    @if (IsSaving)
                     {
                         <svg class="amodal-spin" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>

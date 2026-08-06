@@ -28,6 +28,10 @@ public interface ITicketStatisticsService
 
     Task<Dictionary<string, int>> GetTicketCountByPriorityAsync();
 
+    Task<Dictionary<string, int>> GetTicketCountByTypeAsync();
+
     Task<List<(string Login, int Count)>> GetTopDevelopersAsync(int top = 5);
+
+    Task<ExtendedAnalyticsDto> GetExtendedAnalyticsAsync(int days = 30);
 }
 

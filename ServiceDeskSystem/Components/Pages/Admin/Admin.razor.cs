@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Components;
 using ServiceDeskSystem.Application.Services.Admin;
 using ServiceDeskSystem.Application.Services.Auth;
+using ServiceDeskSystem.Application.Services.Tags;
 using ServiceDeskSystem.Application.Services.Toasts;
 using ServiceDeskSystem.Application.Services.Toasts.Models;
 using ServiceDeskSystem.Components.UI.Base;
@@ -12,98 +13,105 @@ using ServiceDeskSystem.Domain.Interfaces;
 namespace ServiceDeskSystem.Components.Pages.Admin;
 
 /// <summary>
-/// Admin panel page for managing products, tech stacks, and users.
+/// Admin panel page for managing products, tech stacks, tags, and users.
 /// </summary>
 public partial class Admin : BaseComponent
 {
-    #pragma warning restore CA1724
+#pragma warning restore CA1724
     [Inject]
-    private IAdminService AdminService { get; set; } = null!;
-
-    [Inject]
-    private IToastService ToastService { get; set; } = null!;
+    protected IAdminService AdminService { get; set; } = null!;
 
     [Inject]
-    private IEmailSender EmailSender { get; set; } = null!;
+    protected IToastService ToastService { get; set; } = null!;
 
-    private List<Product>? products { get; set; }
+    [Inject]
+    protected IEmailSender EmailSender { get; set; } = null!;
 
-    private List<TechStack>? techStacks { get; set; }
+    [Inject]
+    protected ITagService TagService { get; set; } = null!;
 
-    private List<User>? users { get; set; }
+    protected List<Product>? Products { get; set; }
 
-    private string activeTab { get; set; } = "products";
+    protected List<TechStack>? TechStacks { get; set; }
 
-    private bool isMobileNavOpen { get; set; }
+    protected List<User>? Users { get; set; }
 
-    private bool isCheckingSmtp { get; set; }
+    protected List<Tag>? Tags { get; set; }
 
-    private bool? smtpCheckSuccess { get; set; }
+    protected string ActiveTab { get; set; } = "products";
 
-    private string? smtpCheckMessage { get; set; }
+    protected bool IsMobileNavOpen { get; set; }
 
-    private bool IsAdmin => this.AuthService.CurrentUser?.Role == UserRole.Admin;
+    protected bool IsCheckingSmtp { get; set; }
+
+    protected bool? SmtpCheckSuccess { get; set; }
+
+    protected string? SmtpCheckMessage { get; set; }
+
+    protected bool IsAdmin => this.AuthService.CurrentUser?.Role == UserRole.Admin;
 
     protected override async Task OnInitializedAsync()
     {
         if (this.IsAdmin)
         {
-            await this.LoadDataAsync();
-            await this.CheckSmtpStatusAsync(showToast: false);
+            await this.LoadDataAsync().ConfigureAwait(false);
+            await this.CheckSmtpStatusAsync(showToast: false).ConfigureAwait(false);
         }
     }
 
-    private async Task LoadDataAsync()
+    protected async Task LoadDataAsync()
     {
         if (!this.IsAdmin)
         {
             return;
         }
 
-        this.techStacks = await this.AdminService.GetAllTechStacksAsync();
-        this.products = await this.AdminService.GetAllProductsAsync();
-        this.users = await this.AdminService.GetAllUsersAsync();
+        this.TechStacks = await this.AdminService.GetAllTechStacksAsync().ConfigureAwait(false);
+        this.Products = await this.AdminService.GetAllProductsAsync().ConfigureAwait(false);
+        this.Users = await this.AdminService.GetAllUsersAsync().ConfigureAwait(false);
+        this.Tags = (await this.TagService.GetAllTagsAsync().ConfigureAwait(false)).ToList();
     }
 
-    private void SetActiveTab(string tab)
+    protected void SetActiveTab(string tab)
     {
-        this.activeTab = tab;
-        this.isMobileNavOpen = false;
+        this.ActiveTab = tab;
+        this.IsMobileNavOpen = false;
     }
 
-    private void ToggleMobileNav() => this.isMobileNavOpen = !this.isMobileNavOpen;
+    protected void ToggleMobileNav() => this.IsMobileNavOpen = !this.IsMobileNavOpen;
 
-    private void CloseMobileNav() => this.isMobileNavOpen = false;
+    protected void CloseMobileNav() => this.IsMobileNavOpen = false;
 
-    private string GetActiveTabLabel() => this.activeTab switch
+    protected string GetActiveTabLabel() => this.ActiveTab switch
     {
         "products" => this.L.Translate("admin.products"),
         "techstacks" => this.L.Translate("admin.techStacks"),
         "users" => this.L.Translate("admin.users"),
+        "tags" => this.L.Translate("admin.tags"),
         "smtp" => this.L.Translate("admin.smtp"),
         _ => string.Empty,
     };
 
-    private async Task CheckSmtpAsync()
+    protected async Task CheckSmtpAsync()
     {
-        await this.CheckSmtpStatusAsync(showToast: true);
+        await this.CheckSmtpStatusAsync(showToast: true).ConfigureAwait(false);
     }
 
-    private async Task CheckSmtpStatusAsync(bool showToast)
+    protected async Task CheckSmtpStatusAsync(bool showToast)
     {
-        if (this.isCheckingSmtp)
+        if (this.IsCheckingSmtp)
         {
             return;
         }
 
-        this.isCheckingSmtp = true;
-        this.smtpCheckMessage = null;
+        this.IsCheckingSmtp = true;
+        this.SmtpCheckMessage = null;
 
         try
         {
             var (isSuccess, message) = await this.EmailSender.CheckConnectionAsync().ConfigureAwait(false);
-            this.smtpCheckSuccess = isSuccess;
-            this.smtpCheckMessage = message;
+            this.SmtpCheckSuccess = isSuccess;
+            this.SmtpCheckMessage = message;
 
             if (showToast)
             {
@@ -114,8 +122,8 @@ public partial class Admin : BaseComponent
         }
         catch (Exception ex)
         {
-            this.smtpCheckSuccess = false;
-            this.smtpCheckMessage = ex.Message;
+            this.SmtpCheckSuccess = false;
+            this.SmtpCheckMessage = ex.Message;
 
             if (showToast)
             {
@@ -124,7 +132,7 @@ public partial class Admin : BaseComponent
         }
         finally
         {
-            this.isCheckingSmtp = false;
+            this.IsCheckingSmtp = false;
         }
     }
 }

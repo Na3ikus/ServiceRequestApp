@@ -151,11 +151,25 @@
                                             <span class="text-xs font-mono font-medium text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded-full whitespace-nowrap border border-gray-200 dark:border-gray-600">#@ticket.Id</span>
                                         </div>
                                         <div class="flex flex-wrap items-center gap-3 text-xs text-gray-500 dark:text-gray-400 font-medium">
+                                            <span class="@GetTicketTypeBadgeClass(ticket.Type) px-2 py-0.5 text-xs font-semibold rounded shadow-2xs shrink-0">
+                                                @GetTicketTypeText(ticket.Type)
+                                            </span>
                                             <span class="flex items-center gap-1.5 px-2 py-0.5 rounded bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 shadow-sm shrink-0">
                                                 <span class="w-2 h-2 rounded-full @GetStatusDotColor(ticket.Status)"></span>
                                                 @GetStatusText(ticket.Status)
                                             </span>
                                             
+                                            @if (ticket.Tags != null && ticket.Tags.Count > 0)
+                                            {
+                                                @foreach (var tag in ticket.Tags.Take(3))
+                                                {
+                                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold text-white shadow-2xs shrink-0"
+                                                          style="background-color: @tag.Color;">
+                                                        @tag.Name
+                                                    </span>
+                                                }
+                                            }
+
                                             @if (!ticket.IsPriorityAssessed && (currentUser.Role == UserRole.Admin || currentUser.Role == UserRole.Developer))
                                             {
                                                 <span class="flex items-center gap-1 px-2 py-0.5 rounded bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300 font-bold border border-amber-200 dark:border-amber-800 animate-pulse shrink-0">

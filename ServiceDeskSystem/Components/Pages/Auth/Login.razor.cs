@@ -12,11 +12,21 @@ public partial class Login : BaseComponent
 {
     private readonly LoginModel loginModel = new LoginModel();
 
+    [Inject]
+    private Microsoft.AspNetCore.Hosting.IWebHostEnvironment Env { get; set; } = null!;
+
+    [Inject]
+    private Microsoft.Extensions.Configuration.IConfiguration Configuration { get; set; } = null!;
+
     private string? ErrorMessage { get; set; }
 
     private bool IsLoading { get; set; }
 
     private bool ShowPassword { get; set; }
+
+    private bool IsCapsLockOn { get; set; }
+
+    private bool ShouldShowDemoAccounts => this.Configuration.GetValue<bool?>("AuthSettings:ShowDemoAccounts") ?? this.Env.IsDevelopment();
 
     protected override void OnInitialized()
     {
@@ -40,6 +50,31 @@ public partial class Login : BaseComponent
     private void TogglePasswordVisibility()
     {
         this.ShowPassword = !this.ShowPassword;
+    }
+
+    private void HandlePasswordKeyDown(Microsoft.AspNetCore.Components.Web.KeyboardEventArgs e) => this.CheckCapsLock(e);
+
+    private void HandlePasswordKeyUp(Microsoft.AspNetCore.Components.Web.KeyboardEventArgs e) => this.CheckCapsLock(e);
+
+    private void CheckCapsLock(Microsoft.AspNetCore.Components.Web.KeyboardEventArgs e)
+    {
+        if (!string.IsNullOrEmpty(e.Key) && e.Key.Length == 1 && char.IsLetter(e.Key[0]))
+        {
+            var isUpper = char.IsUpper(e.Key[0]);
+            this.IsCapsLockOn = (isUpper && !e.ShiftKey) || (!isUpper && e.ShiftKey);
+        }
+        else if (e.Key == "CapsLock")
+        {
+            this.IsCapsLockOn = !this.IsCapsLockOn;
+        }
+    }
+
+    private void FillDemoAccount(string username, string password)
+    {
+        this.loginModel.Username = username;
+        this.loginModel.Password = password;
+        this.ErrorMessage = null;
+        this.IsCapsLockOn = false;
     }
 
     private async Task HandleLoginAsync()

@@ -5,26 +5,26 @@ namespace ServiceDeskSystem.Services
     public class UserPreferencesService
     {
         private readonly IJSRuntime _js;
-        private readonly Dictionary<string, string> _cache = new();
+        private readonly Dictionary<string, string> _cache = new ();
 
         public UserPreferencesService(IJSRuntime js)
         {
-            _js = js;
+            this._js = js;
         }
 
-        public async Task<string?> GetSettingAsync(string key, string defaultValue = null)
+        public async Task<string?> GetSettingAsync(string key, string? defaultValue = null)
         {
-            if (_cache.TryGetValue(key, out var cachedValue))
+            if (this._cache.TryGetValue(key, out var cachedValue))
             {
                 return cachedValue;
             }
 
             try
             {
-                var value = await _js.InvokeAsync<string?>("localStorage.getItem", key);
+                var value = await this._js.InvokeAsync<string?>("localStorage.getItem", key);
                 if (value != null)
                 {
-                    _cache[key] = value;
+                    this._cache[key] = value;
                     return value;
                 }
             }
@@ -38,10 +38,10 @@ namespace ServiceDeskSystem.Services
 
         public async Task SetSettingAsync(string key, string value)
         {
-            _cache[key] = value;
+            this._cache[key] = value;
             try
             {
-                await _js.InvokeVoidAsync("localStorage.setItem", key, value);
+                await this._js.InvokeVoidAsync("localStorage.setItem", key, value);
             }
             catch
             {

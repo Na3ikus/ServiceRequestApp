@@ -22,7 +22,7 @@ public abstract class BaseComponent : ComponentBase, IDisposable
     [Inject]
     protected ServiceDeskSystem.Application.Services.Auth.IAuthService AuthService { get; set; } = null!;
 
-    protected bool IsAdminOrDeveloper => AuthService.CurrentUser?.Role is UserRole.Admin or UserRole.Developer;
+    protected bool IsAdminOrDeveloper => this.AuthService.CurrentUser?.Role is UserRole.Admin or UserRole.Developer;
 
     public void Dispose()
     {
@@ -50,6 +50,15 @@ public abstract class BaseComponent : ComponentBase, IDisposable
         TicketPriority.Medium => "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
         TicketPriority.Low => "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
         _ => "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200",
+    };
+
+    protected static string GetTicketTypeBadgeClass(TicketType type) => type switch
+    {
+        TicketType.Bug => "bg-red-100 text-red-800 dark:bg-red-950/60 dark:text-red-300 border border-red-200/60 dark:border-red-800/40",
+        TicketType.Support => "bg-blue-100 text-blue-800 dark:bg-blue-950/60 dark:text-blue-300 border border-blue-200/60 dark:border-blue-800/40",
+        TicketType.Consultation => "bg-purple-100 text-purple-800 dark:bg-purple-950/60 dark:text-purple-300 border border-purple-200/60 dark:border-purple-800/40",
+        TicketType.Project => "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-800/40",
+        _ => "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300 border border-gray-200 dark:border-gray-700",
     };
 
     protected static string GetPriorityColorClass(TicketPriority priority) => priority switch
@@ -117,6 +126,15 @@ public abstract class BaseComponent : ComponentBase, IDisposable
         TicketPriority.High => this.L.Translate("priority.high"),
         TicketPriority.Critical => this.L.Translate("priority.critical"),
         _ => priority.ToString(),
+    };
+
+    protected string GetTicketTypeText(TicketType type) => type switch
+    {
+        TicketType.Bug => this.L.Translate("ticketType.bug"),
+        TicketType.Support => this.L.Translate("ticketType.support"),
+        TicketType.Consultation => this.L.Translate("ticketType.consultation"),
+        TicketType.Project => this.L.Translate("ticketType.project"),
+        _ => type.ToString(),
     };
 
     protected virtual void OnStateChanged(object? sender, EventArgs e) => this.InvokeAsync(this.StateHasChanged);

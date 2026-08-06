@@ -22,6 +22,8 @@ public partial class Register : BaseComponent
 
     private bool ShowConfirmPassword { get; set; }
 
+    private bool IsCapsLockOn { get; set; }
+
     protected override void OnInitialized()
     {
         base.OnInitialized();
@@ -49,6 +51,23 @@ public partial class Register : BaseComponent
     private void ToggleConfirmPasswordVisibility()
     {
         this.ShowConfirmPassword = !this.ShowConfirmPassword;
+    }
+
+    private void HandlePasswordKeyDown(Microsoft.AspNetCore.Components.Web.KeyboardEventArgs e) => this.CheckCapsLock(e);
+
+    private void HandlePasswordKeyUp(Microsoft.AspNetCore.Components.Web.KeyboardEventArgs e) => this.CheckCapsLock(e);
+
+    private void CheckCapsLock(Microsoft.AspNetCore.Components.Web.KeyboardEventArgs e)
+    {
+        if (!string.IsNullOrEmpty(e.Key) && e.Key.Length == 1 && char.IsLetter(e.Key[0]))
+        {
+            var isUpper = char.IsUpper(e.Key[0]);
+            this.IsCapsLockOn = (isUpper && !e.ShiftKey) || (!isUpper && e.ShiftKey);
+        }
+        else if (e.Key == "CapsLock")
+        {
+            this.IsCapsLockOn = !this.IsCapsLockOn;
+        }
     }
 
     private async Task HandleRegisterAsync()

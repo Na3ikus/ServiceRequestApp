@@ -17,44 +17,45 @@ public partial class TicketList : BaseComponent
     private HubConnection? ticketsHubConnection;
     private bool ticketsHubInitialized;
     private bool isRefreshing;
-    private string _searchQuery = string.Empty;
+    private string searchQueryValue = string.Empty;
 
     [Inject]
-    private ITicketService TicketService { get; set; } = null!;
+    protected ITicketService TicketService { get; set; } = null!;
 
     [Inject]
-    private IJSRuntime JS { get; set; } = null!;
+    protected IJSRuntime JS { get; set; } = null!;
 
-    private List<Ticket>? tickets { get; set; }
+    protected List<Ticket>? Tickets { get; set; }
 
-    private List<Ticket>? filteredTickets { get; set; }
+    protected List<Ticket>? FilteredTickets { get; set; }
 
-    private string viewMode { get; set; } = "Table";
+    protected string ViewMode { get; set; } = "Table";
 
-    private int currentUserId => this.AuthService.CurrentUser?.Id ?? 0;
+    protected int CurrentUserId => this.AuthService.CurrentUser?.Id ?? 0;
 
-    private bool isAdmin => this.AuthService.CurrentUser?.Role == UserRole.Admin;
+    protected bool IsAdmin => this.AuthService.CurrentUser?.Role == UserRole.Admin;
 
-    private string searchQuery
+    protected string SearchQuery
     {
-        get => this._searchQuery;
+        get => this.searchQueryValue;
         set
         {
-            if (this._searchQuery != value)
+            if (this.searchQueryValue != value)
             {
-                this._searchQuery = value;
+                this.searchQueryValue = value;
                 this.ApplyFilters();
             }
         }
     }
 
-    private string selectedPriority { get; set; } = "All";
+    protected string SelectedPriority { get; set; } = "All";
 
-    private string selectedStatus { get; set; } = "All";
+    protected string SelectedStatus { get; set; } = "All";
+
+    protected string SelectedType { get; set; } = "All";
 
     protected override async Task OnInitializedAsync()
     {
-        // Guard: redirect unauthenticated users and those without the required role.
         var currentUser = this.AuthService.CurrentUser;
         if (currentUser is null)
         {
@@ -64,14 +65,13 @@ public partial class TicketList : BaseComponent
 
         if (currentUser.Role == UserRole.User)
         {
-            // Regular users have their own tickets page.
             this.Navigation.NavigateTo("/my-tickets", replace: true);
             return;
         }
 
-        this.tickets = await this.TicketService.GetAllTicketsAsync();
+        this.Tickets = await this.TicketService.GetAllTicketsAsync().ConfigureAwait(false);
         this.ApplyFilters();
-        await this.StartTicketsHubAsync();
+        await this.StartTicketsHubAsync().ConfigureAwait(false);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -80,10 +80,10 @@ public partial class TicketList : BaseComponent
         {
             try
             {
-                var defaultView = await this.JS.InvokeAsync<string?>("localStorage.getItem", "settings.defaultView");
-                if (string.Equals(defaultView, "KANBAN", StringComparison.OrdinalIgnoreCase) || string.Equals(defaultView, "kanban", StringComparison.OrdinalIgnoreCase))
+                var defaultView = await this.JS.InvokeAsync<string?>("localStorage.getItem", "settings.defaultView").ConfigureAwait(false);
+                if (string.Equals(defaultView, "KANBAN", StringComparison.OrdinalIgnoreCase))
                 {
-                    this.viewMode = "Kanban";
+                    this.ViewMode = "Kanban";
                     this.StateHasChanged();
                 }
             }
@@ -93,7 +93,7 @@ public partial class TicketList : BaseComponent
             }
         }
 
-        await base.OnAfterRenderAsync(firstRender);
+        await base.OnAfterRenderAsync(firstRender).ConfigureAwait(false);
     }
 
     protected override void Dispose(bool disposing)
@@ -106,14 +106,14 @@ public partial class TicketList : BaseComponent
         base.Dispose(disposing);
     }
 
-    private async Task SetViewMode(string mode)
+    protected async Task SetViewModeAsync(string mode)
     {
-        this.viewMode = mode;
+        this.ViewMode = mode;
         this.StateHasChanged();
 
         try
         {
-            await this.JS.InvokeVoidAsync("localStorage.setItem", "settings.defaultView", mode.ToUpperInvariant());
+            await this.JS.InvokeVoidAsync("localStorage.setItem", "settings.defaultView", mode.ToUpperInvariant()).ConfigureAwait(false);
         }
         catch
         {
@@ -121,28 +121,28 @@ public partial class TicketList : BaseComponent
         }
     }
 
-    private async Task HandleKanbanStatusChangedAsync((int TicketId, TicketStatus NewStatus) args)
+    protected async Task HandleKanbanStatusChangedAsync((int TicketId, TicketStatus NewStatus) args)
     {
-        var ticket = this.tickets?.FirstOrDefault(t => t.Id == args.TicketId);
+        var ticket = this.Tickets?.FirstOrDefault(t => t.Id == args.TicketId);
         if (ticket is null)
         {
             return;
         }
 
-        if (!this.isAdmin && ticket.DeveloperId != this.currentUserId)
+        if (!this.IsAdmin && ticket.DeveloperId != this.CurrentUserId)
         {
             return;
         }
 
-        var success = await this.TicketService.UpdateTicketStatusAsync(args.TicketId, args.NewStatus);
+        var success = await this.TicketService.UpdateTicketStatusAsync(args.TicketId, args.NewStatus).ConfigureAwait(false);
         if (success)
         {
             ticket.Status = args.NewStatus;
-            await this.InvokeAsync(this.StateHasChanged);
+            await this.InvokeAsync(this.StateHasChanged).ConfigureAwait(false);
         }
     }
 
-    private async Task StartTicketsHubAsync()
+    protected async Task StartTicketsHubAsync()
     {
         if (this.ticketsHubInitialized)
         {
@@ -156,12 +156,12 @@ public partial class TicketList : BaseComponent
 
         this.ticketsHubConnection.On("TicketsChanged", async () =>
         {
-            await this.RefreshTicketsAsync();
+            await this.RefreshTicketsAsync().ConfigureAwait(false);
         });
 
         try
         {
-            await this.ticketsHubConnection.StartAsync();
+            await this.ticketsHubConnection.StartAsync().ConfigureAwait(false);
             this.ticketsHubInitialized = true;
         }
         catch
@@ -170,7 +170,7 @@ public partial class TicketList : BaseComponent
         }
     }
 
-    private async Task StopTicketsHubAsync()
+    protected async Task StopTicketsHubAsync()
     {
         if (this.ticketsHubConnection is null)
         {
@@ -179,8 +179,8 @@ public partial class TicketList : BaseComponent
 
         try
         {
-            await this.ticketsHubConnection.StopAsync();
-            await this.ticketsHubConnection.DisposeAsync();
+            await this.ticketsHubConnection.StopAsync().ConfigureAwait(false);
+            await this.ticketsHubConnection.DisposeAsync().ConfigureAwait(false);
         }
         catch
         {
@@ -193,7 +193,7 @@ public partial class TicketList : BaseComponent
         }
     }
 
-    private async Task RefreshTicketsAsync()
+    protected async Task RefreshTicketsAsync()
     {
         if (this.isRefreshing)
         {
@@ -205,10 +205,10 @@ public partial class TicketList : BaseComponent
         {
             await this.InvokeAsync(async () =>
             {
-                this.tickets = await this.TicketService.GetAllTicketsAsync();
+                this.Tickets = await this.TicketService.GetAllTicketsAsync().ConfigureAwait(false);
                 this.ApplyFilters();
                 this.StateHasChanged();
-            });
+            }).ConfigureAwait(false);
         }
         finally
         {
@@ -216,68 +216,84 @@ public partial class TicketList : BaseComponent
         }
     }
 
-    private void ApplyFilters()
+    protected void ApplyFilters()
     {
-        if (this.tickets is null)
+        if (this.Tickets is null)
         {
-            this.filteredTickets = null;
+            this.FilteredTickets = null;
             return;
         }
 
-        var query = this.tickets.AsEnumerable();
+        var query = this.Tickets.AsEnumerable();
 
-        if (!string.IsNullOrWhiteSpace(this.searchQuery))
+        if (!string.IsNullOrWhiteSpace(this.SearchQuery))
         {
             query = query.Where(t =>
-                t.Title.Contains(this.searchQuery, StringComparison.OrdinalIgnoreCase) ||
-                t.Description.Contains(this.searchQuery, StringComparison.OrdinalIgnoreCase) ||
-                t.Product?.Name.Contains(this.searchQuery, StringComparison.OrdinalIgnoreCase) == true ||
-                t.Author?.Login.Contains(this.searchQuery, StringComparison.OrdinalIgnoreCase) == true);
+                t.Title.Contains(this.SearchQuery, StringComparison.OrdinalIgnoreCase) ||
+                t.Description.Contains(this.SearchQuery, StringComparison.OrdinalIgnoreCase) ||
+                t.Product?.Name.Contains(this.SearchQuery, StringComparison.OrdinalIgnoreCase) == true ||
+                t.Author?.Login.Contains(this.SearchQuery, StringComparison.OrdinalIgnoreCase) == true);
         }
 
-        if (this.selectedPriority != "All" && Enum.TryParse<TicketPriority>(this.selectedPriority, out var parsedPriority))
+        if (this.SelectedPriority != "All" && Enum.TryParse<TicketPriority>(this.SelectedPriority, out var parsedPriority))
         {
             query = query.Where(t => t.Priority == parsedPriority);
         }
 
-        if (this.selectedStatus != "All")
+        if (this.SelectedStatus != "All")
         {
-            if (this.selectedStatus == "Open/InProgress")
+            if (this.SelectedStatus == "Open/InProgress")
             {
-                query = query.Where(t => t.Status == TicketStatus.Open || t.Status == TicketStatus.InProgress);
+                query = query.Where(t => t.Status is TicketStatus.Open or TicketStatus.InProgress);
             }
-            else if (this.selectedStatus == "Closed/Resolved")
+            else if (this.SelectedStatus == "Closed/Resolved")
             {
-                query = query.Where(t => t.Status == TicketStatus.Closed || t.Status == TicketStatus.Resolved);
+                query = query.Where(t => t.Status is TicketStatus.Closed or TicketStatus.Resolved);
             }
-            else if (Enum.TryParse<TicketStatus>(this.selectedStatus.Replace(" ", string.Empty, StringComparison.Ordinal), out var parsedStatus))
+            else if (Enum.TryParse<TicketStatus>(this.SelectedStatus.Replace(" ", string.Empty, StringComparison.Ordinal), out var parsedStatus))
             {
                 query = query.Where(t => t.Status == parsedStatus);
             }
         }
 
-        this.filteredTickets = query.ToList();
+        if (this.SelectedType != "All" && Enum.TryParse<TicketType>(this.SelectedType, out var parsedType))
+        {
+            query = query.Where(t => t.Type == parsedType);
+        }
+
+        this.FilteredTickets = query.ToList();
     }
 
-    private void OnPriorityChanged(Microsoft.AspNetCore.Components.ChangeEventArgs e)
+    protected void OnPriorityChanged(ChangeEventArgs e)
     {
-        this.selectedPriority = e.Value?.ToString() ?? "All";
+        ArgumentNullException.ThrowIfNull(e);
+        this.SelectedPriority = e.Value?.ToString() ?? "All";
         this.ApplyFilters();
         this.StateHasChanged();
     }
 
-    private void OnStatusChanged(Microsoft.AspNetCore.Components.ChangeEventArgs e)
+    protected void OnStatusChanged(ChangeEventArgs e)
     {
-        this.selectedStatus = e.Value?.ToString() ?? "All";
+        ArgumentNullException.ThrowIfNull(e);
+        this.SelectedStatus = e.Value?.ToString() ?? "All";
         this.ApplyFilters();
         this.StateHasChanged();
     }
 
-    private void ClearFilters()
+    protected void OnTypeChanged(ChangeEventArgs e)
     {
-        this.searchQuery = string.Empty;
-        this.selectedPriority = "All";
-        this.selectedStatus = "All";
+        ArgumentNullException.ThrowIfNull(e);
+        this.SelectedType = e.Value?.ToString() ?? "All";
+        this.ApplyFilters();
+        this.StateHasChanged();
+    }
+
+    protected void ClearFilters()
+    {
+        this.SearchQuery = string.Empty;
+        this.SelectedPriority = "All";
+        this.SelectedStatus = "All";
+        this.SelectedType = "All";
         this.ApplyFilters();
         this.StateHasChanged();
     }

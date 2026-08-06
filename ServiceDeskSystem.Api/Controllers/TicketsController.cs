@@ -41,6 +41,13 @@ public sealed class TicketsController(
             return NotFound(new ApiErrorResponse(404, $"Ticket with ID {id} not found."));
         }
 
+        var role = currentUserService.UserRole;
+        bool isDevOrAdmin = role is "Admin" or "Developer";
+        if (!isDevOrAdmin && ticket.Comments is not null)
+        {
+            ticket.Comments = ticket.Comments.Where(c => !c.IsInternal).ToList();
+        }
+
         return Ok(ticket);
     }
 
@@ -159,11 +166,14 @@ public sealed class TicketsController(
         }
 
         logger.LogInformation("Adding comment to ticket {TicketId} by {AuthorId}", id, authorId.Value);
+        var role = currentUserService.UserRole;
+        bool isDevOrAdmin = role is "Admin" or "Developer";
         var comment = new Comment
         {
             TicketId = id,
             AuthorId = authorId.Value,
             Message = request.Message,
+            IsInternal = isDevOrAdmin && request.IsInternal,
         };
 
         var created = await commentService.AddCommentAsync(comment).ConfigureAwait(false);

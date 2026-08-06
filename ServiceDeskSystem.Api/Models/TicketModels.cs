@@ -8,7 +8,7 @@ public sealed record UpdatePriorityRequest(TicketPriority Priority);
 
 public sealed record AssignDeveloperRequest(int DeveloperId);
 
-public sealed record CreateCommentRequest(string Message, int AuthorId);
+public sealed record CreateCommentRequest(string Message, int AuthorId, bool IsInternal = false);
 
 public sealed record UpdateCommentRequest(string Message);
 
