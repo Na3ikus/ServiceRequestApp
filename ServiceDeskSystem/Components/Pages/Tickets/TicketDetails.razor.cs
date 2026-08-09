@@ -57,6 +57,8 @@ public partial class TicketDetails : BaseComponent
 
     protected TicketPriority EditPriority { get; set; }
 
+    protected bool IsCriticalPriorityConfirmed { get; set; }
+
     protected List<Tag> AllTags { get; set; } = [];
 
     protected int SelectedTagIdToAdd { get; set; }
@@ -86,7 +88,7 @@ public partial class TicketDetails : BaseComponent
     {
         this.AuthService.AuthStateChanged += this.OnAuthStateChanged;
 
-        await this.LoadTicketAsync();
+        await this.LoadTicketAsync(isInitialLoad: true);
         this.StartAutoRefresh();
     }
 
@@ -131,6 +133,11 @@ public partial class TicketDetails : BaseComponent
         return comment.AuthorId == this.CurrentUserId;
     }
 
+    protected void OnPriorityChanged()
+    {
+        this.IsCriticalPriorityConfirmed = false;
+    }
+
     protected async Task OnPriorityChangedAsync(ChangeEventArgs e)
     {
         ArgumentNullException.ThrowIfNull(e);
@@ -138,6 +145,7 @@ public partial class TicketDetails : BaseComponent
         if (Enum.TryParse<TicketPriority>(e.Value?.ToString(), out var priority))
         {
             this.EditPriority = priority;
+            this.IsCriticalPriorityConfirmed = false;
         }
 
         await Task.CompletedTask;
@@ -150,12 +158,18 @@ public partial class TicketDetails : BaseComponent
             return;
         }
 
+        if (this.EditPriority == TicketPriority.Critical && !this.IsCriticalPriorityConfirmed)
+        {
+            await this.ToastService.ShowToastAsync(this.L.Translate("create.criticalRequired") ?? "Please confirm critical priority.", ToastType.Error);
+            return;
+        }
+
         var success = await this.TicketService.UpdateTicketPriorityAsync(this.Ticket.Id, this.EditPriority);
         if (success)
         {
             this.Ticket.Priority = this.EditPriority;
             this.Ticket.IsPriorityAssessed = true;
-            await this.LoadTicketAsync();
+            await this.LoadTicketAsync(isInitialLoad: true);
             await this.ToastService.ShowToastAsync(this.L.Translate("details.priorityUpdated") ?? "Priority updated successfully.", ToastType.Success);
         }
     }
@@ -406,17 +420,36 @@ public partial class TicketDetails : BaseComponent
         }
     }
 
-    private async Task LoadTicketAsync()
+    private async Task LoadTicketAsync(bool isInitialLoad = false)
     {
-        this.Ticket = await this.TicketService.GetTicketByIdAsync(this.Id);
-        if (this.Ticket is not null)
+        var fetchedTicket = await this.TicketService.GetTicketByIdAsync(this.Id);
+        if (fetchedTicket is not null)
         {
-            this.EditStartDate = this.Ticket.StartDate;
-            this.EditDueDate = this.Ticket.DueDate;
-            this.EditPriority = this.Ticket.Priority;
-            if (!this.IsEditingAnalyticalNote)
+            var oldTicketPriority = this.Ticket?.Priority;
+            var oldTicketStartDate = this.Ticket?.StartDate;
+            var oldTicketDueDate = this.Ticket?.DueDate;
+
+            this.Ticket = fetchedTicket;
+
+            // Only overwrite edit form controls during initial load or if user hasn't modified them
+            if (isInitialLoad || this.EditPriority == oldTicketPriority)
             {
-                this.AnalyticalNoteEdit = this.Ticket.AnalyticalNote ?? string.Empty;
+                this.EditPriority = fetchedTicket.Priority;
+            }
+
+            if (isInitialLoad || this.EditStartDate == oldTicketStartDate)
+            {
+                this.EditStartDate = fetchedTicket.StartDate;
+            }
+
+            if (isInitialLoad || this.EditDueDate == oldTicketDueDate)
+            {
+                this.EditDueDate = fetchedTicket.DueDate;
+            }
+
+            if (isInitialLoad || !this.IsEditingAnalyticalNote)
+            {
+                this.AnalyticalNoteEdit = fetchedTicket.AnalyticalNote ?? string.Empty;
             }
 
             this.AllTags = (await this.TagService.GetAllTagsAsync()).ToList();

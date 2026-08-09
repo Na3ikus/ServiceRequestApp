@@ -25,6 +25,10 @@ public partial class CreateTicket
 
     protected string? ProductValidationError { get; set; }
 
+    protected bool IsCriticalConfirmed { get; set; }
+
+    protected string? CriticalConfirmationError { get; set; }
+
     protected bool IsProductRequired => this.Model.TicketType != TicketType.Project;
 
     protected int CurrentUserId => this.AuthService.CurrentUser?.Id ?? 0;
@@ -38,6 +42,7 @@ public partial class CreateTicket
     protected async Task HandleSubmitAsync()
     {
         this.ProductValidationError = null;
+        this.CriticalConfirmationError = null;
 
         if (this.IsProductRequired && !this.Model.ProductId.HasValue)
         {
@@ -45,12 +50,17 @@ public partial class CreateTicket
             return;
         }
 
-        this.IsSubmitting = true;
-
         var role = this.AuthService.CurrentUser?.Role;
         bool isDevOrAdmin = role is UserRole.Admin or UserRole.Developer;
-
         var priority = isDevOrAdmin ? this.Model.Priority : TicketPriority.Medium;
+
+        if (isDevOrAdmin && priority == TicketPriority.Critical && !this.IsCriticalConfirmed)
+        {
+            this.CriticalConfirmationError = this.L.Translate("create.criticalRequired");
+            return;
+        }
+
+        this.IsSubmitting = true;
         bool isPriorityAssessed = isDevOrAdmin;
 
         var ticket = Ticket.Create(

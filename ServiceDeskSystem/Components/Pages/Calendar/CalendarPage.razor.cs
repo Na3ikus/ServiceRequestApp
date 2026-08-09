@@ -72,9 +72,9 @@ public partial class CalendarPage : BaseComponent
 
             bool isStartDay = start.Date == day.Date;
             bool isDueDay = end.HasValue && end.Value.Date == day.Date;
-            bool isBetween = end.HasValue && day.Date >= start.Date && day.Date <= end.Value.Date;
 
-            return isStartDay || isDueDay || isBetween;
-        }).OrderBy(t => t.DueDate ?? DateTime.MaxValue).Take(4); // Show max 4 tickets per day
+            // Only show on the specific start/contact date or the deadline date
+            return isStartDay || isDueDay;
+        }).OrderBy(t => t.DueDate ?? DateTime.MaxValue).Take(5);
     }
 }

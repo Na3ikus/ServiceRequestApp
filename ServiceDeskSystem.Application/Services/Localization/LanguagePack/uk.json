@@ -438,5 +438,13 @@
   "analytics.chartInProgress": "В процесі",
   "analytics.chartAssigned": "Призначено (інші)",
   "analytics.chartCompleted": "Виконано",
-  "analytics.chartAvgResolutionHours": "Середній час вирішення (год)"
+  "analytics.chartAvgResolutionHours": "Середній час вирішення (год)",
+  "create.confirmCritical": "Підтверджую, що проєкт/заявка є з відповідною критичністю",
+  "create.criticalWarningTitle": "Підтвердження критичності",
+  "create.criticalRequired": "Необхідно підтвердити відповідність критичності перед збереженням.",
+  "calendar.contactDate": "Дата контакту",
+  "calendar.deadline": "Дедлайн",
+  "details.publicComment": "Публічний коментар",
+  "details.internalCorrespondence": "Внутрішня переписка",
+  "details.postComment": "Надіслати"
 }

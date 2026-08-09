@@ -438,5 +438,13 @@
   "analytics.chartInProgress": "In Progress",
   "analytics.chartAssigned": "Assigned (other)",
   "analytics.chartCompleted": "Completed",
-  "analytics.chartAvgResolutionHours": "Avg resolution time (hrs)"
+  "analytics.chartAvgResolutionHours": "Avg resolution time (hrs)",
+  "create.confirmCritical": "I confirm that this project/ticket has corresponding critical priority",
+  "create.criticalWarningTitle": "Critical Priority Confirmation",
+  "create.criticalRequired": "Please confirm the critical priority level before submitting.",
+  "calendar.contactDate": "Contact Date",
+  "calendar.deadline": "Deadline",
+  "details.publicComment": "Public comment",
+  "details.internalCorrespondence": "Internal Correspondence",
+  "details.postComment": "Send Comment"
 }
