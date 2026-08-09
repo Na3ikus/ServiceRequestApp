@@ -43,6 +43,19 @@ public partial class Settings : BaseComponent
     private string hoverStyle = "standard";
     private string bgTexture = "clean";
 
+    // NEW: 10 additional visual customizations
+    private string borderRadius = "rounded";
+    private string fontFamily = "inter";
+    private string contentWidth = "standard";
+    private string sidebarColor = "default";
+    private string pageTransition = "fade";
+    private string contrastMode = "standard";
+    private string badgeStyle = "filled";
+    private string notifPosition = "top-right";
+    private string customAccentHex = string.Empty;
+    private string customAccentHexInput = string.Empty;
+    private string customAccentError = string.Empty;
+
     // System health
     private bool dbAvailable;
     private bool smtpAvailable;
@@ -109,12 +122,49 @@ public partial class Settings : BaseComponent
             var bgStr = await this.JS.InvokeAsync<string?>("localStorage.getItem", "settings.bgTexture");
             this.bgTexture = !string.IsNullOrWhiteSpace(bgStr) ? bgStr : "clean";
 
+            // Load new settings
+            var radiusStr = await this.JS.InvokeAsync<string?>("localStorage.getItem", "settings.borderRadius");
+            this.borderRadius = !string.IsNullOrWhiteSpace(radiusStr) ? radiusStr : "rounded";
+
+            var fontStr2 = await this.JS.InvokeAsync<string?>("localStorage.getItem", "settings.fontFamily");
+            this.fontFamily = !string.IsNullOrWhiteSpace(fontStr2) ? fontStr2 : "inter";
+
+            var widthStr = await this.JS.InvokeAsync<string?>("localStorage.getItem", "settings.contentWidth");
+            this.contentWidth = !string.IsNullOrWhiteSpace(widthStr) ? widthStr : "standard";
+
+            var sidebarColorStr = await this.JS.InvokeAsync<string?>("localStorage.getItem", "settings.sidebarColor");
+            this.sidebarColor = !string.IsNullOrWhiteSpace(sidebarColorStr) ? sidebarColorStr : "default";
+
+            var transitionStr = await this.JS.InvokeAsync<string?>("localStorage.getItem", "settings.pageTransition");
+            this.pageTransition = !string.IsNullOrWhiteSpace(transitionStr) ? transitionStr : "fade";
+
+            var contrastStr = await this.JS.InvokeAsync<string?>("localStorage.getItem", "settings.contrastMode");
+            this.contrastMode = !string.IsNullOrWhiteSpace(contrastStr) ? contrastStr : "standard";
+
+            var badgeStr = await this.JS.InvokeAsync<string?>("localStorage.getItem", "settings.badgeStyle");
+            this.badgeStyle = !string.IsNullOrWhiteSpace(badgeStr) ? badgeStr : "filled";
+
+            var notifPosStr = await this.JS.InvokeAsync<string?>("localStorage.getItem", "settings.notifPosition");
+            this.notifPosition = !string.IsNullOrWhiteSpace(notifPosStr) ? notifPosStr : "top-right";
+
+            var customHexStr = await this.JS.InvokeAsync<string?>("localStorage.getItem", "settings.customAccentHex");
+            this.customAccentHex = !string.IsNullOrWhiteSpace(customHexStr) ? customHexStr : string.Empty;
+            this.customAccentHexInput = this.customAccentHex;
+
             await this.ApplyAccentColorAsync();
             await this.ApplyTableDensityAsync();
             await this.ApplyFontSizeAsync();
             await this.ApplyCardStyleAsync();
             await this.ApplyHoverStyleAsync();
             await this.ApplyBgTextureAsync();
+            await this.ApplyBorderRadiusAsync();
+            await this.ApplyFontFamilyAsync();
+            await this.ApplyContentWidthAsync();
+            await this.ApplySidebarColorAsync();
+            await this.ApplyPageTransitionAsync();
+            await this.ApplyContrastModeAsync();
+            await this.ApplyBadgeStyleAsync();
+            await this.ApplyNotifPositionAsync();
         }
         catch
         {
@@ -182,6 +232,17 @@ public partial class Settings : BaseComponent
     private void SetTheme(bool dark)
     {
         this.Theme.SetTheme(dark ? "dark" : "light");
+    }
+
+    private void SetThemeSystem()
+    {
+        this.Theme.SetTheme("system");
+    }
+
+    private async Task SetLanguageAsync(string lang)
+    {
+        this.L.SetLanguage(lang);
+        await this.SaveSetting("settings.language", lang);
     }
 
     private async Task ToggleSoundNotifications()
@@ -355,6 +416,168 @@ public partial class Settings : BaseComponent
     private async Task SetSidebarMode(string mode)
     {
         await this.Theme.SetSidebarCollapsedAsync(mode == "compact");
+    }
+
+    // ═══════════════ New setting methods ═══════════════
+
+    private async Task SetBorderRadius(string radius)
+    {
+        this.borderRadius = radius;
+        await this.SaveSetting("settings.borderRadius", radius);
+        await this.ApplyBorderRadiusAsync();
+    }
+
+    private async Task ApplyBorderRadiusAsync()
+    {
+        try
+        {
+            await this.JS.InvokeVoidAsync("eval", $"document.documentElement.setAttribute('data-radius','{this.borderRadius}')");
+        }
+        catch { }
+    }
+
+    private async Task SetFontFamily(string font)
+    {
+        this.fontFamily = font;
+        await this.SaveSetting("settings.fontFamily", font);
+        await this.ApplyFontFamilyAsync();
+    }
+
+    private async Task ApplyFontFamilyAsync()
+    {
+        try
+        {
+            await this.JS.InvokeVoidAsync("eval", $"document.documentElement.setAttribute('data-font','{this.fontFamily}')");
+        }
+        catch { }
+    }
+
+    private async Task SetContentWidth(string width)
+    {
+        this.contentWidth = width;
+        await this.SaveSetting("settings.contentWidth", width);
+        await this.ApplyContentWidthAsync();
+    }
+
+    private async Task ApplyContentWidthAsync()
+    {
+        try
+        {
+            await this.JS.InvokeVoidAsync("eval", $"document.documentElement.setAttribute('data-content-width','{this.contentWidth}')");
+        }
+        catch { }
+    }
+
+    private async Task SetSidebarColor(string color)
+    {
+        this.sidebarColor = color;
+        await this.SaveSetting("settings.sidebarColor", color);
+        await this.ApplySidebarColorAsync();
+    }
+
+    private async Task ApplySidebarColorAsync()
+    {
+        try
+        {
+            await this.JS.InvokeVoidAsync("eval", $"document.documentElement.setAttribute('data-sidebar-color','{this.sidebarColor}')");
+        }
+        catch { }
+    }
+
+    private async Task SetPageTransition(string transition)
+    {
+        this.pageTransition = transition;
+        await this.SaveSetting("settings.pageTransition", transition);
+        await this.ApplyPageTransitionAsync();
+    }
+
+    private async Task ApplyPageTransitionAsync()
+    {
+        try
+        {
+            await this.JS.InvokeVoidAsync("eval", $"document.documentElement.setAttribute('data-transition','{this.pageTransition}')");
+        }
+        catch { }
+    }
+
+    private async Task SetContrastMode(string mode)
+    {
+        this.contrastMode = mode;
+        await this.SaveSetting("settings.contrastMode", mode);
+        await this.ApplyContrastModeAsync();
+    }
+
+    private async Task ApplyContrastModeAsync()
+    {
+        try
+        {
+            await this.JS.InvokeVoidAsync("eval", $"document.documentElement.setAttribute('data-contrast','{this.contrastMode}')");
+        }
+        catch { }
+    }
+
+    private async Task SetBadgeStyle(string style)
+    {
+        this.badgeStyle = style;
+        await this.SaveSetting("settings.badgeStyle", style);
+        await this.ApplyBadgeStyleAsync();
+    }
+
+    private async Task ApplyBadgeStyleAsync()
+    {
+        try
+        {
+            await this.JS.InvokeVoidAsync("eval", $"document.documentElement.setAttribute('data-badge-style','{this.badgeStyle}')");
+        }
+        catch { }
+    }
+
+    private async Task SetNotifPosition(string position)
+    {
+        this.notifPosition = position;
+        await this.SaveSetting("settings.notifPosition", position);
+        await this.ApplyNotifPositionAsync();
+    }
+
+    private async Task ApplyNotifPositionAsync()
+    {
+        try
+        {
+            await this.JS.InvokeVoidAsync("eval", $"document.documentElement.setAttribute('data-notif-position','{this.notifPosition}')");
+        }
+        catch { }
+    }
+
+    private async Task ApplyCustomAccentAsync()
+    {
+        var hex = this.customAccentHexInput.Trim();
+        if (!IsValidHex(hex))
+        {
+            this.customAccentError = "Invalid HEX color";
+            return;
+        }
+
+        this.customAccentError = string.Empty;
+        this.customAccentHex = hex;
+        this.accentColor = "custom";
+        await this.SaveSetting("settings.customAccentHex", hex);
+        await this.SaveSetting("settings.accentColor", "custom");
+
+        try
+        {
+            await this.JS.InvokeVoidAsync("eval",
+                $"document.documentElement.setAttribute('data-accent','custom');" +
+                $"document.documentElement.style.setProperty('--accent-custom','{hex}');");
+        }
+        catch { }
+    }
+
+    private static bool IsValidHex(string hex)
+    {
+        if (string.IsNullOrWhiteSpace(hex)) return false;
+        var h = hex.StartsWith('#') ? hex[1..] : hex;
+        return (h.Length == 3 || h.Length == 6) &&
+               h.All(c => (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F'));
     }
 
     private async Task SaveSetting(string key, string value)

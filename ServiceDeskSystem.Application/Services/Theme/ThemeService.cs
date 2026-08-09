@@ -7,6 +7,7 @@ public sealed class ThemeService : IThemeService
 {
     private readonly IJSRuntime jsRuntime;
     private string currentTheme = "light";
+    private string preferredTheme = "light"; // "light" | "dark" | "system"
     private bool initialized;
     private bool isSidebarCollapsed;
 
@@ -21,6 +22,8 @@ public sealed class ThemeService : IThemeService
 
     public bool IsDarkMode => this.currentTheme == "dark";
 
+    public bool IsSystemTheme => this.preferredTheme == "system";
+
     public bool IsSidebarCollapsed => this.isSidebarCollapsed;
 
     public async Task InitializeAsync()
@@ -29,34 +32,85 @@ public sealed class ThemeService : IThemeService
         {
             try
             {
-                this.currentTheme = await this.jsRuntime.InvokeAsync<string>("themeManager.getTheme");
+                this.preferredTheme = await this.jsRuntime.InvokeAsync<string>("themeManager.getTheme");
+
+                if (this.preferredTheme == "system")
+                {
+                    var prefersDark = await this.jsRuntime.InvokeAsync<bool>(
+                        "eval", "window.matchMedia('(prefers-color-scheme: dark)').matches");
+                    this.currentTheme = prefersDark ? "dark" : "light";
+                    var action = this.currentTheme == "dark" ? "add" : "remove";
+                    await this.jsRuntime.InvokeVoidAsync(
+                        "eval",
+                        $"document.documentElement.classList.{action}('dark')");
+                }
+                else
+                {
+                    this.currentTheme = this.preferredTheme;
+                }
+
                 this.isSidebarCollapsed = await this.jsRuntime.InvokeAsync<bool>("sidebarManager.getCollapsed");
                 this.initialized = true;
             }
             catch
             {
                 this.currentTheme = "light";
+                this.preferredTheme = "light";
             }
         }
     }
 
     public async void SetTheme(string theme)
     {
-        if ((theme == "light" || theme == "dark") && this.currentTheme != theme)
+        if (theme != "light" && theme != "dark" && theme != "system")
         {
-            this.currentTheme = theme;
+            return;
+        }
 
+        this.preferredTheme = theme;
+
+        string resolvedTheme;
+        if (theme == "system")
+        {
             try
             {
-                await this.jsRuntime.InvokeVoidAsync("themeManager.setTheme", theme);
+                var prefersDark = await this.jsRuntime.InvokeAsync<bool>(
+                    "eval", "window.matchMedia('(prefers-color-scheme: dark)').matches");
+                resolvedTheme = prefersDark ? "dark" : "light";
             }
             catch
             {
-                // Ignore JS interop errors during prerendering
+                resolvedTheme = "light";
             }
-
-            this.ThemeChanged?.Invoke(this, EventArgs.Empty);
         }
+        else
+        {
+            resolvedTheme = theme;
+        }
+
+        if (this.currentTheme == resolvedTheme && this.preferredTheme != "system")
+        {
+            return;
+        }
+
+        this.currentTheme = resolvedTheme;
+
+        try
+        {
+            // Save preference ("system", "light", or "dark")
+            await this.jsRuntime.InvokeVoidAsync("localStorage.setItem", "theme", this.preferredTheme);
+            // Apply resolved class to <html>
+            var action = resolvedTheme == "dark" ? "add" : "remove";
+            await this.jsRuntime.InvokeVoidAsync(
+                "eval",
+                $"document.documentElement.classList.{action}('dark')");
+        }
+        catch
+        {
+            // Ignore JS interop errors during prerendering
+        }
+
+        this.ThemeChanged?.Invoke(this, EventArgs.Empty);
     }
 
     public void ToggleTheme()
@@ -84,4 +138,3 @@ public sealed class ThemeService : IThemeService
         }
     }
 }
-

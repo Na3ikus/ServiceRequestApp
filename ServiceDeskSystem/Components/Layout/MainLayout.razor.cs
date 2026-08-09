@@ -156,6 +156,7 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
         this.StartDatabaseMonitor();
         await this.LoadNotificationsAsync();
         await this.StartNotificationsHubAsync();
+        await this.RestoreVisualSettingsAsync();
 
         // Persist the current user role to localStorage so that JS hotkeys (e.g. T) can
         // route to the correct page without a Blazor round-trip.
@@ -175,6 +176,51 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
         }
 
         await this.InvokeAsync(this.StateHasChanged);
+    }
+
+    private async Task RestoreVisualSettingsAsync()
+    {
+        try
+        {
+            var savedLang = await this.JS.InvokeAsync<string?>("localStorage.getItem", "settings.language");
+            if (!string.IsNullOrWhiteSpace(savedLang))
+            {
+                this.L.SetLanguage(savedLang);
+            }
+
+            var keys = new[]
+            {
+                ("settings.borderRadius", "data-radius", "rounded"),
+                ("settings.fontFamily", "data-font", "inter"),
+                ("settings.contentWidth", "data-content-width", "standard"),
+                ("settings.sidebarColor", "data-sidebar-color", "default"),
+                ("settings.pageTransition", "data-transition", "fade"),
+                ("settings.contrastMode", "data-contrast", "standard"),
+                ("settings.badgeStyle", "data-badge-style", "filled"),
+                ("settings.notifPosition", "data-notif-position", "top-right"),
+            };
+
+            foreach (var (storageKey, attr, defaultVal) in keys)
+            {
+                var val = await this.JS.InvokeAsync<string?>("localStorage.getItem", storageKey);
+                val = !string.IsNullOrWhiteSpace(val) ? val : defaultVal;
+                await this.JS.InvokeVoidAsync("eval", $"document.documentElement.setAttribute('{attr}','{val}')");
+            }
+
+            // Custom accent color
+            var customHex = await this.JS.InvokeAsync<string?>("localStorage.getItem", "settings.customAccentHex");
+            var accentMode = await this.JS.InvokeAsync<string?>("localStorage.getItem", "settings.accentColor");
+            if (!string.IsNullOrWhiteSpace(customHex) && accentMode == "custom")
+            {
+                await this.JS.InvokeVoidAsync("eval",
+                    $"document.documentElement.setAttribute('data-accent','custom');" +
+                    $"document.documentElement.style.setProperty('--accent-custom','{customHex}');");
+            }
+        }
+        catch
+        {
+            // Ignore JS interop errors during prerendering
+        }
     }
 
     protected virtual void Dispose(bool disposing)
@@ -379,6 +425,11 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
         this.L.SetLanguage(language);
         this.isLanguageDropdownOpen = false;
         await this.UnregisterLanguageOutsideClickAsync();
+        try
+        {
+            await this.JS.InvokeVoidAsync("localStorage.setItem", "settings.language", language);
+        }
+        catch { }
     }
 
     private async Task RegisterLanguageOutsideClickAsync()

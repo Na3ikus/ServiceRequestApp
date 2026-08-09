@@ -8,6 +8,8 @@ public interface IThemeService
 
     bool IsDarkMode { get; }
 
+    bool IsSystemTheme { get; }
+
     Task InitializeAsync();
 
     void SetTheme(string theme);

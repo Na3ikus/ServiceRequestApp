@@ -64,5 +64,60 @@
   "settings.sidebarLayout": "Режим бічної панелі",
   "settings.sidebarLayoutDesc": "Оберіть між повною та компактною панеллю",
   "settings.sidebarFull": "Повна",
-  "settings.sidebarCompact": "Компактна"
+  "settings.sidebarCompact": "Компактна",
+
+  "settings.themeSystem": "Системна",
+  "settings.themeSystemDesc": "Слідує налаштуванням темної/світлої теми вашої ОС",
+
+  "settings.borderRadius": "Стиль кутів",
+  "settings.borderRadiusDesc": "Глобальне заокруглення карток, кнопок та полів вводу",
+  "settings.radiusSharp": "Гострі",
+  "settings.radiusRounded": "Заокруглені",
+  "settings.radiusPill": "Пілюля",
+
+  "settings.fontFamily": "Сімейство шрифтів",
+  "settings.fontFamilyDesc": "Шрифт, що використовується в інтерфейсі",
+
+  "settings.contentWidth": "Ширина контенту",
+  "settings.contentWidthDesc": "Максимальна ширина основної області контенту",
+  "settings.widthNarrow": "Вузька",
+  "settings.widthStandard": "Стандартна",
+  "settings.widthWide": "Широка",
+
+  "settings.sidebarColor": "Колір бічної панелі",
+  "settings.sidebarColorDesc": "Колірна схема бічної навігаційної панелі",
+  "settings.sidebarColorDefault": "За замовчуванням",
+  "settings.sidebarColorDark": "Темна",
+  "settings.sidebarColorBranded": "Брендова",
+  "settings.sidebarColorTransparent": "Прозора",
+
+  "settings.pageTransition": "Перехід між сторінками",
+  "settings.pageTransitionDesc": "Анімація при переході між сторінками",
+  "settings.transitionFade": "Розтавання",
+  "settings.transitionSlide": "Слайд",
+  "settings.transitionNone": "Без анімації",
+
+  "settings.contrastMode": "Режим контрасту",
+  "settings.contrastModeDesc": "Збільшіть візуальний контраст для кращої читабельності",
+  "settings.contrastStandard": "Стандартний",
+  "settings.contrastHigh": "Високий контраст",
+
+  "settings.badgeStyle": "Стиль статусних бейджів",
+  "settings.badgeStyleDesc": "Як відображаються бейджі статусу тікетів",
+  "settings.badgeFilled": "Заповнений",
+  "settings.badgeOutline": "Контур",
+  "settings.badgeDot": "Крапка",
+  "settings.badgeMinimal": "Мінімальний",
+
+  "settings.notifPosition": "Позиція сповіщень",
+  "settings.notifPositionDesc": "Де з'являються toast-сповіщення на екрані",
+  "settings.notifTopRight": "Верхній правий",
+  "settings.notifTopCenter": "Верхній центр",
+  "settings.notifBottomRight": "Нижній правий",
+  "settings.notifBottomCenter": "Нижній центр",
+
+  "settings.customAccent": "Власний колір",
+  "settings.customAccentDesc": "Введіть власний HEX-код кольору",
+  "settings.customAccentPlaceholder": "#3b82f6",
+  "settings.customAccentApply": "Застосувати"
 }

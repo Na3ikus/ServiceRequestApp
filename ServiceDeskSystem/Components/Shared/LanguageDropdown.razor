@@ -1,5 +1,6 @@
 @using ServiceDeskSystem.Application.Services.Localization
 @inject ILocalizationService L
+@inject IJSRuntime JS
 @implements IDisposable
 
 <div class="relative inline-block text-left" @onclick:stopPropagation="true">
@@ -70,10 +71,15 @@
         isOpen = false;
     }
 
-    private void SelectLanguage(string code)
+    private async Task SelectLanguage(string code)
     {
         L.SetLanguage(code);
         isOpen = false;
+        try
+        {
+            await JS.InvokeVoidAsync("localStorage.setItem", "settings.language", code);
+        }
+        catch { }
     }
 
     private string GetCurrentLanguageDisplay()

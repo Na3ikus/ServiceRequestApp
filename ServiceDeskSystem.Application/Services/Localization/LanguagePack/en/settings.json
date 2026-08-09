@@ -64,5 +64,60 @@
   "settings.sidebarLayout": "Sidebar Layout",
   "settings.sidebarLayoutDesc": "Choose between full and compact sidebar",
   "settings.sidebarFull": "Full",
-  "settings.sidebarCompact": "Compact"
+  "settings.sidebarCompact": "Compact",
+
+  "settings.themeSystem": "System",
+  "settings.themeSystemDesc": "Follows your OS dark/light mode preference",
+
+  "settings.borderRadius": "Corner Style",
+  "settings.borderRadiusDesc": "Global rounding style for cards, buttons, and inputs",
+  "settings.radiusSharp": "Sharp",
+  "settings.radiusRounded": "Rounded",
+  "settings.radiusPill": "Pill",
+
+  "settings.fontFamily": "Font Family",
+  "settings.fontFamilyDesc": "Typeface used throughout the interface",
+
+  "settings.contentWidth": "Content Width",
+  "settings.contentWidthDesc": "Maximum width of the main content area",
+  "settings.widthNarrow": "Narrow",
+  "settings.widthStandard": "Standard",
+  "settings.widthWide": "Wide",
+
+  "settings.sidebarColor": "Sidebar Color",
+  "settings.sidebarColorDesc": "Color scheme of the sidebar navigation",
+  "settings.sidebarColorDefault": "Default",
+  "settings.sidebarColorDark": "Dark",
+  "settings.sidebarColorBranded": "Branded",
+  "settings.sidebarColorTransparent": "Transparent",
+
+  "settings.pageTransition": "Page Transition",
+  "settings.pageTransitionDesc": "Animation when navigating between pages",
+  "settings.transitionFade": "Fade",
+  "settings.transitionSlide": "Slide",
+  "settings.transitionNone": "None",
+
+  "settings.contrastMode": "Contrast Mode",
+  "settings.contrastModeDesc": "Increase visual contrast for better readability",
+  "settings.contrastStandard": "Standard",
+  "settings.contrastHigh": "High Contrast",
+
+  "settings.badgeStyle": "Status Badge Style",
+  "settings.badgeStyleDesc": "How ticket status badges are displayed",
+  "settings.badgeFilled": "Filled",
+  "settings.badgeOutline": "Outline",
+  "settings.badgeDot": "Dot",
+  "settings.badgeMinimal": "Minimal",
+
+  "settings.notifPosition": "Notification Position",
+  "settings.notifPositionDesc": "Where toast notifications appear on screen",
+  "settings.notifTopRight": "Top Right",
+  "settings.notifTopCenter": "Top Center",
+  "settings.notifBottomRight": "Bottom Right",
+  "settings.notifBottomCenter": "Bottom Center",
+
+  "settings.customAccent": "Custom Color",
+  "settings.customAccentDesc": "Enter a custom HEX color code",
+  "settings.customAccentPlaceholder": "#3b82f6",
+  "settings.customAccentApply": "Apply"
 }

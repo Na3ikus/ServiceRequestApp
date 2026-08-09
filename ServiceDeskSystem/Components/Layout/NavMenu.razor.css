@@ -330,3 +330,64 @@
         transition-duration: 1ms !important;
     }
 }
+
+/* ═══════════════════════════════════════════════════
+   SIDEBAR COLOR SCHEMES (data-sidebar-color on <html>)
+   ═══════════════════════════════════════════════════ */
+
+/* Dark sidebar */
+[data-sidebar-color="dark"] .sidebar-root {
+    --sidebar-bg: linear-gradient(180deg, rgb(15 23 42 / 0.99), rgb(2 6 23 / 0.99));
+    --sidebar-text: rgb(226 232 240);
+    --sidebar-muted-text: rgb(100 116 139);
+    --sidebar-border: rgb(255 255 255 / 0.07);
+    --sidebar-btn-bg: rgb(255 255 255 / 0.06);
+    --sidebar-btn-bg-hover: rgb(255 255 255 / 0.14);
+    --sidebar-btn-text: rgb(203 213 225);
+    --sidebar-link-text: rgb(203 213 225);
+    --sidebar-link-hover-text: #fff;
+    --sidebar-link-hover-bg: rgb(255 255 255 / 0.08);
+    --sidebar-link-active-bg: linear-gradient(90deg, rgb(37 99 235 / 0.95), rgb(99 102 241 / 0.85));
+    --sidebar-link-active-shadow: 0 8px 20px rgb(99 102 241 / 0.35);
+    --sidebar-link-indicator: rgb(165 180 252);
+    --sidebar-tooltip-bg: rgb(2 6 23);
+    --sidebar-tooltip-text: #fff;
+}
+
+/* Branded sidebar */
+[data-sidebar-color="branded"] .sidebar-root {
+    --sidebar-bg: linear-gradient(180deg, rgb(37 99 235 / 0.95), rgb(79 70 229 / 0.92));
+    --sidebar-text: rgb(239 246 255);
+    --sidebar-muted-text: rgb(191 219 254);
+    --sidebar-border: rgb(255 255 255 / 0.15);
+    --sidebar-btn-bg: rgb(255 255 255 / 0.12);
+    --sidebar-btn-bg-hover: rgb(255 255 255 / 0.22);
+    --sidebar-btn-text: rgb(219 234 254);
+    --sidebar-link-text: rgb(219 234 254);
+    --sidebar-link-hover-text: #fff;
+    --sidebar-link-hover-bg: rgb(255 255 255 / 0.15);
+    --sidebar-link-active-bg: linear-gradient(90deg, rgb(255 255 255 / 0.28), rgb(255 255 255 / 0.18));
+    --sidebar-link-active-shadow: 0 8px 20px rgb(0 0 0 / 0.2);
+    --sidebar-link-active-text: #fff;
+    --sidebar-link-indicator: rgb(255 255 255 / 0.8);
+    --sidebar-tooltip-bg: rgb(30 27 75);
+    --sidebar-tooltip-text: #fff;
+}
+
+/* Transparent sidebar */
+[data-sidebar-color="transparent"] .sidebar-root {
+    --sidebar-bg: transparent;
+    --sidebar-text: rgb(15 23 42);
+    --sidebar-muted-text: rgb(71 85 105);
+    --sidebar-border: rgb(148 163 184 / 0.2);
+    --sidebar-btn-bg: rgb(148 163 184 / 0.1);
+    --sidebar-btn-bg-hover: rgb(148 163 184 / 0.18);
+    --sidebar-link-hover-bg: rgb(59 130 246 / 0.1);
+    background: transparent !important;
+    backdrop-filter: blur(12px);
+}
+
+.dark[data-sidebar-color="transparent"] .sidebar-root {
+    --sidebar-text: rgb(226 232 240);
+    --sidebar-muted-text: rgb(148 163 184);
+}
