@@ -144,5 +144,9 @@ namespace ServiceDeskSystem.Infrastructure.Data.Repository
             var counts = await this.Context.Tickets.GroupBy(t => t.Priority).Select(g => new { g.Key, Count = g.Count() }).ToDictionaryAsync(x => x.Key, x => x.Count).ConfigureAwait(false);
             return counts;
         }
+        public async Task<Dictionary<TicketType, int>> GetTicketCountGroupedByTypeAsync() {
+            var counts = await this.Context.Tickets.GroupBy(t => t.Type).Select(g => new { g.Key, Count = g.Count() }).ToDictionaryAsync(x => x.Key, x => x.Count).ConfigureAwait(false);
+            return counts;
+        }
     }
 }

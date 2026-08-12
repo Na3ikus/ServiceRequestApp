@@ -384,10 +384,8 @@ public sealed class TicketService(
         {
             entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(1);
             await using var repo = repositoryFacadeFactory.Create();
-            var allTickets = await repo.Tickets.GetAllAsync().ConfigureAwait(false);
-            return allTickets
-                .GroupBy(t => t.Type)
-                .ToDictionary(g => g.Key.ToString(), g => g.Count());
+            var counts = await repo.Tickets.GetTicketCountGroupedByTypeAsync().ConfigureAwait(false);
+            return counts.ToDictionary(k => k.Key.ToString(), v => v.Value);
         }) ?? [];
     }
 

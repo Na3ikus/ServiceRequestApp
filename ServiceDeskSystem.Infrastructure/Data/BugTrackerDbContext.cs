@@ -151,6 +151,10 @@ namespace ServiceDeskSystem.Infrastructure.Data
             modelBuilder.Entity<Notification>()
                 .HasIndex(n => new { n.RecipientUserId, n.IsRead, n.CreatedAt });
 
+            modelBuilder.Entity<Notification>()
+                .HasIndex(n => new { n.RecipientUserId, n.CreatedAt })
+                .HasDatabaseName("IX_Notifications_RecipientUserId_CreatedAt");
+
             modelBuilder.Entity<Ticket>()
                 .HasIndex(t => t.DeveloperId);
 
@@ -164,12 +168,42 @@ namespace ServiceDeskSystem.Infrastructure.Data
                 .HasIndex(t => t.Priority);
 
             modelBuilder.Entity<Ticket>()
+                .HasIndex(t => t.Type);
+
+            modelBuilder.Entity<Ticket>()
                 .HasIndex(t => t.CreatedAt)
                 .IsDescending();
+
+            modelBuilder.Entity<Ticket>()
+                .HasIndex(t => new { t.DeveloperId, t.Status })
+                .HasDatabaseName("IX_Tickets_DeveloperId_Status");
+
+            modelBuilder.Entity<Ticket>()
+                .HasIndex(t => new { t.DeveloperId, t.CreatedAt })
+                .HasDatabaseName("IX_Tickets_DeveloperId_CreatedAt");
+
+            modelBuilder.Entity<Ticket>()
+                .HasIndex(t => new { t.AuthorId, t.CreatedAt })
+                .HasDatabaseName("IX_Tickets_AuthorId_CreatedAt");
+
+            modelBuilder.Entity<Ticket>()
+                .HasIndex(t => new { t.Status, t.DueDate })
+                .HasDatabaseName("IX_Tickets_Status_DueDate");
+
+            modelBuilder.Entity<Comment>()
+                .HasIndex(c => c.TicketId);
+
+            modelBuilder.Entity<Comment>()
+                .HasIndex(c => new { c.TicketId, c.CreatedAt })
+                .HasDatabaseName("IX_Comments_TicketId_CreatedAt");
 
             modelBuilder.Entity<AuditLog>()
                 .HasIndex(a => a.Timestamp)
                 .IsDescending();
+
+            modelBuilder.Entity<AuditLog>()
+                .HasIndex(a => new { a.EntityName, a.EntityId })
+                .HasDatabaseName("IX_AuditLogs_EntityName_EntityId");
 
             modelBuilder.Entity<Tag>()
                 .HasIndex(t => t.Name)

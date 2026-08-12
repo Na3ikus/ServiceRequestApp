@@ -24,6 +24,7 @@ public interface ITicketRepository : IRepository<Ticket>
     Task<int> GetDeveloperCompletedCountAsync(int developerId);
     Task<Dictionary<TicketStatus, int>> GetTicketCountGroupedByStatusAsync();
     Task<Dictionary<TicketPriority, int>> GetTicketCountGroupedByPriorityAsync();
+    Task<Dictionary<TicketType, int>> GetTicketCountGroupedByTypeAsync();
 }
 
 
