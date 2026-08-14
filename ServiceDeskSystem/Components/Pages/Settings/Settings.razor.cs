@@ -177,6 +177,18 @@ public partial class Settings : BaseComponent
         }
     }
 
+    private static bool IsValidHex(string hex)
+    {
+        if (string.IsNullOrWhiteSpace(hex))
+        {
+            return false;
+        }
+
+        var h = hex.StartsWith('#') ? hex[1..] : hex;
+        return (h.Length == 3 || h.Length == 6) &&
+               h.All(c => (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F'));
+    }
+
     private static string GetAccentSwatchStyle(string color) => color switch
     {
         "blue" => "background: linear-gradient(135deg, #3b82f6, #6366f1); color: #3b82f6;",
@@ -297,14 +309,6 @@ public partial class Settings : BaseComponent
         }
     }
 
-    private void OnFontSizeInput(ChangeEventArgs e)
-    {
-        if (int.TryParse(e.Value?.ToString(), out var val))
-        {
-            this.fontSize = val;
-        }
-    }
-
     private async Task OnFontSizeChanged(ChangeEventArgs e)
     {
         if (int.TryParse(e.Value?.ToString(), out var val))
@@ -386,7 +390,7 @@ public partial class Settings : BaseComponent
         }
         catch
         {
-            // Ignore JS interop errors
+            // Ignore JS interop errors during prerendering.
         }
     }
 
@@ -405,7 +409,7 @@ public partial class Settings : BaseComponent
         }
         catch
         {
-            // Ignore JS interop errors
+            // Ignore JS interop errors during prerendering.
         }
     }
 
@@ -434,7 +438,6 @@ public partial class Settings : BaseComponent
     }
 
     // ═══════════════ New setting methods ═══════════════
-
     private async Task SetBorderRadius(string radius)
     {
         this.borderRadius = radius;
@@ -448,7 +451,10 @@ public partial class Settings : BaseComponent
         {
             await this.JS.InvokeVoidAsync("eval", $"document.documentElement.setAttribute('data-radius','{this.borderRadius}')");
         }
-        catch { }
+        catch
+        {
+            // Ignore JS interop errors during prerendering.
+        }
     }
 
     private async Task SetFontFamily(string font)
@@ -464,7 +470,10 @@ public partial class Settings : BaseComponent
         {
             await this.JS.InvokeVoidAsync("eval", $"document.documentElement.setAttribute('data-font','{this.fontFamily}')");
         }
-        catch { }
+        catch
+        {
+            // Ignore JS interop errors during prerendering.
+        }
     }
 
     private async Task SetContentWidth(string width)
@@ -480,7 +489,10 @@ public partial class Settings : BaseComponent
         {
             await this.JS.InvokeVoidAsync("eval", $"document.documentElement.setAttribute('data-content-width','{this.contentWidth}')");
         }
-        catch { }
+        catch
+        {
+            // Ignore JS interop errors during prerendering.
+        }
     }
 
     private async Task SetSidebarColor(string color)
@@ -496,7 +508,10 @@ public partial class Settings : BaseComponent
         {
             await this.JS.InvokeVoidAsync("eval", $"document.documentElement.setAttribute('data-sidebar-color','{this.sidebarColor}')");
         }
-        catch { }
+        catch
+        {
+            // Ignore JS interop errors during prerendering.
+        }
     }
 
     private async Task SetPageTransition(string transition)
@@ -512,7 +527,10 @@ public partial class Settings : BaseComponent
         {
             await this.JS.InvokeVoidAsync("eval", $"document.documentElement.setAttribute('data-transition','{this.pageTransition}')");
         }
-        catch { }
+        catch
+        {
+            // Ignore JS interop errors during prerendering.
+        }
     }
 
     private async Task SetContrastMode(string mode)
@@ -528,7 +546,10 @@ public partial class Settings : BaseComponent
         {
             await this.JS.InvokeVoidAsync("eval", $"document.documentElement.setAttribute('data-contrast','{this.contrastMode}')");
         }
-        catch { }
+        catch
+        {
+            // Ignore JS interop errors during prerendering.
+        }
     }
 
     private async Task SetBadgeStyle(string style)
@@ -544,7 +565,10 @@ public partial class Settings : BaseComponent
         {
             await this.JS.InvokeVoidAsync("eval", $"document.documentElement.setAttribute('data-badge-style','{this.badgeStyle}')");
         }
-        catch { }
+        catch
+        {
+            // Ignore JS interop errors during prerendering.
+        }
     }
 
     private async Task SetNotifPosition(string position)
@@ -560,7 +584,10 @@ public partial class Settings : BaseComponent
         {
             await this.JS.InvokeVoidAsync("eval", $"document.documentElement.setAttribute('data-notif-position','{this.notifPosition}')");
         }
-        catch { }
+        catch
+        {
+            // Ignore JS interop errors during prerendering.
+        }
     }
 
     private async Task ApplyCustomAccentAsync()
@@ -580,19 +607,15 @@ public partial class Settings : BaseComponent
 
         try
         {
-            await this.JS.InvokeVoidAsync("eval",
+            await this.JS.InvokeVoidAsync(
+                "eval",
                 $"document.documentElement.setAttribute('data-accent','custom');" +
                 $"document.documentElement.style.setProperty('--accent-custom','{hex}');");
         }
-        catch { }
-    }
-
-    private static bool IsValidHex(string hex)
-    {
-        if (string.IsNullOrWhiteSpace(hex)) return false;
-        var h = hex.StartsWith('#') ? hex[1..] : hex;
-        return (h.Length == 3 || h.Length == 6) &&
-               h.All(c => (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F'));
+        catch
+        {
+            // Ignore JS interop errors during prerendering.
+        }
     }
 
     private async Task SaveSetting(string key, string value)

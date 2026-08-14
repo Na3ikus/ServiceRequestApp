@@ -9,7 +9,7 @@ public sealed class AuditService(IRepositoryFacadeFactory repositoryFacadeFactor
     public async Task LogActionAsync(string action, string entityName, string entityId, string? changes = null, int? userId = null)
     {
         await using var repo = repositoryFacadeFactory.Create();
-        
+
         var log = new AuditLog
         {
             Action = action,

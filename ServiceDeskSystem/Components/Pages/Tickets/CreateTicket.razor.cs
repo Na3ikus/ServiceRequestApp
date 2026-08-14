@@ -17,7 +17,7 @@ public partial class CreateTicket
 
     protected TicketCreateModel Model { get; set; } = new ();
 
-    protected List<Product> Products { get; set; } = [];
+    protected IList<Product> Products { get; set; } = [];
 
     protected bool IsSubmitting { get; set; }
 

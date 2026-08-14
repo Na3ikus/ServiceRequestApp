@@ -116,7 +116,7 @@ public partial class NavMenu : ServiceDeskSystem.Components.UI.Base.BaseComponen
 
         public string Title { get; } = title;
 
-        public List<MenuItem> Items { get; } = [];
+        public IList<MenuItem> Items { get; } = [];
 
         public bool IsExpanded { get; set; } = true;
     }

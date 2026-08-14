@@ -14,11 +14,11 @@ public partial class ProductsTab : BaseComponent
 {
     [Parameter]
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1002:Do not expose generic lists", Justification = "Blazor parameter")]
-    public List<Product>? Products { get; set; }
+    public IList<Product>? Products { get; set; }
 
     [Parameter]
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1002:Do not expose generic lists", Justification = "Blazor parameter")]
-    public List<TechStack>? TechStacks { get; set; }
+    public IList<TechStack>? TechStacks { get; set; }
 
     [Parameter]
     public EventCallback OnProductsChanged { get; set; }
@@ -99,7 +99,7 @@ public partial class ProductsTab : BaseComponent
         return "stack-default";
     }
 
-    protected List<Product>? GetFilteredProducts() =>
+    protected IList<Product>? GetFilteredProducts() =>
         this.Products?
             .Where(p =>
                 string.IsNullOrWhiteSpace(this.SearchQuery) ||

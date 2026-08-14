@@ -59,6 +59,7 @@ public sealed class AuthService(
         }
         catch
         {
+            // Ignore session storage errors during initial restore.
         }
     }
 
@@ -212,6 +213,7 @@ public sealed class AuthService(
         }
         catch
         {
+            // Ignore session storage deletion errors.
         }
 
         this.AuthStateChanged?.Invoke(this, EventArgs.Empty);
@@ -263,8 +265,7 @@ public sealed class AuthService(
         }
         catch
         {
+            // Ignore session storage errors.
         }
     }
 }
-
-

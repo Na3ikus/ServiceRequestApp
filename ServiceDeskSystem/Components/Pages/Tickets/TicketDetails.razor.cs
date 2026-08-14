@@ -59,7 +59,7 @@ public partial class TicketDetails : BaseComponent
 
     protected bool IsCriticalPriorityConfirmed { get; set; }
 
-    protected List<Tag> AllTags { get; set; } = [];
+    protected IList<Tag> AllTags { get; set; } = [];
 
     protected int SelectedTagIdToAdd { get; set; }
 

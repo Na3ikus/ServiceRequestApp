@@ -216,7 +216,7 @@ public sealed class AdminService(
     {
         await using var repo = repositoryFacadeFactory.Create();
         var user = await repo.Users.GetByIdAsync(userId).ConfigureAwait(false);
-        
+
         if (user is null)
         {
             return false;

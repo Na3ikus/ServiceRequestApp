@@ -18,7 +18,7 @@ public partial class MyTickets : BaseComponent
     [Inject]
     protected ITicketService TicketService { get; set; } = null!;
 
-    protected List<Ticket>? Tickets { get; set; }
+    protected IList<Ticket>? Tickets { get; set; }
 
     protected int CurrentUserId => this.AuthService.CurrentUser?.Id ?? 0;
 

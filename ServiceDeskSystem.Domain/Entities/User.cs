@@ -1,6 +1,7 @@
 using ServiceDeskSystem.Domain.Enums;
 
 namespace ServiceDeskSystem.Domain.Entities;
+
 using ServiceDeskSystem.Domain.Common;
 
 public class User : AggregateRoot

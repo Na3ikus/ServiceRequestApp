@@ -24,10 +24,10 @@ public class TicketCreatedEventHandler : INotificationHandler<DomainEventNotific
         var domainEvent = notification.DomainEvent;
 
         await _auditService.LogActionSafeAsync(
-            "CREATE", 
-            "Ticket", 
-            domainEvent.TicketId.ToString(), 
-            $"Created ticket: {domainEvent.Title}", 
+            "CREATE",
+            "Ticket",
+            domainEvent.TicketId.ToString(),
+            $"Created ticket: {domainEvent.Title}",
             domainEvent.AuthorId);
 
         await _realtimeNotifier.NotifyTicketsChangedAsync();

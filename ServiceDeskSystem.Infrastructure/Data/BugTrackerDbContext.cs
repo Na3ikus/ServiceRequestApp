@@ -18,7 +18,7 @@ namespace ServiceDeskSystem.Infrastructure.Data
         public DbSet<ContactType> ContactTypes { get; set; } = null!;
 
         public DbSet<ContactInfo> ContactInfos { get; set; } = null!;
-            
+
         public DbSet<User> Users { get; set; } = null!;
 
         public DbSet<TechStack> TechStacks { get; set; } = null!;
@@ -46,10 +46,10 @@ namespace ServiceDeskSystem.Infrastructure.Data
             base.OnModelCreating(modelBuilder);
 
             var statusConverter = new ValueConverter<TicketStatus, string>(
-                v => v == TicketStatus.InProgress ? "In Progress" : 
+                v => v == TicketStatus.InProgress ? "In Progress" :
                      v == TicketStatus.CodeReview ? "Code Review" : v.ToString(),
                 v => v == "In Progress" ? TicketStatus.InProgress :
-                     v == "Code Review" ? TicketStatus.CodeReview : 
+                     v == "Code Review" ? TicketStatus.CodeReview :
                      Enum.Parse<TicketStatus>(v));
 
             modelBuilder.Entity<Ticket>()

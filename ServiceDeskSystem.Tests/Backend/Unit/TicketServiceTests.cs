@@ -206,7 +206,7 @@ public class TicketServiceTests
         success.Should().BeTrue();
         ticket.Status.Should().Be(newStatus);
         _mockUnitOfWork.Verify(u => u.SaveChangesAsync(), Times.Once);
-        
+
         // Verify TicketStatusChangedEvent was dispatched
         _mockDispatcher.Verify(d => d.DispatchAsync(It.Is<IEnumerable<IDomainEvent>>(events =>
             events.Any(e => e is TicketStatusChangedEvent)), It.IsAny<CancellationToken>()), Times.Once);

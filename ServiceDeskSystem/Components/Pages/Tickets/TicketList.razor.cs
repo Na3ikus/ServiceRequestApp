@@ -25,9 +25,9 @@ public partial class TicketList : BaseComponent
     [Inject]
     protected IJSRuntime JS { get; set; } = null!;
 
-    protected List<Ticket>? Tickets { get; set; }
+    protected IList<Ticket>? Tickets { get; set; }
 
-    protected List<Ticket>? FilteredTickets { get; set; }
+    protected IList<Ticket>? FilteredTickets { get; set; }
 
     protected string ViewMode { get; set; } = "Table";
 

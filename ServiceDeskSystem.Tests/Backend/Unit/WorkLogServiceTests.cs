@@ -103,5 +103,4 @@ public class WorkLogServiceTests
         result.Success.Should().BeFalse();
         _mockWorkLogRepo.Verify(r => r.CreateAsync(It.IsAny<WorkLog>()), Times.Never);
     }
-
 }

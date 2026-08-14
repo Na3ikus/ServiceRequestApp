@@ -102,7 +102,7 @@ public class TicketStatisticsTests
         // Assert
         result.Should().NotBeNull();
         result.Should().HaveCount(1);
-        
+
         var stats = result.First();
         stats.DeveloperName.Should().Be("dev1");
         stats.TicketsAssigned.Should().Be(3);

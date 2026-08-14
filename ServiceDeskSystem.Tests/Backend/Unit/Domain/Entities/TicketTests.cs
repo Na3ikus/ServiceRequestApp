@@ -22,10 +22,10 @@ public class TicketTests
         ticket.Status.Should().Be(TicketStatus.New);
         ticket.AffectedVersion.Should().BeEmpty();
         ticket.Environment.Should().BeEmpty();
-        
+
         ticket.Comments.Should().NotBeNull();
         ticket.Comments.Should().BeEmpty();
-        
+
         ticket.Attachments.Should().NotBeNull();
         ticket.Attachments.Should().BeEmpty();
     }

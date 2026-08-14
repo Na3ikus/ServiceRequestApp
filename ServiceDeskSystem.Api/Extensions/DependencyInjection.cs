@@ -18,7 +18,7 @@ public static class DependencyInjection
         var jwtKey = configuration["Jwt:Key"];
 
         bool hasJwtKey = !string.IsNullOrWhiteSpace(jwtKey);
-        
+
         if (!hasJwtKey)
         {
             // Generate a random 256-bit key to prevent startup errors, but essentially invalidating all real requests
@@ -29,7 +29,7 @@ public static class DependencyInjection
         services.AddFluentValidationAutoValidation();
 
         services.AddEndpointsApiExplorer();
-        
+
         if (hasJwtKey)
         {
             services.AddSwaggerGen(options =>

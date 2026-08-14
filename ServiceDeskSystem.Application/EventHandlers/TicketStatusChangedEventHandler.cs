@@ -26,18 +26,18 @@ public class TicketStatusChangedEventHandler : INotificationHandler<DomainEventN
     public async Task Handle(DomainEventNotification<TicketStatusChangedEvent> notification, CancellationToken cancellationToken)
     {
         var domainEvent = notification.DomainEvent;
-        
+
         await _notificationService.CreateStatusChangedNotificationAsync(
-            domainEvent.TicketId, 
-            domainEvent.OldStatus, 
-            domainEvent.NewStatus, 
+            domainEvent.TicketId,
+            domainEvent.OldStatus,
+            domainEvent.NewStatus,
             domainEvent.ActorUserId);
 
         await _auditService.LogActionSafeAsync(
-            "STATUS_UPDATE", 
-            "Ticket", 
-            domainEvent.TicketId.ToString(), 
-            $"Status changed from {domainEvent.OldStatus} to {domainEvent.NewStatus}", 
+            "STATUS_UPDATE",
+            "Ticket",
+            domainEvent.TicketId.ToString(),
+            $"Status changed from {domainEvent.OldStatus} to {domainEvent.NewStatus}",
             domainEvent.ActorUserId);
 
         await _realtimeNotifier.NotifyTicketsChangedAsync();

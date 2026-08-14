@@ -44,22 +44,22 @@ public class AuthServicePerformanceTests
         var authService = new AuthService(_mockFactory.Object, null, null);
 
         _mockUserRepo.Setup(r => r.GetByLoginAsync("testuser")).ReturnsAsync((User?)null);
-        
+
         var emailContactType = new ContactType { Id = 1, Name = "Email" };
         var contactTypes = new List<ContactType> { emailContactType };
-        
+
         _mockContactTypeRepo.Setup(r => r.GetAllAsync()).ReturnsAsync(contactTypes);
         _mockContactInfoRepo.Setup(r => r.ExistsByEmailAsync("test@test.com", 1)).ReturnsAsync(false);
-        
+
         // Act
         var result = await authService.RegisterClientAsync("testuser", "password123", "Test", "User", "test@test.com");
 
         // Assert
         result.Success.Should().BeTrue();
-        
+
         // Verify GetAllAsync is NOT called on Users
         _mockUserRepo.Verify(r => r.GetAllAsync(), Times.Never);
-        
+
         // Verify GetByLoginAsync IS called
         _mockUserRepo.Verify(r => r.GetByLoginAsync("testuser"), Times.Once);
 

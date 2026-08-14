@@ -84,15 +84,15 @@ namespace ServiceDeskSystem.Infrastructure.Data.Repository
             return await this.Context.Tickets
                 .Include(t => t.Author)
                     .ThenInclude(a => a.Person)
-                        .ThenInclude(p => p.ContactInfos)
+                        .ThenInclude(p => p!.ContactInfos)
                             .ThenInclude(ci => ci.ContactType)
                 .Include(t => t.Developer)
-                    .ThenInclude(d => d.Person)
-                        .ThenInclude(p => p.ContactInfos)
+                    .ThenInclude(d => d!.Person)
+                        .ThenInclude(p => p!.ContactInfos)
                             .ThenInclude(ci => ci.ContactType)
-                .Where(t => t.Status != TicketStatus.Resolved 
-                            && t.Status != TicketStatus.Closed 
-                            && t.Status != TicketStatus.Done 
+                .Where(t => t.Status != TicketStatus.Resolved
+                            && t.Status != TicketStatus.Closed
+                            && t.Status != TicketStatus.Done
                             && t.DueDate != null)
                 .ToListAsync()
                 .ConfigureAwait(false);
@@ -136,15 +136,18 @@ namespace ServiceDeskSystem.Infrastructure.Data.Repository
         public async Task<int> GetCountByDeveloperIdAsync(int developerId) => await this.Context.Tickets.CountAsync(t => t.DeveloperId == developerId).ConfigureAwait(false);
         public async Task<int> GetDeveloperInProgressCountAsync(int developerId) => await this.Context.Tickets.CountAsync(t => t.DeveloperId == developerId && t.Status == TicketStatus.InProgress).ConfigureAwait(false);
         public async Task<int> GetDeveloperCompletedCountAsync(int developerId) => await this.Context.Tickets.CountAsync(t => t.DeveloperId == developerId && (t.Status == TicketStatus.Resolved || t.Status == TicketStatus.Closed)).ConfigureAwait(false);
-        public async Task<Dictionary<TicketStatus, int>> GetTicketCountGroupedByStatusAsync() {
+        public async Task<Dictionary<TicketStatus, int>> GetTicketCountGroupedByStatusAsync()
+        {
             var counts = await this.Context.Tickets.GroupBy(t => t.Status).Select(g => new { g.Key, Count = g.Count() }).ToDictionaryAsync(x => x.Key, x => x.Count).ConfigureAwait(false);
             return counts;
         }
-        public async Task<Dictionary<TicketPriority, int>> GetTicketCountGroupedByPriorityAsync() {
+        public async Task<Dictionary<TicketPriority, int>> GetTicketCountGroupedByPriorityAsync()
+        {
             var counts = await this.Context.Tickets.GroupBy(t => t.Priority).Select(g => new { g.Key, Count = g.Count() }).ToDictionaryAsync(x => x.Key, x => x.Count).ConfigureAwait(false);
             return counts;
         }
-        public async Task<Dictionary<TicketType, int>> GetTicketCountGroupedByTypeAsync() {
+        public async Task<Dictionary<TicketType, int>> GetTicketCountGroupedByTypeAsync()
+        {
             var counts = await this.Context.Tickets.GroupBy(t => t.Type).Select(g => new { g.Key, Count = g.Count() }).ToDictionaryAsync(x => x.Key, x => x.Count).ConfigureAwait(false);
             return counts;
         }

@@ -187,6 +187,39 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
         await this.InvokeAsync(this.StateHasChanged);
     }
 
+    protected virtual void Dispose(bool disposing)
+    {
+        if (this.disposed)
+        {
+            return;
+        }
+
+        if (disposing)
+        {
+            this.L.LanguageChanged -= this.OnStateChanged;
+            this.Theme.ThemeChanged -= this.OnStateChanged;
+            this.AuthService.AuthStateChanged -= this.OnStateChanged;
+            this.Navigation.LocationChanged -= this.OnLocationChanged;
+            this.ToastService.OnToastsChanged -= this.OnStateChanged;
+
+            this.dotNetRef?.Dispose();
+            this.dotNetRef = null;
+
+            this.databaseMonitorCts?.Cancel();
+            this.databaseMonitorCts?.Dispose();
+            this.databaseMonitorCts = null;
+
+            this.notificationsHubConnection = null;
+            this.notificationsHubInitialized = false;
+
+            this.notificationPulseCts?.Cancel();
+            this.notificationPulseCts?.Dispose();
+            this.notificationPulseCts = null;
+        }
+
+        this.disposed = true;
+    }
+
     private async Task RestoreVisualSettingsAsync()
     {
         try
@@ -221,7 +254,8 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
             var accentMode = await this.JS.InvokeAsync<string?>("localStorage.getItem", "settings.accentColor");
             if (!string.IsNullOrWhiteSpace(customHex) && accentMode == "custom")
             {
-                await this.JS.InvokeVoidAsync("eval",
+                await this.JS.InvokeVoidAsync(
+                    "eval",
                     $"document.documentElement.setAttribute('data-accent','custom');" +
                     $"document.documentElement.style.setProperty('--accent-custom','{customHex}');");
             }
@@ -230,39 +264,6 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
         {
             // Ignore JS interop errors during prerendering
         }
-    }
-
-    protected virtual void Dispose(bool disposing)
-    {
-        if (this.disposed)
-        {
-            return;
-        }
-
-        if (disposing)
-        {
-            this.L.LanguageChanged -= this.OnStateChanged;
-            this.Theme.ThemeChanged -= this.OnStateChanged;
-            this.AuthService.AuthStateChanged -= this.OnStateChanged;
-            this.Navigation.LocationChanged -= this.OnLocationChanged;
-            this.ToastService.OnToastsChanged -= this.OnStateChanged;
-
-            this.dotNetRef?.Dispose();
-            this.dotNetRef = null;
-
-            this.databaseMonitorCts?.Cancel();
-            this.databaseMonitorCts?.Dispose();
-            this.databaseMonitorCts = null;
-
-            this.notificationsHubConnection = null;
-            this.notificationsHubInitialized = false;
-
-            this.notificationPulseCts?.Cancel();
-            this.notificationPulseCts?.Dispose();
-            this.notificationPulseCts = null;
-        }
-
-        this.disposed = true;
     }
 
     private void OnStateChanged(object? sender, EventArgs e) => this.InvokeAsync(this.StateHasChanged);
@@ -438,7 +439,9 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
         {
             await this.JS.InvokeVoidAsync("localStorage.setItem", "settings.language", language);
         }
-        catch { }
+        catch
+        {
+        }
     }
 
     private async Task RegisterLanguageOutsideClickAsync()

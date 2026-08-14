@@ -26,7 +26,7 @@ public enum AnalyticsTab
 /// <summary>
 /// Statistics and advanced analytics dashboard page — accessible to Developer and Admin only.
 /// </summary>
-public partial class Statistics : BaseComponent
+public partial class StatisticsPage : BaseComponent
 {
     private static readonly (TicketStatus Status, string Color, string HexColor)[] StatusOrder =
     [
@@ -84,11 +84,11 @@ public partial class Statistics : BaseComponent
 
     protected Dictionary<string, int> ByType { get; set; } = new ();
 
-    protected List<(string Login, int Count)> TopDevs { get; set; } = [];
+    protected IList<(string Login, int Count)> TopDevs { get; set; } = [];
 
     protected ExtendedAnalyticsDto? ExtendedData { get; set; }
 
-    protected List<EmployeeEfficiencyDto>? EfficiencyData { get; set; }
+    protected IList<EmployeeEfficiencyDto>? EfficiencyData { get; set; }
 
     protected UserRole? CurrentUserRole => this.AuthService.CurrentUser?.Role;
 
@@ -211,7 +211,7 @@ public partial class Statistics : BaseComponent
         {
             await this.LoadEfficiencyDataAsync();
         }
-        
+
         this.ShouldRenderCharts = true;
         this.StateHasChanged();
     }

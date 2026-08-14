@@ -82,7 +82,7 @@ public sealed class TicketService(
 
         await repo.Tickets.CreateAsync(ticket).ConfigureAwait(false);
         await repo.UnitOfWork.SaveChangesAsync().ConfigureAwait(false);
-        
+
         var events = ticket.DomainEvents.ToList();
         for (int i = 0; i < events.Count; i++)
         {
@@ -242,9 +242,9 @@ public sealed class TicketService(
         await repo.Tickets.DeleteAsync(ticketId).ConfigureAwait(false);
         await repo.UnitOfWork.SaveChangesAsync().ConfigureAwait(false);
         await realtimeNotifier.NotifyTicketsChangedAsync().ConfigureAwait(false);
-        
+
         await auditService.LogActionSafeAsync("DELETE", "Ticket", ticket.Id.ToString(), $"Deleted ticket: {ticket.Title}").ConfigureAwait(false);
-        
+
         ClearDashboardCache();
 
         return true;
@@ -550,7 +550,7 @@ public sealed class TicketService(
         var allTickets = (await repo.Tickets.GetAllWithIncludesAsync().ConfigureAwait(false)).ToList();
         var allUsers = await repo.Users.GetAllWithPersonAsync().ConfigureAwait(false);
         var developers = allUsers.Where(u => u.Role == UserRole.Developer || u.Role == UserRole.Admin).ToList();
-        
+
         var today = DateTime.UtcNow.Date;
         var startDate = today.AddDays(-days + 1);
 
@@ -561,9 +561,9 @@ public sealed class TicketService(
             var devTickets = allTickets.Where(t => t.DeveloperId == dev.Id).ToList();
             var assignedCount = devTickets.Count;
             var closedCount = devTickets.Count(t => t.Status == TicketStatus.Resolved || t.Status == TicketStatus.Closed || t.Status == TicketStatus.Done);
-            
+
             var totalTimeSpentMinutes = await repo.WorkLogs.GetTotalTimeSpentForUserAsync(dev.Id).ConfigureAwait(false);
-            
+
             var avgTime = closedCount > 0 ? (double)totalTimeSpentMinutes / closedCount : 0;
             var closureRate = assignedCount > 0 ? Math.Round((double)closedCount / assignedCount * 100.0, 1) : 0;
 

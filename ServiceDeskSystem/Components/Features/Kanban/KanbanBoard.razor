@@ -73,7 +73,7 @@
     private ElementReference boardContainer;
 
     [Parameter, EditorRequired]
-    public List<Ticket> Tickets { get; set; } = [];
+    public IList<Ticket> Tickets { get; set; } = new List<Ticket>();
 
     /// <summary>Current user ID — needed to determine if a card is draggable.</summary>
     [Parameter]

@@ -30,13 +30,13 @@ public partial class Admin : BaseComponent
     [Inject]
     protected ITagService TagService { get; set; } = null!;
 
-    protected List<Product>? Products { get; set; }
+    protected IList<Product>? Products { get; set; }
 
-    protected List<TechStack>? TechStacks { get; set; }
+    protected IList<TechStack>? TechStacks { get; set; }
 
-    protected List<User>? Users { get; set; }
+    protected IList<User>? Users { get; set; }
 
-    protected List<Tag>? Tags { get; set; }
+    protected IList<Tag>? Tags { get; set; }
 
     protected string ActiveTab { get; set; } = "products";
 

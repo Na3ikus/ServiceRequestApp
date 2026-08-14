@@ -7,7 +7,7 @@ public static class DatabaseConfigurationHelper
 {
     public static (string ConnectionString, MySqlServerVersion ServerVersion) GetDatabaseConfiguration(IConfiguration configuration)
     {
-        var connectionString = configuration.GetConnectionString("DefaultConnection") 
+        var connectionString = configuration.GetConnectionString("DefaultConnection")
                                ?? configuration["ConnectionStrings:DefaultConnection"];
 
         if (string.IsNullOrWhiteSpace(connectionString))

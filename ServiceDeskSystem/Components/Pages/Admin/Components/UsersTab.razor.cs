@@ -16,7 +16,7 @@ public partial class UsersTab : BaseComponent
 {
     [Parameter]
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1002:Do not expose generic lists", Justification = "Blazor parameter")]
-    public List<User>? Users { get; set; }
+    public IList<User>? Users { get; set; }
 
     [Parameter]
     public EventCallback OnUsersChanged { get; set; }
@@ -59,10 +59,10 @@ public partial class UsersTab : BaseComponent
     protected static bool CanToggleUserStatus(User user)
     {
         ArgumentNullException.ThrowIfNull(user);
-        return user.Role != UserRole.Admin;
+        return CanDeleteUser(user);
     }
 
-    protected List<User>? GetFilteredUsers() =>
+    protected IList<User>? GetFilteredUsers() =>
         this.Users?
             .Where(u =>
                 string.IsNullOrWhiteSpace(this.SearchQuery) ||

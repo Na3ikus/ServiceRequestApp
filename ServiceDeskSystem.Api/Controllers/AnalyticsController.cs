@@ -19,6 +19,7 @@ public sealed class AnalyticsController(
     /// <summary>
     /// Gets high-level ticket status and priority distribution counts.
     /// </summary>
+    /// <returns>An <see cref="IActionResult"/> containing the status and priority distribution counts.</returns>
     [HttpGet("summary")]
     [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetSummary()
@@ -39,6 +40,7 @@ public sealed class AnalyticsController(
     /// Gets extended analytics including trends over time, developer workloads, product resolution metrics, and tag distributions.
     /// </summary>
     /// <param name="days">Number of past days for trend analysis (default 30).</param>
+    /// <returns>An <see cref="IActionResult"/> containing the <see cref="ExtendedAnalyticsDto"/>.</returns>
     [HttpGet("extended")]
     [ProducesResponseType(typeof(ExtendedAnalyticsDto), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetExtended([FromQuery] int days = 30)

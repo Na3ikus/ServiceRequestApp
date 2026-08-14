@@ -87,7 +87,7 @@ public class AttachmentServiceTests
         result.ErrorMessage.Should().BeNull();
         result.Attachment.Should().NotBeNull();
         result.Attachment!.FileName.Should().Be(fileName);
-        
+
         _mockAttachmentRepo.Verify(r => r.CreateAsync(It.IsAny<Attachment>()), Times.Once);
         _mockUnitOfWork.Verify(u => u.SaveChangesAsync(), Times.Once);
     }

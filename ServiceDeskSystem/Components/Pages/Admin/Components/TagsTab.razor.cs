@@ -29,7 +29,7 @@ public partial class TagsTab : BaseComponent
 
     [Parameter]
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1002:Do not expose generic lists", Justification = "Blazor parameter")]
-    public List<Tag>? Tags { get; set; }
+    public IList<Tag>? Tags { get; set; }
 
     [Parameter]
     public EventCallback OnTagsChanged { get; set; }
@@ -58,7 +58,7 @@ public partial class TagsTab : BaseComponent
 
     protected bool SortAscending { get; set; } = true;
 
-    protected List<Tag>? GetFilteredTags()
+    protected IList<Tag>? GetFilteredTags()
     {
         IComparer<string> comparer = this.SortAscending ? StringComparer.OrdinalIgnoreCase : new ReverseStringComparer();
         return this.Tags?

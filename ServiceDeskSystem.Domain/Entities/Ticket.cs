@@ -71,7 +71,7 @@ public class Ticket : AggregateRoot
             ProductId = productId,
             IsPriorityAssessed = isPriorityAssessed
         };
-        
+
         ticket.AddDomainEvent(new ServiceDeskSystem.Domain.Events.TicketCreatedEvent(ticket.Id, authorId, title));
         return ticket;
     }

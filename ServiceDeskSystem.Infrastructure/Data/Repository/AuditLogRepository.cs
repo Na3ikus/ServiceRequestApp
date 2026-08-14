@@ -7,11 +7,12 @@ namespace ServiceDeskSystem.Infrastructure.Data.Repository
 {
     public class AuditLogRepository : TemplateRepository<AuditLog>, IAuditLogRepository
     {
-        public AuditLogRepository(BugTrackerDbContext context) : base(context) {}
+        public AuditLogRepository(BugTrackerDbContext context) : base(context) { }
 
         protected override DbSet<AuditLog> DbSet => this.Context.AuditLogs;
 
-        public async Task<List<AuditLog>> GetLatestLogsAsync(int count) {
+        public async Task<List<AuditLog>> GetLatestLogsAsync(int count)
+        {
             return await this.Context.AuditLogs
                 .AsNoTracking()
                 .Include(l => l.User)
@@ -20,10 +21,14 @@ namespace ServiceDeskSystem.Infrastructure.Data.Repository
                 .ToListAsync()
                 .ConfigureAwait(false);
         }
-        public async Task ClearAllLogsAsync() {
-            try {
+        public async Task ClearAllLogsAsync()
+        {
+            try
+            {
                 await this.Context.Database.ExecuteSqlRawAsync("TRUNCATE TABLE AuditLogs").ConfigureAwait(false);
-            } catch {
+            }
+            catch
+            {
                 this.Context.AuditLogs.RemoveRange(this.Context.AuditLogs);
                 await this.Context.SaveChangesAsync().ConfigureAwait(false);
             }

@@ -15,7 +15,7 @@ public partial class TechStacksTab : BaseComponent
 {
     [Parameter]
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1002:Do not expose generic lists", Justification = "Blazor parameter")]
-    public List<TechStack>? TechStacks { get; set; }
+    public IList<TechStack>? TechStacks { get; set; }
 
     [Parameter]
     public EventCallback OnTechStacksChanged { get; set; }
@@ -86,7 +86,7 @@ public partial class TechStacksTab : BaseComponent
         return "type-default";
     }
 
-    protected List<TechStack>? GetFilteredStacks()
+    protected IList<TechStack>? GetFilteredStacks()
     {
         IComparer<string> comparer = this.SortAscending ? StringComparer.OrdinalIgnoreCase : new ReverseStringComparer();
         return this.TechStacks?
