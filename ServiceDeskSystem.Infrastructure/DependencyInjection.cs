@@ -17,7 +17,8 @@ public static class DependencyInjection
 
         services.AddPooledDbContextFactory<BugTrackerDbContext>(options =>
             options.UseMySql(connectionString, serverVersion, mySqlOptions =>
-                mySqlOptions.EnableRetryOnFailure()));
+                mySqlOptions.EnableRetryOnFailure())
+            .ConfigureWarnings(w => w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning)));
 
         services.AddScoped(sp =>
             sp.GetRequiredService<IDbContextFactory<BugTrackerDbContext>>().CreateDbContext());
