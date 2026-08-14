@@ -47,7 +47,41 @@ window.themeManager = {
         } else {
             document.documentElement.classList.remove('dark');
         }
+        this.restoreAllVisualSettings();
         return theme;
+    },
+
+    restoreAllVisualSettings: function () {
+        try {
+            const keys = [
+                ['settings.borderRadius', 'data-radius', 'rounded'],
+                ['settings.fontFamily', 'data-font', 'inter'],
+                ['settings.contentWidth', 'data-content-width', 'standard'],
+                ['settings.sidebarColor', 'data-sidebar-color', 'default'],
+                ['settings.pageTransition', 'data-transition', 'fade'],
+                ['settings.contrastMode', 'data-contrast', 'standard'],
+                ['settings.badgeStyle', 'data-badge-style', 'filled'],
+                ['settings.notifPosition', 'data-notif-position', 'top-right'],
+                ['settings.bgTexture', 'data-bg-texture', 'none']
+            ];
+
+            for (let i = 0; i < keys.length; i++) {
+                const [storageKey, attr, defaultVal] = keys[i];
+                const val = localStorage.getItem(storageKey) || defaultVal;
+                document.documentElement.setAttribute(attr, val);
+            }
+
+            const customHex = localStorage.getItem('settings.customAccentHex');
+            const accentMode = localStorage.getItem('settings.accentColor');
+            if (customHex && accentMode === 'custom') {
+                document.documentElement.setAttribute('data-accent', 'custom');
+                document.documentElement.style.setProperty('--accent-custom', customHex);
+            } else if (accentMode) {
+                document.documentElement.setAttribute('data-accent', accentMode);
+            }
+        } catch (e) {
+            // Ignore localStorage errors
+        }
     }
 };
 

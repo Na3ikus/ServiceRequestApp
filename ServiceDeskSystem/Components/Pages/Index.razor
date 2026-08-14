@@ -225,16 +225,18 @@
             else if (currentUser.Role == UserRole.Developer)
             {
                 var devTickets = await TicketService.GetDeveloperTicketsAsync(currentUser.Id);
-                recentTickets = devTickets.OrderByDescending(t => t.CreatedAt).Take(5).ToList();
+                recentTickets = devTickets.Take(5).ToList();
 
-                var allTickets = await TicketService.GetAllTicketsAsync();
-                unassessedCount = allTickets.Count(t => !t.IsPriorityAssessed);
+                var paged = await TicketService.GetPagedTicketsAsync(1, 10);
+                unassessedCount = paged.Items.Count(t => !t.IsPriorityAssessed);
             }
             else // Admin
             {
-                var allTickets = await TicketService.GetAllTicketsAsync();
-                recentTickets = allTickets.OrderByDescending(t => t.CreatedAt).Take(5).ToList();
-                unassessedCount = allTickets.Count(t => !t.IsPriorityAssessed);
+                var paged = await TicketService.GetPagedTicketsAsync(1, 5);
+                recentTickets = paged.Items.ToList();
+
+                var triageCheck = await TicketService.GetPagedTicketsAsync(1, 10);
+                unassessedCount = triageCheck.Items.Count(t => !t.IsPriorityAssessed);
             }
         }
         finally

@@ -41,16 +41,13 @@ window.sidebarManager = {
 
             if (code === 'KeyN') {
                 event.preventDefault();
-                window.location.href = '/create-ticket';
+                dotNetRef.invokeMethodAsync('HandleNavigateHotkey', '/create-ticket');
             } else if (code === 'KeyT') {
                 event.preventDefault();
                 // Route to the correct tickets page based on the user's role
                 var userRole = localStorage.getItem('user.role');
-                if (userRole && userRole.toLowerCase() === 'user') {
-                    window.location.href = '/my-tickets';
-                } else {
-                    window.location.href = '/tickets';
-                }
+                var targetUrl = (userRole && userRole.toLowerCase() === 'user') ? '/my-tickets' : '/tickets';
+                dotNetRef.invokeMethodAsync('HandleNavigateHotkey', targetUrl);
             } else if (code === 'Slash' && !event.shiftKey) {
                 event.preventDefault();
                 const searchInput = document.querySelector('.search-input');

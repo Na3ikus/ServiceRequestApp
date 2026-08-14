@@ -3,8 +3,10 @@ using System.Net.Http.Json;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Routing;
 using Microsoft.AspNetCore.SignalR.Client;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.JSInterop;
 using ServiceDeskSystem.Components.UI.Base;
+using ServiceDeskSystem.Infrastructure.Data;
 
 namespace ServiceDeskSystem.Components.Layout;
 
@@ -63,6 +65,9 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
     [Inject]
     private IToastService ToastService { get; set; } = null!;
 
+    [Inject]
+    private IDbContextFactory<BugTrackerDbContext> DbContextFactory { get; set; } = null!;
+
     [JSInvokable]
     public async Task HandleSidebarHotkey()
     {
@@ -89,6 +94,12 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
     {
         this.hotkeysModal?.Show();
         return Task.CompletedTask;
+    }
+
+    [JSInvokable]
+    public void HandleNavigateHotkey(string targetRoute)
+    {
+        this.Navigation.NavigateTo(targetRoute);
     }
 
     [JSInvokable]
@@ -230,35 +241,7 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
                 this.L.SetLanguage(savedLang);
             }
 
-            var keys = new[]
-            {
-                ("settings.borderRadius", "data-radius", "rounded"),
-                ("settings.fontFamily", "data-font", "inter"),
-                ("settings.contentWidth", "data-content-width", "standard"),
-                ("settings.sidebarColor", "data-sidebar-color", "default"),
-                ("settings.pageTransition", "data-transition", "fade"),
-                ("settings.contrastMode", "data-contrast", "standard"),
-                ("settings.badgeStyle", "data-badge-style", "filled"),
-                ("settings.notifPosition", "data-notif-position", "top-right"),
-            };
-
-            foreach (var (storageKey, attr, defaultVal) in keys)
-            {
-                var val = await this.JS.InvokeAsync<string?>("localStorage.getItem", storageKey);
-                val = !string.IsNullOrWhiteSpace(val) ? val : defaultVal;
-                await this.JS.InvokeVoidAsync("eval", $"document.documentElement.setAttribute('{attr}','{val}')");
-            }
-
-            // Custom accent color
-            var customHex = await this.JS.InvokeAsync<string?>("localStorage.getItem", "settings.customAccentHex");
-            var accentMode = await this.JS.InvokeAsync<string?>("localStorage.getItem", "settings.accentColor");
-            if (!string.IsNullOrWhiteSpace(customHex) && accentMode == "custom")
-            {
-                await this.JS.InvokeVoidAsync(
-                    "eval",
-                    $"document.documentElement.setAttribute('data-accent','custom');" +
-                    $"document.documentElement.style.setProperty('--accent-custom','{customHex}');");
-            }
+            await this.JS.InvokeVoidAsync("themeManager.restoreAllVisualSettings");
         }
         catch
         {
@@ -383,14 +366,8 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
     {
         try
         {
-            using var client = this.HttpClientFactory.CreateClient();
-            client.BaseAddress = new Uri(this.Navigation.BaseUri);
-
-            using var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-            timeoutCts.CancelAfter(TimeSpan.FromSeconds(5));
-
-            var response = await client.GetFromJsonAsync<DatabaseHealthResponse>("health/db", timeoutCts.Token);
-            return response?.IsAvailable ?? false;
+            await using var db = await this.DbContextFactory.CreateDbContextAsync(cancellationToken).ConfigureAwait(false);
+            return await db.Database.CanConnectAsync(cancellationToken).ConfigureAwait(false);
         }
         catch
         {

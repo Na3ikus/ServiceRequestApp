@@ -11,7 +11,7 @@ namespace ServiceDeskSystem.Components.Pages.Tickets;
 /// </summary>
 public partial class MyTickets : BaseComponent
 {
-    private readonly TimeSpan refreshInterval = TimeSpan.FromSeconds(5);
+    private readonly TimeSpan refreshInterval = TimeSpan.FromSeconds(30);
     private Timer? refreshTimer;
     private bool isRefreshing;
 
