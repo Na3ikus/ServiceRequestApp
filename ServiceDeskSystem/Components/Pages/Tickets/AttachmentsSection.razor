@@ -1,0 +1,261 @@
+@using ServiceDeskSystem.Application.Services.Attachments
+@using ServiceDeskSystem.Application.Services.Localization
+@using ServiceDeskSystem.Domain.Entities
+@inject IAttachmentService AttachmentService
+@inject ILocalizationService Loc
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+
+<div class="ticket-surface bg-white dark:bg-gray-800/80 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700/80 p-6 relative overflow-hidden mt-6">
+    <div class="flex items-center justify-between gap-4 mb-4 pb-3 border-b border-gray-100 dark:border-gray-700/60">
+        <div class="flex items-center gap-3">
+            <div class="p-2.5 bg-blue-50 dark:bg-blue-900/30 rounded-xl text-blue-600 dark:text-blue-400 shrink-0">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path>
+                </svg>
+            </div>
+            <div>
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white">
+                    @Loc.Translate("details.attachments")
+                </h3>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                    @Loc.Translate("details.attachmentsDesc")
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dropzone Area -->
+    <div class="relative group cursor-pointer mb-6" @ondragenter="OnDragEnter" @ondragleave="OnDragLeave" @ondragover="OnDragOver" @ondrop="OnDrop">
+        <InputFile id="fileInput" OnChange="OnInputFileChange" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" multiple />
+        <div class="border-2 border-dashed rounded-2xl p-6 text-center transition-colors @(isDragging ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20" : "border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800/50 group-hover:border-blue-400 group-hover:bg-blue-50 dark:group-hover:bg-blue-900/10")">
+            <svg class="w-10 h-10 mx-auto text-gray-400 dark:text-gray-500 mb-3 @(isDragging ? "text-blue-500" : "group-hover:text-blue-500") transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+            </svg>
+            <p class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                @Loc.Translate("details.dropFilesHere") <span class="text-blue-600 dark:text-blue-400 hover:underline">@Loc.Translate("details.browseFiles")</span>
+            </p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">@Loc.Translate("details.maxFileSize")</p>
+        </div>
+    </div>
+
+    @if (isUploading)
+    {
+        <div class="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4 mb-4 flex items-center justify-between border border-blue-100 dark:border-blue-800/30">
+            <div class="flex items-center gap-3">
+                <svg class="w-5 h-5 animate-spin text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
+                <span class="text-sm font-medium text-blue-800 dark:text-blue-300">@Loc.Translate("details.uploadingFiles")</span>
+            </div>
+            <span class="text-xs font-bold text-blue-600 dark:text-blue-400">@uploadProgress%</span>
+        </div>
+    }
+
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm p-3 rounded-xl mb-4 border border-red-200 dark:border-red-800/30 flex items-start gap-2">
+            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <span>@errorMessage</span>
+        </div>
+    }
+
+    <!-- Attachments Grid -->
+    @if (attachments == null)
+    {
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+            @for (int i = 0; i < 4; i++)
+            {
+                <div class="h-24 bg-gray-100 dark:bg-gray-700/50 rounded-xl animate-pulse"></div>
+            }
+        </div>
+    }
+    else if (!attachments.Any())
+    {
+        <div class="text-center py-6 border border-dashed border-gray-200 dark:border-gray-700 rounded-xl">
+            <svg class="w-10 h-10 mx-auto text-gray-300 dark:text-gray-600 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+            <p class="text-sm text-gray-400 dark:text-gray-500">@Loc.Translate("details.noAttachments")</p>
+        </div>
+    }
+    else
+    {
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+            @foreach (var file in attachments)
+            {
+                var isImage = file.ContentType.StartsWith("image/");
+                <div class="group relative bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-md hover:border-blue-300 dark:hover:border-blue-700 transition-all">
+                    <!-- Preview Area -->
+                    <div class="h-28 bg-gray-100 dark:bg-gray-800 flex items-center justify-center relative overflow-hidden" @onclick="@(() => { if (isImage) ShowLightbox(file); })">
+                        @if (isImage)
+                        {
+                            <img src="/@file.FilePath" alt="@file.FileName" class="w-full h-full object-cover cursor-pointer hover:scale-105 transition-transform duration-300" />
+                        }
+                        else
+                        {
+                            <svg class="w-10 h-10 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                            </svg>
+                        }
+
+                        <!-- Hover Actions Overlay -->
+                        <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3 backdrop-blur-[2px]">
+                            <a href="/@file.FilePath" download="@file.FileName" target="_blank" class="p-2 bg-white/20 hover:bg-white/40 rounded-full text-white backdrop-blur-md transition-colors" title="@Loc.Translate("common.download")">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                            </a>
+                            @if (IsAdminOrDeveloper || file.UploadedById == CurrentUserId)
+                            {
+                                <button type="button" @onclick="@(() => DeleteAttachmentAsync(file.Id))" @onclick:stopPropagation="true" class="p-2 bg-red-500/80 hover:bg-red-600 rounded-full text-white backdrop-blur-md transition-colors" title="@Loc.Translate("common.delete")">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                </button>
+                            }
+                        </div>
+                    </div>
+                    
+                    <!-- File Info -->
+                    <div class="p-3">
+                        <p class="text-xs font-semibold text-gray-800 dark:text-gray-200 truncate" title="@file.FileName">@file.FileName</p>
+                        <div class="flex justify-between items-center mt-1">
+                            <span class="text-[10px] text-gray-500 dark:text-gray-400 uppercase">@(FormatSize(file.FileSize))</span>
+                            <span class="text-[10px] text-gray-400 dark:text-gray-500">@file.UploadedAt.ToString("dd.MM.yy")</span>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@if (lightboxAttachment != null)
+{
+    <!-- Lightbox Modal -->
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4 sm:p-8 backdrop-blur-md" @onclick="CloseLightbox">
+        <div class="relative max-w-5xl max-h-full w-full h-full flex items-center justify-center">
+            <button type="button" @onclick="CloseLightbox" class="absolute top-0 right-0 p-2 text-white/50 hover:text-white bg-black/20 hover:bg-black/50 rounded-full transition-colors z-50">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+            <img src="/@lightboxAttachment.FilePath" alt="@lightboxAttachment.FileName" class="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl" @onclick:stopPropagation="true" />
+            <div class="absolute bottom-4 left-0 right-0 text-center pointer-events-none">
+                <span class="bg-black/50 text-white px-4 py-2 rounded-full text-sm backdrop-blur-md">@lightboxAttachment.FileName</span>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter, EditorRequired] public int TicketId { get; set; }
+    [Parameter, EditorRequired] public int CurrentUserId { get; set; }
+    [Parameter, EditorRequired] public bool IsAdminOrDeveloper { get; set; }
+
+    private List<Attachment>? attachments;
+    private bool isDragging;
+    private bool isUploading;
+    private int uploadProgress;
+    private string? errorMessage;
+    private Attachment? lightboxAttachment;
+
+    private const long MaxFileSize = 10 * 1024 * 1024; // 10 MB
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAttachmentsAsync();
+    }
+
+    private async Task LoadAttachmentsAsync()
+    {
+        var result = await AttachmentService.GetAttachmentsByTicketIdAsync(TicketId);
+        attachments = result.ToList();
+    }
+
+    private void OnDragEnter(DragEventArgs e) => isDragging = true;
+    private void OnDragLeave(DragEventArgs e) => isDragging = false;
+    private void OnDragOver(DragEventArgs e) { /* Required for drag/drop to work */ }
+    private void OnDrop(DragEventArgs e) => isDragging = false;
+
+    private async Task OnInputFileChange(InputFileChangeEventArgs e)
+    {
+        isDragging = false;
+        errorMessage = null;
+
+        var files = e.GetMultipleFiles();
+        if (files.Count == 0) return;
+
+        isUploading = true;
+        uploadProgress = 0;
+        StateHasChanged();
+
+        try
+        {
+            int uploadedCount = 0;
+            foreach (var file in files)
+            {
+                if (file.Size > MaxFileSize)
+                {
+                    errorMessage = $"{Loc.Translate("details.fileTooLarge")}: {file.Name}";
+                    continue;
+                }
+
+                using var stream = file.OpenReadStream(MaxFileSize);
+                var result = await AttachmentService.UploadAttachmentAsync(TicketId, file.Name, file.ContentType, stream, CurrentUserId);
+
+                if (!result.Success)
+                {
+                    errorMessage = result.ErrorMessage;
+                }
+
+                uploadedCount++;
+                uploadProgress = (int)((double)uploadedCount / files.Count * 100);
+                StateHasChanged();
+            }
+
+            await LoadAttachmentsAsync();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
+        finally
+        {
+            isUploading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task DeleteAttachmentAsync(int id)
+    {
+        var result = await AttachmentService.DeleteAttachmentAsync(id, CurrentUserId);
+        if (result.Success)
+        {
+            await LoadAttachmentsAsync();
+            StateHasChanged();
+        }
+        else
+        {
+            errorMessage = result.ErrorMessage;
+            StateHasChanged();
+        }
+    }
+
+    private void ShowLightbox(Attachment file)
+    {
+        lightboxAttachment = file;
+    }
+
+    private void CloseLightbox()
+    {
+        lightboxAttachment = null;
+    }
+
+    private string FormatSize(long bytes)
+    {
+        string[] suffix = { "B", "KB", "MB", "GB" };
+        int i = 0;
+        double dblSByte = bytes;
+        while (bytes / 1024 > 0 && i < suffix.Length - 1)
+        {
+            dblSByte = bytes / 1024.0;
+            bytes /= 1024;
+            i++;
+        }
+        return $"{Math.Round(dblSByte, 1)} {suffix[i]}";
+    }
+}

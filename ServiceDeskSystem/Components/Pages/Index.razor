@@ -27,7 +27,7 @@
             <div class="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
                 <div class="text-white">
                     <h1 class="text-3xl sm:text-4xl font-extrabold mb-2 tracking-tight">
-                        @L.Translate("home.welcomeBack") @(currentUser.Person?.FirstName ?? "User")
+                        @L.Translate("home.welcomeBack") @(currentUser.Person?.FirstName ?? currentUser.Login ?? "User")
                     </h1>
                     <p class="text-blue-100 text-base sm:text-lg max-w-2xl font-medium">
                         @L.Translate("home.subtitle")

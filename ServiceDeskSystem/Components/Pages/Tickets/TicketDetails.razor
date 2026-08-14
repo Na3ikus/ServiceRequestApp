@@ -276,8 +276,21 @@
                     </div>
                 }
 
+                <!-- Work Logs Section -->
+                <ServiceDeskSystem.Components.Pages.Tickets.WorkLogsSection
+                    TicketId="@Ticket.Id"
+                    IsAdminOrDeveloper="@IsAdminOrDeveloper"
+                    IsAdmin="@IsAdmin"
+                    CurrentUserId="@CurrentUserId" />
+
+                <!-- Attachments Section -->
+                <ServiceDeskSystem.Components.Pages.Tickets.AttachmentsSection
+                    TicketId="@Ticket.Id"
+                    IsAdminOrDeveloper="@IsAdminOrDeveloper"
+                    CurrentUserId="@CurrentUserId" />
+
                 <!-- Comments Section -->
-                <div class="ticket-surface ticket-surface--lift bg-white dark:bg-gray-800/80 backdrop-blur-md rounded-2xl shadow-md border border-gray-200 dark:border-gray-700 p-6 sm:p-8">
+                <div class="ticket-surface ticket-surface--lift bg-white dark:bg-gray-800/80 backdrop-blur-md rounded-2xl shadow-md border border-gray-200 dark:border-gray-700 p-6 sm:p-8 mt-6">
                     <div class="flex items-center gap-3 mb-6 pb-4 border-b border-gray-100 dark:border-gray-700/50">
                         <div class="p-2 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg">
                             <svg class="w-5 h-5 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

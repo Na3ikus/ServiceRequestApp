@@ -32,6 +32,7 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
     private Task? databaseMonitorTask;
     private HubConnection? notificationsHubConnection;
     private CancellationTokenSource? notificationPulseCts;
+    private ServiceDeskSystem.Components.Shared.HotkeysModal? hotkeysModal;
 
     internal IReadOnlyList<UserNotificationDto> Notifications => this.notifications;
     internal int UnreadNotificationsCount { get; private set; }
@@ -80,6 +81,13 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
     public Task HandleThemeHotkey()
     {
         this.Theme.ToggleTheme();
+        return Task.CompletedTask;
+    }
+
+    [JSInvokable]
+    public Task HandleHotkeysHelp()
+    {
+        this.hotkeysModal?.Show();
         return Task.CompletedTask;
     }
 
@@ -150,6 +158,7 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
 
         this.dotNetRef = DotNetObjectReference.Create(this);
         await this.JS.InvokeVoidAsync("sidebarManager.registerHotkey", this.dotNetRef!);
+        await this.JS.InvokeVoidAsync("eval", "window.showHotkeysModal = function() { document.dispatchEvent(new CustomEvent('show-hotkeys-help')); };");
         this.hotkeyRegistered = true;
 
         this.authRestored = true;

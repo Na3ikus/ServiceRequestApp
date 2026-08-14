@@ -282,6 +282,21 @@ public partial class Settings : BaseComponent
         await this.SaveSetting("settings.keyboardShortcuts", this.keyboardShortcutsEnabled ? "true" : "false");
     }
 
+    private async Task ShowHotkeysHelpAsync()
+    {
+        try
+        {
+            if (this.JS != null)
+            {
+                await this.JS.InvokeVoidAsync("eval", "if (window.showHotkeysModal) { window.showHotkeysModal(); } else { document.dispatchEvent(new CustomEvent('show-hotkeys-help')); }");
+            }
+        }
+        catch
+        {
+            // Ignore JS interop errors
+        }
+    }
+
     private void OnFontSizeInput(ChangeEventArgs e)
     {
         if (int.TryParse(e.Value?.ToString(), out var val))

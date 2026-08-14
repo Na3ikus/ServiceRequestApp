@@ -134,4 +134,31 @@ public class CommentServiceTests
         result!.Message.Should().Be("Updated Message");
         _mockUnitOfWork.Verify(u => u.SaveChangesAsync(), Times.Once);
     }
+
+    [Test]
+    public async Task AddCommentAsync_ShouldCreateInternalNote_WhenIsInternalIsTrue()
+    {
+        // Arrange
+        var comment = new Comment
+        {
+            TicketId = 10,
+            AuthorId = 2,
+            Message = "This is an internal note",
+            IsInternal = true
+        };
+
+        _mockCommentRepo.Setup(r => r.CreateAsync(It.IsAny<Comment>())).Returns(Task.CompletedTask);
+        _mockUnitOfWork.Setup(u => u.SaveChangesAsync()).ReturnsAsync(1);
+        _mockNotificationService.Setup(n => n.CreateCommentNotificationAsync(comment.TicketId, comment.AuthorId)).Returns(Task.CompletedTask);
+        _mockRealtimeNotifier.Setup(n => n.NotifyTicketsChangedAsync()).Returns(Task.CompletedTask);
+
+        // Act
+        var result = await _commentService.AddCommentAsync(comment);
+
+        // Assert
+        result.Should().NotBeNull();
+        result.IsInternal.Should().BeTrue();
+        _mockCommentRepo.Verify(r => r.CreateAsync(It.Is<Comment>(c => c.IsInternal)), Times.Once);
+        _mockUnitOfWork.Verify(u => u.SaveChangesAsync(), Times.Once);
+    }
 }

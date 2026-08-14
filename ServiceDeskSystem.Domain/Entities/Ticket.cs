@@ -51,6 +51,8 @@ public class Ticket : AggregateRoot
 
     public ICollection<Attachment> Attachments { get; set; } = new List<Attachment>();
 
+    public ICollection<WorkLog> WorkLogs { get; set; } = new List<WorkLog>();
+
     public ICollection<Notification> Notifications { get; set; } = new List<Notification>();
 
     public ICollection<Tag> Tags { get; set; } = new List<Tag>();

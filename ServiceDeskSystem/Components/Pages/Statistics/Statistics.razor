@@ -92,6 +92,14 @@
                     <span>@L.Translate("analytics.title")</span>
                     <span class="px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-blue-600 text-white rounded-md shadow-2xs">PRO</span>
                 </button>
+                <button type="button"
+                    @onclick="() => SwitchTab(AnalyticsTab.Efficiency)"
+                    class="px-4 py-2 text-sm font-bold rounded-xl transition-all duration-200 flex items-center gap-2 cursor-pointer @(CurrentTab == AnalyticsTab.Efficiency ? "bg-white dark:bg-gray-800 text-blue-600 dark:text-white shadow-sm border border-gray-200 dark:border-gray-700" : "text-gray-700 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white")">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                    </svg>
+                    <span>@L.Translate("stats.efficiency")</span>
+                </button>
             </div>
         </div>
 
@@ -258,7 +266,7 @@
                 }
             </div>
         }
-        else
+        else if (CurrentTab == AnalyticsTab.Extended)
         {
             <!-- Extended Analytics Section -->
             <div class="space-y-6">
@@ -530,6 +538,87 @@
                                     </tbody>
                                 </table>
                             </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else if (CurrentTab == AnalyticsTab.Efficiency)
+        {
+            <!-- Employee Efficiency Section -->
+            <div class="space-y-6">
+                <!-- Time Range Filter & Controls -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700/50 gap-3">
+                    <div class="flex items-center gap-2">
+                        <span class="text-sm font-semibold text-gray-700 dark:text-gray-300">@L.Translate("analytics.analysisPeriod")</span>
+                        <div class="inline-flex rounded-xl bg-gray-800/80 dark:bg-gray-900 p-1 border border-gray-700/60 dark:border-gray-700">
+                            <button type="button"
+                                @onclick="() => SetDaysFilter(7)"
+                                class="px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer @(SelectedDays == 7 ? "bg-blue-600 text-white shadow-xs" : "text-gray-300 dark:text-gray-300 hover:text-white")">
+                                @L.Translate("analytics.days7")
+                            </button>
+                            <button type="button"
+                                @onclick="() => SetDaysFilter(30)"
+                                class="px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer @(SelectedDays == 30 ? "bg-blue-600 text-white shadow-xs" : "text-gray-300 dark:text-gray-300 hover:text-white")">
+                                @L.Translate("analytics.days30")
+                            </button>
+                            <button type="button"
+                                @onclick="() => SetDaysFilter(90)"
+                                class="px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer @(SelectedDays == 90 ? "bg-blue-600 text-white shadow-xs" : "text-gray-300 dark:text-gray-300 hover:text-white")">
+                                @L.Translate("analytics.days90")
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-2">
+                        <span class="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        @L.Translate("analytics.dataUpdated") @DateTime.Now.ToString("HH:mm:ss")
+                    </div>
+                </div>
+
+                @if (EfficiencyData is not null)
+                {
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border border-gray-100 dark:border-gray-700/50">
+                        <h2 class="text-base font-bold text-gray-800 dark:text-white mb-5 flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                            @L.Translate("stats.efficiency")
+                        </h2>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-sm text-gray-700 dark:text-gray-200">
+                                <thead class="text-xs uppercase bg-gray-50 dark:bg-gray-800/80 text-gray-500 dark:text-gray-400 font-semibold border-b border-gray-200 dark:border-gray-700/60">
+                                    <tr>
+                                        <th class="px-4 py-3 rounded-l-lg">@L.Translate("analytics.developerTh")</th>
+                                        <th class="px-3 py-3 text-center">@L.Translate("stats.ticketsClosed")</th>
+                                        <th class="px-3 py-3 text-center">@L.Translate("stats.totalTime")</th>
+                                        <th class="px-3 py-3 text-center">@L.Translate("stats.ticketsAssigned")</th>
+                                        <th class="px-4 py-3 text-right rounded-r-lg">@L.Translate("stats.closureRate")</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-100 dark:divide-gray-700/40">
+                                    @foreach (var emp in EfficiencyData.OrderByDescending(e => e.ClosureRatePercentage))
+                                    {
+                                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/40 transition-colors">
+                                            <td class="px-4 py-3 font-semibold text-gray-900 dark:text-white">
+                                                @emp.DeveloperName
+                                            </td>
+                                            <td class="px-3 py-3 text-center">
+                                                <span class="px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 dark:bg-emerald-900/40 text-emerald-800 dark:text-emerald-300">
+                                                    @emp.TicketsClosed
+                                                </span>
+                                            </td>
+                                            <td class="px-3 py-3 text-center font-medium text-gray-900 dark:text-gray-200">
+                                                @(emp.TotalTimeSpentMinutes / 60) год @(emp.TotalTimeSpentMinutes % 60) хв
+                                            </td>
+                                            <td class="px-3 py-3 text-center text-blue-600 dark:text-blue-400 font-semibold">@emp.TicketsAssigned</td>
+                                            <td class="px-4 py-3 text-right">
+                                                <span class="font-mono text-xs font-bold text-gray-800 dark:text-gray-200">
+                                                    @Math.Round(emp.ClosureRatePercentage, 1)%
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 }

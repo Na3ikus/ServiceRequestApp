@@ -18,6 +18,9 @@ public enum AnalyticsTab
 
     /// <summary>Extended tab with detailed trends and workloads.</summary>
     Extended,
+
+    /// <summary>Efficiency tab for employee performance.</summary>
+    Efficiency,
 }
 
 /// <summary>
@@ -84,6 +87,8 @@ public partial class Statistics : BaseComponent
     protected List<(string Login, int Count)> TopDevs { get; set; } = [];
 
     protected ExtendedAnalyticsDto? ExtendedData { get; set; }
+
+    protected List<EmployeeEfficiencyDto>? EfficiencyData { get; set; }
 
     protected UserRole? CurrentUserRole => this.AuthService.CurrentUser?.Role;
 
@@ -182,6 +187,10 @@ public partial class Statistics : BaseComponent
         {
             await this.LoadExtendedDataAsync();
         }
+        else if (this.CurrentTab == AnalyticsTab.Efficiency && this.EfficiencyData is null)
+        {
+            await this.LoadEfficiencyDataAsync();
+        }
 
         this.StateHasChanged();
     }
@@ -194,7 +203,15 @@ public partial class Statistics : BaseComponent
         }
 
         this.SelectedDays = days;
-        await this.LoadExtendedDataAsync();
+        if (this.CurrentTab == AnalyticsTab.Extended)
+        {
+            await this.LoadExtendedDataAsync();
+        }
+        else if (this.CurrentTab == AnalyticsTab.Efficiency)
+        {
+            await this.LoadEfficiencyDataAsync();
+        }
+        
         this.ShouldRenderCharts = true;
         this.StateHasChanged();
     }
@@ -219,5 +236,11 @@ public partial class Statistics : BaseComponent
     private async Task LoadExtendedDataAsync()
     {
         this.ExtendedData = await this.TicketStatisticsService.GetExtendedAnalyticsAsync(this.SelectedDays);
+    }
+
+    private async Task LoadEfficiencyDataAsync()
+    {
+        var efficiency = await this.TicketStatisticsService.GetEmployeeEfficiencyAsync(this.SelectedDays);
+        this.EfficiencyData = efficiency.ToList();
     }
 }

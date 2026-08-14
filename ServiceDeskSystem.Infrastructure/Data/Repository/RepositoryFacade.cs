@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using ServiceDeskSystem.Domain.Interfaces;
+using ServiceDeskSystem.Domain.Interfaces.Repositories;
 
 namespace ServiceDeskSystem.Infrastructure.Data.Repository
 {
@@ -17,6 +18,8 @@ namespace ServiceDeskSystem.Infrastructure.Data.Repository
         private readonly Lazy<AuditLogRepository> _auditLogRepository;
         private readonly Lazy<NotificationRepository> _notificationRepository;
         private readonly Lazy<TagRepository> _tagRepository;
+        private readonly Lazy<WorkLogRepository> _workLogRepository;
+        private readonly Lazy<AttachmentRepository> _attachmentRepository;
 
         public RepositoryFacade(IDbContextFactory<BugTrackerDbContext> contextFactory)
         {
@@ -33,6 +36,8 @@ namespace ServiceDeskSystem.Infrastructure.Data.Repository
             this._auditLogRepository = new Lazy<AuditLogRepository>(() => new AuditLogRepository(this._context));
             this._notificationRepository = new Lazy<NotificationRepository>(() => new NotificationRepository(this._context));
             this._tagRepository = new Lazy<TagRepository>(() => new TagRepository(this._context));
+            this._workLogRepository = new Lazy<WorkLogRepository>(() => new WorkLogRepository(this._context));
+            this._attachmentRepository = new Lazy<AttachmentRepository>(() => new AttachmentRepository(this._context));
             this.UnitOfWork = new ServiceDeskSystem.Infrastructure.Data.UnitOfWork(this._context);
         }
 
@@ -47,6 +52,8 @@ namespace ServiceDeskSystem.Infrastructure.Data.Repository
         public IAuditLogRepository AuditLogs => this._auditLogRepository.Value;
         public INotificationRepository Notifications => this._notificationRepository.Value;
         public ITagRepository Tags => this._tagRepository.Value;
+        public IWorkLogRepository WorkLogs => this._workLogRepository.Value;
+        public IAttachmentRepository Attachments => this._attachmentRepository.Value;
         public IUnitOfWork UnitOfWork { get; }
 
         public async ValueTask DisposeAsync()

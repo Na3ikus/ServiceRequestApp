@@ -33,5 +33,7 @@ public interface ITicketStatisticsService
     Task<List<(string Login, int Count)>> GetTopDevelopersAsync(int top = 5);
 
     Task<ExtendedAnalyticsDto> GetExtendedAnalyticsAsync(int days = 30);
+
+    Task<List<EmployeeEfficiencyDto>> GetEmployeeEfficiencyAsync(int days = 30);
 }
 

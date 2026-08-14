@@ -538,6 +538,51 @@ public sealed class TicketService(
             typeDistributions
         );
     }
+
+    public async Task<List<EmployeeEfficiencyDto>> GetEmployeeEfficiencyAsync(int days = 30)
+    {
+        if (days <= 0)
+        {
+            days = 30;
+        }
+
+        await using var repo = repositoryFacadeFactory.Create();
+        var allTickets = (await repo.Tickets.GetAllWithIncludesAsync().ConfigureAwait(false)).ToList();
+        var allUsers = await repo.Users.GetAllWithPersonAsync().ConfigureAwait(false);
+        var developers = allUsers.Where(u => u.Role == UserRole.Developer || u.Role == UserRole.Admin).ToList();
+        
+        var today = DateTime.UtcNow.Date;
+        var startDate = today.AddDays(-days + 1);
+
+        var efficiencies = new List<EmployeeEfficiencyDto>();
+
+        foreach (var dev in developers)
+        {
+            var devTickets = allTickets.Where(t => t.DeveloperId == dev.Id).ToList();
+            var assignedCount = devTickets.Count;
+            var closedCount = devTickets.Count(t => t.Status == TicketStatus.Resolved || t.Status == TicketStatus.Closed || t.Status == TicketStatus.Done);
+            
+            var totalTimeSpentMinutes = await repo.WorkLogs.GetTotalTimeSpentForUserAsync(dev.Id).ConfigureAwait(false);
+            
+            var avgTime = closedCount > 0 ? (double)totalTimeSpentMinutes / closedCount : 0;
+            var closureRate = assignedCount > 0 ? Math.Round((double)closedCount / assignedCount * 100.0, 1) : 0;
+
+            if (assignedCount > 0 || totalTimeSpentMinutes > 0)
+            {
+                efficiencies.Add(new EmployeeEfficiencyDto
+                {
+                    DeveloperName = dev.Person != null ? $"{dev.Person.FirstName} {dev.Person.LastName}".Trim() : dev.Login,
+                    TicketsAssigned = assignedCount,
+                    TicketsClosed = closedCount,
+                    TotalTimeSpentMinutes = totalTimeSpentMinutes,
+                    AverageTimePerTicketMinutes = Math.Round(avgTime, 1),
+                    ClosureRatePercentage = closureRate
+                });
+            }
+        }
+
+        return efficiencies.OrderByDescending(e => e.ClosureRatePercentage).ThenByDescending(e => e.TicketsClosed).ToList();
+    }
 }
 
 

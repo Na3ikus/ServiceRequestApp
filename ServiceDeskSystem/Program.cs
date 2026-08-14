@@ -64,6 +64,7 @@ internal static class Program
             var (isSuccess, message) = await emailSender.CheckConnectionAsync(cancellationToken).ConfigureAwait(false);
             return Results.Ok(new { IsAvailable = isSuccess, Message = message });
         });
+
         app.MapHub<UpdatesHub>("/hubs/updates");
 
         app.MapRazorComponents<App>()

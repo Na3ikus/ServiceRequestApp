@@ -1,3 +1,5 @@
+using ServiceDeskSystem.Domain.Interfaces.Repositories;
+
 namespace ServiceDeskSystem.Domain.Interfaces;
 
 public interface IRepositoryFacade : IAsyncDisposable
@@ -21,6 +23,10 @@ public interface IRepositoryFacade : IAsyncDisposable
     IAuditLogRepository AuditLogs { get; }
     INotificationRepository Notifications { get; }
     ITagRepository Tags { get; }
+
+    IWorkLogRepository WorkLogs { get; }
+
+    IAttachmentRepository Attachments { get; }
 
     IUnitOfWork UnitOfWork { get; }
 }

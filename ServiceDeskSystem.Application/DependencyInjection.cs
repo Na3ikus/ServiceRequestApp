@@ -42,6 +42,8 @@ public static class DependencyInjection
         services.AddScoped<IProfileService, ProfileService>();
         services.AddScoped<INotificationService, NotificationService>();
         services.AddScoped<ITagService, TagService>();
+        services.AddScoped<ServiceDeskSystem.Application.Services.WorkLogs.IWorkLogService, ServiceDeskSystem.Application.Services.WorkLogs.WorkLogService>();
+        services.AddScoped<ServiceDeskSystem.Application.Services.Attachments.IAttachmentService, ServiceDeskSystem.Application.Services.Attachments.AttachmentService>();
         services.TryAddSingleton<IRealtimeNotifier>(NoOpRealtimeNotifier.Instance);
         services.AddHostedService<SlaBackgroundService>();
 

@@ -1,0 +1,224 @@
+@using ServiceDeskSystem.Application.Services.Tickets
+@using ServiceDeskSystem.Application.Services.WorkLogs
+@using ServiceDeskSystem.Application.Services.Auth
+@using ServiceDeskSystem.Application.Services.Localization
+@using ServiceDeskSystem.Domain.Entities
+@inject IWorkLogService WorkLogService
+@inject IAuthService AuthService
+@inject ILocalizationService Loc
+
+@if (IsAdminOrDeveloper)
+{
+    <div class="ticket-surface bg-white dark:bg-gray-800/80 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700/80 p-6 relative overflow-hidden mt-6">
+        <div class="flex items-center justify-between gap-4 mb-4 pb-3 border-b border-gray-100 dark:border-gray-700/60">
+            <div class="flex items-center gap-3">
+                <div class="p-2.5 bg-emerald-50 dark:bg-emerald-900/30 rounded-xl text-emerald-600 dark:text-emerald-400 shrink-0">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white">
+                        @Loc.Translate("details.workLogs")
+                    </h3>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                        @Loc.Translate("details.workLogsDesc")
+                    </p>
+                </div>
+            </div>
+            @if (!isAddingLog)
+            {
+                <button @onclick="() => isAddingLog = true" type="button"
+                        class="px-3.5 py-1.5 bg-emerald-50 dark:bg-emerald-500/10 hover:bg-emerald-100 dark:hover:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                    <span>@Loc.Translate("details.addWorkLog")</span>
+                </button>
+            }
+        </div>
+
+        @if (isAddingLog)
+        {
+            <div class="space-y-4 bg-emerald-50/50 dark:bg-emerald-900/10 p-4 rounded-xl border border-emerald-100 dark:border-emerald-800/30 mb-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            @Loc.Translate("details.timeSpentMinutes")
+                        </label>
+                        <input type="number" min="1" @bind="newLogMinutes" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 outline-none" />
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            @Loc.Translate("details.workDate")
+                        </label>
+                        <input type="date" @bind="newLogDate" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 outline-none [color-scheme:light] dark:[color-scheme:dark]" />
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        @Loc.Translate("details.workDescription")
+                    </label>
+                    <textarea @bind="newLogDescription" rows="2" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 outline-none resize-y"></textarea>
+                </div>
+                @if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    <p class="text-xs text-red-500">@errorMessage</p>
+                }
+                <div class="flex items-center justify-end gap-2 pt-2">
+                    <button @onclick="() => { isAddingLog = false; errorMessage = null; }" type="button" class="px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg text-xs font-semibold transition-colors cursor-pointer">
+                        @Loc.Translate("common.cancel")
+                    </button>
+                    <button @onclick="SaveWorkLogAsync" disabled="@isSaving" type="button" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold shadow-sm transition-all flex items-center gap-1.5 disabled:opacity-50 cursor-pointer">
+                        @if (isSaving)
+                        {
+                            <svg class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
+                        }
+                        else
+                        {
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                        }
+                        @Loc.Translate("details.saveWorkLog")
+                    </button>
+                </div>
+            </div>
+        }
+
+        <div class="space-y-3">
+            @if (logs == null)
+            {
+                <div class="h-10 bg-gray-100 dark:bg-gray-700/50 rounded-lg animate-pulse"></div>
+            }
+            else if (!logs.Any())
+            {
+                <div class="text-xs text-gray-400 dark:text-gray-500 italic py-2">
+                    @Loc.Translate("details.noWorkLogs")
+                </div>
+            }
+            else
+            {
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                        @Loc.Translate("details.totalTime") @FormatDuration(TotalTimeMinutes)
+                    </span>
+                </div>
+                <div class="divide-y divide-gray-100 dark:divide-gray-700/50">
+                    @foreach (var log in logs.OrderByDescending(l => l.DateLogged))
+                    {
+                        <div class="py-3 flex flex-col sm:flex-row gap-3 items-start justify-between group">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <div class="w-5 h-5 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 text-white text-[9px] font-bold flex items-center justify-center flex-shrink-0">
+                                        @(log.User?.Login?.Substring(0, 1).ToUpper() ?? "?")
+                                    </div>
+                                    <span class="font-medium text-sm text-gray-800 dark:text-gray-200">@log.User?.Login</span>
+                                    <span class="text-[11px] text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700/50 px-2 py-0.5 rounded-full">
+                                        @log.DateLogged.ToString("dd.MM.yyyy")
+                                    </span>
+                                </div>
+                                <p class="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-wrap">@log.Description</p>
+                            </div>
+                            <div class="flex items-center gap-3 self-end sm:self-center">
+                                <span class="font-mono text-sm font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 px-2 py-1 rounded">
+                                    @FormatDuration(log.TimeSpentMinutes)
+                                </span>
+                                @if (log.UserId == CurrentUserId || IsAdmin)
+                                {
+                                    <button type="button" @onclick="() => DeleteLogAsync(log.Id)" class="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors opacity-0 group-hover:opacity-100">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter, EditorRequired] public int TicketId { get; set; }
+    [Parameter, EditorRequired] public bool IsAdminOrDeveloper { get; set; }
+    [Parameter, EditorRequired] public bool IsAdmin { get; set; }
+    [Parameter, EditorRequired] public int CurrentUserId { get; set; }
+
+    private List<WorkLog>? logs;
+    private bool isAddingLog;
+    private bool isSaving;
+    private string? errorMessage;
+
+    private int newLogMinutes = 60;
+    private DateTime newLogDate = DateTime.Today;
+    private string newLogDescription = "";
+
+    private int TotalTimeMinutes => logs?.Sum(l => l.TimeSpentMinutes) ?? 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadLogsAsync();
+    }
+
+    private async Task LoadLogsAsync()
+    {
+        var result = await WorkLogService.GetWorkLogsByTicketIdAsync(TicketId);
+        logs = result.ToList();
+    }
+
+    private async Task SaveWorkLogAsync()
+    {
+        if (newLogMinutes <= 0)
+        {
+            errorMessage = Loc.Translate("details.invalidTime");
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(newLogDescription))
+        {
+            errorMessage = Loc.Translate("details.invalidDescription");
+            return;
+        }
+
+        isSaving = true;
+        errorMessage = null;
+        StateHasChanged();
+
+        var result = await WorkLogService.AddWorkLogAsync(TicketId, CurrentUserId, newLogMinutes, newLogDate, newLogDescription);
+        
+        isSaving = false;
+        
+        if (result.Success)
+        {
+            isAddingLog = false;
+            newLogMinutes = 60;
+            newLogDescription = "";
+            newLogDate = DateTime.Today;
+            await LoadLogsAsync();
+        }
+        else
+        {
+            errorMessage = result.ErrorMessage;
+        }
+        
+        StateHasChanged();
+    }
+
+    private async Task DeleteLogAsync(int id)
+    {
+        var result = await WorkLogService.DeleteWorkLogAsync(id, CurrentUserId);
+        if (result.Success)
+        {
+            await LoadLogsAsync();
+            StateHasChanged();
+        }
+    }
+
+    private string FormatDuration(int minutes)
+    {
+        var hours = minutes / 60;
+        var mins = minutes % 60;
+        if (hours > 0)
+        {
+            return mins > 0 ? $"{hours}{Loc.Translate("details.hr")} {mins}{Loc.Translate("details.min")}" : $"{hours}{Loc.Translate("details.hr")}";
+        }
+        return $"{mins}{Loc.Translate("details.min")}";
+    }
+}

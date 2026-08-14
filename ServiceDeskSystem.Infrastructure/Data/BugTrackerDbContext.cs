@@ -37,6 +37,8 @@ namespace ServiceDeskSystem.Infrastructure.Data
 
         public DbSet<Tag> Tags { get; set; } = null!;
 
+        public DbSet<WorkLog> WorkLogs { get; set; } = null!;
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             ArgumentNullException.ThrowIfNull(modelBuilder);
@@ -129,6 +131,30 @@ namespace ServiceDeskSystem.Infrastructure.Data
                 .WithMany(t => t.Attachments)
                 .HasForeignKey(a => a.TicketId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Attachment>()
+                .HasOne(a => a.UploadedBy)
+                .WithMany()
+                .HasForeignKey(a => a.UploadedById)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<Attachment>()
+                .HasOne(a => a.Comment)
+                .WithMany()
+                .HasForeignKey(a => a.CommentId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<WorkLog>()
+                .HasOne(w => w.Ticket)
+                .WithMany(t => t.WorkLogs)
+                .HasForeignKey(w => w.TicketId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<WorkLog>()
+                .HasOne(w => w.User)
+                .WithMany()
+                .HasForeignKey(w => w.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Notification>()
                 .HasOne(n => n.RecipientUser)

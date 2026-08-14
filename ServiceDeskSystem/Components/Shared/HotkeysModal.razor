@@ -1,0 +1,96 @@
+@using Microsoft.Extensions.Localization
+@using ServiceDeskSystem.Application.Services.Localization
+@inject ILocalizationService Loc
+
+@if (IsVisible)
+{
+    <div class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/60 dark:bg-black/60 backdrop-blur-sm transition-opacity duration-300" @onclick="Close">
+        <div class="relative w-full max-w-lg bg-white dark:bg-gray-800 rounded-3xl shadow-2xl border border-white/20 dark:border-gray-700/50 overflow-hidden" 
+             @onclick:stopPropagation>
+            <!-- Background mesh -->
+            <div class="absolute inset-0 pointer-events-none overflow-hidden rounded-3xl">
+                <div class="absolute -top-10 -right-10 w-40 h-40 bg-blue-500/20 dark:bg-blue-500/10 rounded-full filter blur-3xl"></div>
+                <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-purple-500/20 dark:bg-purple-500/10 rounded-full filter blur-3xl"></div>
+            </div>
+
+            <!-- Header -->
+            <div class="relative px-6 py-5 border-b border-gray-100 dark:border-gray-700/50 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg shadow-purple-500/30 flex items-center justify-center text-white">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z" />
+                        </svg>
+                    </div>
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white tracking-tight">@Loc.Translate("settings.hotkeysTitle")</h2>
+                </div>
+                <button class="p-2 rounded-xl text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:hover:text-gray-300 dark:hover:bg-gray-700/50 transition-colors focus:outline-none" 
+                        @onclick="Close" title="@Loc.Translate("common.close")">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            
+            <!-- Body -->
+            <div class="relative px-6 py-6 max-h-[70vh] overflow-y-auto custom-scrollbar">
+                <p class="text-sm text-gray-600 dark:text-gray-400 mb-6 font-medium">
+                    @Loc.Translate("settings.hotkeysDesc")
+                </p>
+
+                <div class="space-y-3">
+                    @foreach (var hotkey in new[] {
+                        (Keys: new[] { "?", "settings.hotkeyShowHelp", "H" }, Action: "settings.hotkeyShowHelp"),
+                        (Keys: new[] { "N" }, Action: "settings.hotkeyNewTicket"),
+                        (Keys: new[] { "T" }, Action: "settings.hotkeyTicketsList"),
+                        (Keys: new[] { "/" }, Action: "settings.hotkeySearch"),
+                        (Keys: new[] { "D" }, Action: "settings.hotkeyTheme"),
+                        (Keys: new[] { "Ctrl", "B" }, Action: "settings.hotkeySidebar")
+                    })
+                    {
+                        <div class="group flex items-center justify-between p-3 rounded-2xl bg-gray-50/50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-700/50 hover:bg-white dark:hover:bg-gray-700 hover:border-blue-200 dark:hover:border-blue-500/30 hover:shadow-md transition-all duration-300">
+                            <div class="text-sm font-medium text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">
+                                @Loc.Translate(hotkey.Action)
+                            </div>
+                            <div class="flex items-center gap-1.5 flex-wrap justify-end">
+                                @foreach (var k in hotkey.Keys)
+                                {
+                                    if (k == "settings.hotkeyShowHelp")
+                                    {
+                                        <span class="text-xs text-gray-400 dark:text-gray-500 mx-1 font-medium">@Loc.Translate("common.or")</span>
+                                    }
+                                    else
+                                    {
+                                        <kbd class="min-w-[28px] h-7 px-2 flex items-center justify-center text-xs font-bold text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-sm font-mono group-hover:border-blue-300 dark:group-hover:border-blue-500/50 transition-colors">
+                                            @k
+                                        </kbd>
+                                    }
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+            
+            <!-- Footer -->
+            <div class="px-6 py-4 bg-gray-50 dark:bg-gray-900/50 border-t border-gray-100 dark:border-gray-700/50 flex justify-end rounded-b-3xl relative">
+                <button @onclick="Close" class="px-6 py-2 bg-gradient-to-r from-gray-800 to-gray-700 hover:from-gray-700 hover:to-gray-600 text-white font-medium rounded-xl shadow-lg shadow-gray-800/20 dark:from-gray-700 dark:to-gray-600 dark:hover:from-gray-600 dark:hover:to-gray-500 transition-all focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800">
+                    @Loc.Translate("common.close")
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    public bool IsVisible { get; private set; }
+
+    public void Show()
+    {
+        IsVisible = true;
+        StateHasChanged();
+    }
+
+    public void Close()
+    {
+        IsVisible = false;
+        StateHasChanged();
+    }
+}

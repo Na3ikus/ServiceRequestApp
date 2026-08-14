@@ -16,10 +16,17 @@ namespace ServiceDeskSystem.Infrastructure.Data.Repository
 
         public async Task<User?> GetByLoginAsync(string login)
         {
-            return await this.Context.Users
+            var user = await this.Context.Users
                 .Include(u => u.Person)
                 .FirstOrDefaultAsync(u => u.Login == login)
                 .ConfigureAwait(false);
+
+            if (user is not null && !string.Equals(user.Login, login, StringComparison.Ordinal))
+            {
+                return null;
+            }
+
+            return user;
         }
 
         public async Task<IEnumerable<User>> GetAllWithPersonAsync()
