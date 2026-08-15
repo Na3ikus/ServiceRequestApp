@@ -78,9 +78,7 @@ public partial class Register : BaseComponent
 
         if (this.registerModel.Password != this.registerModel.ConfirmPassword)
         {
-            this.ErrorMessage = this.L.CurrentLanguage == "uk"
-                ? "Паролі не співпадають."
-                : "Passwords do not match.";
+            this.ErrorMessage = this.L.Translate("register.passwordsMismatch");
             this.IsLoading = false;
             return;
         }
@@ -94,9 +92,7 @@ public partial class Register : BaseComponent
 
         if (success)
         {
-            this.SuccessMessage = this.L.CurrentLanguage == "uk"
-                ? "Реєстрація успішна! Перенаправляємо на сторінку входу..."
-                : "Registration successful! Redirecting to login...";
+            this.SuccessMessage = this.L.Translate("register.successRedirect");
 
             await Task.Delay(1500);
             this.Navigation.NavigateTo("/login");
@@ -105,21 +101,15 @@ public partial class Register : BaseComponent
         {
             if (error == "Username already exists.")
             {
-                this.ErrorMessage = this.L.CurrentLanguage == "uk"
-                    ? "Користувач з таким логіном вже існує."
-                    : error;
+                this.ErrorMessage = this.L.Translate("register.usernameExists");
             }
             else if (error == "Email address is already registered.")
             {
-                this.ErrorMessage = this.L.CurrentLanguage == "uk"
-                    ? "Ця електронна адреса вже зареєстрована."
-                    : error;
+                this.ErrorMessage = this.L.Translate("register.emailExists");
             }
             else if (error == "Database connection is unavailable.")
             {
-                this.ErrorMessage = this.L.CurrentLanguage == "uk"
-                    ? "Немає зв'язку до БД"
-                    : "No connection to the database.";
+                this.ErrorMessage = this.L.Translate("login.dbUnavailable");
             }
             else
             {

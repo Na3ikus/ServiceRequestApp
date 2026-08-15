@@ -5,17 +5,13 @@ namespace ServiceDeskSystem.Application.Services.Localization;
 
 public sealed class LocalizationService : ILocalizationService
 {
-    public static readonly IReadOnlyList<LanguageInfo> AvailableLanguages = new List<LanguageInfo>
-    {
-        new("en", "English", "English"),
-        new("uk", "Ukrainian", "Українська"),
-    };
+    public static IReadOnlyList<LanguageInfo> AvailableLanguages => LocalizationConstants.SupportedLanguages;
 
     private static readonly Dictionary<string, Dictionary<string, string>> Translations = new();
     private static readonly SemaphoreSlim _semaphore = new(1, 1);
     private static bool isLoaded;
 
-    private string currentLanguage = "en";
+    private string currentLanguage = LocalizationConstants.DefaultLanguage;
 
     public LocalizationService()
     {
@@ -29,7 +25,7 @@ public sealed class LocalizationService : ILocalizationService
 
     public string CurrentLanguage => this.currentLanguage;
 
-    public IReadOnlyList<LanguageInfo> SupportedLanguages => AvailableLanguages;
+    public IReadOnlyList<LanguageInfo> SupportedLanguages => LocalizationConstants.SupportedLanguages;
 
     public void SetLanguage(string language)
     {
@@ -53,10 +49,10 @@ public sealed class LocalizationService : ILocalizationService
             return value;
         }
 
-        if (Translations.TryGetValue("en", out var enDict) &&
-            enDict.TryGetValue(key, out var enValue))
+        if (Translations.TryGetValue(LocalizationConstants.DefaultLanguage, out var defaultDict) &&
+            defaultDict.TryGetValue(key, out var defaultValue))
         {
-            return enValue;
+            return defaultValue;
         }
 
         return key;

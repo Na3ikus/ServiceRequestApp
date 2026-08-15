@@ -375,22 +375,28 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
         }
     }
 
+    private CultureInfo GetCurrentCultureInfo()
+    {
+        var lang = this.L.SupportedLanguages.FirstOrDefault(l => string.Equals(l.Code, this.L.CurrentLanguage, StringComparison.OrdinalIgnoreCase));
+        var cultureName = lang?.CultureName ?? this.L.CurrentLanguage;
+        try
+        {
+            return CultureInfo.GetCultureInfo(cultureName);
+        }
+        catch (CultureNotFoundException)
+        {
+            return CultureInfo.InvariantCulture;
+        }
+    }
+
     private string GetHeaderDateText()
     {
-        var culture = this.L.CurrentLanguage == "uk"
-            ? CultureInfo.GetCultureInfo("uk-UA")
-            : CultureInfo.GetCultureInfo("en-US");
-
-        return DateTime.Now.ToString("dddd, MMMM dd, yyyy", culture);
+        return DateTime.Now.ToString("dddd, MMMM dd, yyyy", this.GetCurrentCultureInfo());
     }
 
     private string FormatNotificationTime(DateTime utcDateTime)
     {
-        var culture = this.L.CurrentLanguage == "uk"
-            ? CultureInfo.GetCultureInfo("uk-UA")
-            : CultureInfo.GetCultureInfo("en-US");
-
-        return utcDateTime.ToLocalTime().ToString("g", culture);
+        return utcDateTime.ToLocalTime().ToString("g", this.GetCurrentCultureInfo());
     }
 
     private async Task ToggleLanguageDropdownAsync()

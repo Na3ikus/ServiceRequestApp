@@ -123,17 +123,16 @@
                         <p class="text-sm font-medium text-gray-900 dark:text-white">@L.Translate("settings.language")</p>
                         <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">@L.Translate("settings.languageDesc")</p>
                     </div>
-                    <div class="flex gap-3">
-                        <button @onclick='() => SetLanguageAsync("en")'
-                                class="@(L.CurrentLanguage == "en" ? "ring-2 ring-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 shadow-md shadow-blue-500/20" : "ring-1 ring-gray-300 dark:ring-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300") flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm transition-all hover:shadow-md">
-                            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"></circle><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10A15.3 15.3 0 0112 2z"></path></svg>
-                            English
-                        </button>
-                        <button @onclick='() => SetLanguageAsync("uk")'
-                                class="@(L.CurrentLanguage == "uk" ? "ring-2 ring-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 shadow-md shadow-blue-500/20" : "ring-1 ring-gray-300 dark:ring-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300") flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm transition-all hover:shadow-md">
-                            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"></circle><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10A15.3 15.3 0 0112 2z"></path></svg>
-                            Українська
-                        </button>
+                    <div class="flex gap-3 flex-wrap">
+                        @foreach (var lang in L.SupportedLanguages)
+                        {
+                            var isSelected = L.CurrentLanguage == lang.Code;
+                            <button @onclick="() => SetLanguageAsync(lang.Code)"
+                                    class="@(isSelected ? "ring-2 ring-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 shadow-md shadow-blue-500/20" : "ring-1 ring-gray-300 dark:ring-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300") flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm transition-all hover:shadow-md">
+                                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"></circle><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10A15.3 15.3 0 0112 2z"></path></svg>
+                                @lang.NativeName
+                            </button>
+                        }
                     </div>
                 </div>
 

@@ -1,6 +1,9 @@
 namespace ServiceDeskSystem.Application.Services.Localization;
 
-public sealed record LanguageInfo(string Code, string Name, string NativeName);
+public sealed record LanguageInfo(string Code, string Name, string NativeName, string? Culture = null)
+{
+    public string CultureName => !string.IsNullOrWhiteSpace(this.Culture) ? this.Culture : this.Code;
+}
 
 public interface ILocalizationService
 {

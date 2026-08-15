@@ -96,21 +96,15 @@ public partial class Login : BaseComponent
         {
             if (error == "Invalid username or password.")
             {
-                this.ErrorMessage = this.L.CurrentLanguage == "uk"
-                    ? "Невірний логін або пароль."
-                    : error;
+                this.ErrorMessage = this.L.Translate("login.invalidCredentials");
             }
             else if (error == "Account is deactivated. Please contact administrator.")
             {
-                this.ErrorMessage = this.L.CurrentLanguage == "uk"
-                    ? "Акаунт деактивовано. Будь ласка, зверніться до адміністратора."
-                    : error;
+                this.ErrorMessage = this.L.Translate("login.accountDeactivated");
             }
             else if (error == "Database connection is unavailable.")
             {
-                this.ErrorMessage = this.L.CurrentLanguage == "uk"
-                    ? "Немає зв'язку до БД"
-                    : "No connection to the database.";
+                this.ErrorMessage = this.L.Translate("login.dbUnavailable");
             }
             else
             {
