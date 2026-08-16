@@ -493,5 +493,10 @@
   "details.hr": "h",
   "details.min": "m",
   "details.invalidTime": "Time must be greater than 0",
-  "details.invalidDescription": "Description is required"
+  "details.invalidDescription": "Description is required",
+  "cmd.placeholder": "Search or jump to...",
+  "cmd.noResults": "No results found",
+  "cmd.navigate": "to navigate",
+  "cmd.select": "to select",
+  "cmd.close": "to close"
 }

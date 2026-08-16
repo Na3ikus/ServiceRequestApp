@@ -144,99 +144,66 @@
     }
 </div>
 
-@if (ShowModal)
-{
-    <div class="amodal-overlay" @onclick="CloseModal">
-        <div class="amodal-box animate-fade-in" @onclick:stopPropagation>
-            <button @onclick="CloseModal" class="amodal-close" aria-label="@L.Translate("common.close")">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-            </button>
+<!-- Modal -->
+<Modal IsOpen="ShowModal"
+       Title="@ModalTitle"
+       Subtitle="@L.Translate("tags.title")"
+       ErrorMessage="@ErrorMessage"
+       IsSaving="IsSaving"
+       OnClose="CloseModal"
+       OnSave="SaveModal"
+       CancelText="@L.Translate("common.cancel")"
+       SaveText="@L.Translate("common.save")"
+       SavingText="@L.Translate("common.saving")">
+    <HeaderIcon>
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+        </svg>
+    </HeaderIcon>
+    <ChildContent>
+        <div class="amodal-field">
+            <label class="amodal-label">@L.Translate("tags.tagName")</label>
+            <input type="text" 
+                   class="amodal-input" 
+                   @bind="EditingTag.Name" 
+                   placeholder="@L.Translate("tags.namePlaceholder")" />
+        </div>
 
-            <div class="amodal-header">
-                <div class="amodal-header-icon blue">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-                    </svg>
-                </div>
-                <div>
-                    <h3 class="amodal-title">@ModalTitle</h3>
-                    <p class="amodal-subtitle">@L.Translate("tags.title")</p>
-                </div>
-            </div>
-
-            <div class="amodal-body">
-                @if (!string.IsNullOrEmpty(ErrorMessage))
-                {
-                    <div class="amodal-error">@ErrorMessage</div>
-                }
-
-                <div class="amodal-field">
-                    <label class="amodal-label">@L.Translate("tags.tagName")</label>
-                    <input type="text" 
-                           class="amodal-input" 
-                           @bind="EditingTag.Name" 
-                           placeholder="@L.Translate("tags.namePlaceholder")" />
-                </div>
-
-                <div class="amodal-field">
-                    <label class="amodal-label">@L.Translate("tags.tagColor")</label>
-                    <div class="flex items-center gap-3">
-                        <input type="color" class="h-10 w-14 rounded-lg cursor-pointer border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 p-1" @bind="EditingTag.Color" />
-                        <input type="text" 
-                               class="amodal-input font-mono uppercase flex-1" 
-                               @bind="EditingTag.Color" 
-                               placeholder="#3B82F6" />
-                    </div>
-                </div>
-
-                <div class="amodal-field">
-                    <label class="amodal-label">@L.Translate("tags.colorPresets")</label>
-                    <div class="flex flex-wrap gap-2 pt-1">
-                        @foreach (var color in PresetColors)
-                        {
-                            <button type="button" 
-                                    @onclick="@(() => EditingTag.Color = color)"
-                                    class="w-7 h-7 rounded-full transition-transform hover:scale-110 border-2 @(EditingTag.Color == color ? "border-black dark:border-white ring-2 ring-blue-500 ring-offset-1" : "border-transparent")" 
-                                    style="background-color: @color;"></button>
-                        }
-                    </div>
-                </div>
-
-                <div class="amodal-field">
-                    <label class="amodal-label">@L.Translate("tags.livePreview")</label>
-                    <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 flex items-center justify-center">
-                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold text-white shadow-sm"
-                              style="background-color: @(string.IsNullOrWhiteSpace(EditingTag.Color) ? "#3B82F6" : EditingTag.Color);">
-                            <svg class="w-3.5 h-3.5 opacity-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-                            </svg>
-                            @(string.IsNullOrWhiteSpace(EditingTag.Name) ? L.Translate("tags.tagPreview") : EditingTag.Name)
-                        </span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="amodal-footer">
-                <button @onclick="CloseModal" class="amodal-btn-cancel">
-                    @L.Translate("common.cancel")
-                </button>
-                <button @onclick="SaveModal" disabled="@IsSaving" class="amodal-btn-save">
-                    @if (IsSaving)
-                    {
-                        <svg class="amodal-spin" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-                        </svg>
-                        <span>@L.Translate("common.saving")</span>
-                    }
-                    else
-                    {
-                        <span>@L.Translate("common.save")</span>
-                    }
-                </button>
+        <div class="amodal-field">
+            <label class="amodal-label">@L.Translate("tags.tagColor")</label>
+            <div class="flex items-center gap-3">
+                <input type="color" class="h-10 w-14 rounded-lg cursor-pointer border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 p-1" @bind="EditingTag.Color" />
+                <input type="text" 
+                       class="amodal-input font-mono uppercase flex-1" 
+                       @bind="EditingTag.Color" 
+                       placeholder="#3B82F6" />
             </div>
         </div>
-    </div>
-}
+
+        <div class="amodal-field">
+            <label class="amodal-label">@L.Translate("tags.colorPresets")</label>
+            <div class="flex flex-wrap gap-2 pt-1">
+                @foreach (var color in PresetColors)
+                {
+                    <button type="button" 
+                            @onclick="@(() => EditingTag.Color = color)"
+                            class="w-7 h-7 rounded-full transition-transform hover:scale-110 border-2 @(EditingTag.Color == color ? "border-black dark:border-white ring-2 ring-blue-500 ring-offset-1" : "border-transparent")" 
+                            style="background-color: @color;"></button>
+                }
+            </div>
+        </div>
+
+        <div class="amodal-field">
+            <label class="amodal-label">@L.Translate("tags.livePreview")</label>
+            <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 flex items-center justify-center">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold text-white shadow-sm"
+                      style="background-color: @(string.IsNullOrWhiteSpace(EditingTag.Color) ? "#3B82F6" : EditingTag.Color);">
+                    <svg class="w-3.5 h-3.5 opacity-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                    </svg>
+                    @(string.IsNullOrWhiteSpace(EditingTag.Name) ? L.Translate("tags.tagPreview") : EditingTag.Name)
+                </span>
+            </div>
+        </div>
+    </ChildContent>
+</Modal>

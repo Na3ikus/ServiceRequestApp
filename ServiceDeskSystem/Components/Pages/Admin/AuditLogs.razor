@@ -19,6 +19,13 @@
     }
     else
     {
+        <Breadcrumb Items="@(new List<Breadcrumb.BreadcrumbItem>
+        {
+            new(L.Translate("nav.home"), "/"),
+            new(L.Translate("admin.title"), "/admin"),
+            new(L.Translate("audit.title"))
+        })" />
+
         <div class="relative overflow-hidden bg-gradient-to-br from-indigo-500 via-blue-600 to-indigo-700 dark:from-gray-800 dark:via-gray-900 dark:to-black rounded-3xl shadow-lg p-6 sm:p-8 mb-6 border border-indigo-500/20 dark:border-gray-800 group">
             <div class="absolute top-0 right-0 -mr-10 -mt-10 w-48 h-48 rounded-full bg-white/10 dark:bg-white/5 blur-2xl pointer-events-none group-hover:scale-110 transition-transform duration-700"></div>
             <div class="absolute bottom-0 left-0 -ml-10 -mb-10 w-64 h-64 rounded-full bg-blue-500/10 blur-2xl pointer-events-none group-hover:scale-110 transition-transform duration-700"></div>
@@ -62,7 +69,7 @@
                     <button @onclick="ConfirmClearLogsAsync" class="px-3 py-1.5 bg-red-600 text-white rounded-lg hover:bg-red-700 text-xs font-semibold transition-colors shadow-sm">
                         @L.Translate("audit.clearYes")
                     </button>
-                    <button @onclick="CancelClearLogs" style="background-color: #4b5563; color: #ffffff;" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all shadow-sm hover:opacity-90">
+                    <button @onclick="CancelClearLogs" class="ui-btn ui-btn--neutral px-3 py-1.5 text-xs">
                         @L.Translate("audit.clearCancel")
                     </button>
                 }

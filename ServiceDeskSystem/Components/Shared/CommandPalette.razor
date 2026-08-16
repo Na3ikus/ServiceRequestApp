@@ -1,0 +1,222 @@
+@implements IDisposable
+@inject IJSRuntime JS
+@inherits ServiceDeskSystem.Components.UI.Base.BaseComponent
+
+@if (_isOpen)
+{
+    <div class="cmd-palette-overlay" @onclick="Close" role="dialog" aria-modal="true" aria-label="Command palette">
+        <div class="cmd-palette-box" @onclick:stopPropagation>
+            <!-- Search Input -->
+            <div class="cmd-palette-search-row">
+                <svg class="cmd-palette-search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0" />
+                </svg>
+                <input @ref="_inputRef"
+                       type="text"
+                       class="cmd-palette-input"
+                       placeholder="@L.Translate("cmd.placeholder")"
+                       @bind="_query"
+                       @bind:event="oninput"
+                       @bind:after="OnQueryChanged"
+                       @onkeydown="OnKeyDown" />
+                <kbd class="cmd-palette-esc">Esc</kbd>
+            </div>
+
+            <!-- Results -->
+            @if (_filteredItems.Count == 0 && !string.IsNullOrWhiteSpace(_query))
+            {
+                <div class="cmd-palette-empty">
+                    <svg class="w-8 h-8 text-gray-400 dark:text-gray-600 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0" />
+                    </svg>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">@L.Translate("cmd.noResults")</p>
+                </div>
+            }
+            else
+            {
+                <div class="cmd-palette-results" role="listbox">
+                    @for (int i = 0; i < _filteredItems.Count; i++)
+                    {
+                        var item = _filteredItems[i];
+                        var idx = i;
+                        <button class="cmd-palette-item @(idx == _selectedIndex ? "cmd-palette-item--selected" : "")"
+                                role="option"
+                                aria-selected="@(idx == _selectedIndex)"
+                                @onclick="() => ExecuteItem(item)">
+                            <div class="cmd-palette-item-icon">
+                                @((MarkupString)item.IconSvg)
+                            </div>
+                            <div class="cmd-palette-item-content">
+                                <span class="cmd-palette-item-label">@item.Label</span>
+                                @if (!string.IsNullOrWhiteSpace(item.Description))
+                                {
+                                    <span class="cmd-palette-item-desc">@item.Description</span>
+                                }
+                            </div>
+                            @if (!string.IsNullOrWhiteSpace(item.Shortcut))
+                            {
+                                <kbd class="cmd-palette-item-shortcut">@item.Shortcut</kbd>
+                            }
+                        </button>
+                    }
+                </div>
+            }
+
+            <!-- Footer hint -->
+            <div class="cmd-palette-footer">
+                <span><kbd>↑</kbd><kbd>↓</kbd> @L.Translate("cmd.navigate")</span>
+                <span><kbd>Enter</kbd> @L.Translate("cmd.select")</span>
+                <span><kbd>Esc</kbd> @L.Translate("cmd.close")</span>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private bool _isOpen;
+    private string _query = string.Empty;
+    private int _selectedIndex;
+    private ElementReference _inputRef;
+    private List<CommandItem> _allItems = [];
+    private List<CommandItem> _filteredItems = [];
+    private DotNetObjectReference<CommandPalette>? _dotNetRef;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        _allItems = BuildItems();
+        _filteredItems = _allItems;
+        _dotNetRef = DotNetObjectReference.Create(this);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                await JS.InvokeVoidAsync("commandPalette.register", _dotNetRef);
+            }
+            catch
+            {
+                // Prerender safe
+            }
+        }
+
+        if (_isOpen)
+        {
+            try { await _inputRef.FocusAsync(); } catch { }
+        }
+    }
+
+    [JSInvokable]
+    public void Toggle()
+    {
+        if (_isOpen) Close();
+        else Open();
+    }
+
+    [JSInvokable]
+    public void Open()
+    {
+        _query = string.Empty;
+        _filteredItems = _allItems;
+        _selectedIndex = 0;
+        _isOpen = true;
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void Close()
+    {
+        _isOpen = false;
+        _query = string.Empty;
+        StateHasChanged();
+    }
+
+    private void OnQueryChanged()
+    {
+        _selectedIndex = 0;
+        var q = _query.Trim().ToLowerInvariant();
+        _filteredItems = string.IsNullOrWhiteSpace(q)
+            ? _allItems
+            : _allItems.Where(x =>
+                x.Label.Contains(q, StringComparison.OrdinalIgnoreCase) ||
+                (x.Description?.Contains(q, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                (x.Keywords?.Contains(q, StringComparison.OrdinalIgnoreCase) ?? false)
+            ).ToList();
+    }
+
+    private void OnKeyDown(KeyboardEventArgs e)
+    {
+        switch (e.Key)
+        {
+            case "ArrowDown":
+                _selectedIndex = Math.Min(_selectedIndex + 1, _filteredItems.Count - 1);
+                StateHasChanged();
+                break;
+            case "ArrowUp":
+                _selectedIndex = Math.Max(_selectedIndex - 1, 0);
+                StateHasChanged();
+                break;
+            case "Enter":
+                if (_selectedIndex >= 0 && _selectedIndex < _filteredItems.Count)
+                    ExecuteItem(_filteredItems[_selectedIndex]);
+                break;
+            case "Escape":
+                Close();
+                break;
+        }
+    }
+
+    private void ExecuteItem(CommandItem item)
+    {
+        Close();
+        if (!string.IsNullOrWhiteSpace(item.Href))
+            Navigation.NavigateTo(item.Href);
+        else
+            item.Action?.Invoke();
+    }
+
+    private List<CommandItem> BuildItems()
+    {
+        const string navIcon = "<svg fill='none' stroke='currentColor' viewBox='0 0 24 24' style='width:1.1rem;height:1.1rem'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M13 9l3 3m0 0l-3 3m3-3H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z'/></svg>";
+        const string ticketIcon = "<svg fill='none' stroke='currentColor' viewBox='0 0 24 24' style='width:1.1rem;height:1.1rem'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2'/></svg>";
+        const string settingsIcon = "<svg fill='none' stroke='currentColor' viewBox='0 0 24 24' style='width:1.1rem;height:1.1rem'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z'/><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M15 12a3 3 0 11-6 0 3 3 0 016 0z'/></svg>";
+        const string profileIcon = "<svg fill='none' stroke='currentColor' viewBox='0 0 24 24' style='width:1.1rem;height:1.1rem'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z'/></svg>";
+        const string addIcon = "<svg fill='none' stroke='currentColor' viewBox='0 0 24 24' style='width:1.1rem;height:1.1rem'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 4v16m8-8H4'/></svg>";
+        const string calendarIcon = "<svg fill='none' stroke='currentColor' viewBox='0 0 24 24' style='width:1.1rem;height:1.1rem'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'/></svg>";
+        const string statsIcon = "<svg fill='none' stroke='currentColor' viewBox='0 0 24 24' style='width:1.1rem;height:1.1rem'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z'/></svg>";
+
+        return new List<CommandItem>
+        {
+            new("Go to Home", navIcon, "/", null, "home dashboard"),
+            new("Go to All Tickets", ticketIcon, "/tickets", null, "tickets list all"),
+            new("Create New Ticket", addIcon, "/create-ticket", null, "new ticket create", "N"),
+            new("My Tickets", ticketIcon, "/my-tickets", null, "my tickets personal"),
+            new("Calendar", calendarIcon, "/calendar", null, "calendar schedule dates"),
+            new("Statistics", statsIcon, "/statistics", null, "stats analytics charts"),
+            new("My Profile", profileIcon, "/profile", null, "profile account user"),
+            new("Settings", settingsIcon, "/settings", null, "settings preferences theme"),
+            new("Toggle Theme", settingsIcon, null, () => Theme.ToggleTheme(), "dark light mode theme", "D"),
+        };
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            _dotNetRef?.Dispose();
+        }
+        base.Dispose(disposing);
+    }
+
+    private record CommandItem(
+        string Label,
+        string IconSvg,
+        string? Href,
+        Action? Action,
+        string? Keywords = null,
+        string? Shortcut = null,
+        string? Description = null
+    );
+}

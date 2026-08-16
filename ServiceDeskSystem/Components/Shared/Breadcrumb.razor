@@ -1,0 +1,34 @@
+@if (Items != null && Items.Count > 0)
+{
+    <nav aria-label="Breadcrumb" class="breadcrumb-nav">
+        <ol class="breadcrumb-list">
+            @for (int i = 0; i < Items.Count; i++)
+            {
+                var item = Items[i];
+                var isLast = i == Items.Count - 1;
+                <li class="breadcrumb-item">
+                    @if (!isLast && !string.IsNullOrWhiteSpace(item.Href))
+                    {
+                        <a href="@item.Href" class="breadcrumb-link">@item.Label</a>
+                    }
+                    else
+                    {
+                        <span class="breadcrumb-current" aria-current="page">@item.Label</span>
+                    }
+                    @if (!isLast)
+                    {
+                        <svg class="breadcrumb-sep" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                    }
+                </li>
+            }
+        </ol>
+    </nav>
+}
+
+@code {
+    [Parameter] public List<BreadcrumbItem>? Items { get; set; }
+
+    public record BreadcrumbItem(string Label, string? Href = null);
+}

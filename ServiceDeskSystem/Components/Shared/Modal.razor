@@ -1,0 +1,92 @@
+@using Microsoft.AspNetCore.Components
+
+@if (IsOpen)
+{
+    <div class="amodal-overlay" @onclick="HandleOverlayClick" role="dialog" aria-modal="true" aria-labelledby="@($"modal-title-{_id}")">
+        <div class="amodal-box animate-fade-in" @onclick:stopPropagation>
+            <button @onclick="OnClose" class="amodal-close" aria-label="Close">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+
+            <div class="amodal-header">
+                @if (HeaderIcon != null)
+                {
+                    <div class="amodal-header-icon @IconColor">
+                        @HeaderIcon
+                    </div>
+                }
+                <div>
+                    <h3 class="amodal-title" id="@($"modal-title-{_id}")">@Title</h3>
+                    @if (!string.IsNullOrWhiteSpace(Subtitle))
+                    {
+                        <p class="amodal-subtitle">@Subtitle</p>
+                    }
+                </div>
+            </div>
+
+            <div class="amodal-body">
+                @ChildContent
+
+                @if (!string.IsNullOrWhiteSpace(ErrorMessage))
+                {
+                    <div class="amodal-error">@ErrorMessage</div>
+                }
+            </div>
+
+            <div class="amodal-footer">
+                @if (FooterContent != null)
+                {
+                    @FooterContent
+                }
+                else
+                {
+                    <button @onclick="OnClose" class="amodal-btn-cancel">@CancelText</button>
+                    <button @onclick="OnSave" disabled="@IsSaving" class="amodal-btn-save">
+                        @if (IsSaving)
+                        {
+                            <svg class="amodal-spin" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                            </svg>
+                            <span>@SavingText</span>
+                        }
+                        else
+                        {
+                            <span>@SaveText</span>
+                        }
+                    </button>
+                }
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private readonly string _id = Guid.NewGuid().ToString("N")[..8];
+
+    [Parameter] public bool IsOpen { get; set; }
+    [Parameter] public string Title { get; set; } = string.Empty;
+    [Parameter] public string? Subtitle { get; set; }
+    [Parameter] public string? ErrorMessage { get; set; }
+    [Parameter] public bool IsSaving { get; set; }
+    [Parameter] public bool CloseOnOverlayClick { get; set; } = true;
+    [Parameter] public string CancelText { get; set; } = "Cancel";
+    [Parameter] public string SaveText { get; set; } = "Save";
+    [Parameter] public string SavingText { get; set; } = "Saving...";
+    [Parameter] public string IconColor { get; set; } = "blue";
+    [Parameter] public RenderFragment? HeaderIcon { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public RenderFragment? FooterContent { get; set; }
+    [Parameter] public EventCallback OnClose { get; set; }
+    [Parameter] public EventCallback OnSave { get; set; }
+
+    private void HandleOverlayClick()
+    {
+        if (CloseOnOverlayClick)
+        {
+            OnClose.InvokeAsync();
+        }
+    }
+}

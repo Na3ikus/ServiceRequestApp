@@ -27,6 +27,7 @@
             </aside>
 
             <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+                <TopProgressBar />
                 <header class="sticky top-0 z-30 h-[4.5rem] bg-white dark:bg-gray-800 backdrop-blur-md border-b-2 border-gray-400 dark:border-gray-700 shadow-md shadow-gray-300/70 dark:shadow-black/30 transition-colors duration-200">
                     <div class="flex items-center justify-between px-4 lg:px-6 h-full">
                         <div class="flex items-center gap-4">
@@ -220,7 +221,7 @@
 
                             <details class="header-dropdown relative">
                                 <summary class="header-dropdown-summary flex items-center gap-3 pl-2 sm:pl-3 border-l border-gray-200 dark:border-gray-600 cursor-pointer">
-                                    <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg">
+                                    <div class="w-10 h-10 bg-gradient-to-br @(BaseComponent.GetAvatarGradient(AuthService.CurrentUser?.Login)) rounded-full flex items-center justify-center shadow-lg">
                                         <span class="text-white font-semibold text-sm">
                                             @(AuthService.CurrentUser?.Login?.Substring(0, 1).ToUpper() ?? "U")
                                         </span>
@@ -272,3 +273,5 @@
 <ToastContainer Toasts="ToastService.Toasts" OnRemoveToast="ToastService.RemoveToastAsync" />
 
 <ServiceDeskSystem.Components.Shared.HotkeysModal @ref="hotkeysModal" />
+
+<CommandPalette />

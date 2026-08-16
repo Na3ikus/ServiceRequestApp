@@ -73,28 +73,31 @@
                 <thead>
                     <tr>
                         <th class="atab-th sortable @(SortColumn == "name" ? "sort-active" : "")"
+                            style="min-width: 160px;"
                             @onclick="@(() => SetSort("name"))">
                             @L.Translate("admin.name")
                             <span class="sort-arrow">@GetSortArrow("name")</span>
                         </th>
-                        <th class="atab-th">@L.Translate("admin.description")</th>
+                        <th class="atab-th" style="min-width: 220px;">@L.Translate("admin.description")</th>
                         <th class="atab-th sortable @(SortColumn == "version" ? "sort-active" : "")"
+                            style="width: 100px; white-space: nowrap;"
                             @onclick="@(() => SetSort("version"))">
                             @L.Translate("admin.version")
                             <span class="sort-arrow">@GetSortArrow("version")</span>
                         </th>
                         <th class="atab-th sortable @(SortColumn == "techstack" ? "sort-active" : "")"
+                            style="min-width: 170px; white-space: nowrap;"
                             @onclick="@(() => SetSort("techstack"))">
                             @L.Translate("admin.techStack")
                             <span class="sort-arrow">@GetSortArrow("techstack")</span>
                         </th>
-                        <th class="atab-th atab-th-center">
+                        <th class="atab-th atab-th-center" style="width: 70px;">
                             <svg style="width:1rem;height:1rem;display:inline-block;vertical-align:middle;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                             </svg>
                         </th>
-                        <th class="atab-th atab-th-actions">@L.Translate("admin.actions")</th>
+                        <th class="atab-th atab-th-actions" style="width: 100px;">@L.Translate("admin.actions")</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -105,10 +108,10 @@
                             <td class="atab-td atab-td-desc">
                                 <span class="atab-desc-text" title="@product.Description">@product.Description</span>
                             </td>
-                            <td class="atab-td">
+                            <td class="atab-td atab-td-nowrap">
                                 <span class="atab-version-badge">@product.CurrentVersion</span>
                             </td>
-                            <td class="atab-td">
+                            <td class="atab-td atab-td-nowrap">
                                 @if (product.TechStack is not null)
                                 {
                                     <span class="atab-stack-badge @GetStackColorClass(product.TechStack.Type)">
@@ -162,83 +165,48 @@
 </div>
 
 <!-- Modal -->
-@if (ShowModal)
-{
-    <div class="amodal-overlay" @onclick="CloseModal">
-        <div class="amodal-box animate-fade-in" @onclick:stopPropagation>
-            <button @onclick="CloseModal" class="amodal-close" aria-label="@L.Translate("common.close")">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-            </button>
-
-            <div class="amodal-header">
-                <div class="amodal-header-icon blue">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                    </svg>
-                </div>
-                <div>
-                    <h3 class="amodal-title">@ModalTitle</h3>
-                    <p class="amodal-subtitle">@L.Translate("admin.products")</p>
-                </div>
+<Modal IsOpen="ShowModal"
+       Title="@ModalTitle"
+       Subtitle="@L.Translate("admin.products")"
+       ErrorMessage="@ErrorMessage"
+       IsSaving="IsSaving"
+       OnClose="CloseModal"
+       OnSave="SaveModal"
+       CancelText="@L.Translate("common.cancel")"
+       SaveText="@L.Translate("common.save")"
+       SavingText="@L.Translate("common.saving")">
+    <HeaderIcon>
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+        </svg>
+    </HeaderIcon>
+    <ChildContent>
+        <div class="amodal-field">
+            <label class="amodal-label">@L.Translate("admin.name")</label>
+            <input type="text" @bind="EditingProduct.Name" class="amodal-input"
+                   placeholder="@L.Translate("admin.productNamePlaceholder")" />
+        </div>
+        <div class="amodal-field">
+            <label class="amodal-label">@L.Translate("admin.description")</label>
+            <textarea @bind="EditingProduct.Description" rows="3" class="amodal-input amodal-textarea"
+                      placeholder="@L.Translate("admin.productDescriptionPlaceholder")"></textarea>
+        </div>
+        <div class="amodal-row-2">
+            <div class="amodal-field">
+                <label class="amodal-label">@L.Translate("admin.version")</label>
+                <input type="text" @bind="EditingProduct.CurrentVersion" class="amodal-input"
+                       placeholder="1.0.0" />
             </div>
-
-            <div class="amodal-body">
-                <div class="amodal-field">
-                    <label class="amodal-label">@L.Translate("admin.name")</label>
-                    <input type="text" @bind="EditingProduct.Name" class="amodal-input"
-                           placeholder="@L.Translate("admin.productNamePlaceholder")" />
-                </div>
-                <div class="amodal-field">
-                    <label class="amodal-label">@L.Translate("admin.description")</label>
-                    <textarea @bind="EditingProduct.Description" rows="3" class="amodal-input amodal-textarea"
-                              placeholder="@L.Translate("admin.productDescriptionPlaceholder")"></textarea>
-                </div>
-                <div class="amodal-row-2">
-                    <div class="amodal-field">
-                        <label class="amodal-label">@L.Translate("admin.version")</label>
-                        <input type="text" @bind="EditingProduct.CurrentVersion" class="amodal-input"
-                               placeholder="1.0.0" />
-                    </div>
-                    <div class="amodal-field">
-                        <label class="amodal-label">@L.Translate("admin.techStack")</label>
-                        <select @bind="EditingProduct.TechStackId" class="amodal-input amodal-select">
-                            @foreach (var ts in TechStacks ?? [])
-                            {
-                                <option value="@ts.Id">@ts.Name (@ts.Type)</option>
-                            }
-                        </select>
-                    </div>
-                </div>
-
-                @if (!string.IsNullOrEmpty(ErrorMessage))
-                {
-                    <div class="amodal-error">@ErrorMessage</div>
-                }
-            </div>
-
-            <div class="amodal-footer">
-                <button @onclick="CloseModal" class="amodal-btn-cancel">
-                    @L.Translate("common.cancel")
-                </button>
-                <button @onclick="SaveModal" disabled="@IsSaving" class="amodal-btn-save">
-                    @if (IsSaving)
+            <div class="amodal-field">
+                <label class="amodal-label">@L.Translate("admin.techStack")</label>
+                <select @bind="EditingProduct.TechStackId" class="amodal-input amodal-select">
+                    @foreach (var ts in TechStacks ?? [])
                     {
-                        <svg class="amodal-spin" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor"
-                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-                        </svg>
-                        <span>@L.Translate("common.saving")</span>
+                        <option value="@ts.Id">@ts.Name (@ts.Type)</option>
                     }
-                    else
-                    {
-                        <span>@L.Translate("common.save")</span>
-                    }
-                </button>
+                </select>
             </div>
         </div>
-    </div>
-}
+    </ChildContent>
+</Modal>

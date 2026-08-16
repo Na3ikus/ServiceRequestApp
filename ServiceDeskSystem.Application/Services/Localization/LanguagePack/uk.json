@@ -493,5 +493,10 @@
   "details.hr": "год",
   "details.min": "хв",
   "details.invalidTime": "Час має бути більше 0",
-  "details.invalidDescription": "Опис обов'язковий"
+  "details.invalidDescription": "Опис обов'язковий",
+  "cmd.placeholder": "Пошук або перехід до...",
+  "cmd.noResults": "Нічого не знайдено",
+  "cmd.navigate": "навігація",
+  "cmd.select": "вибрати",
+  "cmd.close": "закрити"
 }

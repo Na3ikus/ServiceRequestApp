@@ -1,0 +1,59 @@
+@implements IDisposable
+@inject NavigationManager Navigation
+
+@if (_isVisible)
+{
+    <div class="top-progress-bar" role="progressbar" aria-label="Page loading" aria-busy="true">
+        <div class="top-progress-bar__fill"></div>
+    </div>
+}
+
+@code {
+    private bool _isVisible;
+    private Timer? _hideTimer;
+    private string? _lastPath;
+
+    protected override void OnInitialized()
+    {
+        _lastPath = GetPath(Navigation.Uri);
+        Navigation.LocationChanged += OnLocationChanged;
+    }
+
+    private void OnLocationChanged(object? sender, Microsoft.AspNetCore.Components.Routing.LocationChangedEventArgs e)
+    {
+        var newPath = GetPath(e.Location);
+        if (newPath == _lastPath)
+        {
+            return;
+        }
+
+        _lastPath = newPath;
+        _hideTimer?.Dispose();
+        _isVisible = true;
+        InvokeAsync(StateHasChanged);
+
+        _hideTimer = new Timer(_ =>
+        {
+            _isVisible = false;
+            InvokeAsync(StateHasChanged);
+        }, null, 500, Timeout.Infinite);
+    }
+
+    private static string GetPath(string uri)
+    {
+        try
+        {
+            return new Uri(uri).AbsolutePath;
+        }
+        catch
+        {
+            return uri;
+        }
+    }
+
+    public void Dispose()
+    {
+        Navigation.LocationChanged -= OnLocationChanged;
+        _hideTimer?.Dispose();
+    }
+}

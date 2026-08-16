@@ -9,7 +9,9 @@ public static class LocalizationConstants
     {
         new("en", "English", "English", "en-US"),
         new("uk", "Ukrainian", "Українська", "uk-UA"),
-        //new("es", "Spanish", "Español", "es-ES"), Test test test
+        new("es", "Spanish", "Español", "es-ES"),
+        new("fr", "French", "Français", "fr-FR"),
+        new("de", "German", "Deutsch", "de-DE"),
     };
 
     public static LanguageInfo? GetLanguage(string? code)

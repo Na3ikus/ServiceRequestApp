@@ -24,6 +24,33 @@ public abstract class BaseComponent : ComponentBase, IDisposable
 
     protected bool IsAdminOrDeveloper => this.AuthService.CurrentUser?.Role is UserRole.Admin or UserRole.Developer;
 
+    /// <summary>
+    /// Returns a Tailwind CSS gradient color pair based on a hash of the given name.
+    /// Used for deterministic, consistent avatar background colors per user.
+    /// </summary>
+    /// <param name="name">The user's login name or display name.</param>
+    /// <returns>A Tailwind gradient utility class string, e.g. "from-blue-500 to-indigo-600".</returns>
+    public static string GetAvatarGradient(string? name)
+    {
+        if (string.IsNullOrEmpty(name))
+        {
+            return "from-blue-500 to-purple-600";
+        }
+
+        var hash = Math.Abs(name.Aggregate(0, (acc, c) => (acc * 31) + c)) % 6;
+
+        return hash switch
+        {
+            0 => "from-blue-500 to-indigo-600",
+            1 => "from-emerald-500 to-teal-600",
+            2 => "from-violet-500 to-purple-600",
+            3 => "from-rose-500 to-pink-600",
+            4 => "from-amber-500 to-orange-600",
+            5 => "from-cyan-500 to-blue-600",
+            _ => "from-blue-500 to-purple-600",
+        };
+    }
+
     public void Dispose()
     {
         this.Dispose(true);

@@ -4,7 +4,7 @@
 
 @if (IsVisible)
 {
-    <div class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/60 dark:bg-black/60 backdrop-blur-sm transition-opacity duration-300" @onclick="Close">
+    <div class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/60 dark:bg-black/60 backdrop-blur-sm transition-opacity duration-300" @onclick="Close" role="dialog" aria-modal="true" aria-labelledby="hotkeys-modal-title">
         <div class="relative w-full max-w-lg bg-white dark:bg-gray-800 rounded-3xl shadow-2xl border border-white/20 dark:border-gray-700/50 overflow-hidden" 
              @onclick:stopPropagation>
             <!-- Background mesh -->
@@ -21,7 +21,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z" />
                         </svg>
                     </div>
-                    <h2 class="text-xl font-bold text-gray-900 dark:text-white tracking-tight">@Loc.Translate("settings.hotkeysTitle")</h2>
+                    <h2 id="hotkeys-modal-title" class="text-xl font-bold text-gray-900 dark:text-white tracking-tight">@Loc.Translate("settings.hotkeysTitle")</h2>
                 </div>
                 <button class="p-2 rounded-xl text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:hover:text-gray-300 dark:hover:bg-gray-700/50 transition-colors focus:outline-none" 
                         @onclick="Close" title="@Loc.Translate("common.close")">
