@@ -66,54 +66,52 @@
     else
     {
         <div class="atab-table-wrap">
-            <table class="atab-table">
-                <thead>
-                    <tr>
-                        <th class="atab-th sortable @(SortColumn == "name" ? "sort-active" : "")"
-                            @onclick="@(() => SetSort("name"))">
-                            @L.Translate("admin.name")
-                            <span class="sort-arrow">@GetSortArrow("name")</span>
-                        </th>
-                        <th class="atab-th sortable @(SortColumn == "type" ? "sort-active" : "")"
-                            @onclick="@(() => SetSort("type"))">
-                            @L.Translate("admin.type")
-                            <span class="sort-arrow">@GetSortArrow("type")</span>
-                        </th>
-                        <th class="atab-th sortable @(SortColumn == "count" ? "sort-active" : "")"
-                            @onclick="@(() => SetSort("count"))">
-                            @L.Translate("admin.productsCount")
-                            <span class="sort-arrow">@GetSortArrow("count")</span>
-                        </th>
-                        <th class="atab-th atab-th-actions">@L.Translate("admin.actions")</th>
-                    </tr>
-                </thead>
-                <tbody>
+            <div class="atab-table w-full min-w-[600px]">
+                <div class="grid grid-cols-12">
+                    <div class="atab-th sortable col-span-3 @(SortColumn == "name" ? "sort-active" : "")"
+                        @onclick="@(() => SetSort("name"))">
+                        @L.Translate("admin.name")
+                        <span class="sort-arrow">@GetSortArrow("name")</span>
+                    </div>
+                    <div class="atab-th sortable col-span-3 @(SortColumn == "type" ? "sort-active" : "")"
+                        @onclick="@(() => SetSort("type"))">
+                        @L.Translate("admin.type")
+                        <span class="sort-arrow">@GetSortArrow("type")</span>
+                    </div>
+                    <div class="atab-th sortable col-span-4 @(SortColumn == "count" ? "sort-active" : "")"
+                        @onclick="@(() => SetSort("count"))">
+                        @L.Translate("admin.productsCount")
+                        <span class="sort-arrow">@GetSortArrow("count")</span>
+                    </div>
+                    <div class="atab-th atab-th-actions col-span-2">@L.Translate("admin.actions")</div>
+                </div>
+                <div>
                     @foreach (var ts in filteredStacks!)
                     {
                         var count = ts.Products?.Count ?? 0;
                         var maxCount = TechStacks!.Max(t => t.Products?.Count ?? 0);
 
-                        <tr class="atab-row">
-                            <td class="atab-td atab-td-primary">@ts.Name</td>
-                            <td class="atab-td atab-td-nowrap">
+                        <div class="atab-row grid grid-cols-12 items-center">
+                            <div class="atab-td atab-td-primary col-span-3 truncate">@ts.Name</div>
+                            <div class="atab-td atab-td-nowrap col-span-3 truncate">
                                 <span class="atab-type-badge @GetTypeColorClass(ts.Type)">
                                     @ts.Type
                                 </span>
-                            </td>
-                            <td class="atab-td">
-                                <div class="atab-progress-cell">
+                            </div>
+                            <div class="atab-td col-span-4">
+                                <div class="atab-progress-cell flex items-center gap-2">
                                     <span class="atab-progress-count">@count</span>
                                     @if (maxCount > 0)
                                     {
-                                        <div class="atab-progress-bar-wrap">
+                                        <div class="atab-progress-bar-wrap w-full">
                                             <div class="atab-progress-bar"
                                                  style="width: @(count == 0 ? 0 : Math.Max(8, count * 100 / maxCount))%">
                                             </div>
                                         </div>
                                     }
                                 </div>
-                            </td>
-                            <td class="atab-td atab-td-actions">
+                            </div>
+                            <div class="atab-td atab-td-actions col-span-2 flex justify-end gap-2 pr-4">
                                 <button @onclick="@(() => EditTechStack(ts))"
                                         class="atab-action-btn edit"
                                         title="@L.Translate("common.edit")">
@@ -131,11 +129,11 @@
                                             d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                     </svg>
                                 </button>
-                            </td>
-                        </tr>
+                            </div>
+                        </div>
                     }
-                </tbody>
-            </table>
+                </div>
+            </div>
         </div>
 
         <div class="atab-footer">

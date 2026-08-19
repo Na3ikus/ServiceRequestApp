@@ -470,39 +470,37 @@
                                 @L.Translate("analytics.devStatsTitle")
                             </h3>
                             <div class="overflow-x-auto">
-                                <table class="w-full text-left text-sm text-gray-700 dark:text-gray-200">
-                                    <thead class="text-xs uppercase bg-gray-50 dark:bg-gray-800/80 text-gray-500 dark:text-gray-400 font-semibold border-b border-gray-200 dark:border-gray-700/60">
-                                        <tr>
-                                            <th class="px-4 py-3 rounded-l-lg">@L.Translate("analytics.developerTh")</th>
-                                            <th class="px-3 py-3 text-center">@L.Translate("analytics.inProgressTh")</th>
-                                            <th class="px-3 py-3 text-center">@L.Translate("analytics.activeTh")</th>
-                                            <th class="px-3 py-3 text-center">@L.Translate("analytics.resolvedTh")</th>
-                                            <th class="px-4 py-3 text-right rounded-r-lg">@L.Translate("analytics.workloadTh")</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="divide-y divide-gray-100 dark:divide-gray-700/40">
-                                        @foreach (var dev in ExtendedData.DeveloperWorkloads)
-                                        {
-                                            <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/40 transition-colors">
-                                                <td class="px-4 py-3 font-semibold text-gray-900 dark:text-white">
-                                                    @dev.Login
-                                                </td>
-                                                <td class="px-3 py-3 text-center">
-                                                    <span class="px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300">
-                                                        @dev.InProgressCount
-                                                    </span>
-                                                </td>
-                                                <td class="px-3 py-3 text-center font-medium text-gray-900 dark:text-gray-200">@dev.AssignedCount</td>
-                                                <td class="px-3 py-3 text-center text-emerald-600 dark:text-emerald-400 font-semibold">@dev.ResolvedCount</td>
-                                                <td class="px-4 py-3 text-right">
-                                                    <span class="font-mono text-xs font-bold text-gray-800 dark:text-gray-200">
-                                                        @dev.WorkloadScore pts
-                                                    </span>
-                                                </td>
-                                            </tr>
-                                        }
-                                    </tbody>
-                                </table>
+                            <div class="w-full text-left text-sm text-gray-700 dark:text-gray-200 min-w-[600px]">
+                                <div class="grid grid-cols-12 text-xs uppercase bg-gray-50 dark:bg-gray-800/80 text-gray-500 dark:text-gray-400 font-semibold border-b border-gray-200 dark:border-gray-700/60 rounded-t-lg">
+                                    <div class="px-4 py-3 col-span-4">@L.Translate("analytics.developerTh")</div>
+                                    <div class="px-3 py-3 col-span-2 text-center">@L.Translate("analytics.inProgressTh")</div>
+                                    <div class="px-3 py-3 col-span-2 text-center">@L.Translate("analytics.activeTh")</div>
+                                    <div class="px-3 py-3 col-span-2 text-center">@L.Translate("analytics.resolvedTh")</div>
+                                    <div class="px-4 py-3 col-span-2 text-right">@L.Translate("analytics.workloadTh")</div>
+                                </div>
+                                <div class="divide-y divide-gray-100 dark:divide-gray-700/40">
+                                    @foreach (var dev in ExtendedData.DeveloperWorkloads)
+                                    {
+                                        <div class="grid grid-cols-12 hover:bg-gray-50 dark:hover:bg-gray-700/40 transition-colors items-center">
+                                            <div class="px-4 py-3 col-span-4 font-semibold text-gray-900 dark:text-white truncate" title="@dev.Login">
+                                                @dev.Login
+                                            </div>
+                                            <div class="px-3 py-3 col-span-2 text-center">
+                                                <span class="px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300">
+                                                    @dev.InProgressCount
+                                                </span>
+                                            </div>
+                                            <div class="px-3 py-3 col-span-2 text-center font-medium text-gray-900 dark:text-gray-200">@dev.AssignedCount</div>
+                                            <div class="px-3 py-3 col-span-2 text-center text-emerald-600 dark:text-emerald-400 font-semibold">@dev.ResolvedCount</div>
+                                            <div class="px-4 py-3 col-span-2 text-right">
+                                                <span class="font-mono text-xs font-bold text-gray-800 dark:text-gray-200">
+                                                    @dev.WorkloadScore pts
+                                                </span>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
                             </div>
                         </div>
 
@@ -512,31 +510,29 @@
                                 @L.Translate("analytics.productStatsTitle")
                             </h3>
                             <div class="overflow-x-auto">
-                                <table class="w-full text-left text-sm text-gray-700 dark:text-gray-200">
-                                    <thead class="text-xs uppercase bg-gray-50 dark:bg-gray-800/80 text-gray-500 dark:text-gray-400 font-semibold border-b border-gray-200 dark:border-gray-700/60">
-                                        <tr>
-                                            <th class="px-4 py-3 rounded-l-lg">@L.Translate("analytics.productTh")</th>
-                                            <th class="px-3 py-3 text-center">@L.Translate("analytics.totalTh")</th>
-                                            <th class="px-3 py-3 text-center">@L.Translate("analytics.resolvedTh")</th>
-                                            <th class="px-4 py-3 text-right rounded-r-lg">@L.Translate("analytics.avgTimeTh")</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="divide-y divide-gray-100 dark:divide-gray-700/40">
-                                        @foreach (var prod in ExtendedData.ProductPerformances)
-                                        {
-                                            <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/40 transition-colors">
-                                                <td class="px-4 py-3 font-semibold text-gray-900 dark:text-white">
-                                                    @prod.ProductName
-                                                </td>
-                                                <td class="px-3 py-3 text-center font-medium text-gray-900 dark:text-gray-200">@prod.TotalTickets</td>
-                                                <td class="px-3 py-3 text-center text-emerald-600 dark:text-emerald-400 font-semibold">@prod.ResolvedTickets</td>
-                                                <td class="px-4 py-3 text-right font-mono font-bold text-indigo-600 dark:text-indigo-400">
-                                                    @prod.AvgResolutionHours @L.Translate("analytics.hoursUnit")
-                                                </td>
-                                            </tr>
-                                        }
-                                    </tbody>
-                                </table>
+                            <div class="w-full text-left text-sm text-gray-700 dark:text-gray-200 min-w-[500px]">
+                                <div class="grid grid-cols-12 text-xs uppercase bg-gray-50 dark:bg-gray-800/80 text-gray-500 dark:text-gray-400 font-semibold border-b border-gray-200 dark:border-gray-700/60 rounded-t-lg">
+                                    <div class="px-4 py-3 col-span-6">@L.Translate("analytics.productTh")</div>
+                                    <div class="px-3 py-3 col-span-2 text-center">@L.Translate("analytics.totalTh")</div>
+                                    <div class="px-3 py-3 col-span-2 text-center">@L.Translate("analytics.resolvedTh")</div>
+                                    <div class="px-4 py-3 col-span-2 text-right">@L.Translate("analytics.avgTimeTh")</div>
+                                </div>
+                                <div class="divide-y divide-gray-100 dark:divide-gray-700/40">
+                                    @foreach (var prod in ExtendedData.ProductPerformances)
+                                    {
+                                        <div class="grid grid-cols-12 hover:bg-gray-50 dark:hover:bg-gray-700/40 transition-colors items-center">
+                                            <div class="px-4 py-3 col-span-6 font-semibold text-gray-900 dark:text-white truncate" title="@prod.ProductName">
+                                                @prod.ProductName
+                                            </div>
+                                            <div class="px-3 py-3 col-span-2 text-center font-medium text-gray-900 dark:text-gray-200">@prod.TotalTickets</div>
+                                            <div class="px-3 py-3 col-span-2 text-center text-emerald-600 dark:text-emerald-400 font-semibold">@prod.ResolvedTickets</div>
+                                            <div class="px-4 py-3 col-span-2 text-right font-mono font-bold text-indigo-600 dark:text-indigo-400">
+                                                @prod.AvgResolutionHours @L.Translate("analytics.hoursUnit")
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
                             </div>
                         </div>
                     </div>
@@ -584,41 +580,39 @@
                             @L.Translate("stats.efficiency")
                         </h2>
                         <div class="overflow-x-auto">
-                            <table class="w-full text-left text-sm text-gray-700 dark:text-gray-200">
-                                <thead class="text-xs uppercase bg-gray-50 dark:bg-gray-800/80 text-gray-500 dark:text-gray-400 font-semibold border-b border-gray-200 dark:border-gray-700/60">
-                                    <tr>
-                                        <th class="px-4 py-3 rounded-l-lg">@L.Translate("analytics.developerTh")</th>
-                                        <th class="px-3 py-3 text-center">@L.Translate("stats.ticketsClosed")</th>
-                                        <th class="px-3 py-3 text-center">@L.Translate("stats.totalTime")</th>
-                                        <th class="px-3 py-3 text-center">@L.Translate("stats.ticketsAssigned")</th>
-                                        <th class="px-4 py-3 text-right rounded-r-lg">@L.Translate("stats.closureRate")</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-gray-100 dark:divide-gray-700/40">
+                            <div class="w-full text-left text-sm text-gray-700 dark:text-gray-200 min-w-[700px]">
+                                <div class="grid grid-cols-12 text-xs uppercase bg-gray-50 dark:bg-gray-800/80 text-gray-500 dark:text-gray-400 font-semibold border-b border-gray-200 dark:border-gray-700/60 rounded-t-lg">
+                                    <div class="px-4 py-3 col-span-4">@L.Translate("analytics.developerTh")</div>
+                                    <div class="px-3 py-3 col-span-2 text-center">@L.Translate("stats.ticketsClosed")</div>
+                                    <div class="px-3 py-3 col-span-2 text-center">@L.Translate("stats.totalTime")</div>
+                                    <div class="px-3 py-3 col-span-2 text-center">@L.Translate("stats.ticketsAssigned")</div>
+                                    <div class="px-4 py-3 col-span-2 text-right">@L.Translate("stats.closureRate")</div>
+                                </div>
+                                <div class="divide-y divide-gray-100 dark:divide-gray-700/40">
                                     @foreach (var emp in EfficiencyData.OrderByDescending(e => e.ClosureRatePercentage))
                                     {
-                                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/40 transition-colors">
-                                            <td class="px-4 py-3 font-semibold text-gray-900 dark:text-white">
+                                        <div class="grid grid-cols-12 hover:bg-gray-50 dark:hover:bg-gray-700/40 transition-colors items-center">
+                                            <div class="px-4 py-3 col-span-4 font-semibold text-gray-900 dark:text-white truncate" title="@emp.DeveloperName">
                                                 @emp.DeveloperName
-                                            </td>
-                                            <td class="px-3 py-3 text-center">
+                                            </div>
+                                            <div class="px-3 py-3 col-span-2 text-center">
                                                 <span class="px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 dark:bg-emerald-900/40 text-emerald-800 dark:text-emerald-300">
                                                     @emp.TicketsClosed
                                                 </span>
-                                            </td>
-                                            <td class="px-3 py-3 text-center font-medium text-gray-900 dark:text-gray-200">
+                                            </div>
+                                            <div class="px-3 py-3 col-span-2 text-center font-medium text-gray-900 dark:text-gray-200">
                                                 @(emp.TotalTimeSpentMinutes / 60) год @(emp.TotalTimeSpentMinutes % 60) хв
-                                            </td>
-                                            <td class="px-3 py-3 text-center text-blue-600 dark:text-blue-400 font-semibold">@emp.TicketsAssigned</td>
-                                            <td class="px-4 py-3 text-right">
+                                            </div>
+                                            <div class="px-3 py-3 col-span-2 text-center text-blue-600 dark:text-blue-400 font-semibold">@emp.TicketsAssigned</div>
+                                            <div class="px-4 py-3 col-span-2 text-right">
                                                 <span class="font-mono text-xs font-bold text-gray-800 dark:text-gray-200">
                                                     @Math.Round(emp.ClosureRatePercentage, 1)%
                                                 </span>
-                                            </td>
-                                        </tr>
+                                            </div>
+                                        </div>
                                     }
-                                </tbody>
-                            </table>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 }

@@ -61,57 +61,55 @@
     else
     {
         <div class="atab-table-wrap">
-            <table class="atab-table">
-                <thead>
-                    <tr>
-                        <th class="atab-th">@L.Translate("admin.fullName")</th>
-                        <th class="atab-th">@L.Translate("admin.role")</th>
-                        <th class="atab-th atab-th-center">@L.Translate("admin.status")</th>
-                        <th class="atab-th atab-th-actions">@L.Translate("admin.actions")</th>
-                    </tr>
-                </thead>
-                <tbody>
+            <div class="atab-table w-full min-w-[600px]">
+                <div class="grid grid-cols-12">
+                    <div class="atab-th col-span-5">@L.Translate("admin.fullName")</div>
+                    <div class="atab-th col-span-3">@L.Translate("admin.role")</div>
+                    <div class="atab-th atab-th-center col-span-3">@L.Translate("admin.status")</div>
+                    <div class="atab-th atab-th-actions col-span-1">@L.Translate("admin.actions")</div>
+                </div>
+                <div>
                     @foreach (var user in filteredUsers!)
                     {
                         var initials = GetInitials(user.Person.FirstName, user.Person.LastName);
                         var avatarClass = GetAvatarClass(user.Role);
 
-                        <tr class="atab-row">
+                        <div class="atab-row grid grid-cols-12 items-center">
                             <!-- Avatar + Name + Login -->
-                            <td class="atab-td">
+                            <div class="atab-td col-span-5 truncate">
                                 <div class="auser-info">
-                                    <div class="auser-avatar @avatarClass">@initials</div>
-                                    <div class="auser-details">
-                                        <span class="auser-name">@($"{user.Person.FirstName} {user.Person.LastName}")</span>
-                                        <span class="auser-login">@@@user.Login</span>
+                                    <div class="auser-avatar @avatarClass shrink-0">@initials</div>
+                                    <div class="auser-details truncate">
+                                        <span class="auser-name truncate">@($"{user.Person.FirstName} {user.Person.LastName}")</span>
+                                        <span class="auser-login truncate">@@@user.Login</span>
                                     </div>
                                 </div>
-                            </td>
+                            </div>
 
                             <!-- Role select -->
-                            <td class="atab-td">
+                            <div class="atab-td col-span-3">
                                 <select @bind="user.Role"
                                         @bind:after="@(() => UpdateUserRole(user.Id, user.Role))"
                                         disabled="@(!CanEditUserRole(user))"
-                                        class="atab-role-select @(!CanEditUserRole(user) ? "disabled" : "") @GetRoleSelectClass(user.Role)">
+                                        class="atab-role-select @(!CanEditUserRole(user) ? "disabled" : "") @GetRoleSelectClass(user.Role) w-full">
                                     <option value="@UserRole.Admin">@L.Translate("admin.roleAdmin")</option>
                                     <option value="@UserRole.Developer">@L.Translate("admin.roleDeveloper")</option>
                                     <option value="@UserRole.User">@L.Translate("admin.roleUser")</option>
                                 </select>
-                            </td>
+                            </div>
 
                             <!-- Status toggle -->
-                            <td class="atab-td atab-td-center">
+                            <div class="atab-td atab-td-center col-span-3">
                                 <button @onclick="@(() => ToggleUserStatus(user.Id))"
                                         disabled="@(!CanToggleUserStatus(user))"
                                         class="atab-status-btn @(user.IsActive ? "active" : "inactive") @(!CanToggleUserStatus(user) ? "disabled" : "")">
                                     <span class="atab-status-dot"></span>
                                     @(user.IsActive ? L.Translate("admin.active") : L.Translate("admin.inactive"))
                                 </button>
-                            </td>
+                            </div>
 
                             <!-- Actions -->
-                            <td class="atab-td atab-td-actions">
+                            <div class="atab-td atab-td-actions col-span-1 flex justify-end gap-2 pr-4">
                                 <button @onclick="@(() => DeleteUser(user))"
                                         class="atab-action-btn delete @(!CanDeleteUser(user) ? "disabled" : "")"
                                         disabled="@(!CanDeleteUser(user))"
@@ -121,11 +119,11 @@
                                             d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                     </svg>
                                 </button>
-                            </td>
-                        </tr>
+                            </div>
+                        </div>
                     }
-                </tbody>
-            </table>
+                </div>
+            </div>
         </div>
 
         <div class="atab-footer">
