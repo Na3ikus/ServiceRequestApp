@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:ServiceDeskSystemApp.ViewModels"
+             xmlns:converters="clr-namespace:ServiceDeskSystemApp.Converters"
+             x:Class="ServiceDeskSystemApp.Views.TicketDetailPage"
+             x:DataType="vm:TicketDetailViewModel"
+             Title="Ticket Details">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:StatusToColorConverter x:Key="StatusToColorConverter" />
+            <converters:PriorityToColorConverter x:Key="PriorityToColorConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="15">
+            
+            <ActivityIndicator IsRunning="{Binding IsLoading}" 
+                               IsVisible="{Binding IsLoading}"
+                               HorizontalOptions="Center" />
+                               
+            <VerticalStackLayout Spacing="15">
+                <VerticalStackLayout.Triggers>
+                    <DataTrigger TargetType="VerticalStackLayout" Binding="{Binding Ticket}" Value="{x:Null}">
+                        <Setter Property="IsVisible" Value="False" />
+                    </DataTrigger>
+                </VerticalStackLayout.Triggers>
+                
+                <Label Text="{Binding Ticket.Title}" FontSize="22" FontAttributes="Bold" />
+                
+                <HorizontalStackLayout Spacing="10">
+                    <Border StrokeShape="RoundRectangle 4" BackgroundColor="{Binding Ticket.Status, Converter={StaticResource StatusToColorConverter}}" Padding="8,4">
+                        <Label Text="{Binding Ticket.Status}" FontSize="14" TextColor="White" />
+                    </Border>
+                    <Border StrokeShape="RoundRectangle 4" BackgroundColor="{Binding Ticket.Priority, Converter={StaticResource PriorityToColorConverter}}" Padding="8,4">
+                        <Label Text="{Binding Ticket.Priority}" FontSize="14" TextColor="White" />
+                    </Border>
+                    <Border StrokeShape="RoundRectangle 4" BackgroundColor="DarkBlue" Padding="8,4">
+                        <Label Text="{Binding Ticket.TicketType}" FontSize="14" TextColor="White" />
+                    </Border>
+                </HorizontalStackLayout>
+                
+                <BoxView HeightRequest="1" Color="LightGray" />
+                
+                <Label Text="Description" FontAttributes="Bold" FontSize="16" />
+                <Label Text="{Binding Ticket.Description}" FontSize="14" />
+                
+                <BoxView HeightRequest="1" Color="LightGray" />
+                
+                <Grid RowDefinitions="Auto, Auto, Auto" ColumnDefinitions="*, *">
+                    <Label Grid.Row="0" Grid.Column="0" Text="Created By:" FontAttributes="Bold" />
+                    <Label Grid.Row="0" Grid.Column="1" Text="{Binding Ticket.CreatedByName}" />
+                    
+                    <Label Grid.Row="1" Grid.Column="0" Text="Assigned To:" FontAttributes="Bold" />
+                    <Label Grid.Row="1" Grid.Column="1" Text="{Binding Ticket.AssignedToName}" />
+                    
+                    <Label Grid.Row="2" Grid.Column="0" Text="Created At:" FontAttributes="Bold" />
+                    <Label Grid.Row="2" Grid.Column="1" Text="{Binding Ticket.CreatedAt, StringFormat='{0:MMM dd, yyyy HH:mm}'}" />
+                </Grid>
+                
+            </VerticalStackLayout>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

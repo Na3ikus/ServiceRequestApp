@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:ServiceDeskSystemApp.ViewModels"
+             xmlns:models="clr-namespace:ServiceDeskSystemApp.Models.Tickets"
+             xmlns:converters="clr-namespace:ServiceDeskSystemApp.Converters"
+             x:Class="ServiceDeskSystemApp.Views.TicketsPage"
+             x:DataType="vm:TicketsViewModel"
+             Title="Tickets">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:StatusToColorConverter x:Key="StatusToColorConverter" />
+            <converters:PriorityToColorConverter x:Key="PriorityToColorConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    
+    <Grid RowDefinitions="Auto, *">
+        <HorizontalStackLayout Grid.Row="0" Spacing="30" Padding="15" HorizontalOptions="Center">
+            <VerticalStackLayout>
+                <Label Text="Total" FontSize="12" TextColor="Gray" HorizontalOptions="Center"/>
+                <Label Text="{Binding StatsTotal}" FontSize="18" FontAttributes="Bold" HorizontalOptions="Center"/>
+            </VerticalStackLayout>
+            <VerticalStackLayout>
+                <Label Text="Open" FontSize="12" TextColor="Gray" HorizontalOptions="Center"/>
+                <Label Text="{Binding StatsOpen}" FontSize="18" FontAttributes="Bold" HorizontalOptions="Center"/>
+            </VerticalStackLayout>
+            <VerticalStackLayout>
+                <Label Text="Critical" FontSize="12" TextColor="Gray" HorizontalOptions="Center"/>
+                <Label Text="{Binding StatsCritical}" FontSize="18" FontAttributes="Bold" TextColor="Red" HorizontalOptions="Center"/>
+            </VerticalStackLayout>
+        </HorizontalStackLayout>
+        
+        <RefreshView Grid.Row="1" Command="{Binding LoadTicketsCommand}" IsRefreshing="{Binding IsRefreshing}">
+            <CollectionView ItemsSource="{Binding Tickets}" SelectionMode="None">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:TicketDto">
+                        <Frame Margin="10,5" Padding="15" CornerRadius="8" HasShadow="True">
+                            <Grid RowDefinitions="Auto, Auto, Auto" ColumnDefinitions="*, Auto">
+                                <Label Grid.Row="0" Grid.Column="0" Text="{Binding Title}" FontAttributes="Bold" FontSize="16" />
+                                <Label Grid.Row="0" Grid.Column="1" Text="{Binding Id, StringFormat='#{0}'}" TextColor="Gray" />
+                                
+                                <Label Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Text="{Binding Description}" MaxLines="2" LineBreakMode="TailTruncation" FontSize="14" TextColor="Gray" Margin="0,5,0,10" />
+                                
+                                <HorizontalStackLayout Grid.Row="2" Grid.Column="0" Spacing="10" VerticalOptions="Center">
+                                    <Border StrokeShape="RoundRectangle 4" BackgroundColor="{Binding Status, Converter={StaticResource StatusToColorConverter}}" Padding="5,2">
+                                        <Label Text="{Binding Status}" FontSize="12" TextColor="White" />
+                                    </Border>
+                                    <Border StrokeShape="RoundRectangle 4" BackgroundColor="{Binding Priority, Converter={StaticResource PriorityToColorConverter}}" Padding="5,2">
+                                        <Label Text="{Binding Priority}" FontSize="12" TextColor="White" />
+                                    </Border>
+                                </HorizontalStackLayout>
+                                
+                                <Button Grid.Row="2" Grid.Column="1" Text="View" Padding="10,0" HeightRequest="35"
+                                        Clicked="OnViewTicketClicked" CommandParameter="{Binding Id}" />
+                            </Grid>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+                <CollectionView.EmptyView>
+                    <Label Text="No tickets found." HorizontalOptions="Center" VerticalOptions="Center" />
+                </CollectionView.EmptyView>
+            </CollectionView>
+        </RefreshView>
+        
+        <Button Grid.Row="1" 
+                Text="+" 
+                FontSize="24"
+                WidthRequest="60" 
+                HeightRequest="60" 
+                CornerRadius="30"
+                HorizontalOptions="End" 
+                VerticalOptions="End" 
+                Margin="20"
+                Clicked="OnCreateTicketClicked" />
+    </Grid>
+</ContentPage>

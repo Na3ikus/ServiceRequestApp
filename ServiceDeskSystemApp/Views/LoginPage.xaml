@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:ServiceDeskSystemApp.ViewModels"
+             x:Class="ServiceDeskSystemApp.Views.LoginPage"
+             x:DataType="vm:LoginViewModel"
+             Title="Login">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="30" Spacing="25" VerticalOptions="Center">
+            
+            <Label Text="Service Desk Login" 
+                   FontSize="24"
+                   FontAttributes="Bold"
+                   HorizontalOptions="Center" />
+
+            <VerticalStackLayout Spacing="10">
+                <Label Text="Username / Email" />
+                <Entry Text="{Binding Username}" 
+                       Placeholder="Enter username" />
+                
+                <Label Text="Password" />
+                <Entry Text="{Binding Password}" 
+                       IsPassword="True"
+                       Placeholder="Enter password" />
+            </VerticalStackLayout>
+
+            <Label Text="{Binding ErrorMessage}" 
+                   TextColor="Red" 
+                   IsVisible="True" />
+
+            <Button Text="Login" 
+                    Command="{Binding LoginCommand}" />
+
+            <ActivityIndicator IsRunning="{Binding IsLoading}" 
+                               IsVisible="{Binding IsLoading}"
+                               HorizontalOptions="Center" />
+            
+            <Button Text="Register an account" 
+                    Clicked="OnRegisterClicked" 
+                    BackgroundColor="Transparent"
+                    TextColor="Blue" />
+            
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

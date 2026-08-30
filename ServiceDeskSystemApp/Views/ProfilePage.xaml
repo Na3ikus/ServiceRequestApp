@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:ServiceDeskSystemApp.ViewModels"
+             x:Class="ServiceDeskSystemApp.Views.ProfilePage"
+             x:DataType="vm:ProfileViewModel"
+             Title="Profile">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="20">
+            
+            <ActivityIndicator IsRunning="{Binding IsLoading}" 
+                               IsVisible="{Binding IsLoading}"
+                               HorizontalOptions="Center" />
+
+            <VerticalStackLayout Spacing="15">
+                <VerticalStackLayout.Triggers>
+                    <DataTrigger TargetType="VerticalStackLayout" Binding="{Binding UserProfile}" Value="{x:Null}">
+                        <Setter Property="IsVisible" Value="False" />
+                    </DataTrigger>
+                </VerticalStackLayout.Triggers>
+
+                <Frame CornerRadius="50" HeightRequest="100" WidthRequest="100" HorizontalOptions="Center" BackgroundColor="LightBlue" Padding="0">
+                    <Label Text="👤" 
+                           FontSize="48" 
+                           HorizontalOptions="Center" 
+                           VerticalOptions="Center" />
+                </Frame>
+                
+                <Label Text="{Binding UserProfile.FirstName}" FontSize="24" FontAttributes="Bold" HorizontalOptions="Center" />
+                <Label Text="{Binding UserProfile.LastName}" FontSize="20" HorizontalOptions="Center" />
+                <Label Text="{Binding UserProfile.Email}" TextColor="Gray" HorizontalOptions="Center" />
+                
+                <BoxView HeightRequest="1" Color="LightGray" Margin="0,10" />
+
+            </VerticalStackLayout>
+            
+            <Button Text="Logout" 
+                    Command="{Binding LogoutCommand}" 
+                    BackgroundColor="Red" 
+                    TextColor="White" 
+                    Margin="0,30,0,0" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

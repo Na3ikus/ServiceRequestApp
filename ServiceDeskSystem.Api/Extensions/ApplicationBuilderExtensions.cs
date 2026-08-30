@@ -22,7 +22,7 @@ public static class ApplicationBuilderExtensions
             });
         }
 
-        app.UseHttpsRedirection();
+        // app.UseHttpsRedirection(); // Disabled for Android emulator HTTP access
         app.UseCors("AllowAll");
         app.UseRateLimiter();
         app.UseSerilogRequestLogging();

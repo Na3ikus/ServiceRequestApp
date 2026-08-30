@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="ServiceDeskSystemApp.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:ServiceDeskSystemApp"
+    xmlns:views="clr-namespace:ServiceDeskSystemApp.Views"
+    Title="ServiceDeskSystemApp">
+
+    <TabBar Route="main">
+        <Tab Title="Tickets">
+            <ShellContent
+                Title="Tickets"
+                ContentTemplate="{DataTemplate views:TicketsPage}"
+                Route="TicketsPage" />
+        </Tab>
+        <Tab Title="Profile">
+            <ShellContent
+                Title="Profile"
+                ContentTemplate="{DataTemplate views:ProfilePage}"
+                Route="ProfilePage" />
+        </Tab>
+    </TabBar>
+
+</Shell>
