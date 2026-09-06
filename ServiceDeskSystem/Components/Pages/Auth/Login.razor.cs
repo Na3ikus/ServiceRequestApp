@@ -18,6 +18,9 @@ public partial class Login : BaseComponent
     [Inject]
     private Microsoft.Extensions.Configuration.IConfiguration Configuration { get; set; } = null!;
 
+    [Inject]
+    private Microsoft.AspNetCore.Http.IHttpContextAccessor? HttpContextAccessor { get; set; }
+
     private string? ErrorMessage { get; set; }
 
     private bool IsLoading { get; set; }
@@ -86,7 +89,8 @@ public partial class Login : BaseComponent
         this.loginModel.Username = this.loginModel.Username.Trim();
         this.loginModel.Password = this.loginModel.Password.Trim();
 
-        var (success, error) = await this.AuthService.LoginAsync(this.loginModel.Username, this.loginModel.Password);
+        var ip = this.HttpContextAccessor?.HttpContext?.Connection.RemoteIpAddress?.ToString();
+        var (success, error) = await this.AuthService.LoginAsync(this.loginModel.Username, this.loginModel.Password, ip);
 
         if (success)
         {
@@ -105,6 +109,10 @@ public partial class Login : BaseComponent
             else if (error == "Database connection is unavailable.")
             {
                 this.ErrorMessage = this.L.Translate("login.dbUnavailable");
+            }
+            else if (error?.Contains("Too many failed login attempts", StringComparison.OrdinalIgnoreCase) == true)
+            {
+                this.ErrorMessage = this.L.Translate("login.bruteForceBlocked") ?? error;
             }
             else
             {

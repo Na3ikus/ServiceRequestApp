@@ -1,10 +1,13 @@
 using ServiceDeskSystem.Application.Services.Audit;
+using ServiceDeskSystem.Application.Services.Realtime;
 using ServiceDeskSystem.Domain.Entities;
 using ServiceDeskSystem.Domain.Interfaces;
 
 namespace ServiceDeskSystem.Application.Services.Audit;
 
-public sealed class AuditService(IRepositoryFacadeFactory repositoryFacadeFactory) : IAuditService
+public sealed class AuditService(
+    IRepositoryFacadeFactory repositoryFacadeFactory,
+    IRealtimeNotifier? realtimeNotifier = null) : IAuditService
 {
     public async Task LogActionAsync(string action, string entityName, string entityId, string? changes = null, int? userId = null)
     {
@@ -17,14 +20,26 @@ public sealed class AuditService(IRepositoryFacadeFactory repositoryFacadeFactor
             EntityId = entityId,
             Changes = changes,
             Timestamp = DateTime.UtcNow,
-            UserId = userId
+            UserId = userId,
         };
 
         await repo.AuditLogs.CreateAsync(log).ConfigureAwait(false);
         await repo.UnitOfWork.SaveChangesAsync().ConfigureAwait(false);
+
+        if (realtimeNotifier is not null)
+        {
+            try
+            {
+                await realtimeNotifier.NotifyAuditLogsChangedAsync().ConfigureAwait(false);
+            }
+            catch
+            {
+                // Non-critical background notification failure
+            }
+        }
     }
 
-    public async Task<List<AuditLog>> GetLatestLogsAsync(int count = 100)
+    public async Task<List<AuditLog>> GetLatestLogsAsync(int count = 500)
     {
         await using var repo = repositoryFacadeFactory.Create();
         return await repo.AuditLogs.GetLatestLogsAsync(count).ConfigureAwait(false);

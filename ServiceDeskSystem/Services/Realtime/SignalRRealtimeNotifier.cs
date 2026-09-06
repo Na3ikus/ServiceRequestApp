@@ -31,4 +31,9 @@ public sealed class SignalRRealtimeNotifier(IHubContext<UpdatesHub> hubContext) 
                 .ConfigureAwait(false);
         }
     }
+
+    public async Task NotifyAuditLogsChangedAsync(CancellationToken cancellationToken = default)
+    {
+        await hubContext.Clients.All.SendAsync("AuditLogsChanged", cancellationToken).ConfigureAwait(false);
+    }
 }

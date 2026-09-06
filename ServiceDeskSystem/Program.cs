@@ -23,6 +23,7 @@ internal static class Program
 
         builder.Services.AddInfrastructureServices(builder.Configuration);
         builder.Services.AddApplicationServices();
+        builder.Services.AddHttpContextAccessor();
         builder.Services.AddSingleton<IRealtimeNotifier, SignalRRealtimeNotifier>();
 
         var app = builder.Build();

@@ -19,5 +19,10 @@ public sealed class NoOpRealtimeNotifier : IRealtimeNotifier
     {
         return Task.CompletedTask;
     }
+
+    public Task NotifyAuditLogsChangedAsync(CancellationToken cancellationToken = default)
+    {
+        return Task.CompletedTask;
+    }
 }
 

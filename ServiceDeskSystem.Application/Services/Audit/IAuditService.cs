@@ -5,7 +5,7 @@ namespace ServiceDeskSystem.Application.Services.Audit;
 public interface IAuditService
 {
     Task LogActionAsync(string action, string entityName, string entityId, string? changes = null, int? userId = null);
-    Task<List<AuditLog>> GetLatestLogsAsync(int count = 100);
+    Task<List<AuditLog>> GetLatestLogsAsync(int count = 500);
     Task ClearAllLogsAsync();
 }
 

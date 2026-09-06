@@ -82,13 +82,30 @@ public sealed class AdminService(
             return false;
         }
 
+        var diff = new List<AuditDiffItem>();
+        if (existing.Name != techStack.Name)
+        {
+            diff.Add(new("Name", existing.Name, techStack.Name));
+        }
+        if (existing.Type != techStack.Type)
+        {
+            diff.Add(new("Type", existing.Type.ToString(), techStack.Type.ToString()));
+        }
+
         existing.Name = techStack.Name;
         existing.Type = techStack.Type;
         await repo.UnitOfWork.SaveChangesAsync().ConfigureAwait(false);
 
         ClearCache();
 
-        await auditService.LogActionSafeAsync("UPDATE_TECH_STACK", "TechStack", techStack.Id.ToString(), $"Updated tech stack: {techStack.Name}").ConfigureAwait(false);
+        var payload = new AuditChangePayload
+        {
+            Summary = $"Updated tech stack: {techStack.Name}",
+            Severity = "Info",
+            Diff = diff.Count > 0 ? diff : null,
+        };
+
+        await auditService.LogActionSafeAsync("UPDATE_TECH_STACK", "TechStack", techStack.Id.ToString(System.Globalization.CultureInfo.InvariantCulture), payload.ToJson()).ConfigureAwait(false);
 
         return true;
     }
@@ -104,6 +121,24 @@ public sealed class AdminService(
             return false;
         }
 
+        var diff = new List<AuditDiffItem>();
+        if (existing.Name != product.Name)
+        {
+            diff.Add(new("Name", existing.Name, product.Name));
+        }
+        if (existing.Description != product.Description)
+        {
+            diff.Add(new("Description", existing.Description, product.Description));
+        }
+        if (existing.CurrentVersion != product.CurrentVersion)
+        {
+            diff.Add(new("Version", existing.CurrentVersion, product.CurrentVersion));
+        }
+        if (existing.TechStackId != product.TechStackId)
+        {
+            diff.Add(new("TechStackId", existing.TechStackId.ToString(System.Globalization.CultureInfo.InvariantCulture), product.TechStackId.ToString(System.Globalization.CultureInfo.InvariantCulture)));
+        }
+
         existing.Name = product.Name;
         existing.Description = product.Description;
         existing.CurrentVersion = product.CurrentVersion;
@@ -112,7 +147,14 @@ public sealed class AdminService(
 
         ClearCache();
 
-        await auditService.LogActionSafeAsync("UPDATE_PRODUCT", "Product", product.Id.ToString(), $"Updated product: {product.Name}").ConfigureAwait(false);
+        var payload = new AuditChangePayload
+        {
+            Summary = $"Updated product: {product.Name}",
+            Severity = "Info",
+            Diff = diff.Count > 0 ? diff : null,
+        };
+
+        await auditService.LogActionSafeAsync("UPDATE_PRODUCT", "Product", product.Id.ToString(System.Globalization.CultureInfo.InvariantCulture), payload.ToJson()).ConfigureAwait(false);
 
         return true;
     }
@@ -137,7 +179,13 @@ public sealed class AdminService(
 
         ClearCache();
 
-        await auditService.LogActionSafeAsync("DELETE_TECH_STACK", "TechStack", id.ToString(), $"Deleted tech stack: {techStack.Name}").ConfigureAwait(false);
+        var payload = new AuditChangePayload
+        {
+            Summary = $"Deleted tech stack: {techStack.Name}",
+            Severity = "Critical",
+        };
+
+        await auditService.LogActionSafeAsync("DELETE_TECH_STACK", "TechStack", id.ToString(System.Globalization.CultureInfo.InvariantCulture), payload.ToJson()).ConfigureAwait(false);
 
         return true;
     }
@@ -162,7 +210,13 @@ public sealed class AdminService(
 
         ClearCache();
 
-        await auditService.LogActionSafeAsync("DELETE_PRODUCT", "Product", id.ToString(), $"Deleted product: {product.Name}").ConfigureAwait(false);
+        var payload = new AuditChangePayload
+        {
+            Summary = $"Deleted product: {product.Name}",
+            Severity = "Critical",
+        };
+
+        await auditService.LogActionSafeAsync("DELETE_PRODUCT", "Product", id.ToString(System.Globalization.CultureInfo.InvariantCulture), payload.ToJson()).ConfigureAwait(false);
 
         return true;
     }
@@ -176,7 +230,6 @@ public sealed class AdminService(
 
     public async Task<bool> UpdateUserRoleAsync(int userId, UserRole newRole)
     {
-
         await using var repo = repositoryFacadeFactory.Create();
         var user = await repo.Users.GetByIdAsync(userId).ConfigureAwait(false);
         if (user is null)
@@ -184,10 +237,22 @@ public sealed class AdminService(
             return false;
         }
 
+        var diff = new List<AuditDiffItem>
+        {
+            new("Role", user.Role.ToString(), newRole.ToString()),
+        };
+
         user.Role = newRole;
         await repo.UnitOfWork.SaveChangesAsync().ConfigureAwait(false);
 
-        await auditService.LogActionSafeAsync("UPDATE_USER_ROLE", "User", userId.ToString(), $"Updated user role to: {newRole}").ConfigureAwait(false);
+        var payload = new AuditChangePayload
+        {
+            Summary = $"Updated role for user '{user.Login}' to {newRole}",
+            Severity = "Warning",
+            Diff = diff,
+        };
+
+        await auditService.LogActionSafeAsync("UPDATE_USER_ROLE", "User", userId.ToString(System.Globalization.CultureInfo.InvariantCulture), payload.ToJson()).ConfigureAwait(false);
 
         return true;
     }
@@ -201,13 +266,25 @@ public sealed class AdminService(
             return false;
         }
 
+        var oldStatus = user.IsActive;
         user.IsActive = !user.IsActive;
         await repo.UnitOfWork.SaveChangesAsync().ConfigureAwait(false);
 
         var actionStr = user.IsActive ? "ACTIVATE_USER" : "DEACTIVATE_USER";
-        var detailStr = user.IsActive ? "Activated user account" : "Deactivated user account";
+        var detailStr = user.IsActive ? $"Activated user account '{user.Login}'" : $"Deactivated user account '{user.Login}'";
+        var diff = new List<AuditDiffItem>
+        {
+            new("IsActive", oldStatus.ToString(), user.IsActive.ToString()),
+        };
 
-        await auditService.LogActionSafeAsync(actionStr, "User", userId.ToString(), detailStr).ConfigureAwait(false);
+        var payload = new AuditChangePayload
+        {
+            Summary = detailStr,
+            Severity = user.IsActive ? "Info" : "Warning",
+            Diff = diff,
+        };
+
+        await auditService.LogActionSafeAsync(actionStr, "User", userId.ToString(System.Globalization.CultureInfo.InvariantCulture), payload.ToJson()).ConfigureAwait(false);
 
         return true;
     }
@@ -231,7 +308,13 @@ public sealed class AdminService(
         await repo.Users.DeleteAsync(userId).ConfigureAwait(false);
         await repo.UnitOfWork.SaveChangesAsync().ConfigureAwait(false);
 
-        await auditService.LogActionSafeAsync("DELETE_USER", "User", userId.ToString(), $"Deleted user: {user.Login}").ConfigureAwait(false);
+        var payload = new AuditChangePayload
+        {
+            Summary = $"Deleted user: {user.Login}",
+            Severity = "Critical",
+        };
+
+        await auditService.LogActionSafeAsync("DELETE_USER", "User", userId.ToString(System.Globalization.CultureInfo.InvariantCulture), payload.ToJson()).ConfigureAwait(false);
 
         return true;
     }

@@ -3,7 +3,7 @@
 @using ServiceDeskSystem.Domain.Enums
 @rendermode InteractiveServer
 
-<div class="audit-logs-container max-w-7xl mx-auto p-4 sm:p-6">
+<div class="audit-logs-container max-w-7xl mx-auto p-4 sm:p-6 space-y-6">
     @if (AuthService.CurrentUser?.Role != UserRole.Admin)
     {
         <div class="bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-700 text-red-700 dark:text-red-400 px-6 py-4 rounded-xl">
@@ -26,123 +26,640 @@
             new(L.Translate("audit.title"))
         })" />
 
-        <div class="relative overflow-hidden bg-gradient-to-br from-indigo-500 via-blue-600 to-indigo-700 dark:from-gray-800 dark:via-gray-900 dark:to-black rounded-3xl shadow-lg p-6 sm:p-8 mb-6 border border-indigo-500/20 dark:border-gray-800 group">
-            <div class="absolute top-0 right-0 -mr-10 -mt-10 w-48 h-48 rounded-full bg-white/10 dark:bg-white/5 blur-2xl pointer-events-none group-hover:scale-110 transition-transform duration-700"></div>
-            <div class="absolute bottom-0 left-0 -ml-10 -mb-10 w-64 h-64 rounded-full bg-blue-500/10 blur-2xl pointer-events-none group-hover:scale-110 transition-transform duration-700"></div>
+        <!-- Header Hero Banner -->
+        <div class="relative overflow-hidden bg-gradient-to-br from-indigo-600 via-blue-600 to-indigo-800 dark:from-gray-800 dark:via-gray-900 dark:to-black rounded-3xl shadow-xl p-6 sm:p-8 border border-indigo-500/20 dark:border-gray-800">
+            <div class="absolute top-0 right-0 -mr-10 -mt-10 w-48 h-48 rounded-full bg-white/10 dark:bg-white/5 blur-2xl pointer-events-none"></div>
+            <div class="absolute bottom-0 left-0 -ml-10 -mb-10 w-64 h-64 rounded-full bg-blue-500/10 blur-2xl pointer-events-none"></div>
             
-            <div class="relative z-10">
-                <h1 class="text-2xl sm:text-3xl font-extrabold text-white mb-2 tracking-tight flex items-center gap-3">
-                    <span class="p-2 bg-white/10 rounded-lg backdrop-blur-sm inline-flex">
-                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div>
+                    <h1 class="text-2xl sm:text-3xl font-extrabold text-white mb-2 tracking-tight flex items-center gap-3">
+                        <span class="p-2.5 bg-white/10 rounded-xl backdrop-blur-md inline-flex shadow-inner">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </span>
+                        @L.Translate("audit.title")
+                    </h1>
+                    <p class="text-indigo-100 dark:text-gray-400 text-sm sm:text-base flex flex-wrap items-center gap-2">
+                        @L.Translate("audit.subtitle")
+                        <!-- SignalR Live connection badge -->
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold @(isRealtimeConnected ? "bg-emerald-500/20 text-emerald-200 border-emerald-500/30" : "bg-gray-500/20 text-gray-300 border-gray-500/30") border">
+                            <span class="w-1.5 h-1.5 rounded-full @(isRealtimeConnected ? "bg-emerald-400 animate-pulse" : "bg-gray-400")"></span>
+                            @(isRealtimeConnected ? L.Translate("audit.realtime.live") : L.Translate("audit.realtime.connecting"))
+                        </span>
+
+                        <!-- Auto-refresh status -->
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold @(isAutoRefreshPaused ? "bg-amber-500/20 text-amber-200 border-amber-500/30" : "bg-blue-500/20 text-blue-200 border-blue-500/30") border">
+                            <span class="w-1.5 h-1.5 rounded-full @(isAutoRefreshPaused ? "bg-amber-400" : "bg-blue-400")"></span>
+                            @(isAutoRefreshPaused ? L.Translate("audit.autoRefreshPaused") : L.Translate("audit.autoRefreshActive"))
+                        </span>
+                    </p>
+                </div>
+
+                <!-- Header Actions -->
+                <div class="flex flex-wrap items-center gap-2.5">
+                    <!-- Toggle Auto Refresh -->
+                    <button @onclick="ToggleAutoRefresh"
+                            class="px-3.5 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-semibold backdrop-blur-md border border-white/15 transition-all shadow-sm flex items-center gap-1.5"
+                            title="@(isAutoRefreshPaused ? L.Translate("audit.resumeRefresh") : L.Translate("audit.pauseRefresh"))">
+                        @if (isAutoRefreshPaused)
+                        {
+                            <svg class="w-4 h-4 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <span>@L.Translate("audit.resumeRefresh")</span>
+                        }
+                        else
+                        {
+                            <svg class="w-4 h-4 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <span>@L.Translate("audit.pauseRefresh")</span>
+                        }
+                    </button>
+
+                    <!-- Manual Refresh -->
+                    <button @onclick="RefreshNowAsync" disabled="@isRefreshing"
+                            class="px-3.5 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-semibold backdrop-blur-md border border-white/15 transition-all shadow-sm flex items-center gap-1.5 disabled:opacity-50">
+                        <svg class="w-4 h-4 @(isRefreshing ? "animate-spin" : "")" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
                         </svg>
-                    </span>
-                    @L.Translate("audit.title")
-                </h1>
-                <p class="text-indigo-100 dark:text-gray-400 text-sm sm:text-base flex flex-wrap items-center gap-2">
-                    @L.Translate("audit.subtitle")
-                    <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/20 dark:bg-emerald-500/10 text-emerald-200 dark:text-emerald-400 border border-emerald-500/30 dark:border-emerald-500/20">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                        @L.Translate("audit.autoRefreshActive")
-                    </span>
-                </p>
-            </div>
-        </div>
-
-        <div class="flex flex-col sm:flex-row gap-4 justify-between items-center mb-6 bg-white dark:bg-gray-800/80 backdrop-blur-sm p-4 rounded-2xl border border-gray-200 dark:border-gray-700/50 shadow-sm">
-            <div class="relative w-full sm:max-w-md">
-                <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                    </svg>
-                </span>
-                <input type="text" @bind-value="searchTerm" @bind-value:event="oninput"
-                       placeholder="@L.Translate("audit.searchPlaceholder")"
-                       style="padding-left: 2.5rem;"
-                       class="w-full pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-sm" />
-            </div>
-
-            <div class="flex items-center gap-3 w-full sm:w-auto justify-end">
-                @if (showClearConfirm)
-                {
-                    <span class="text-xs text-red-500 dark:text-red-400 font-medium">@L.Translate("audit.clearConfirm")</span>
-                    <button @onclick="ConfirmClearLogsAsync" class="px-3 py-1.5 bg-red-600 text-white rounded-lg hover:bg-red-700 text-xs font-semibold transition-colors shadow-sm">
-                        @L.Translate("audit.clearYes")
+                        <span>@L.Translate("audit.refreshNow")</span>
                     </button>
-                    <button @onclick="CancelClearLogs" class="ui-btn ui-btn--neutral px-3 py-1.5 text-xs">
-                        @L.Translate("audit.clearCancel")
-                    </button>
-                }
-                else
-                {
-                    <button @onclick="RequestClearLogs" class="px-4 py-2 bg-red-50/80 dark:bg-red-950/20 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-900/50 rounded-xl hover:bg-red-100/80 dark:hover:bg-red-950/40 text-xs font-bold transition-all shadow-sm flex items-center gap-1.5">
+
+                    <!-- Export CSV -->
+                    <button @onclick="ExportToCsvAsync"
+                            class="px-3.5 py-2 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-100 rounded-xl text-xs font-semibold backdrop-blur-md border border-emerald-400/30 transition-all shadow-sm flex items-center gap-1.5">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                         </svg>
-                        @L.Translate("audit.clearLogs")
+                        <span>@L.Translate("audit.exportCsv")</span>
                     </button>
-                }
+
+                    <!-- Clear Logs -->
+                    @if (showClearConfirm)
+                    {
+                        <div class="flex items-center gap-1.5 bg-red-950/80 p-1 rounded-xl border border-red-500/40">
+                            <button @onclick="ConfirmClearLogsAsync" class="px-2.5 py-1 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-bold transition-colors">
+                                @L.Translate("audit.clearYes")
+                            </button>
+                            <button @onclick="CancelClearLogs" class="px-2.5 py-1 bg-white/10 hover:bg-white/20 text-white rounded-lg text-xs transition-colors">
+                                @L.Translate("audit.clearCancel")
+                            </button>
+                        </div>
+                    }
+                    else
+                    {
+                        <button @onclick="RequestClearLogs"
+                                class="px-3.5 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-200 rounded-xl text-xs font-semibold backdrop-blur-md border border-red-400/30 transition-all shadow-sm flex items-center gap-1.5">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                            </svg>
+                            <span>@L.Translate("audit.clearLogs")</span>
+                        </button>
+                    }
+                </div>
             </div>
         </div>
 
-        <div class="bg-white dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-lg border border-transparent dark:border-gray-700/50 p-6">
+        <!-- Floating Real-time Notification Banner for incoming events -->
+        @if (pendingNewEventsCount > 0)
+        {
+            <div class="flex justify-center -my-2 sticky top-4 z-20 animate-fade-in">
+                <button @onclick="ApplyPendingEventsAsync"
+                        class="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-xl hover:shadow-2xl transition-all transform hover:scale-105 border border-indigo-400/40">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                    <span>@string.Format(L.Translate("audit.realtime.newEvents") ?? "New events ({0}) — click to refresh", pendingNewEventsCount)</span>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                    </svg>
+                </button>
+            </div>
+        }
+
+        <!-- 1. Metric Summary Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- Metric 1: Total Events -->
+            <div class="bg-white dark:bg-gray-800/80 rounded-2xl p-5 border border-gray-200/80 dark:border-gray-700/60 shadow-sm flex items-center gap-4">
+                <div class="w-12 h-12 rounded-xl bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0 shadow-xs">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <div class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">@L.Translate("audit.metrics.total")</div>
+                    <div class="text-2xl font-black text-gray-900 dark:text-white mt-0.5">@TotalLogsCount</div>
+                </div>
+            </div>
+
+            <!-- Metric 2: Today Events -->
+            <div class="bg-white dark:bg-gray-800/80 rounded-2xl p-5 border border-gray-200/80 dark:border-gray-700/60 shadow-sm flex items-center gap-4">
+                <div class="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 shadow-xs">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <div class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">@L.Translate("audit.metrics.today")</div>
+                    <div class="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-0.5 flex items-center gap-2">
+                        @TodayLogsCount
+                        @if (TodayLogsCount > 0)
+                        {
+                            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Metric 3: Severity Alerts (Critical & Warnings) -->
+            <div class="bg-white dark:bg-gray-800/80 rounded-2xl p-5 border border-gray-200/80 dark:border-gray-700/60 shadow-sm flex items-center gap-4">
+                <div class="w-12 h-12 rounded-xl bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0 shadow-xs">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                    </svg>
+                </div>
+                <div class="w-full">
+                    <div class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">@L.Translate("audit.severity")</div>
+                    <div class="flex items-center gap-2 mt-1 text-xs font-bold">
+                        <span class="text-rose-600 dark:text-rose-400 flex items-center gap-1" title="Critical">
+                            <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+                            @CriticalCount @L.Translate("audit.severity.critical")
+                        </span>
+                        <span class="text-gray-300 dark:text-gray-600">/</span>
+                        <span class="text-amber-600 dark:text-amber-400 flex items-center gap-1" title="Warning">
+                            <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                            @WarningCount @L.Translate("audit.severity.warning")
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Metric 4: Active Users -->
+            <div class="bg-white dark:bg-gray-800/80 rounded-2xl p-5 border border-gray-200/80 dark:border-gray-700/60 shadow-sm flex items-center gap-4">
+                <div class="w-12 h-12 rounded-xl bg-purple-50 dark:bg-purple-900/40 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0 shadow-xs">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <div class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">@L.Translate("audit.metrics.users")</div>
+                    <div class="text-2xl font-black text-purple-600 dark:text-purple-400 mt-0.5">@UniqueUsersCount</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Advanced Multi-level Filter Bar -->
+        <div class="bg-white dark:bg-gray-800/80 backdrop-blur-sm p-4 sm:p-5 rounded-2xl border border-gray-200 dark:border-gray-700/60 shadow-sm space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
+                <!-- Text search -->
+                <div class="md:col-span-3 relative">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </span>
+                    <input type="text" @bind-value="searchTerm" @bind-value:event="oninput"
+                           placeholder="@L.Translate("audit.searchPlaceholder")"
+                           class="w-full pl-9 pr-8 py-2 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all text-xs" />
+                    @if (!string.IsNullOrEmpty(searchTerm))
+                    {
+                        <button @onclick="() => searchTerm = string.Empty" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    }
+                </div>
+
+                <!-- Severity filter -->
+                <div class="md:col-span-2">
+                    <select @bind="selectedSeverity"
+                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 font-semibold">
+                        <option value="ALL">@L.Translate("audit.severity.all")</option>
+                        <option value="Critical">🚨 @L.Translate("audit.severity.critical")</option>
+                        <option value="Warning">⚠️ @L.Translate("audit.severity.warning")</option>
+                        <option value="Info">ℹ️ @L.Translate("audit.severity.info")</option>
+                    </select>
+                </div>
+
+                <!-- Action Category filter -->
+                <div class="md:col-span-2">
+                    <select @bind="selectedCategory"
+                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option value="ALL">@L.Translate("audit.filter.allCategories")</option>
+                        <option value="CREATE">@L.Translate("audit.category.create")</option>
+                        <option value="UPDATE">@L.Translate("audit.category.update")</option>
+                        <option value="DELETE">@L.Translate("audit.category.delete")</option>
+                        <option value="AUTH">@L.Translate("audit.category.auth")</option>
+                        <option value="ASSOCIATION">@L.Translate("audit.category.association")</option>
+                        <option value="OTHER">@L.Translate("audit.category.other")</option>
+                    </select>
+                </div>
+
+                <!-- Entity filter -->
+                <div class="md:col-span-2">
+                    <select @bind="selectedEntity"
+                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option value="ALL">@L.Translate("audit.filter.allEntities")</option>
+                        @foreach (var entity in AvailableEntities)
+                        {
+                            <option value="@entity">@entity</option>
+                        }
+                    </select>
+                </div>
+
+                <!-- Time Range filter -->
+                <div class="md:col-span-1">
+                    <select @bind="selectedTimeRange"
+                            class="w-full px-2 py-2 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option value="ALL">@L.Translate("audit.filter.allTime")</option>
+                        <option value="TODAY">@L.Translate("audit.filter.today")</option>
+                        <option value="WEEK">@L.Translate("audit.filter.week")</option>
+                        <option value="MONTH">@L.Translate("audit.filter.month")</option>
+                    </select>
+                </div>
+
+                <!-- User filter -->
+                <div class="md:col-span-2">
+                    <select @bind="selectedUserIdString"
+                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option value="ALL">@L.Translate("audit.filter.allUsers")</option>
+                        @foreach (var user in AvailableUsers)
+                        {
+                            <option value="@user.Id">@user.Login</option>
+                        }
+                    </select>
+                </div>
+            </div>
+
+            <!-- Active filter chips & reset -->
+            @if (HasActiveFilters)
+            {
+                <div class="flex flex-wrap items-center gap-2 pt-2 border-t border-gray-100 dark:border-gray-700/60 text-xs">
+                    <span class="text-gray-500 dark:text-gray-400 font-medium">@L.Translate("audit.pagination.showing") @FilteredCount @L.Translate("audit.pagination.of") @TotalLogsCount:</span>
+                    <button @onclick="ResetFilters"
+                            class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 font-semibold transition-colors">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                        @L.Translate("audit.filter.reset")
+                    </button>
+                </div>
+            }
+        </div>
+
+        <!-- 3. Logs Table Section (2K symmetric table-fixed layout with Severity) -->
+        <div class="bg-white dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-lg border border-transparent dark:border-gray-700/50 overflow-hidden">
             @if (logs is null)
             {
-                <div class="flex justify-center py-10">
+                <div class="flex justify-center items-center py-16">
                     <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600"></div>
                 </div>
             }
             else if (!FilteredLogs.Any())
             {
-                <div class="text-center py-10 text-gray-500 dark:text-gray-400">
-                    @L.Translate("audit.noLogs")
+                <div class="text-center py-16 px-4">
+                    <div class="w-14 h-14 mx-auto mb-3 text-gray-400 dark:text-gray-600">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                    </div>
+                    <p class="text-gray-500 dark:text-gray-400 font-medium">@L.Translate("audit.noLogs")</p>
+                    @if (HasActiveFilters)
+                    {
+                        <button @onclick="ResetFilters" class="mt-3 text-xs text-indigo-600 dark:text-indigo-400 font-bold hover:underline">
+                            @L.Translate("audit.filter.reset")
+                        </button>
+                    }
                 </div>
             }
             else
             {
-                <div class="overflow-x-auto">
-                    <div class="w-full text-left min-w-[800px]">
-                        <div class="grid grid-cols-12 border-b border-gray-200 dark:border-gray-700">
-                            <div class="px-4 py-3 col-span-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">@L.Translate("audit.timestamp")</div>
-                            <div class="px-4 py-3 col-span-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">@L.Translate("audit.user")</div>
-                            <div class="px-4 py-3 col-span-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">@L.Translate("audit.action")</div>
-                            <div class="px-4 py-3 col-span-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">@L.Translate("audit.entity")</div>
-                            <div class="px-4 py-3 col-span-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">@L.Translate("audit.details")</div>
-                        </div>
-                        <div class="divide-y divide-gray-100 dark:divide-gray-700/50">
-                            @foreach (var log in FilteredLogs)
+                <div class="atab-table-wrap">
+                    <table class="atab-table w-full min-w-[900px] table-fixed">
+                        <thead>
+                            <tr>
+                                <th class="atab-th w-2/12">@L.Translate("audit.timestamp")</th>
+                                <th class="atab-th w-1/12 text-center">@L.Translate("audit.severity")</th>
+                                <th class="atab-th w-2/12">@L.Translate("audit.user")</th>
+                                <th class="atab-th w-2/12">@L.Translate("audit.action")</th>
+                                <th class="atab-th w-2/12">@L.Translate("audit.entity")</th>
+                                <th class="atab-th w-2/12">@L.Translate("audit.details")</th>
+                                <th class="atab-th atab-th-actions w-1/12 text-center">@L.Translate("admin.actions")</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var log in PagedLogs)
                             {
-                                <div class="grid grid-cols-12 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors items-center">
-                                    <div class="px-4 py-3 col-span-2 text-sm text-gray-600 dark:text-gray-400 whitespace-nowrap">
-                                        @log.Timestamp.ToLocalTime().ToString("g")
-                                    </div>
-                                    <div class="px-4 py-3 col-span-3 text-sm">
-                                        <div class="flex items-center gap-2">
-                                            <div class="w-7 h-7 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center text-indigo-700 dark:text-indigo-300 text-xs font-bold">
-                                                @(log.User?.Login?[..1].ToUpper() ?? "?")
-                                            </div>
-                                            <span class="text-gray-700 dark:text-gray-300 truncate" title="@(log.User?.Login ?? "System")">@(log.User?.Login ?? "System")</span>
-                                        </div>
-                                    </div>
-                                    <div class="px-4 py-3 col-span-2 text-sm">
-                                        <span class="px-2 py-1 rounded-md text-xs font-medium @GetActionClass(log.Action)">
-                                            @log.Action
+                                var sev = GetLogSeverity(log);
+                                var summary = GetLogDisplaySummary(log);
+
+                                <tr class="atab-row cursor-pointer hover:bg-indigo-50/50 dark:hover:bg-indigo-950/20 transition-colors" @onclick="() => OpenInspector(log)">
+                                    <!-- Timestamp -->
+                                    <td class="atab-td text-xs text-gray-600 dark:text-gray-400 truncate">
+                                        <div class="font-medium text-gray-900 dark:text-gray-200">@log.Timestamp.ToLocalTime().ToString("dd MMM yyyy")</div>
+                                        <div class="text-[11px] text-gray-400 dark:text-gray-500 font-mono">@log.Timestamp.ToLocalTime().ToString("HH:mm:ss")</div>
+                                    </td>
+
+                                    <!-- Severity Badge -->
+                                    <td class="atab-td truncate text-center">
+                                        <span class="inline-flex items-center justify-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold @GetSeverityBadgeClass(sev)">
+                                            @if (sev == "Critical")
+                                            {
+                                                <span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping"></span>
+                                                <span>@L.Translate("audit.severity.critical")</span>
+                                            }
+                                            else if (sev == "Warning")
+                                            {
+                                                <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                                                <span>@L.Translate("audit.severity.warning")</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                                                <span>@L.Translate("audit.severity.info")</span>
+                                            }
                                         </span>
-                                    </div>
-                                    <div class="px-4 py-3 col-span-2 text-sm text-gray-600 dark:text-gray-400 truncate" title="@log.EntityName (@log.EntityId)">
-                                        @log.EntityName (@log.EntityId)
-                                    </div>
-                                    <div class="px-4 py-3 col-span-3 text-sm text-gray-700 dark:text-gray-300">
-                                        <div class="truncate" title="@log.Changes">
-                                            @log.Changes
+                                    </td>
+
+                                    <!-- User -->
+                                    <td class="atab-td truncate">
+                                        <div class="flex items-center gap-2">
+                                            <div class="w-7 h-7 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center text-indigo-700 dark:text-indigo-300 text-xs font-bold shrink-0">
+                                                @(log.User?.Login?[..1].ToUpper() ?? "S")
+                                            </div>
+                                            <div class="truncate">
+                                                <span class="font-medium text-gray-800 dark:text-gray-200 text-xs truncate" title="@(log.User?.Login ?? "System")">
+                                                    @(log.User?.Login ?? "System")
+                                                </span>
+                                            </div>
                                         </div>
-                                    </div>
-                                </div>
+                                    </td>
+
+                                    <!-- Action Badge -->
+                                    <td class="atab-td truncate">
+                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold truncate max-w-full @GetActionClass(log.Action)" title="@log.Action">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-current opacity-70"></span>
+                                            <span class="truncate">@log.Action</span>
+                                        </span>
+                                    </td>
+
+                                    <!-- Entity -->
+                                    <td class="atab-td truncate">
+                                        <div class="flex items-center gap-1.5 truncate">
+                                            <span class="font-semibold text-xs text-gray-800 dark:text-gray-200 truncate">@log.EntityName</span>
+                                            @if (!string.IsNullOrWhiteSpace(log.EntityId))
+                                            {
+                                                <span class="px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-[11px] font-mono shrink-0">
+                                                    #@log.EntityId
+                                                </span>
+                                            }
+                                        </div>
+                                    </td>
+
+                                    <!-- Details / Summary -->
+                                    <td class="atab-td truncate">
+                                        <div class="text-xs text-gray-600 dark:text-gray-400 truncate font-sans" title="@summary">
+                                            @(string.IsNullOrWhiteSpace(summary) ? "—" : summary)
+                                        </div>
+                                    </td>
+
+                                    <!-- Action / Inspector Button -->
+                                    <td class="atab-td atab-td-actions text-center" @onclick:stopPropagation>
+                                        <button @onclick="() => OpenInspector(log)"
+                                                class="atab-action-btn edit"
+                                                title="@L.Translate("audit.inspector.title")">
+                                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                            </svg>
+                                        </button>
+                                    </td>
+                                </tr>
                             }
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 4. Pagination Footer -->
+                <div class="p-4 border-t border-gray-100 dark:border-gray-700 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
+                    <!-- Left: Showing summary & page size -->
+                    <div class="flex items-center gap-3 text-gray-500 dark:text-gray-400">
+                        <span>
+                            @L.Translate("audit.pagination.showing")
+                            <strong class="text-gray-800 dark:text-gray-200">@((currentPage - 1) * pageSize + 1)–@(Math.Min(currentPage * pageSize, FilteredCount))</strong>
+                            @L.Translate("audit.pagination.of")
+                            <strong class="text-gray-800 dark:text-gray-200">@FilteredCount</strong>
+                            @L.Translate("audit.pagination.records")
+                        </span>
+
+                        <div class="flex items-center gap-1.5 pl-3 border-l border-gray-200 dark:border-gray-700">
+                            <span>@L.Translate("audit.pagination.perPage"):</span>
+                            <select @onchange="OnPageSizeChanged" value="@pageSize"
+                                    class="px-2 py-1 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-xs font-semibold focus:outline-none">
+                                <option value="15">15</option>
+                                <option value="25">25</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                            </select>
                         </div>
+                    </div>
+
+                    <!-- Right: Navigation buttons -->
+                    <div class="flex items-center gap-1">
+                        <!-- First Page -->
+                        <button @onclick="() => SetPage(1)" disabled="@(currentPage <= 1)"
+                                class="p-1.5 rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-30 disabled:cursor-not-allowed">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path>
+                            </svg>
+                        </button>
+
+                        <!-- Prev Page -->
+                        <button @onclick="() => SetPage(currentPage - 1)" disabled="@(currentPage <= 1)"
+                                class="px-2.5 py-1.5 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 font-semibold disabled:opacity-30 disabled:cursor-not-allowed flex items-center gap-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                            </svg>
+                        </button>
+
+                        <!-- Page Indicator -->
+                        <span class="px-3 py-1 bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 font-bold rounded-lg border border-indigo-100 dark:border-indigo-800">
+                            @currentPage / @TotalPages
+                        </span>
+
+                        <!-- Next Page -->
+                        <button @onclick="() => SetPage(currentPage + 1)" disabled="@(currentPage >= TotalPages)"
+                                class="px-2.5 py-1.5 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 font-semibold disabled:opacity-30 disabled:cursor-not-allowed flex items-center gap-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                            </svg>
+                        </button>
+
+                        <!-- Last Page -->
+                        <button @onclick="() => SetPage(TotalPages)" disabled="@(currentPage >= TotalPages)"
+                                class="p-1.5 rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-30 disabled:cursor-not-allowed">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path>
+                            </svg>
+                        </button>
                     </div>
                 </div>
             }
         </div>
     }
 </div>
+
+<!-- 5. Audit Details Inspector Modal with Git-style Diff Viewer -->
+@if (showDetailsModal && selectedLog != null)
+{
+    var payload = GetParsedPayload(selectedLog);
+    var sev = GetLogSeverity(selectedLog);
+
+    <div class="amodal-overlay" @onclick="CloseInspector" role="dialog" aria-modal="true">
+        <div class="amodal-box animate-fade-in max-w-2xl w-full" @onclick:stopPropagation>
+            <button @onclick="CloseInspector" class="amodal-close" aria-label="Close">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+
+            <!-- Header -->
+            <div class="amodal-header">
+                <div class="amodal-header-icon blue">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h3 class="amodal-title">@L.Translate("audit.inspector.title") #@selectedLog.Id</h3>
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold @GetSeverityBadgeClass(sev)">
+                            @sev
+                        </span>
+                        @if (!string.IsNullOrWhiteSpace(payload?.IpAddress))
+                        {
+                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-mono text-[11px]">
+                                <svg class="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path>
+                                </svg>
+                                @payload.IpAddress
+                            </span>
+                        }
+                    </div>
+                    <p class="amodal-subtitle">@selectedLog.Timestamp.ToLocalTime().ToString("f") (@selectedLog.Timestamp.ToString("yyyy-MM-dd HH:mm:ss") UTC)</p>
+                </div>
+            </div>
+
+            <!-- Body -->
+            <div class="amodal-body space-y-4">
+                <!-- Info cards grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                    <!-- User details -->
+                    <div class="p-3.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50/80 dark:bg-gray-900/40 space-y-1">
+                        <span class="text-gray-400 uppercase tracking-wider font-semibold text-[10px]">@L.Translate("audit.user")</span>
+                        <div class="flex items-center gap-2 pt-1">
+                            <div class="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center text-indigo-700 dark:text-indigo-300 font-bold text-sm">
+                                @(selectedLog.User?.Login?[..1].ToUpper() ?? "S")
+                            </div>
+                            <div>
+                                <div class="font-bold text-gray-900 dark:text-white">@(selectedLog.User?.Login ?? "System")</div>
+                                @if (selectedLog.UserId.HasValue)
+                                {
+                                    <div class="text-gray-500 dark:text-gray-400 text-[11px]">User ID: @selectedLog.UserId</div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action & Entity details -->
+                    <div class="p-3.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50/80 dark:bg-gray-900/40 space-y-1">
+                        <span class="text-gray-400 uppercase tracking-wider font-semibold text-[10px]">@L.Translate("audit.action") & @L.Translate("audit.entity")</span>
+                        <div class="flex flex-wrap items-center gap-2 pt-1">
+                            <span class="inline-flex items-center px-2.5 py-1 rounded-lg font-bold text-xs @GetActionClass(selectedLog.Action)">
+                                @selectedLog.Action
+                            </span>
+                            <span class="font-bold text-gray-800 dark:text-gray-200">@selectedLog.EntityName</span>
+                            @if (!string.IsNullOrWhiteSpace(selectedLog.EntityId))
+                            {
+                                <span class="px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 font-mono text-xs">
+                                    #@selectedLog.EntityId
+                                </span>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Structured Visual Diff Block (Old vs New) -->
+                @if (payload?.Diff is not null && payload.Diff.Count > 0)
+                {
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider flex items-center gap-2">
+                            <svg class="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
+                            </svg>
+                            @L.Translate("audit.diff.title")
+                        </label>
+
+                        <div class="border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden divide-y divide-gray-200 dark:divide-gray-700/60 bg-white dark:bg-gray-900/40 text-xs">
+                            @foreach (var diffItem in payload.Diff)
+                            {
+                                <div class="p-3 space-y-1.5">
+                                    <div class="font-bold text-gray-700 dark:text-gray-300 font-mono text-[11px]">
+                                        @diffItem.Field
+                                    </div>
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                        <!-- Old value (Red) -->
+                                        <div class="flex items-start gap-2 p-2 rounded-lg bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/50 text-rose-800 dark:text-rose-300 font-mono">
+                                            <span class="px-1.5 py-0.2 rounded bg-rose-200 dark:bg-rose-900 text-rose-800 dark:text-rose-200 font-bold shrink-0">-</span>
+                                            <span class="line-through break-all">@(string.IsNullOrWhiteSpace(diffItem.OldValue) ? "«null»" : diffItem.OldValue)</span>
+                                        </div>
+
+                                        <!-- New value (Green) -->
+                                        <div class="flex items-start gap-2 p-2 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/50 text-emerald-800 dark:text-emerald-300 font-mono">
+                                            <span class="px-1.5 py-0.2 rounded bg-emerald-200 dark:bg-emerald-900 text-emerald-800 dark:text-emerald-200 font-bold shrink-0">+</span>
+                                            <span class="font-bold break-all">@(string.IsNullOrWhiteSpace(diffItem.NewValue) ? "«null»" : diffItem.NewValue)</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+
+                <!-- Summary or Raw Changes content -->
+                <div class="space-y-1.5">
+                    <label class="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+                        @(payload?.Diff is not null && payload.Diff.Count > 0 ? L.Translate("audit.diff.summary") : L.Translate("audit.inspector.rawChanges"))
+                    </label>
+                    <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/80 text-gray-800 dark:text-gray-200 font-mono text-xs leading-relaxed overflow-x-auto max-h-48 whitespace-pre-wrap select-text">
+                        @(string.IsNullOrWhiteSpace(GetLogDisplaySummary(selectedLog)) ? L.Translate("audit.inspector.noChanges") : GetLogDisplaySummary(selectedLog))
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="amodal-footer flex items-center justify-between">
+                <div>
+                    @if (CanNavigateToEntity(selectedLog))
+                    {
+                        <button @onclick="() => NavigateToEntity(selectedLog)"
+                                class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-1.5">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                            </svg>
+                            <span>@L.Translate("audit.inspector.viewEntity") #@selectedLog.EntityId</span>
+                        </button>
+                    }
+                </div>
+
+                <button @onclick="CloseInspector" class="amodal-btn-cancel">
+                    @L.Translate("common.close")
+                </button>
+            </div>
+        </div>
+    </div>
+}
+

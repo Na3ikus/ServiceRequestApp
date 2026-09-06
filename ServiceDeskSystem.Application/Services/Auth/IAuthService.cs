@@ -12,7 +12,7 @@ public interface IAuthService
 
     Task EnsureRestoredAsync();
 
-    Task<(bool Success, string? ErrorMessage)> LoginAsync(string username, string password);
+    Task<(bool Success, string? ErrorMessage)> LoginAsync(string username, string password, string? ipAddress = null);
 
     Task<(bool Success, string? ErrorMessage)> RegisterClientAsync(string username, string password, string firstName, string lastName, string? email);
 

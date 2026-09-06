@@ -1,18 +1,21 @@
-using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
-using ServiceDeskSystem.Domain.Entities;
-using ServiceDeskSystem.Domain.Interfaces;
-using System.Security.Cryptography;
+using System;
 using System.Data.Common;
-using ServiceDeskSystem.Application.Services.Auth;
+using System.Linq;
+using System.Security.Cryptography;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using ServiceDeskSystem.Application.Services.Audit;
+using ServiceDeskSystem.Domain.Entities;
 using ServiceDeskSystem.Domain.Enums;
+using ServiceDeskSystem.Domain.Interfaces;
 
 namespace ServiceDeskSystem.Application.Services.Auth;
 
 public sealed class AuthService(
     IRepositoryFacadeFactory repositoryFacadeFactory,
     ProtectedSessionStorage? sessionStorage = null,
-    IAuditService? auditService = null) : IAuthService
+    IAuditService? auditService = null,
+    IBruteForceProtectionService? bruteForceService = null) : IAuthService
 {
     private const int Pbkdf2Iterations = 100_000;
     private const int MinPasswordLength = 8;
@@ -22,6 +25,7 @@ public sealed class AuthService(
     public event EventHandler? AuthStateChanged;
 
     public User? CurrentUser { get; private set; }
+
     public bool IsAuthenticated => this.CurrentUser is not null;
 
     public async Task EnsureRestoredAsync()
@@ -63,11 +67,19 @@ public sealed class AuthService(
         }
     }
 
-    public async Task<(bool Success, string? ErrorMessage)> LoginAsync(string username, string password)
+    public async Task<(bool Success, string? ErrorMessage)> LoginAsync(string username, string password, string? ipAddress = null)
     {
         if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
         {
             return (false, "Username and password are required.");
+        }
+
+        var bruteKey = !string.IsNullOrWhiteSpace(ipAddress) ? $"ip:{ipAddress}" : $"user:{username.Trim().ToLowerInvariant()}";
+
+        if (bruteForceService is not null && bruteForceService.IsBlocked(bruteKey, out var remainingTime))
+        {
+            var minutes = Math.Max(1, (int)Math.Ceiling(remainingTime?.TotalMinutes ?? 15));
+            return (false, $"Too many failed login attempts. Please try again in {minutes} minutes.");
         }
 
         User? user;
@@ -79,32 +91,69 @@ public sealed class AuthService(
         catch (Exception ex) when (
             ex is DbException ||
             ex is InvalidOperationException ||
-            ex.GetType().Name.Contains("SocketException") ||
-            ex.GetType().Name.Contains("MySqlException"))
+            ex.GetType().Name.Contains("SocketException", StringComparison.OrdinalIgnoreCase) ||
+            ex.GetType().Name.Contains("MySqlException", StringComparison.OrdinalIgnoreCase))
         {
             return (false, "Database connection is unavailable.");
         }
 
-        if (user is null)
+        if (user is null || !VerifyPassword(password, user.PasswordHash))
         {
+            var attempts = bruteForceService?.RecordFailedAttempt(bruteKey) ?? 1;
+            var isBlockedNow = bruteForceService?.IsBlocked(bruteKey, out _) ?? false;
+
+            if (isBlockedNow)
+            {
+                var blockedPayload = new AuditChangePayload
+                {
+                    Summary = $"Brute-force alert! 5+ failed attempts for '{username}' from IP {ipAddress ?? "local"}. Account locked for 15 min.",
+                    Severity = "Critical",
+                    IpAddress = ipAddress,
+                    Metadata = new() { ["attempts"] = attempts.ToString(System.Globalization.CultureInfo.InvariantCulture), ["username"] = username }
+                };
+
+                await auditService.LogActionSafeAsync("BRUTE_FORCE_BLOCKED", "User", user?.Id.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? username, blockedPayload.ToJson(), user?.Id).ConfigureAwait(false);
+                return (false, "Too many failed login attempts. Please try again in 15 minutes.");
+            }
+
+            var failedPayload = new AuditChangePayload
+            {
+                Summary = $"Failed login attempt #{attempts} for user '{username}'. Invalid credentials.",
+                Severity = "Warning",
+                IpAddress = ipAddress,
+                Metadata = new() { ["attempts"] = attempts.ToString(System.Globalization.CultureInfo.InvariantCulture), ["username"] = username }
+            };
+
+            await auditService.LogActionSafeAsync("LOGIN_FAILED", "User", user?.Id.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? username, failedPayload.ToJson(), user?.Id).ConfigureAwait(false);
             return (false, "Invalid username or password.");
         }
 
         if (!user.IsActive)
         {
+            var deactivatedPayload = new AuditChangePayload
+            {
+                Summary = $"Deactivated account '{username}' attempted to log in.",
+                Severity = "Warning",
+                IpAddress = ipAddress
+            };
+            await auditService.LogActionSafeAsync("LOGIN_FAILED", "User", user.Id.ToString(System.Globalization.CultureInfo.InvariantCulture), deactivatedPayload.ToJson(), user.Id).ConfigureAwait(false);
             return (false, "Account is deactivated. Please contact administrator.");
         }
 
-        if (!VerifyPassword(password, user.PasswordHash))
-        {
-            return (false, "Invalid username or password.");
-        }
+        bruteForceService?.Reset(bruteKey);
 
         this.CurrentUser = user;
         await this.SaveToSessionAsync(user).ConfigureAwait(false);
         this.AuthStateChanged?.Invoke(this, EventArgs.Empty);
 
-        await auditService.LogActionSafeAsync("LOGIN", "User", user.Id.ToString(), $"User {user.Login} logged in", user.Id).ConfigureAwait(false);
+        var loginPayload = new AuditChangePayload
+        {
+            Summary = $"User {user.Login} logged in successfully.",
+            Severity = "Info",
+            IpAddress = ipAddress
+        };
+
+        await auditService.LogActionSafeAsync("LOGIN", "User", user.Id.ToString(System.Globalization.CultureInfo.InvariantCulture), loginPayload.ToJson(), user.Id).ConfigureAwait(false);
 
         return (true, null);
     }
@@ -182,15 +231,15 @@ public sealed class AuthService(
             await repo.Users.CreateAsync(user).ConfigureAwait(false);
             await repo.UnitOfWork.SaveChangesAsync().ConfigureAwait(false);
 
-            await auditService.LogActionSafeAsync("REGISTER", "User", user.Id.ToString(), $"User registered: {user.Login}", user.Id).ConfigureAwait(false);
+            await auditService.LogActionSafeAsync("REGISTER", "User", user.Id.ToString(System.Globalization.CultureInfo.InvariantCulture), $"User registered: {user.Login}", user.Id).ConfigureAwait(false);
 
             return (true, null);
         }
         catch (Exception ex) when (
             ex is DbException ||
             ex is InvalidOperationException ||
-            ex.GetType().Name.Contains("SocketException") ||
-            ex.GetType().Name.Contains("MySqlException"))
+            ex.GetType().Name.Contains("SocketException", StringComparison.OrdinalIgnoreCase) ||
+            ex.GetType().Name.Contains("MySqlException", StringComparison.OrdinalIgnoreCase))
         {
             return (false, "Database connection is unavailable.");
         }
@@ -200,7 +249,7 @@ public sealed class AuthService(
     {
         if (this.CurrentUser is not null)
         {
-            await auditService.LogActionSafeAsync("LOGOUT", "User", this.CurrentUser.Id.ToString(), $"User {this.CurrentUser.Login} logged out", this.CurrentUser.Id).ConfigureAwait(false);
+            await auditService.LogActionSafeAsync("LOGOUT", "User", this.CurrentUser.Id.ToString(System.Globalization.CultureInfo.InvariantCulture), $"User {this.CurrentUser.Login} logged out", this.CurrentUser.Id).ConfigureAwait(false);
         }
 
         this.CurrentUser = null;
