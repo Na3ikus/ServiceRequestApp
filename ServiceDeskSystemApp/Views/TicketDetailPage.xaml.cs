@@ -4,9 +4,12 @@ namespace ServiceDeskSystemApp.Views;
 
 public partial class TicketDetailPage : ContentPage
 {
+    private readonly TicketDetailViewModel _viewModel;
+
     public TicketDetailPage(TicketDetailViewModel viewModel)
     {
         InitializeComponent();
-        BindingContext = viewModel;
+        _viewModel = viewModel;
+        BindingContext = _viewModel;
     }
 }

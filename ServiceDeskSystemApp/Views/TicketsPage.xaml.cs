@@ -19,16 +19,11 @@ public partial class TicketsPage : ContentPage
         _ = _viewModel.LoadTicketsAsync();
     }
 
-    private async void OnViewTicketClicked(object sender, EventArgs e)
+    private async void OnViewTicketClicked(object? sender, EventArgs e)
     {
-        if (sender is Button button && button.CommandParameter is int ticketId)
+        if (sender is View view && view.BindingContext is ServiceDeskSystemApp.Models.Tickets.TicketDto ticket)
         {
-            await Shell.Current.GoToAsync($"{nameof(TicketDetailPage)}?id={ticketId}");
+            await Shell.Current.GoToAsync($"{nameof(TicketDetailPage)}?id={ticket.Id}");
         }
-    }
-
-    private async void OnCreateTicketClicked(object sender, EventArgs e)
-    {
-        await Shell.Current.GoToAsync(nameof(CreateTicketPage));
     }
 }

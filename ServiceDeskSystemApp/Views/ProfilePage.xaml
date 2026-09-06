@@ -1,46 +1,136 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:vm="clr-namespace:ServiceDeskSystemApp.ViewModels"
+             xmlns:viewmodels="clr-namespace:ServiceDeskSystemApp.ViewModels"
+             xmlns:loc="clr-namespace:ServiceDeskSystemApp.Resources.Localization"
+             xmlns:converters="clr-namespace:ServiceDeskSystemApp.Converters"
              x:Class="ServiceDeskSystemApp.Views.ProfilePage"
-             x:DataType="vm:ProfileViewModel"
-             Title="Profile">
+             x:DataType="viewmodels:ProfileViewModel"
+             Title="{x:Static loc:AppResources.Profile}"
+             BackgroundColor="{AppThemeBinding Light={StaticResource PageBackgroundLight}, Dark={StaticResource PageBackgroundDark}}">
 
-    <ScrollView>
-        <VerticalStackLayout Padding="20" Spacing="20">
-            
-            <ActivityIndicator IsRunning="{Binding IsLoading}" 
-                               IsVisible="{Binding IsLoading}"
-                               HorizontalOptions="Center" />
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:FirstLetterConverter x:Key="FirstLetterConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
 
-            <VerticalStackLayout Spacing="15">
-                <VerticalStackLayout.Triggers>
-                    <DataTrigger TargetType="VerticalStackLayout" Binding="{Binding UserProfile}" Value="{x:Null}">
-                        <Setter Property="IsVisible" Value="False" />
-                    </DataTrigger>
-                </VerticalStackLayout.Triggers>
+    <Grid>
+        <ScrollView>
+            <ScrollView.Triggers>
+                <DataTrigger TargetType="ScrollView" Binding="{Binding IsLoading}" Value="True">
+                    <Setter Property="IsVisible" Value="False" />
+                </DataTrigger>
+                <DataTrigger TargetType="ScrollView" Binding="{Binding UserProfile}" Value="{x:Null}">
+                    <Setter Property="IsVisible" Value="False" />
+                </DataTrigger>
+            </ScrollView.Triggers>
 
-                <Frame CornerRadius="50" HeightRequest="100" WidthRequest="100" HorizontalOptions="Center" BackgroundColor="LightBlue" Padding="0">
-                    <Label Text="👤" 
-                           FontSize="48" 
-                           HorizontalOptions="Center" 
-                           VerticalOptions="Center" />
-                </Frame>
+            <VerticalStackLayout Spacing="24" Padding="16">
                 
-                <Label Text="{Binding UserProfile.FirstName}" FontSize="24" FontAttributes="Bold" HorizontalOptions="Center" />
-                <Label Text="{Binding UserProfile.LastName}" FontSize="20" HorizontalOptions="Center" />
-                <Label Text="{Binding UserProfile.Email}" TextColor="Gray" HorizontalOptions="Center" />
-                
-                <BoxView HeightRequest="1" Color="LightGray" Margin="0,10" />
+                <!-- Gradient Header -->
+                <Border StrokeShape="RoundRectangle 16" StrokeThickness="0">
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="{StaticResource Primary}" Offset="0.0" />
+                            <GradientStop Color="{StaticResource Accent}" Offset="1.0" />
+                        </LinearGradientBrush>
+                    </Border.Background>
+                    <VerticalStackLayout Padding="32" Spacing="16" HorizontalOptions="Center" VerticalOptions="Center">
+                        
+                        <!-- Avatar -->
+                        <Border HeightRequest="96" WidthRequest="96" StrokeShape="RoundRectangle 48" StrokeThickness="2" Stroke="White" BackgroundColor="#40FFFFFF" HorizontalOptions="Center">
+                            <Label Text="{Binding UserProfile.FirstName, Converter={StaticResource FirstLetterConverter}}" 
+                                   TextColor="White" 
+                                   FontAttributes="Bold" 
+                                   FontSize="40"
+                                   HorizontalOptions="Center" 
+                                   VerticalOptions="Center" />
+                        </Border>
+
+                        <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
+                            <!-- Name -->
+                            <Label TextColor="White" FontAttributes="Bold" FontSize="28" HorizontalOptions="Center">
+                                <Label.FormattedText>
+                                    <FormattedString>
+                                        <Span Text="{Binding UserProfile.FirstName}" />
+                                        <Span Text=" " />
+                                        <Span Text="{Binding UserProfile.LastName}" />
+                                    </FormattedString>
+                                </Label.FormattedText>
+                            </Label>
+
+                            <!-- Role Badge -->
+                            <Border StrokeShape="RoundRectangle 12" StrokeThickness="0" BackgroundColor="#40FFFFFF" HorizontalOptions="Center">
+                                <Label Text="{Binding UserProfile.Role}" TextColor="White" FontSize="14" FontAttributes="Bold" Padding="12,6" />
+                            </Border>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Account Info Card -->
+                <Border StrokeShape="RoundRectangle 12" StrokeThickness="1"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource CardBackgroundLight}, Dark={StaticResource CardBackgroundDark}}"
+                        Stroke="{AppThemeBinding Light={StaticResource CardBorderLight}, Dark={StaticResource CardBorderDark}}">
+                    <VerticalStackLayout Padding="16" Spacing="16">
+                        <Label Text="{x:Static loc:AppResources.AccountInfo}" FontAttributes="Bold" FontSize="18" TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
+                        
+                        <Grid RowSpacing="12" ColumnSpacing="16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <Label Grid.Row="0" Grid.Column="0" Text="{x:Static loc:AppResources.Login}" TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray400}}" />
+                            <Label Grid.Row="0" Grid.Column="1" Text="{Binding UserProfile.Login}" FontAttributes="Bold" TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" HorizontalOptions="End" />
+
+                            <Label Grid.Row="1" Grid.Column="0" Text="{x:Static loc:AppResources.Email}" TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray400}}" />
+                            <Label Grid.Row="1" Grid.Column="1" Text="{Binding UserProfile.Email}" FontAttributes="Bold" TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" HorizontalOptions="End" />
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Bio Card -->
+                <Border StrokeShape="RoundRectangle 12" StrokeThickness="1"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource CardBackgroundLight}, Dark={StaticResource CardBackgroundDark}}"
+                        Stroke="{AppThemeBinding Light={StaticResource CardBorderLight}, Dark={StaticResource CardBorderDark}}">
+                    <Border.Triggers>
+                        <DataTrigger TargetType="Border" Binding="{Binding UserProfile.Bio}" Value="{x:Null}">
+                            <Setter Property="IsVisible" Value="False" />
+                        </DataTrigger>
+                        <DataTrigger TargetType="Border" Binding="{Binding UserProfile.Bio}" Value="">
+                            <Setter Property="IsVisible" Value="False" />
+                        </DataTrigger>
+                    </Border.Triggers>
+                    <VerticalStackLayout Padding="16" Spacing="8">
+                        <Label Text="{x:Static loc:AppResources.Bio}" FontAttributes="Bold" FontSize="18" TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
+                        <Label Text="{Binding UserProfile.Bio}" TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" LineBreakMode="WordWrap" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Sign Out Button -->
+                <Button Text="{x:Static loc:AppResources.Logout}"
+                        Command="{Binding LogoutCommand}"
+                        BackgroundColor="Transparent"
+                        TextColor="{StaticResource Danger}"
+                        BorderColor="{StaticResource Danger}"
+                        BorderWidth="1"
+                        CornerRadius="12"
+                        HeightRequest="48"
+                        FontAttributes="Bold"
+                        Margin="0,16,0,32" />
 
             </VerticalStackLayout>
-            
-            <Button Text="Logout" 
-                    Command="{Binding LogoutCommand}" 
-                    BackgroundColor="Red" 
-                    TextColor="White" 
-                    Margin="0,30,0,0" />
+        </ScrollView>
 
-        </VerticalStackLayout>
-    </ScrollView>
+        <ActivityIndicator IsRunning="{Binding IsLoading}" 
+                           IsVisible="{Binding IsLoading}"
+                           HorizontalOptions="Center" 
+                           VerticalOptions="Center" 
+                           Color="{StaticResource Primary}" />
+    </Grid>
 </ContentPage>

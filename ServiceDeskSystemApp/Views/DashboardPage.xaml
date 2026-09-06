@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:ServiceDeskSystemApp.ViewModels"
+             xmlns:models="clr-namespace:ServiceDeskSystemApp.Models.Tickets"
+             xmlns:converters="clr-namespace:ServiceDeskSystemApp.Converters"
+             xmlns:loc="clr-namespace:ServiceDeskSystemApp.Resources.Localization"
+             x:Class="ServiceDeskSystemApp.Views.DashboardPage"
+             x:DataType="viewmodels:DashboardViewModel"
+             Title="{x:Static loc:AppResources.Dashboard}"
+             BackgroundColor="{AppThemeBinding Light={StaticResource PageBackgroundLight}, Dark={StaticResource PageBackgroundDark}}">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:StatusToColorConverter x:Key="StatusToColorConverter" />
+            <converters:PriorityToColorConverter x:Key="PriorityToColorConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <RefreshView IsRefreshing="{Binding IsRefreshing}" Command="{Binding LoadDashboardCommand}">
+        <ScrollView>
+            <VerticalStackLayout Spacing="20" Padding="0,0,0,20">
+                
+                <!-- Header Section -->
+                <Border StrokeShape="RoundRectangle 0,0,24,24" StrokeThickness="0" Margin="0,0,0,10">
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="{StaticResource Primary}" Offset="0.0" />
+                            <GradientStop Color="{StaticResource Accent}" Offset="1.0" />
+                        </LinearGradientBrush>
+                    </Border.Background>
+                    <VerticalStackLayout Padding="24,32,24,32" Spacing="8">
+                        <Label Text="{Binding UserName, StringFormat='Welcome back, {0}'}" 
+                               TextColor="White" 
+                               FontSize="28" 
+                               FontAttributes="Bold" />
+                        <Label Text="{x:Static loc:AppResources.DashboardSubtitle}" 
+                               TextColor="#E0E7FF" 
+                               FontSize="16" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Stats Grid -->
+                <Grid ColumnDefinitions="*,*,*" ColumnSpacing="12" Padding="20,0">
+                    
+                    <!-- Total Tickets -->
+                    <Border Grid.Column="0" 
+                            Stroke="{AppThemeBinding Light={StaticResource CardBorderLight}, Dark={StaticResource CardBorderDark}}" 
+                            StrokeThickness="1"
+                            StrokeShape="RoundRectangle 12"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource CardBackgroundLight}, Dark={StaticResource CardBackgroundDark}}"
+                            Padding="12">
+                        <VerticalStackLayout Spacing="6" HorizontalOptions="Center">
+                            <Border StrokeShape="RoundRectangle 8" StrokeThickness="0" BackgroundColor="{StaticResource PrimaryLight}" HeightRequest="32" WidthRequest="32" HorizontalOptions="Center">
+                                <Label Text="📊" HorizontalOptions="Center" VerticalOptions="Center" FontSize="14" />
+                            </Border>
+                            <Label Text="{x:Static loc:AppResources.TotalTickets}" HorizontalOptions="Center" TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" FontSize="11" />
+                            <Label Text="{Binding StatsTotal}" FontSize="20" FontAttributes="Bold" HorizontalOptions="Center" TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- Open Tickets -->
+                    <Border Grid.Column="1" 
+                            Stroke="{AppThemeBinding Light={StaticResource CardBorderLight}, Dark={StaticResource CardBorderDark}}" 
+                            StrokeThickness="1"
+                            StrokeShape="RoundRectangle 12"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource CardBackgroundLight}, Dark={StaticResource CardBackgroundDark}}"
+                            Padding="12">
+                        <VerticalStackLayout Spacing="6" HorizontalOptions="Center">
+                            <Border StrokeShape="RoundRectangle 8" StrokeThickness="0" BackgroundColor="{StaticResource Warning}" HeightRequest="32" WidthRequest="32" HorizontalOptions="Center">
+                                <Label Text="⏳" HorizontalOptions="Center" VerticalOptions="Center" FontSize="14" />
+                            </Border>
+                            <Label Text="{x:Static loc:AppResources.OpenTickets}" HorizontalOptions="Center" TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" FontSize="11" />
+                            <Label Text="{Binding StatsOpen}" FontSize="20" FontAttributes="Bold" HorizontalOptions="Center" TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- Critical Tickets -->
+                    <Border Grid.Column="2" 
+                            Stroke="{AppThemeBinding Light={StaticResource CardBorderLight}, Dark={StaticResource CardBorderDark}}" 
+                            StrokeThickness="1"
+                            StrokeShape="RoundRectangle 12"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource CardBackgroundLight}, Dark={StaticResource CardBackgroundDark}}"
+                            Padding="12">
+                        <VerticalStackLayout Spacing="6" HorizontalOptions="Center">
+                            <Border StrokeShape="RoundRectangle 8" StrokeThickness="0" BackgroundColor="{StaticResource Danger}" HeightRequest="32" WidthRequest="32" HorizontalOptions="Center">
+                                <Label Text="🔥" HorizontalOptions="Center" VerticalOptions="Center" FontSize="14" />
+                            </Border>
+                            <Label Text="{x:Static loc:AppResources.CriticalPriority}" HorizontalOptions="Center" TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" FontSize="11" />
+                            <Label Text="{Binding StatsCritical}" FontSize="20" FontAttributes="Bold" HorizontalOptions="Center" TextColor="{StaticResource Danger}" />
+                        </VerticalStackLayout>
+                    </Border>
+                </Grid>
+
+                <!-- Recent Activity -->
+                <VerticalStackLayout Padding="20,10,20,0" Spacing="12">
+                    <Label Text="{x:Static loc:AppResources.RecentActivity}" 
+                           FontSize="18" 
+                           FontAttributes="Bold" 
+                           TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
+                    
+                    <CollectionView ItemsSource="{Binding RecentTickets}" SelectionMode="None">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:TicketDto">
+                                <Border Stroke="{AppThemeBinding Light={StaticResource CardBorderLight}, Dark={StaticResource CardBorderDark}}" 
+                                        StrokeThickness="1"
+                                        StrokeShape="RoundRectangle 12"
+                                        BackgroundColor="{AppThemeBinding Light={StaticResource CardBackgroundLight}, Dark={StaticResource CardBackgroundDark}}"
+                                        Margin="0,0,0,10"
+                                        Padding="14">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:DashboardViewModel}}, Path=GoToTicketCommand}" CommandParameter="{Binding Id}" />
+                                    </Border.GestureRecognizers>
+                                    
+                                    <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" RowSpacing="6">
+                                        <!-- Status Dot -->
+                                        <Ellipse Fill="{Binding Status, Converter={StaticResource StatusToColorConverter}}" WidthRequest="10" HeightRequest="10" Grid.Row="0" Grid.Column="0" VerticalOptions="Center" />
+                                        
+                                        <!-- Title -->
+                                        <Label Text="{Binding Title}" Grid.Row="0" Grid.Column="1" FontAttributes="Bold" TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" LineBreakMode="TailTruncation" VerticalOptions="Center" />
+                                        
+                                        <!-- Status Badge -->
+                                        <Border Grid.Row="0" Grid.Column="2" StrokeThickness="0" BackgroundColor="{Binding Status, Converter={StaticResource StatusToColorConverter}}" StrokeShape="RoundRectangle 8" Padding="8,4" VerticalOptions="Center">
+                                            <Label Text="{Binding Status}" TextColor="White" FontSize="11" FontAttributes="Bold" />
+                                        </Border>
+                                        
+                                        <!-- Date -->
+                                        <Label Text="{Binding CreatedAt, StringFormat='{0:MMM dd, yyyy}'}" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" FontSize="12" />
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                        <CollectionView.EmptyView>
+                            <VerticalStackLayout Padding="24" Spacing="12" HorizontalOptions="Center">
+                                <Label Text="{x:Static loc:AppResources.NoTicketsFound}" HorizontalOptions="Center" TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" />
+                            </VerticalStackLayout>
+                        </CollectionView.EmptyView>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </VerticalStackLayout>
+        </ScrollView>
+    </RefreshView>
+</ContentPage>

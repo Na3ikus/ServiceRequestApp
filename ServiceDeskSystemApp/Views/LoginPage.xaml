@@ -1,46 +1,135 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:vm="clr-namespace:ServiceDeskSystemApp.ViewModels"
+             xmlns:viewModels="clr-namespace:ServiceDeskSystemApp.ViewModels"
+             xmlns:loc="clr-namespace:ServiceDeskSystemApp.Resources.Localization"
              x:Class="ServiceDeskSystemApp.Views.LoginPage"
-             x:DataType="vm:LoginViewModel"
-             Title="Login">
+             x:DataType="viewModels:LoginViewModel"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="{AppThemeBinding Light={StaticResource PageBackgroundLight}, Dark={StaticResource PageBackgroundDark}}">
+
+    <ContentPage.Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="{StaticResource Primary}" Offset="0.0" />
+            <GradientStop Color="{StaticResource Accent}" Offset="1.0" />
+        </LinearGradientBrush>
+    </ContentPage.Background>
 
     <ScrollView>
-        <VerticalStackLayout Padding="30" Spacing="25" VerticalOptions="Center">
+        <Grid Padding="20" RowDefinitions="*,Auto,*" VerticalOptions="FillAndExpand">
             
-            <Label Text="Service Desk Login" 
-                   FontSize="24"
-                   FontAttributes="Bold"
-                   HorizontalOptions="Center" />
+            <Border Grid.Row="1"
+                    StrokeThickness="0"
+                    StrokeShape="RoundRectangle 20"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource CardBackgroundLight}, Dark={StaticResource CardBackgroundDark}}"
+                    Margin="0,0,0,0"
+                    Padding="30"
+                    HorizontalOptions="Center"
+                    MaximumWidthRequest="400"
+                    WidthRequest="400">
+                <Border.Shadow>
+                    <Shadow Brush="Black"
+                            Offset="0,10"
+                            Radius="20"
+                            Opacity="0.2" />
+                </Border.Shadow>
 
-            <VerticalStackLayout Spacing="10">
-                <Label Text="Username / Email" />
-                <Entry Text="{Binding Username}" 
-                       Placeholder="Enter username" />
-                
-                <Label Text="Password" />
-                <Entry Text="{Binding Password}" 
-                       IsPassword="True"
-                       Placeholder="Enter password" />
-            </VerticalStackLayout>
+                <VerticalStackLayout Spacing="25">
+                    
+                    <VerticalStackLayout Spacing="5" HorizontalOptions="Center" Margin="0,0,0,10">
+                        <Label Text="Service Desk" 
+                               FontSize="32" 
+                               FontAttributes="Bold" 
+                               HorizontalOptions="Center"
+                               TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
+                        <Label Text="Monitoring Dashboard" 
+                               FontSize="16" 
+                               HorizontalOptions="Center"
+                               TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" />
+                    </VerticalStackLayout>
 
-            <Label Text="{Binding ErrorMessage}" 
-                   TextColor="Red" 
-                   IsVisible="True" />
+                    <!-- Error Message -->
+                    <Label Text="{Binding ErrorMessage}" 
+                           TextColor="{StaticResource Danger}"
+                           HorizontalOptions="Center"
+                           HorizontalTextAlignment="Center">
+                        <Label.Triggers>
+                            <DataTrigger TargetType="Label" Binding="{Binding ErrorMessage}" Value="{x:Null}">
+                                <Setter Property="IsVisible" Value="False" />
+                            </DataTrigger>
+                            <DataTrigger TargetType="Label" Binding="{Binding ErrorMessage}" Value="">
+                                <Setter Property="IsVisible" Value="False" />
+                            </DataTrigger>
+                        </Label.Triggers>
+                    </Label>
 
-            <Button Text="Login" 
-                    Command="{Binding LoginCommand}" />
+                    <!-- Username -->
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="Username"
+                               TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
+                               FontAttributes="Bold"
+                               FontSize="14" />
+                        <Border StrokeThickness="1"
+                                StrokeShape="RoundRectangle 10"
+                                Stroke="{AppThemeBinding Light={StaticResource InputBorderLight}, Dark={StaticResource InputBorderDark}}"
+                                BackgroundColor="{AppThemeBinding Light={StaticResource InputBackgroundLight}, Dark={StaticResource InputBackgroundDark}}"
+                                Padding="15,5">
+                            <Entry Text="{Binding Username}" 
+                                   Placeholder="Username"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
+                                   PlaceholderColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"
+                                   ClearButtonVisibility="WhileEditing"
+                                   IsSpellCheckEnabled="False"
+                                   IsTextPredictionEnabled="False" />
+                        </Border>
+                    </VerticalStackLayout>
 
-            <ActivityIndicator IsRunning="{Binding IsLoading}" 
-                               IsVisible="{Binding IsLoading}"
-                               HorizontalOptions="Center" />
-            
-            <Button Text="Register an account" 
-                    Clicked="OnRegisterClicked" 
-                    BackgroundColor="Transparent"
-                    TextColor="Blue" />
-            
-        </VerticalStackLayout>
+                    <!-- Password -->
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="Password"
+                               TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
+                               FontAttributes="Bold"
+                               FontSize="14" />
+                        <Border StrokeThickness="1"
+                                StrokeShape="RoundRectangle 10"
+                                Stroke="{AppThemeBinding Light={StaticResource InputBorderLight}, Dark={StaticResource InputBorderDark}}"
+                                BackgroundColor="{AppThemeBinding Light={StaticResource InputBackgroundLight}, Dark={StaticResource InputBackgroundDark}}"
+                                Padding="15,5">
+                            <Entry Text="{Binding Password}" 
+                                   Placeholder="Password"
+                                   IsPassword="True"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
+                                   PlaceholderColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"
+                                   ClearButtonVisibility="WhileEditing" />
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <!-- Login Button -->
+                    <Button Text="Sign In"
+                            Command="{Binding LoginCommand}"
+                            BackgroundColor="{StaticResource Primary}"
+                            TextColor="White"
+                            FontAttributes="Bold"
+                            FontSize="16"
+                            CornerRadius="10"
+                            HeightRequest="50"
+                            Margin="0,15,0,0">
+                        <Button.Triggers>
+                            <DataTrigger TargetType="Button" Binding="{Binding IsLoading}" Value="True">
+                                <Setter Property="Text" Value="Loading..." />
+                                <Setter Property="IsEnabled" Value="False" />
+                                <Setter Property="Opacity" Value="0.7" />
+                            </DataTrigger>
+                        </Button.Triggers>
+                    </Button>
+                    
+                    <ActivityIndicator IsRunning="{Binding IsLoading}"
+                                       IsVisible="{Binding IsLoading}"
+                                       Color="{StaticResource Primary}"
+                                       HorizontalOptions="Center" />
+
+                </VerticalStackLayout>
+            </Border>
+        </Grid>
     </ScrollView>
 </ContentPage>

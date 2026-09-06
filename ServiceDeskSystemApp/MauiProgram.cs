@@ -27,18 +27,16 @@ namespace ServiceDeskSystemApp
 
             // ViewModels
             builder.Services.AddTransient<LoginViewModel>();
-            builder.Services.AddTransient<RegisterViewModel>();
+            builder.Services.AddTransient<DashboardViewModel>();
             builder.Services.AddTransient<TicketsViewModel>();
             builder.Services.AddTransient<TicketDetailViewModel>();
-            builder.Services.AddTransient<CreateTicketViewModel>();
             builder.Services.AddTransient<ProfileViewModel>();
 
             // Pages
             builder.Services.AddTransient<LoginPage>();
-            builder.Services.AddTransient<RegisterPage>();
+            builder.Services.AddTransient<DashboardPage>();
             builder.Services.AddTransient<TicketsPage>();
             builder.Services.AddTransient<TicketDetailPage>();
-            builder.Services.AddTransient<CreateTicketPage>();
             builder.Services.AddTransient<ProfilePage>();
 
 #if DEBUG

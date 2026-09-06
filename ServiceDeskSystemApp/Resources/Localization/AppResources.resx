@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter</value></resheader>
+
+  <!-- General -->
+  <data name="AppTitle" xml:space="preserve"><value>ServiceDesk</value></data>
+  <data name="Loading" xml:space="preserve"><value>Loading...</value></data>
+  <data name="Error" xml:space="preserve"><value>Error</value></data>
+  <data name="OK" xml:space="preserve"><value>OK</value></data>
+  <data name="Cancel" xml:space="preserve"><value>Cancel</value></data>
+  <data name="Retry" xml:space="preserve"><value>Retry</value></data>
+
+  <!-- Login -->
+  <data name="LoginTitle" xml:space="preserve"><value>Service Desk</value></data>
+  <data name="LoginSubtitle" xml:space="preserve"><value>Monitoring Dashboard</value></data>
+  <data name="Username" xml:space="preserve"><value>Username</value></data>
+  <data name="UsernamePlaceholder" xml:space="preserve"><value>Enter your username</value></data>
+  <data name="Password" xml:space="preserve"><value>Password</value></data>
+  <data name="PasswordPlaceholder" xml:space="preserve"><value>Enter your password</value></data>
+  <data name="SignIn" xml:space="preserve"><value>Sign In</value></data>
+  <data name="SigningIn" xml:space="preserve"><value>Signing in...</value></data>
+
+  <!-- Dashboard -->
+  <data name="Dashboard" xml:space="preserve"><value>Dashboard</value></data>
+  <data name="WelcomeBack" xml:space="preserve"><value>Welcome back,</value></data>
+  <data name="DashboardSubtitle" xml:space="preserve"><value>Here's what's happening in your workspace.</value></data>
+  <data name="TotalTickets" xml:space="preserve"><value>Total Tickets</value></data>
+  <data name="OpenTickets" xml:space="preserve"><value>Open</value></data>
+  <data name="CriticalPriority" xml:space="preserve"><value>Critical</value></data>
+  <data name="MyTickets" xml:space="preserve"><value>My Tickets</value></data>
+  <data name="RecentActivity" xml:space="preserve"><value>Recent Activity</value></data>
+  <data name="ViewAll" xml:space="preserve"><value>View All</value></data>
+
+  <!-- Tickets -->
+  <data name="Tickets" xml:space="preserve"><value>Tickets</value></data>
+  <data name="TicketsSubtitle" xml:space="preserve"><value>Browse all service requests</value></data>
+  <data name="SearchTickets" xml:space="preserve"><value>Search tickets...</value></data>
+  <data name="NoTicketsFound" xml:space="preserve"><value>No tickets found</value></data>
+  <data name="NoTicketsSubtext" xml:space="preserve"><value>There are currently no tickets to display.</value></data>
+  <data name="PullToRefresh" xml:space="preserve"><value>Pull down to refresh</value></data>
+
+  <!-- Ticket Detail -->
+  <data name="TicketDetails" xml:space="preserve"><value>Ticket Details</value></data>
+  <data name="Description" xml:space="preserve"><value>Description</value></data>
+  <data name="StepsToReproduce" xml:space="preserve"><value>Steps to Reproduce</value></data>
+  <data name="Details" xml:space="preserve"><value>Details</value></data>
+  <data name="Comments" xml:space="preserve"><value>Comments</value></data>
+  <data name="NoComments" xml:space="preserve"><value>No comments yet</value></data>
+  <data name="Product" xml:space="preserve"><value>Product</value></data>
+  <data name="Priority" xml:space="preserve"><value>Priority</value></data>
+  <data name="Status" xml:space="preserve"><value>Status</value></data>
+  <data name="Type" xml:space="preserve"><value>Type</value></data>
+  <data name="AssignedTo" xml:space="preserve"><value>Assigned To</value></data>
+  <data name="CreatedBy" xml:space="preserve"><value>Created By</value></data>
+  <data name="CreatedAt" xml:space="preserve"><value>Created</value></data>
+  <data name="DueDate" xml:space="preserve"><value>Due Date</value></data>
+  <data name="Environment" xml:space="preserve"><value>Environment</value></data>
+  <data name="NotAssigned" xml:space="preserve"><value>Not assigned</value></data>
+
+  <!-- Profile -->
+  <data name="Profile" xml:space="preserve"><value>Profile</value></data>
+  <data name="ProfileTitle" xml:space="preserve"><value>Profile</value></data>
+  <data name="AccountInfo" xml:space="preserve"><value>Account Information</value></data>
+  <data name="ContactInfo" xml:space="preserve"><value>Contact Information</value></data>
+  <data name="Login" xml:space="preserve"><value>Login</value></data>
+  <data name="Email" xml:space="preserve"><value>Email</value></data>
+  <data name="Bio" xml:space="preserve"><value>Bio</value></data>
+  <data name="Role" xml:space="preserve"><value>Role</value></data>
+  <data name="Logout" xml:space="preserve"><value>Sign Out</value></data>
+  <data name="LogoutConfirm" xml:space="preserve"><value>Are you sure you want to sign out?</value></data>
+</root>

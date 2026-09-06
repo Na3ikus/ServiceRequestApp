@@ -5,18 +5,25 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:ServiceDeskSystemApp"
     xmlns:views="clr-namespace:ServiceDeskSystemApp.Views"
-    Title="ServiceDeskSystemApp">
+    xmlns:loc="clr-namespace:ServiceDeskSystemApp.Resources.Localization"
+    Shell.FlyoutBehavior="Disabled"
+    Shell.TabBarBackgroundColor="{AppThemeBinding Light={StaticResource PageBackgroundLight}, Dark={StaticResource PageBackgroundDark}}"
+    Shell.TabBarTitleColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
+    Shell.TabBarUnselectedColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}">
 
-    <TabBar Route="main">
+    <TabBar>
+        <Tab Title="Dashboard">
+            <ShellContent
+                ContentTemplate="{DataTemplate views:DashboardPage}"
+                Route="DashboardPage" />
+        </Tab>
         <Tab Title="Tickets">
             <ShellContent
-                Title="Tickets"
                 ContentTemplate="{DataTemplate views:TicketsPage}"
                 Route="TicketsPage" />
         </Tab>
         <Tab Title="Profile">
             <ShellContent
-                Title="Profile"
                 ContentTemplate="{DataTemplate views:ProfilePage}"
                 Route="ProfilePage" />
         </Tab>

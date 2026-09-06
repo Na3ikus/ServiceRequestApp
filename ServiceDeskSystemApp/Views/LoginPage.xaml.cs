@@ -9,12 +9,4 @@ public partial class LoginPage : ContentPage
         InitializeComponent();
         BindingContext = viewModel;
     }
-
-    private async void OnRegisterClicked(object sender, EventArgs e)
-    {
-        var registerPage = Application.Current!
-            .Handler!.MauiContext!.Services
-            .GetRequiredService<RegisterPage>();
-        await Navigation.PushAsync(registerPage);
-    }
 }

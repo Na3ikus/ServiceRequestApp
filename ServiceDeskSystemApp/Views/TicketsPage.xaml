@@ -3,75 +3,159 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:ServiceDeskSystemApp.ViewModels"
              xmlns:models="clr-namespace:ServiceDeskSystemApp.Models.Tickets"
-             xmlns:converters="clr-namespace:ServiceDeskSystemApp.Converters"
+             xmlns:loc="clr-namespace:ServiceDeskSystemApp.Resources.Localization"
+             xmlns:conv="clr-namespace:ServiceDeskSystemApp.Converters"
              x:Class="ServiceDeskSystemApp.Views.TicketsPage"
              x:DataType="vm:TicketsViewModel"
-             Title="Tickets">
+             Title="Tickets"
+             BackgroundColor="{AppThemeBinding Light={StaticResource PageBackgroundLight}, Dark={StaticResource PageBackgroundDark}}">
 
     <ContentPage.Resources>
         <ResourceDictionary>
-            <converters:StatusToColorConverter x:Key="StatusToColorConverter" />
-            <converters:PriorityToColorConverter x:Key="PriorityToColorConverter" />
+            <conv:StatusToColorConverter x:Key="StatusToColorConverter" />
+            <conv:PriorityToColorConverter x:Key="PriorityToColorConverter" />
         </ResourceDictionary>
     </ContentPage.Resources>
-    
-    <Grid RowDefinitions="Auto, *">
-        <HorizontalStackLayout Grid.Row="0" Spacing="30" Padding="15" HorizontalOptions="Center">
-            <VerticalStackLayout>
-                <Label Text="Total" FontSize="12" TextColor="Gray" HorizontalOptions="Center"/>
-                <Label Text="{Binding StatsTotal}" FontSize="18" FontAttributes="Bold" HorizontalOptions="Center"/>
-            </VerticalStackLayout>
-            <VerticalStackLayout>
-                <Label Text="Open" FontSize="12" TextColor="Gray" HorizontalOptions="Center"/>
-                <Label Text="{Binding StatsOpen}" FontSize="18" FontAttributes="Bold" HorizontalOptions="Center"/>
-            </VerticalStackLayout>
-            <VerticalStackLayout>
-                <Label Text="Critical" FontSize="12" TextColor="Gray" HorizontalOptions="Center"/>
-                <Label Text="{Binding StatsCritical}" FontSize="18" FontAttributes="Bold" TextColor="Red" HorizontalOptions="Center"/>
-            </VerticalStackLayout>
-        </HorizontalStackLayout>
+
+    <Grid RowDefinitions="Auto, Auto, Auto, *">
         
-        <RefreshView Grid.Row="1" Command="{Binding LoadTicketsCommand}" IsRefreshing="{Binding IsRefreshing}">
-            <CollectionView ItemsSource="{Binding Tickets}" SelectionMode="None">
+        <!-- Header -->
+        <VerticalStackLayout Grid.Row="0" Padding="20,20,20,10" Spacing="4">
+            <Label Text="Tickets" 
+                   FontSize="28" 
+                   FontAttributes="Bold" 
+                   TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
+            <Label Text="Browse all service requests" 
+                   FontSize="14" 
+                   TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" />
+        </VerticalStackLayout>
+
+        <!-- Stats Row -->
+        <Grid Grid.Row="1" ColumnDefinitions="*,*,*" Padding="20,0,20,10" ColumnSpacing="10">
+            <!-- Total -->
+            <Border Grid.Column="0" StrokeShape="RoundRectangle 8" BackgroundColor="{AppThemeBinding Light={StaticResource PrimaryLight}, Dark={StaticResource Primary}}" StrokeThickness="0" Padding="10">
+                <VerticalStackLayout Spacing="2">
+                    <Label Text="Total" FontSize="12" TextColor="White" Opacity="0.8" HorizontalOptions="Center" />
+                    <Label Text="{Binding StatsTotal}" FontSize="18" FontAttributes="Bold" TextColor="White" HorizontalOptions="Center" />
+                </VerticalStackLayout>
+            </Border>
+            
+            <!-- Open -->
+            <Border Grid.Column="1" StrokeShape="RoundRectangle 8" BackgroundColor="{AppThemeBinding Light={StaticResource WarningLight}, Dark={StaticResource Warning}}" StrokeThickness="0" Padding="10">
+                <VerticalStackLayout Spacing="2">
+                    <Label Text="Open" FontSize="12" TextColor="White" Opacity="0.8" HorizontalOptions="Center" />
+                    <Label Text="{Binding StatsOpen}" FontSize="18" FontAttributes="Bold" TextColor="White" HorizontalOptions="Center" />
+                </VerticalStackLayout>
+            </Border>
+            
+            <!-- Critical -->
+            <Border Grid.Column="2" StrokeShape="RoundRectangle 8" BackgroundColor="{AppThemeBinding Light={StaticResource DangerLight}, Dark={StaticResource Danger}}" StrokeThickness="0" Padding="10">
+                <VerticalStackLayout Spacing="2">
+                    <Label Text="Critical" FontSize="12" TextColor="White" Opacity="0.8" HorizontalOptions="Center" />
+                    <Label Text="{Binding StatsCritical}" FontSize="18" FontAttributes="Bold" TextColor="White" HorizontalOptions="Center" />
+                </VerticalStackLayout>
+            </Border>
+        </Grid>
+
+        <!-- Search Bar -->
+        <Border Grid.Row="2" Margin="20,10,20,10" StrokeShape="RoundRectangle 12" StrokeThickness="1"
+                Stroke="{AppThemeBinding Light={StaticResource CardBorderLight}, Dark={StaticResource CardBorderDark}}"
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBackgroundLight}, Dark={StaticResource CardBackgroundDark}}">
+            <SearchBar Placeholder="Search tickets..." 
+                       BackgroundColor="Transparent"
+                       TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
+                       PlaceholderColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" />
+        </Border>
+
+        <!-- Ticket List -->
+        <RefreshView Grid.Row="3" Command="{Binding LoadTicketsCommand}" IsRefreshing="{Binding IsRefreshing}">
+            <CollectionView ItemsSource="{Binding Tickets}" 
+                            SelectionMode="None">
+                
+                <CollectionView.EmptyView>
+                    <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="10" Padding="20">
+                        <Label Text="📭" FontSize="48" HorizontalOptions="Center" />
+                        <Label Text="No tickets found" 
+                               FontSize="18" 
+                               FontAttributes="Bold" 
+                               HorizontalOptions="Center"
+                               TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
+                        <Label Text="There are currently no tickets to display." 
+                               FontSize="14" 
+                               HorizontalOptions="Center"
+                               HorizontalTextAlignment="Center"
+                               TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" />
+                    </VerticalStackLayout>
+                </CollectionView.EmptyView>
+
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="models:TicketDto">
-                        <Frame Margin="10,5" Padding="15" CornerRadius="8" HasShadow="True">
-                            <Grid RowDefinitions="Auto, Auto, Auto" ColumnDefinitions="*, Auto">
-                                <Label Grid.Row="0" Grid.Column="0" Text="{Binding Title}" FontAttributes="Bold" FontSize="16" />
-                                <Label Grid.Row="0" Grid.Column="1" Text="{Binding Id, StringFormat='#{0}'}" TextColor="Gray" />
+                        <Grid Padding="20,10">
+                            <Border StrokeShape="RoundRectangle 12" 
+                                    Stroke="{AppThemeBinding Light={StaticResource CardBorderLight}, Dark={StaticResource CardBorderDark}}"
+                                    StrokeThickness="1"
+                                    BackgroundColor="{AppThemeBinding Light={StaticResource CardBackgroundLight}, Dark={StaticResource CardBackgroundDark}}"
+                                    Padding="0">
                                 
-                                <Label Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Text="{Binding Description}" MaxLines="2" LineBreakMode="TailTruncation" FontSize="14" TextColor="Gray" Margin="0,5,0,10" />
+                                <Grid ColumnDefinitions="4, *">
+                                    <!-- Colored Left Border Strip -->
+                                    <BoxView Grid.Column="0" 
+                                             BackgroundColor="{Binding Priority, Converter={StaticResource PriorityToColorConverter}}" />
+                                    
+                                    <Grid Grid.Column="1" RowDefinitions="Auto, Auto, Auto" Padding="15" RowSpacing="8">
+                                        
+                                        <!-- Top Row: Avatar, CreatedBy, ID -->
+                                        <Grid Grid.Row="0" ColumnDefinitions="Auto, *, Auto">
+                                            <!-- Avatar Circle -->
+                                            <Border Grid.Column="0" StrokeShape="RoundRectangle 12" StrokeThickness="0" BackgroundColor="{AppThemeBinding Light={StaticResource PrimaryLight}, Dark={StaticResource Primary}}" WidthRequest="24" HeightRequest="24" VerticalOptions="Center">
+                                                <Label Text="👤" FontSize="12" TextColor="White" HorizontalOptions="Center" VerticalOptions="Center" />
+                                            </Border>
+                                            
+                                            <Label Grid.Column="1" Text="{Binding CreatedByName}" FontSize="12" Margin="8,0,0,0" VerticalOptions="Center" TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" />
+                                            
+                                            <Label Grid.Column="2" Text="{Binding Id, StringFormat='#{0}'}" FontSize="12" FontAttributes="Bold" VerticalOptions="Center" TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" />
+                                        </Grid>
+
+                                        <!-- Middle Row: Title & Description -->
+                                        <VerticalStackLayout Grid.Row="1" Spacing="4">
+                                            <Label Text="{Binding Title}" FontSize="16" FontAttributes="Bold" TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
+                                            <Label Text="{Binding Description}" FontSize="14" MaxLines="2" LineBreakMode="TailTruncation" TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" />
+                                        </VerticalStackLayout>
+
+                                        <!-- Bottom Row: Badges & Date -->
+                                        <Grid Grid.Row="2" ColumnDefinitions="Auto, Auto, Auto, *" ColumnSpacing="6" Margin="0,4,0,0">
+                                            
+                                            <!-- Status Badge -->
+                                            <Border Grid.Column="0" StrokeShape="RoundRectangle 8" StrokeThickness="0" Padding="8,4" BackgroundColor="{Binding Status, Converter={StaticResource StatusToColorConverter}}">
+                                                <Label Text="{Binding Status}" FontSize="11" FontAttributes="Bold" TextColor="White" />
+                                            </Border>
+                                            
+                                            <!-- Priority Badge -->
+                                            <Border Grid.Column="1" StrokeShape="RoundRectangle 8" StrokeThickness="1" Padding="8,4" 
+                                                    Stroke="{Binding Priority, Converter={StaticResource PriorityToColorConverter}}"
+                                                    BackgroundColor="Transparent">
+                                                <Label Text="{Binding Priority}" FontSize="11" FontAttributes="Bold" TextColor="{Binding Priority, Converter={StaticResource PriorityToColorConverter}}" />
+                                            </Border>
+                                            
+                                            <!-- Type Badge -->
+                                            <Border Grid.Column="2" StrokeShape="RoundRectangle 8" StrokeThickness="0" Padding="8,4" BackgroundColor="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray800}}">
+                                                <Label Text="{Binding TicketType}" FontSize="11" TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" />
+                                            </Border>
+
+                                            <!-- Date -->
+                                            <Label Grid.Column="3" Text="{Binding CreatedAt, StringFormat='{0:MMM dd}'}" FontSize="12" HorizontalOptions="End" VerticalOptions="Center" TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" />
+                                        </Grid>
+                                    </Grid>
+                                </Grid>
                                 
-                                <HorizontalStackLayout Grid.Row="2" Grid.Column="0" Spacing="10" VerticalOptions="Center">
-                                    <Border StrokeShape="RoundRectangle 4" BackgroundColor="{Binding Status, Converter={StaticResource StatusToColorConverter}}" Padding="5,2">
-                                        <Label Text="{Binding Status}" FontSize="12" TextColor="White" />
-                                    </Border>
-                                    <Border StrokeShape="RoundRectangle 4" BackgroundColor="{Binding Priority, Converter={StaticResource PriorityToColorConverter}}" Padding="5,2">
-                                        <Label Text="{Binding Priority}" FontSize="12" TextColor="White" />
-                                    </Border>
-                                </HorizontalStackLayout>
-                                
-                                <Button Grid.Row="2" Grid.Column="1" Text="View" Padding="10,0" HeightRequest="35"
-                                        Clicked="OnViewTicketClicked" CommandParameter="{Binding Id}" />
-                            </Grid>
-                        </Frame>
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnViewTicketClicked" />
+                                </Border.GestureRecognizers>
+                            </Border>
+                        </Grid>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
-                <CollectionView.EmptyView>
-                    <Label Text="No tickets found." HorizontalOptions="Center" VerticalOptions="Center" />
-                </CollectionView.EmptyView>
             </CollectionView>
         </RefreshView>
-        
-        <Button Grid.Row="1" 
-                Text="+" 
-                FontSize="24"
-                WidthRequest="60" 
-                HeightRequest="60" 
-                CornerRadius="30"
-                HorizontalOptions="End" 
-                VerticalOptions="End" 
-                Margin="20"
-                Clicked="OnCreateTicketClicked" />
     </Grid>
 </ContentPage>
