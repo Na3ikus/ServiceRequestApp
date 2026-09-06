@@ -66,39 +66,41 @@
     else
     {
         <div class="atab-table-wrap">
-            <div class="atab-table w-full min-w-[600px]">
-                <div class="grid grid-cols-12">
-                    <div class="atab-th sortable col-span-3 @(SortColumn == "name" ? "sort-active" : "")"
-                        @onclick="@(() => SetSort("name"))">
-                        @L.Translate("admin.name")
-                        <span class="sort-arrow">@GetSortArrow("name")</span>
-                    </div>
-                    <div class="atab-th sortable col-span-3 @(SortColumn == "type" ? "sort-active" : "")"
-                        @onclick="@(() => SetSort("type"))">
-                        @L.Translate("admin.type")
-                        <span class="sort-arrow">@GetSortArrow("type")</span>
-                    </div>
-                    <div class="atab-th sortable col-span-4 @(SortColumn == "count" ? "sort-active" : "")"
-                        @onclick="@(() => SetSort("count"))">
-                        @L.Translate("admin.productsCount")
-                        <span class="sort-arrow">@GetSortArrow("count")</span>
-                    </div>
-                    <div class="atab-th atab-th-actions col-span-2">@L.Translate("admin.actions")</div>
-                </div>
-                <div>
+            <table class="atab-table w-full min-w-[600px] table-fixed">
+                <thead>
+                    <tr>
+                        <th class="atab-th sortable w-3/12 @(SortColumn == "name" ? "sort-active" : "")"
+                            @onclick="@(() => SetSort("name"))">
+                            @L.Translate("admin.name")
+                            <span class="sort-arrow">@GetSortArrow("name")</span>
+                        </th>
+                        <th class="atab-th sortable w-3/12 @(SortColumn == "type" ? "sort-active" : "")"
+                            @onclick="@(() => SetSort("type"))">
+                            @L.Translate("admin.type")
+                            <span class="sort-arrow">@GetSortArrow("type")</span>
+                        </th>
+                        <th class="atab-th sortable w-4/12 @(SortColumn == "count" ? "sort-active" : "")"
+                            @onclick="@(() => SetSort("count"))">
+                            @L.Translate("admin.productsCount")
+                            <span class="sort-arrow">@GetSortArrow("count")</span>
+                        </th>
+                        <th class="atab-th atab-th-actions w-2/12">@L.Translate("admin.actions")</th>
+                    </tr>
+                </thead>
+                <tbody>
                     @foreach (var ts in filteredStacks!)
                     {
                         var count = ts.Products?.Count ?? 0;
                         var maxCount = TechStacks!.Max(t => t.Products?.Count ?? 0);
 
-                        <div class="atab-row grid grid-cols-12 items-center">
-                            <div class="atab-td atab-td-primary col-span-3 truncate">@ts.Name</div>
-                            <div class="atab-td atab-td-nowrap col-span-3 truncate">
+                        <tr class="atab-row">
+                            <td class="atab-td atab-td-primary truncate" title="@ts.Name">@ts.Name</td>
+                            <td class="atab-td atab-td-nowrap truncate">
                                 <span class="atab-type-badge @GetTypeColorClass(ts.Type)">
                                     @ts.Type
                                 </span>
-                            </div>
-                            <div class="atab-td col-span-4">
+                            </td>
+                            <td class="atab-td">
                                 <div class="atab-progress-cell flex items-center gap-2">
                                     <span class="atab-progress-count">@count</span>
                                     @if (maxCount > 0)
@@ -110,30 +112,32 @@
                                         </div>
                                     }
                                 </div>
-                            </div>
-                            <div class="atab-td atab-td-actions col-span-2 flex justify-end gap-2 pr-4">
-                                <button @onclick="@(() => EditTechStack(ts))"
-                                        class="atab-action-btn edit"
-                                        title="@L.Translate("common.edit")">
-                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                    </svg>
-                                </button>
-                                <button @onclick="@(() => DeleteTechStack(ts))"
-                                        class="atab-action-btn delete @(count > 0 ? "disabled" : "")"
-                                        disabled="@(count > 0)"
-                                        title="@(count > 0 ? L.Translate("admin.cannotDeleteTechStackWithProducts") : L.Translate("common.delete"))">
-                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
+                            </td>
+                            <td class="atab-td atab-td-actions text-right pr-4">
+                                <div class="flex justify-end gap-2 inline-flex">
+                                    <button @onclick="@(() => EditTechStack(ts))"
+                                            class="atab-action-btn edit"
+                                            title="@L.Translate("common.edit")">
+                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                        </svg>
+                                    </button>
+                                    <button @onclick="@(() => DeleteTechStack(ts))"
+                                            class="atab-action-btn delete @(count > 0 ? "disabled" : "")"
+                                            disabled="@(count > 0)"
+                                            title="@(count > 0 ? L.Translate("admin.cannotDeleteTechStackWithProducts") : L.Translate("common.delete"))">
+                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
                     }
-                </div>
-            </div>
+                </tbody>
+            </table>
         </div>
 
         <div class="atab-footer">

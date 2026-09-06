@@ -69,79 +69,83 @@
     else
     {
         <div class="atab-table-wrap">
-            <div class="atab-table w-full min-w-[800px]">
-                <div class="grid grid-cols-12">
-                    <div class="atab-th sortable col-span-2 @(SortColumn == "name" ? "sort-active" : "")"
-                        @onclick="@(() => SetSort("name"))">
-                        @L.Translate("admin.name")
-                        <span class="sort-arrow">@GetSortArrow("name")</span>
-                    </div>
-                    <div class="atab-th col-span-4">@L.Translate("admin.description")</div>
-                    <div class="atab-th sortable col-span-2 @(SortColumn == "version" ? "sort-active" : "")"
-                        @onclick="@(() => SetSort("version"))">
-                        @L.Translate("admin.version")
-                        <span class="sort-arrow">@GetSortArrow("version")</span>
-                    </div>
-                    <div class="atab-th sortable col-span-2 @(SortColumn == "techstack" ? "sort-active" : "")"
-                        @onclick="@(() => SetSort("techstack"))">
-                        @L.Translate("admin.techStack")
-                        <span class="sort-arrow">@GetSortArrow("techstack")</span>
-                    </div>
-                    <div class="atab-th atab-th-center col-span-1">
-                        <svg style="width:1rem;height:1rem;display:inline-block;vertical-align:middle;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                        </svg>
-                    </div>
-                    <div class="atab-th atab-th-actions col-span-1">@L.Translate("admin.actions")</div>
-                </div>
-                <div>
+            <table class="atab-table w-full min-w-[800px] table-fixed">
+                <thead>
+                    <tr>
+                        <th class="atab-th sortable w-2/12 @(SortColumn == "name" ? "sort-active" : "")"
+                            @onclick="@(() => SetSort("name"))">
+                            @L.Translate("admin.name")
+                            <span class="sort-arrow">@GetSortArrow("name")</span>
+                        </th>
+                        <th class="atab-th w-4/12">@L.Translate("admin.description")</th>
+                        <th class="atab-th sortable w-2/12 @(SortColumn == "version" ? "sort-active" : "")"
+                            @onclick="@(() => SetSort("version"))">
+                            @L.Translate("admin.version")
+                            <span class="sort-arrow">@GetSortArrow("version")</span>
+                        </th>
+                        <th class="atab-th sortable w-2/12 @(SortColumn == "techstack" ? "sort-active" : "")"
+                            @onclick="@(() => SetSort("techstack"))">
+                            @L.Translate("admin.techStack")
+                            <span class="sort-arrow">@GetSortArrow("techstack")</span>
+                        </th>
+                        <th class="atab-th atab-th-center w-1/12">
+                            <svg style="width:1rem;height:1rem;display:inline-block;vertical-align:middle;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                            </svg>
+                        </th>
+                        <th class="atab-th atab-th-actions w-1/12">@L.Translate("admin.actions")</th>
+                    </tr>
+                </thead>
+                <tbody>
                     @foreach (var product in filteredProducts!)
                     {
-                        <div class="atab-row grid grid-cols-12 items-center">
-                            <div class="atab-td atab-td-primary col-span-2 truncate" title="@product.Name">@product.Name</div>
-                            <div class="atab-td atab-td-desc col-span-4">
-                                <span class="atab-desc-text" title="@product.Description">@product.Description</span>
-                            </div>
-                            <div class="atab-td atab-td-nowrap col-span-2 truncate">
+                        <tr class="atab-row">
+                            <td class="atab-td atab-td-primary truncate" title="@product.Name">@product.Name</td>
+                            <td class="atab-td">
+                                <div class="truncate" title="@product.Description">@product.Description</div>
+                            </td>
+                            <td class="atab-td atab-td-nowrap truncate">
                                 <span class="atab-version-badge">@product.CurrentVersion</span>
-                            </div>
-                            <div class="atab-td atab-td-nowrap col-span-2 truncate">
+                            </td>
+                            <td class="atab-td atab-td-nowrap truncate">
                                 @if (product.TechStack is not null)
                                 {
                                     <span class="atab-stack-badge @GetStackColorClass(product.TechStack.Type)">
                                         @product.TechStack.Name
                                     </span>
                                 }
-                            </div>
-                            <div class="atab-td atab-td-center col-span-1">
+                            </td>
+                            <td class="atab-td atab-td-center">
                                 <span class="atab-ticket-count @(product.Tickets?.Count > 0 ? "has-tickets" : "")">
                                     @(product.Tickets?.Count ?? 0)
                                 </span>
-                            </div>
-                            <div class="atab-td atab-td-actions col-span-1 flex justify-end gap-2 pr-4">
-                                <button @onclick="@(() => EditProduct(product))"
-                                        class="atab-action-btn edit"
-                                        title="@L.Translate("common.edit")">
-                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                    </svg>
-                                </button>
-                                <button @onclick="@(() => DeleteProduct(product))"
-                                        class="atab-action-btn delete @(product.Tickets?.Count > 0 ? "disabled" : "")"
-                                        disabled="@(product.Tickets?.Count > 0)"
-                                        title="@(product.Tickets?.Count > 0 ? L.Translate("admin.cannotDeleteProductWithTickets") : L.Translate("common.delete"))">
-                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
+                            </td>
+                            <td class="atab-td atab-td-actions text-right pr-4">
+                                <div class="flex justify-end gap-2 inline-flex">
+                                    <button @onclick="@(() => EditProduct(product))"
+                                            class="atab-action-btn edit"
+                                            title="@L.Translate("common.edit")">
+                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                        </svg>
+                                    </button>
+                                    <button @onclick="@(() => DeleteProduct(product))"
+                                            class="atab-action-btn delete @(product.Tickets?.Count > 0 ? "disabled" : "")"
+                                            disabled="@(product.Tickets?.Count > 0)"
+                                            title="@(product.Tickets?.Count > 0 ? L.Translate("admin.cannotDeleteProductWithTickets") : L.Translate("common.delete"))">
+                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
                     }
-                </div>
-            </div>
+                </tbody>
+            </table>
         </div>
 
         <div class="atab-footer">
