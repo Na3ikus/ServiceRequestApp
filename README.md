@@ -102,14 +102,15 @@ graph TD
 
 | Feature | Status |
 |---|:---:|
-| Multilingual UI (EN / UA) | ✅ |
+| Multilingual UI (EN / UA / DE / ES / FR) | ✅ |
+| Flat solid theme by default (gradient look optional) | ✅ |
 | Interactive Dashboard (MTTR, MTBF, SLA) | ✅ |
 | Role-Based Access Control (RBAC) | ✅ |
 | Email Notifications (SMTP) | ✅ |
 | Mobile-Responsive Web App | ✅ |
 | RESTful API | ✅ |
 | Audit Logging | ✅ |
-| Advanced SLA Policies & Escalations | 🔜 |
+| Advanced SLA Policies & Escalations | ✅ |
 | Knowledge Base & Self-Service | 🔜 |
 | Advanced Reporting & Export | 🔜 |
 

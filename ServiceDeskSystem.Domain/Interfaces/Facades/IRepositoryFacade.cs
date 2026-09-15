@@ -28,6 +28,8 @@ public interface IRepositoryFacade : IAsyncDisposable
 
     IAttachmentRepository Attachments { get; }
 
+    ISlaPolicyRepository SlaPolicies { get; }
+
     IUnitOfWork UnitOfWork { get; }
 }
 

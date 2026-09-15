@@ -42,6 +42,7 @@ public partial class Settings : BaseComponent
     private string cardStyle = "elevated";
     private string hoverStyle = "standard";
     private string bgTexture = "clean";
+    private string surfaceStyle = "solid";
 
     // NEW: 10 additional visual customizations
     private string borderRadius = "rounded";
@@ -121,6 +122,9 @@ public partial class Settings : BaseComponent
 
             var bgStr = await this.JS.InvokeAsync<string?>("localStorage.getItem", "settings.bgTexture");
             this.bgTexture = !string.IsNullOrWhiteSpace(bgStr) ? bgStr : "clean";
+
+            var surfaceStr = await this.JS.InvokeAsync<string?>("localStorage.getItem", "settings.surfaceStyle");
+            this.surfaceStyle = !string.IsNullOrWhiteSpace(surfaceStr) ? surfaceStr : "solid";
 
             // Load new settings
             var radiusStr = await this.JS.InvokeAsync<string?>("localStorage.getItem", "settings.borderRadius");
@@ -380,6 +384,25 @@ public partial class Settings : BaseComponent
         this.cardStyle = style;
         await this.SaveSetting("settings.cardStyle", style);
         await this.ApplyCardStyleAsync();
+    }
+
+    private async Task SetSurfaceStyle(string style)
+    {
+        this.surfaceStyle = style;
+        await this.SaveSetting("settings.surfaceStyle", style);
+        await this.ApplySurfaceStyleAsync();
+    }
+
+    private async Task ApplySurfaceStyleAsync()
+    {
+        try
+        {
+            await this.JS.InvokeVoidAsync("eval", $"document.documentElement.setAttribute('data-surface','{this.surfaceStyle}')");
+        }
+        catch
+        {
+            // Ignore JS interop errors during prerendering.
+        }
     }
 
     private async Task ApplyCardStyleAsync()

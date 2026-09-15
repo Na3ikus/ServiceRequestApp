@@ -3276,3 +3276,375 @@ h3[tabindex] {
     from { opacity: 0; }
     to { opacity: 1; }
 }
+
+:root {
+    --surface-page: #ffffff;
+    --surface-page-border: #e5e7eb;
+    --surface-page-text: #111827;
+    --surface-page-muted: #4b5563;
+    --surface-chip: #f3f4f6;
+
+    --tint-emerald-bg: #d1fae5;
+    --tint-emerald-fg: #047857;
+    --tint-emerald-bd: #6ee7b7;
+    --tint-red-bg: #fee2e2;
+    --tint-red-fg: #b91c1c;
+    --tint-red-bd: #fca5a5;
+    --tint-amber-bg: #fef3c7;
+    --tint-amber-fg: #b45309;
+    --tint-amber-bd: #fcd34d;
+    --tint-blue-bg: #dbeafe;
+    --tint-blue-fg: #1d4ed8;
+    --tint-blue-bd: #93c5fd;
+    --tint-purple-bg: #ede9fe;
+    --tint-purple-fg: #6d28d9;
+    --tint-purple-bd: #c4b5fd;
+    --tint-gray-bg: #f3f4f6;
+    --tint-gray-fg: #374151;
+    --tint-gray-bd: #d1d5db;
+    --tint-indigo-fg: #4338ca;
+}
+
+.dark {
+    --surface-page: #111827;
+    --surface-page-border: #374151;
+    --surface-page-text: #f9fafb;
+    --surface-page-muted: #9ca3af;
+    --surface-chip: #1f2937;
+
+    --tint-emerald-bg: rgba(6, 78, 59, 0.4);
+    --tint-emerald-fg: #6ee7b7;
+    --tint-emerald-bd: rgba(5, 150, 105, 0.45);
+    --tint-red-bg: rgba(127, 29, 29, 0.4);
+    --tint-red-fg: #fca5a5;
+    --tint-red-bd: rgba(185, 28, 28, 0.45);
+    --tint-amber-bg: rgba(120, 53, 15, 0.4);
+    --tint-amber-fg: #fcd34d;
+    --tint-amber-bd: rgba(180, 83, 9, 0.45);
+    --tint-blue-bg: rgba(30, 58, 138, 0.4);
+    --tint-blue-fg: #93c5fd;
+    --tint-blue-bd: rgba(29, 78, 216, 0.45);
+    --tint-purple-bg: rgba(76, 29, 149, 0.4);
+    --tint-purple-fg: #c4b5fd;
+    --tint-purple-bd: rgba(109, 40, 217, 0.45);
+    --tint-gray-bg: rgba(55, 65, 81, 0.5);
+    --tint-gray-fg: #d1d5db;
+    --tint-gray-bd: #4b5563;
+    --tint-indigo-fg: #a5b4fc;
+}
+
+html[data-surface="solid"] [class*="bg-gradient-to-"] {
+    background-image: linear-gradient(var(--tw-gradient-from), var(--tw-gradient-from)) !important;
+}
+
+html[data-surface="solid"] .page-hero {
+    background-color: var(--surface-page) !important;
+    background-image: none !important;
+    border: 1px solid var(--surface-page-border) !important;
+    border-radius: 0.75rem !important;
+    box-shadow: none !important;
+    color: var(--surface-page-text) !important;
+}
+
+html[data-surface="solid"] .page-hero h1,
+html[data-surface="solid"] .page-hero h2,
+html[data-surface="solid"] .page-hero h3,
+html[data-surface="solid"] .page-hero .text-white {
+    color: var(--surface-page-text) !important;
+}
+
+html[data-surface="solid"] .page-hero .text-white\/90,
+html[data-surface="solid"] .page-hero .text-blue-100,
+html[data-surface="solid"] .page-hero .text-blue-200,
+html[data-surface="solid"] .page-hero .text-indigo-100,
+html[data-surface="solid"] .page-hero .text-gray-300 {
+    color: var(--surface-page-muted) !important;
+}
+
+html[data-surface="solid"] .page-hero .bg-white\/5,
+html[data-surface="solid"] .page-hero .bg-white\/10,
+html[data-surface="solid"] .page-hero .bg-white\/20,
+html[data-surface="solid"] .page-hero .bg-black\/20 {
+    background-color: var(--surface-chip) !important;
+    backdrop-filter: none !important;
+}
+
+html[data-surface="solid"] .page-hero .border-white\/10,
+html[data-surface="solid"] .page-hero .border-white\/15,
+html[data-surface="solid"] .page-hero .border-white\/20 {
+    border-color: var(--surface-page-border) !important;
+}
+
+html[data-surface="solid"] .page-hero [class~="bg-emerald-500/20"] {
+    background-color: var(--tint-emerald-bg) !important;
+    border-color: var(--tint-emerald-bd) !important;
+    backdrop-filter: none !important;
+}
+
+html[data-surface="solid"] .page-hero [class~="bg-red-500/20"],
+html[data-surface="solid"] .page-hero [class~="bg-red-950/80"] {
+    background-color: var(--tint-red-bg) !important;
+    border-color: var(--tint-red-bd) !important;
+    backdrop-filter: none !important;
+}
+
+html[data-surface="solid"] .page-hero [class~="bg-amber-500/20"] {
+    background-color: var(--tint-amber-bg) !important;
+    border-color: var(--tint-amber-bd) !important;
+    backdrop-filter: none !important;
+}
+
+html[data-surface="solid"] .page-hero [class~="bg-blue-500/20"],
+html[data-surface="solid"] .page-hero [class~="bg-blue-500/10"],
+html[data-surface="solid"] .page-hero [class~="bg-blue-400/20"],
+html[data-surface="solid"] .page-hero [class~="bg-blue-400/10"] {
+    background-color: var(--tint-blue-bg) !important;
+    border-color: var(--tint-blue-bd) !important;
+    backdrop-filter: none !important;
+}
+
+html[data-surface="solid"] .page-hero [class~="bg-purple-500/20"],
+html[data-surface="solid"] .page-hero [class~="bg-purple-400/20"] {
+    background-color: var(--tint-purple-bg) !important;
+    border-color: var(--tint-purple-bd) !important;
+    backdrop-filter: none !important;
+}
+
+html[data-surface="solid"] .page-hero [class~="bg-gray-500/20"] {
+    background-color: var(--tint-gray-bg) !important;
+    border-color: var(--tint-gray-bd) !important;
+    backdrop-filter: none !important;
+}
+
+html[data-surface="solid"] .page-hero [class~="bg-emerald-500/20"],
+html[data-surface="solid"] .page-hero [class~="bg-emerald-500/20"] > span:not([class*="bg-"]),
+html[data-surface="solid"] .page-hero [class~="bg-emerald-500/20"] > svg,
+html[data-surface="solid"] .page-hero .text-emerald-100,
+html[data-surface="solid"] .page-hero .text-emerald-200,
+html[data-surface="solid"] .page-hero .text-emerald-300 {
+    color: var(--tint-emerald-fg) !important;
+}
+
+html[data-surface="solid"] .page-hero [class~="bg-red-500/20"],
+html[data-surface="solid"] .page-hero [class~="bg-red-500/20"] > span:not([class*="bg-"]),
+html[data-surface="solid"] .page-hero [class~="bg-red-500/20"] > svg,
+html[data-surface="solid"] .page-hero [class~="bg-red-950/80"],
+html[data-surface="solid"] .page-hero [class~="bg-red-950/80"] > span:not([class*="bg-"]),
+html[data-surface="solid"] .page-hero [class~="bg-red-950/80"] > svg,
+html[data-surface="solid"] .page-hero .text-red-200 {
+    color: var(--tint-red-fg) !important;
+}
+
+html[data-surface="solid"] .page-hero [class~="bg-amber-500/20"],
+html[data-surface="solid"] .page-hero [class~="bg-amber-500/20"] > span:not([class*="bg-"]),
+html[data-surface="solid"] .page-hero [class~="bg-amber-500/20"] > svg,
+html[data-surface="solid"] .page-hero .text-amber-200,
+html[data-surface="solid"] .page-hero .text-amber-300 {
+    color: var(--tint-amber-fg) !important;
+}
+
+html[data-surface="solid"] .page-hero [class~="bg-blue-500/20"],
+html[data-surface="solid"] .page-hero [class~="bg-blue-500/20"] > span:not([class*="bg-"]),
+html[data-surface="solid"] .page-hero [class~="bg-blue-500/20"] > svg,
+html[data-surface="solid"] .page-hero [class~="bg-blue-500/10"],
+html[data-surface="solid"] .page-hero [class~="bg-blue-500/10"] > span:not([class*="bg-"]),
+html[data-surface="solid"] .page-hero [class~="bg-blue-500/10"] > svg,
+html[data-surface="solid"] .page-hero [class~="bg-blue-400/20"],
+html[data-surface="solid"] .page-hero [class~="bg-blue-400/20"] > span:not([class*="bg-"]),
+html[data-surface="solid"] .page-hero [class~="bg-blue-400/20"] > svg,
+html[data-surface="solid"] .page-hero [class~="bg-blue-400/10"],
+html[data-surface="solid"] .page-hero [class~="bg-blue-400/10"] > span:not([class*="bg-"]),
+html[data-surface="solid"] .page-hero [class~="bg-blue-400/10"] > svg {
+    color: var(--tint-blue-fg) !important;
+}
+
+html[data-surface="solid"] .page-hero [class~="bg-purple-500/20"],
+html[data-surface="solid"] .page-hero [class~="bg-purple-500/20"] > span:not([class*="bg-"]),
+html[data-surface="solid"] .page-hero [class~="bg-purple-500/20"] > svg,
+html[data-surface="solid"] .page-hero [class~="bg-purple-400/20"],
+html[data-surface="solid"] .page-hero [class~="bg-purple-400/20"] > span:not([class*="bg-"]),
+html[data-surface="solid"] .page-hero [class~="bg-purple-400/20"] > svg {
+    color: var(--tint-purple-fg) !important;
+}
+
+html[data-surface="solid"] .page-hero [class~="bg-gray-500/20"],
+html[data-surface="solid"] .page-hero [class~="bg-gray-500/20"] > span:not([class*="bg-"]),
+html[data-surface="solid"] .page-hero [class~="bg-gray-500/20"] > svg {
+    color: var(--tint-gray-fg) !important;
+}
+
+html[data-surface="solid"] .page-hero [class~="border-emerald-400/30"],
+html[data-surface="solid"] .page-hero [class~="border-emerald-500/30"] {
+    border-color: var(--tint-emerald-bd) !important;
+}
+
+html[data-surface="solid"] .page-hero [class~="border-red-400/30"],
+html[data-surface="solid"] .page-hero [class~="border-red-500/40"] {
+    border-color: var(--tint-red-bd) !important;
+}
+
+html[data-surface="solid"] .page-hero [class~="border-amber-500/30"] {
+    border-color: var(--tint-amber-bd) !important;
+}
+
+html[data-surface="solid"] .page-hero [class~="border-blue-500/30"],
+html[data-surface="solid"] .page-hero [class~="border-indigo-500/20"] {
+    border-color: var(--tint-blue-bd) !important;
+}
+
+html[data-surface="solid"] .page-hero [class~="border-gray-500/30"] {
+    border-color: var(--tint-gray-bd) !important;
+}
+
+html[data-surface="solid"] .page-hero [class~="bg-blue-800/50"],
+html[data-surface="solid"] .page-hero [class~="bg-blue-800/70"] {
+    background-color: #2563eb !important;
+    border-color: #1d4ed8 !important;
+    backdrop-filter: none !important;
+    box-shadow: none !important;
+}
+
+html[data-surface="solid"] .page-hero [class~="bg-blue-800/50"],
+html[data-surface="solid"] .page-hero [class~="bg-blue-800/50"] *,
+html[data-surface="solid"] .page-hero [class~="bg-blue-800/70"],
+html[data-surface="solid"] .page-hero [class~="bg-blue-800/70"] *,
+html[data-surface="solid"] .page-hero [class~="bg-red-600"],
+html[data-surface="solid"] .page-hero [class~="bg-red-600"] * {
+    color: #ffffff !important;
+}
+
+html[data-surface="solid"] .page-hero a.bg-white,
+html[data-surface="solid"] .page-hero button.bg-white {
+    background-color: var(--surface-page) !important;
+    border: 1px solid #2563eb !important;
+    box-shadow: none !important;
+}
+
+html[data-surface="solid"] .page-hero a.bg-white,
+html[data-surface="solid"] .page-hero a.bg-white *,
+html[data-surface="solid"] .page-hero button.bg-white,
+html[data-surface="solid"] .page-hero button.bg-white * {
+    color: #2563eb !important;
+}
+
+html[data-surface="solid"] .page-hero-decor,
+html[data-surface="solid"] .mesh-bg-container,
+html[data-surface="solid"] .admin-hero-glow {
+    display: none !important;
+}
+
+html[data-surface="solid"] .admin-hero {
+    background: var(--surface-page) !important;
+    border: 1px solid var(--surface-page-border) !important;
+    box-shadow: none !important;
+}
+
+html[data-surface="solid"] .admin-hero-heading,
+html[data-surface="solid"] .admin-hero-sub,
+html[data-surface="solid"] .admin-hero-icon,
+html[data-surface="solid"] .admin-stat,
+html[data-surface="solid"] .admin-stat-value,
+html[data-surface="solid"] .admin-stat-label,
+html[data-surface="solid"] .admin-stat-icon {
+    color: var(--surface-page-text) !important;
+}
+
+html[data-surface="solid"] .admin-hero-sub,
+html[data-surface="solid"] .admin-stat-label,
+html[data-surface="solid"] .admin-stat-icon {
+    color: var(--surface-page-muted) !important;
+}
+
+html[data-surface="solid"] .admin-hero-icon,
+html[data-surface="solid"] .admin-stat-divider {
+    background: var(--surface-chip) !important;
+    border-color: var(--surface-page-border) !important;
+}
+
+html[data-surface="solid"] .admin-hero-icon svg,
+html[data-surface="solid"] .admin-hero svg {
+    color: var(--surface-page-muted) !important;
+    stroke: currentColor !important;
+}
+
+html[data-surface="solid"] .sidebar-root {
+    --sidebar-bg: #ffffff;
+    --sidebar-link-active-bg: #2563eb;
+    --sidebar-link-active-shadow: none;
+}
+
+html[data-surface="solid"] .sidebar-root.is-dark {
+    --sidebar-bg: #111827;
+    --sidebar-link-active-bg: #2563eb;
+    --sidebar-link-active-shadow: none;
+}
+
+html[data-surface="solid"] .sidebar,
+html[data-surface="solid"] .admin-table-container,
+html[data-surface="solid"] .settings-live-preview,
+html[data-surface="solid"] .kbd-badge,
+html[data-surface="solid"] .lang-toggle,
+html[data-surface="solid"] .lang-toggle-slider,
+html[data-surface="solid"] .notif-position-preview,
+html[data-surface="solid"] .theme-preview-thumb--system,
+html[data-surface="solid"] .timeline-feed::before {
+    background-image: none !important;
+}
+
+html[data-surface="solid"] .admin-quick-nav-item.is-active,
+html[data-surface="solid"] .atab-add-btn,
+html[data-surface="solid"] .amodal-btn-save,
+html[data-surface="solid"] .atab-progress-bar,
+html[data-surface="solid"] .top-progress-bar__fill,
+html[data-surface="solid"] .notif-position-dot,
+html[data-surface="solid"] .theme-mock-accent,
+html[data-surface="solid"] .accent-gradient {
+    background: #2563eb !important;
+}
+
+html[data-surface="solid"] .avatar-admin { background: #dc2626 !important; }
+html[data-surface="solid"] .avatar-dev { background: #7c3aed !important; }
+html[data-surface="solid"] .avatar-user { background: #2563eb !important; }
+
+html[data-surface="solid"] .admin-nav-item.is-active {
+    background: var(--surface-chip) !important;
+}
+
+.sla-priority-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.125rem 0.5rem;
+    border-radius: 0.375rem;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    border: 1px solid transparent;
+}
+
+.sla-priority-chip.is-critical { background-color: #fee2e2; color: #991b1b; border-color: #fecaca; }
+.sla-priority-chip.is-high { background-color: #ffedd5; color: #9a3412; border-color: #fed7aa; }
+.sla-priority-chip.is-medium { background-color: #dbeafe; color: #1e40af; border-color: #bfdbfe; }
+.sla-priority-chip.is-low { background-color: #f3f4f6; color: #374151; border-color: #e5e7eb; }
+
+.dark .sla-priority-chip.is-critical { background-color: rgba(127, 29, 29, 0.35); color: #fca5a5; border-color: rgba(153, 27, 27, 0.5); }
+.dark .sla-priority-chip.is-high { background-color: rgba(124, 45, 18, 0.35); color: #fdba74; border-color: rgba(154, 52, 18, 0.5); }
+.dark .sla-priority-chip.is-medium { background-color: rgba(30, 58, 138, 0.35); color: #93c5fd; border-color: rgba(30, 64, 175, 0.5); }
+.dark .sla-priority-chip.is-low { background-color: rgba(55, 65, 81, 0.5); color: #d1d5db; border-color: #4b5563; }
+
+.sla-status-toggle {
+    padding: 0.125rem 0.625rem;
+    border-radius: 9999px;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.sla-status-toggle.is-active { background-color: #dcfce7; color: #166534; border-color: #bbf7d0; }
+.sla-status-toggle.is-inactive { background-color: #f3f4f6; color: #6b7280; border-color: #e5e7eb; }
+.sla-status-toggle:hover { filter: brightness(0.96); }
+
+.dark .sla-status-toggle.is-active { background-color: rgba(20, 83, 45, 0.4); color: #86efac; border-color: rgba(22, 101, 52, 0.5); }
+.dark .sla-status-toggle.is-inactive { background-color: rgba(55, 65, 81, 0.5); color: #9ca3af; border-color: #4b5563; }

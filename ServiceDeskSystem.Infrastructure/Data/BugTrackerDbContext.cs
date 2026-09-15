@@ -39,6 +39,8 @@ namespace ServiceDeskSystem.Infrastructure.Data
 
         public DbSet<WorkLog> WorkLogs { get; set; } = null!;
 
+        public DbSet<SlaPolicy> SlaPolicies { get; set; } = null!;
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             ArgumentNullException.ThrowIfNull(modelBuilder);
@@ -235,6 +237,31 @@ namespace ServiceDeskSystem.Infrastructure.Data
                 .HasIndex(t => t.Name)
                 .IsUnique();
 
+            modelBuilder.Entity<SlaPolicy>()
+                .Property(p => p.Priority)
+                .HasConversion<string>();
+
+            modelBuilder.Entity<SlaPolicy>()
+                .HasOne(p => p.Product)
+                .WithMany()
+                .HasForeignKey(p => p.ProductId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<SlaPolicy>()
+                .HasIndex(p => new { p.Priority, p.ProductId })
+                .IsUnique()
+                .HasDatabaseName("IX_SlaPolicies_Priority_ProductId");
+
+            modelBuilder.Entity<Ticket>()
+                .HasOne(t => t.SlaPolicy)
+                .WithMany(p => p.Tickets)
+                .HasForeignKey(t => t.SlaPolicyId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<Ticket>()
+                .HasIndex(t => new { t.Status, t.ResponseDueAt })
+                .HasDatabaseName("IX_Tickets_Status_ResponseDueAt");
+
             modelBuilder.Entity<Ticket>()
                 .HasMany(t => t.Tags)
                 .WithMany(t => t.Tickets)
@@ -248,6 +275,7 @@ namespace ServiceDeskSystem.Infrastructure.Data
             TicketConfiguration.Seed(modelBuilder);
             CommentConfiguration.Seed(modelBuilder);
             TagConfiguration.Seed(modelBuilder);
+            SlaPolicyConfiguration.Seed(modelBuilder);
         }
     }
 }

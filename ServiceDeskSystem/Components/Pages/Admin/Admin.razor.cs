@@ -30,6 +30,9 @@ public partial class Admin : BaseComponent
     [Inject]
     protected ITagService TagService { get; set; } = null!;
 
+    [Inject]
+    protected ServiceDeskSystem.Application.Services.Sla.ISlaPolicyService SlaPolicyService { get; set; } = null!;
+
     protected IList<Product>? Products { get; set; }
 
     protected IList<TechStack>? TechStacks { get; set; }
@@ -37,6 +40,8 @@ public partial class Admin : BaseComponent
     protected IList<User>? Users { get; set; }
 
     protected IList<Tag>? Tags { get; set; }
+
+    protected IList<SlaPolicy>? SlaPolicies { get; set; }
 
     protected string ActiveTab { get; set; } = "products";
 
@@ -70,6 +75,7 @@ public partial class Admin : BaseComponent
         this.Products = await this.AdminService.GetAllProductsAsync().ConfigureAwait(false);
         this.Users = await this.AdminService.GetAllUsersAsync().ConfigureAwait(false);
         this.Tags = (await this.TagService.GetAllTagsAsync().ConfigureAwait(false)).ToList();
+        this.SlaPolicies = (await this.SlaPolicyService.GetAllPoliciesAsync().ConfigureAwait(false)).ToList();
     }
 
     protected void SetActiveTab(string tab)
@@ -88,6 +94,7 @@ public partial class Admin : BaseComponent
         "techstacks" => this.L.Translate("admin.techStacks"),
         "users" => this.L.Translate("admin.users"),
         "tags" => this.L.Translate("admin.tags"),
+        "sla" => this.L.Translate("sla.title"),
         "smtp" => this.L.Translate("admin.smtp"),
         _ => string.Empty,
     };

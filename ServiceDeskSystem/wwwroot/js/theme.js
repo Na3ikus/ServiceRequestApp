@@ -62,7 +62,8 @@ window.themeManager = {
                 ['settings.contrastMode', 'data-contrast', 'standard'],
                 ['settings.badgeStyle', 'data-badge-style', 'filled'],
                 ['settings.notifPosition', 'data-notif-position', 'top-right'],
-                ['settings.bgTexture', 'data-bg-texture', 'none']
+                ['settings.bgTexture', 'data-bg-texture', 'none'],
+                ['settings.surfaceStyle', 'data-surface', 'solid']
             ];
 
             for (let i = 0; i < keys.length; i++) {

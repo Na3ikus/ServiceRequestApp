@@ -33,6 +33,16 @@ public class Ticket : AggregateRoot
 
     public bool SlaWarningSent { get; set; }
 
+    public int? SlaPolicyId { get; set; }
+
+    public SlaPolicy? SlaPolicy { get; set; }
+
+    public DateTime? ResponseDueAt { get; set; }
+
+    public DateTime? FirstRespondedAt { get; set; }
+
+    public bool IsResponseSlaBreached { get; set; }
+
     public bool IsPriorityAssessed { get; set; }
 
     public int? ProductId { get; set; }

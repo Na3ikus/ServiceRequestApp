@@ -57,18 +57,7 @@ public sealed class TicketService(
         ticket.CreatedAt = DateTime.UtcNow;
         ticket.Status = TicketStatus.Open;
 
-        if (!ticket.DueDate.HasValue)
-        {
-            var baseDate = ticket.CreatedAt;
-            ticket.DueDate = ticket.Priority switch
-            {
-                TicketPriority.Critical => baseDate.AddHours(4),
-                TicketPriority.High => baseDate.AddDays(2).Date.AddHours(16),
-                TicketPriority.Medium => baseDate.AddDays(5).Date.AddHours(16),
-                TicketPriority.Low => baseDate.AddDays(14).Date.AddHours(16),
-                _ => baseDate.AddDays(5).Date.AddHours(16)
-            };
-        }
+        await ApplySlaPolicyAsync(repo, ticket).ConfigureAwait(false);
 
         if (ticket.Type != TicketType.Project && !ticket.ProductId.HasValue)
         {
@@ -98,6 +87,36 @@ public sealed class TicketService(
 
         return ticket;
     }
+
+    private static async Task ApplySlaPolicyAsync(IRepositoryFacade repo, Ticket ticket)
+    {
+        var candidates = await repo.SlaPolicies.GetActiveForPriorityAsync(ticket.Priority).ConfigureAwait(false);
+
+        var policy = candidates
+            .Where(p => p.ProductId == null || p.ProductId == ticket.ProductId)
+            .OrderByDescending(p => p.Specificity)
+            .ThenBy(p => p.Id)
+            .FirstOrDefault();
+
+        if (policy is null)
+        {
+            ticket.DueDate ??= FallbackDueDate(ticket.CreatedAt, ticket.Priority);
+            return;
+        }
+
+        ticket.SlaPolicyId = policy.Id;
+        ticket.DueDate ??= policy.GetResolutionDueAt(ticket.CreatedAt);
+        ticket.ResponseDueAt ??= policy.GetResponseDueAt(ticket.CreatedAt);
+    }
+
+    private static DateTime FallbackDueDate(DateTime baseDate, TicketPriority priority) => priority switch
+    {
+        TicketPriority.Critical => baseDate.AddHours(4),
+        TicketPriority.High => baseDate.AddDays(2).Date.AddHours(16),
+        TicketPriority.Medium => baseDate.AddDays(5).Date.AddHours(16),
+        TicketPriority.Low => baseDate.AddDays(14).Date.AddHours(16),
+        _ => baseDate.AddDays(5).Date.AddHours(16),
+    };
 
 
 
@@ -299,6 +318,8 @@ public sealed class TicketService(
         }
 
         ticket.DeveloperId = developerId;
+        ticket.FirstRespondedAt ??= DateTime.UtcNow;
+
         await repo.UnitOfWork.SaveChangesAsync().ConfigureAwait(false);
         await realtimeNotifier.NotifyTicketsChangedAsync().ConfigureAwait(false);
 

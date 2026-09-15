@@ -532,6 +532,114 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                         });
                 });
 
+            modelBuilder.Entity("ServiceDeskSystem.Domain.Entities.SlaPolicy", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("longtext");
+
+                    b.Property<bool>("EscalateOnBreach")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Priority")
+                        .IsRequired()
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<int?>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ResolutionMinutes")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ResponseMinutes")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("WarningThresholdPercent")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("Priority", "ProductId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_SlaPolicies_Priority_ProductId");
+
+                    b.ToTable("SlaPolicies");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Global fallback policy for critical incidents.",
+                            EscalateOnBreach = true,
+                            IsActive = true,
+                            Name = "Critical — default",
+                            Priority = "Critical",
+                            ResolutionMinutes = 240,
+                            ResponseMinutes = 60,
+                            WarningThresholdPercent = 75
+                        },
+                        new
+                        {
+                            Id = 2,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Global fallback policy for high priority tickets.",
+                            EscalateOnBreach = true,
+                            IsActive = true,
+                            Name = "High — default",
+                            Priority = "High",
+                            ResolutionMinutes = 2880,
+                            ResponseMinutes = 240,
+                            WarningThresholdPercent = 80
+                        },
+                        new
+                        {
+                            Id = 3,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Global fallback policy for medium priority tickets.",
+                            EscalateOnBreach = false,
+                            IsActive = true,
+                            Name = "Medium — default",
+                            Priority = "Medium",
+                            ResolutionMinutes = 7200,
+                            ResponseMinutes = 480,
+                            WarningThresholdPercent = 80
+                        },
+                        new
+                        {
+                            Id = 4,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Global fallback policy for low priority tickets.",
+                            EscalateOnBreach = false,
+                            IsActive = true,
+                            Name = "Low — default",
+                            Priority = "Low",
+                            ResolutionMinutes = 20160,
+                            ResponseMinutes = 1440,
+                            WarningThresholdPercent = 90
+                        });
+                });
+
             modelBuilder.Entity("ServiceDeskSystem.Domain.Entities.Tag", b =>
                 {
                     b.Property<int>("Id")
@@ -696,7 +804,13 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
+                    b.Property<DateTime?>("FirstRespondedAt")
+                        .HasColumnType("datetime(6)");
+
                     b.Property<bool>("IsPriorityAssessed")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<bool>("IsResponseSlaBreached")
                         .HasColumnType("tinyint(1)");
 
                     b.Property<bool>("IsSlaBreached")
@@ -707,6 +821,12 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                         .HasColumnType("varchar(255)");
 
                     b.Property<int?>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("ResponseDueAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int?>("SlaPolicyId")
                         .HasColumnType("int");
 
                     b.Property<bool>("SlaWarningSent")
@@ -744,6 +864,8 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
 
                     b.HasIndex("ProductId");
 
+                    b.HasIndex("SlaPolicyId");
+
                     b.HasIndex("Status");
 
                     b.HasIndex("Type");
@@ -760,6 +882,9 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                     b.HasIndex("Status", "DueDate")
                         .HasDatabaseName("IX_Tickets_Status_DueDate");
 
+                    b.HasIndex("Status", "ResponseDueAt")
+                        .HasDatabaseName("IX_Tickets_Status_ResponseDueAt");
+
                     b.ToTable("Tickets");
 
                     b.HasData(
@@ -773,6 +898,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                             DeveloperId = 2,
                             Environment = "Windows 11 / Chrome",
                             IsPriorityAssessed = false,
+                            IsResponseSlaBreached = false,
                             IsSlaBreached = false,
                             Priority = "High",
                             ProductId = 1,
@@ -791,6 +917,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                             Description = "Функція експорту документів в Excel формат не працює - файл створюється порожнім.",
                             Environment = "Windows 10 / Edge",
                             IsPriorityAssessed = false,
+                            IsResponseSlaBreached = false,
                             IsSlaBreached = false,
                             Priority = "Medium",
                             ProductId = 1,
@@ -810,6 +937,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                             DeveloperId = 5,
                             Environment = "Windows Server 2022",
                             IsPriorityAssessed = false,
+                            IsResponseSlaBreached = false,
                             IsSlaBreached = false,
                             Priority = "Critical",
                             ProductId = 2,
@@ -829,6 +957,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                             DeveloperId = 2,
                             Environment = "Windows 11",
                             IsPriorityAssessed = false,
+                            IsResponseSlaBreached = false,
                             IsSlaBreached = false,
                             Priority = "Medium",
                             ProductId = 2,
@@ -848,6 +977,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                             DeveloperId = 5,
                             Environment = "Windows 10 / Firefox",
                             IsPriorityAssessed = false,
+                            IsResponseSlaBreached = false,
                             IsSlaBreached = false,
                             Priority = "High",
                             ProductId = 3,
@@ -866,6 +996,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                             Description = "When generating PDF reports for employee attendance, the system throws an error.",
                             Environment = "macOS Ventura / Safari",
                             IsPriorityAssessed = false,
+                            IsResponseSlaBreached = false,
                             IsSlaBreached = false,
                             Priority = "Medium",
                             ProductId = 3,
@@ -885,6 +1016,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                             DeveloperId = 2,
                             Environment = "Android / Chrome Mobile",
                             IsPriorityAssessed = false,
+                            IsResponseSlaBreached = false,
                             IsSlaBreached = false,
                             Priority = "Critical",
                             ProductId = 4,
@@ -904,6 +1036,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                             DeveloperId = 5,
                             Environment = "iOS / Safari",
                             IsPriorityAssessed = false,
+                            IsResponseSlaBreached = false,
                             IsSlaBreached = false,
                             Priority = "High",
                             ProductId = 4,
@@ -922,6 +1055,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                             Description = "Users are not receiving push notifications for new tasks assigned to them.",
                             Environment = "Android 14",
                             IsPriorityAssessed = false,
+                            IsResponseSlaBreached = false,
                             IsSlaBreached = false,
                             Priority = "High",
                             ProductId = 5,
@@ -941,6 +1075,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                             DeveloperId = 2,
                             Environment = "iOS 17",
                             IsPriorityAssessed = false,
+                            IsResponseSlaBreached = false,
                             IsSlaBreached = false,
                             Priority = "Medium",
                             ProductId = 5,
@@ -959,6 +1094,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                             Description = "Було б зручно мати можливість переключатися на темну тему в інтерфейсі програми.",
                             Environment = "Windows 11",
                             IsPriorityAssessed = false,
+                            IsResponseSlaBreached = false,
                             IsSlaBreached = false,
                             Priority = "Low",
                             ProductId = 1,
@@ -1012,7 +1148,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                             Id = 1,
                             IsActive = true,
                             Login = "admin",
-                            PasswordHash = "j96gqgfFa5fBIxf2O4SsOA==:B5POx/MZbn7F7drfOAZkJ4t9l1ZWST/69Z1vxuuMJYY=",
+                            PasswordHash = "Bx8lP0xcJC+39VZ74hJQww==:f0/ad7/0TSy7RtEaYQLpFrR4QWyixXutOxjfjh+rD88=",
                             PersonId = 1,
                             Role = "Admin"
                         },
@@ -1021,7 +1157,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                             Id = 2,
                             IsActive = true,
                             Login = "o.kovalenko",
-                            PasswordHash = "R9sk3pGPJNIjJlW4MvXWWQ==:HI7h5DpvtE4iPjVJpWTpNxG3fqEmYsCOtQwTHp+s1aQ=",
+                            PasswordHash = "S6VqSpcr2y2l7M9oZ6lgfw==:hYr1UkAbgChdm6/xJeqiF0CgObBMjW157asfk2gTaJ4=",
                             PersonId = 2,
                             Role = "Developer"
                         },
@@ -1030,7 +1166,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                             Id = 3,
                             IsActive = true,
                             Login = "m.shevchenko",
-                            PasswordHash = "lyAOoniHhAzntbLu1W2t7g==:whLAw5K0Mk4P1SSi4w8T5f4kdQQAsZ8ChsaFAHx6GzE=",
+                            PasswordHash = "lmWVVi6W2MdvmRvilcUDog==:3wsoEtGxAFLQUv+/kPZ55PZUqGHVsU8qM8ELBrJEF0U=",
                             PersonId = 3,
                             Role = "User"
                         },
@@ -1039,7 +1175,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                             Id = 4,
                             IsActive = true,
                             Login = "j.smith",
-                            PasswordHash = "njvZY9yzn9Md4GA1/jKFjA==:sbAI53wIg66E66sLiMzzfSYKVjGq3DsvIs6obWEGKZk=",
+                            PasswordHash = "lZ8FkJGw6XTig+/IrSL2pg==:6fEe8q2YsRsGzKT8Z+k/MDofAgevBz4I2lPMT+xegu8=",
                             PersonId = 4,
                             Role = "User"
                         },
@@ -1048,7 +1184,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                             Id = 5,
                             IsActive = true,
                             Login = "a.bondarenko",
-                            PasswordHash = "zlt10tCGBThVtTg2UokJxQ==:nmnrm9b9OGAFPLT/+wB7/9asxLcNoNh32lYKgUNC1tQ=",
+                            PasswordHash = "m8kjROFeIS6KmTIOT9kInA==:3FW2bPtJQP89nbn9LLYp0EiH7qA20mBlKwtFpWi4Ses=",
                             PersonId = 5,
                             Role = "Developer"
                         });
@@ -1211,6 +1347,16 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                     b.Navigation("TechStack");
                 });
 
+            modelBuilder.Entity("ServiceDeskSystem.Domain.Entities.SlaPolicy", b =>
+                {
+                    b.HasOne("ServiceDeskSystem.Domain.Entities.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Product");
+                });
+
             modelBuilder.Entity("ServiceDeskSystem.Domain.Entities.Tag", b =>
                 {
                     b.HasOne("ServiceDeskSystem.Domain.Entities.User", "CreatedBy")
@@ -1238,11 +1384,18 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Restrict);
 
+                    b.HasOne("ServiceDeskSystem.Domain.Entities.SlaPolicy", "SlaPolicy")
+                        .WithMany("Tickets")
+                        .HasForeignKey("SlaPolicyId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.Navigation("Author");
 
                     b.Navigation("Developer");
 
                     b.Navigation("Product");
+
+                    b.Navigation("SlaPolicy");
                 });
 
             modelBuilder.Entity("ServiceDeskSystem.Domain.Entities.User", b =>
@@ -1303,6 +1456,11 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                 });
 
             modelBuilder.Entity("ServiceDeskSystem.Domain.Entities.Product", b =>
+                {
+                    b.Navigation("Tickets");
+                });
+
+            modelBuilder.Entity("ServiceDeskSystem.Domain.Entities.SlaPolicy", b =>
                 {
                     b.Navigation("Tickets");
                 });

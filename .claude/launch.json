@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "servicedesk-web",
+      "runtimeExecutable": "dotnet",
+      "runtimeArgs": ["run", "--project", "ServiceDeskSystem/ServiceDeskSystem.csproj", "--launch-profile", "http"],
+      "port": 5034
+    }
+  ]
+}

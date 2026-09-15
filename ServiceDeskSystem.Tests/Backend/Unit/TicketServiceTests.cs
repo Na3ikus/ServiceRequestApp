@@ -25,6 +25,7 @@ public class TicketServiceTests
     private Mock<IRepositoryFacadeFactory> _mockFactory;
     private Mock<IRepositoryFacade> _mockFacade;
     private Mock<ITicketRepository> _mockTicketRepo;
+    private Mock<ISlaPolicyRepository> _mockSlaPolicyRepo;
     private Mock<IUnitOfWork> _mockUnitOfWork;
     private Mock<INotificationService> _mockNotificationService;
     private Mock<IRealtimeNotifier> _mockRealtimeNotifier;
@@ -39,6 +40,7 @@ public class TicketServiceTests
         _mockFactory = new Mock<IRepositoryFacadeFactory>();
         _mockFacade = new Mock<IRepositoryFacade>();
         _mockTicketRepo = new Mock<ITicketRepository>();
+        _mockSlaPolicyRepo = new Mock<ISlaPolicyRepository>();
         _mockUnitOfWork = new Mock<IUnitOfWork>();
         _mockNotificationService = new Mock<INotificationService>();
         _mockRealtimeNotifier = new Mock<IRealtimeNotifier>();
@@ -48,7 +50,10 @@ public class TicketServiceTests
 
         _mockFactory.Setup(f => f.Create()).Returns(_mockFacade.Object);
         _mockFacade.Setup(f => f.Tickets).Returns(_mockTicketRepo.Object);
+        _mockFacade.Setup(f => f.SlaPolicies).Returns(_mockSlaPolicyRepo.Object);
         _mockFacade.Setup(f => f.UnitOfWork).Returns(_mockUnitOfWork.Object);
+        _mockSlaPolicyRepo.Setup(r => r.GetActiveForPriorityAsync(It.IsAny<TicketPriority>()))
+            .ReturnsAsync(new List<SlaPolicy>());
 
         _ticketService = new TicketService(
             _mockFactory.Object,
@@ -151,6 +156,61 @@ public class TicketServiceTests
             result.DueDate!.Value.Minute.Should().Be(0);
             result.DueDate!.Value.Second.Should().Be(0);
         }
+    }
+
+    [Test]
+    public async Task CreateTicketAsync_WithMatchingSlaPolicy_UsesPolicyDeadlines()
+    {
+        var policy = new SlaPolicy
+        {
+            Id = 42,
+            Priority = TicketPriority.High,
+            ProductId = null,
+            IsActive = true,
+            ResponseMinutes = 90,
+            ResolutionMinutes = 600,
+        };
+
+        _mockSlaPolicyRepo.Setup(r => r.GetActiveForPriorityAsync(TicketPriority.High))
+            .ReturnsAsync(new List<SlaPolicy> { policy });
+        _mockTicketRepo.Setup(r => r.CreateAsync(It.IsAny<Ticket>())).Returns(Task.CompletedTask);
+        _mockUnitOfWork.Setup(u => u.SaveChangesAsync()).ReturnsAsync(1);
+        _mockDispatcher.Setup(d => d.DispatchAsync(It.IsAny<IEnumerable<IDomainEvent>>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+
+        var ticket = new Ticket
+        {
+            Title = "Policy driven deadlines",
+            Description = "Test Description",
+            Type = TicketType.Project,
+            Priority = TicketPriority.High,
+            AuthorId = 1,
+            ProductId = null,
+        };
+
+        var result = await _ticketService.CreateTicketAsync(ticket);
+
+        result.SlaPolicyId.Should().Be(42);
+        result.ResponseDueAt.Should().Be(result.CreatedAt.AddMinutes(90));
+        result.DueDate.Should().Be(result.CreatedAt.AddMinutes(600));
+    }
+
+    [Test]
+    public async Task AssignDeveloperAsync_RecordsFirstResponseTime()
+    {
+        var ticket = new Ticket { Id = 11, Title = "Unassigned", AuthorId = 1 };
+
+        _mockTicketRepo.Setup(r => r.GetByIdAsync(11)).ReturnsAsync(ticket);
+        _mockUnitOfWork.Setup(u => u.SaveChangesAsync()).ReturnsAsync(1);
+        _mockRealtimeNotifier.Setup(n => n.NotifyTicketsChangedAsync()).Returns(Task.CompletedTask);
+
+        await _ticketService.AssignDeveloperAsync(11, developerId: 3);
+
+        ticket.FirstRespondedAt.Should().NotBeNull();
+
+        var firstResponse = ticket.FirstRespondedAt;
+        await _ticketService.AssignDeveloperAsync(11, developerId: 4);
+
+        ticket.FirstRespondedAt.Should().Be(firstResponse);
     }
 
     [Test]

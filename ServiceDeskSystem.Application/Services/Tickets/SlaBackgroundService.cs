@@ -70,38 +70,40 @@ public sealed class SlaBackgroundService : BackgroundService
 
         foreach (var ticket in tickets)
         {
-            if (!ticket.DueDate.HasValue) continue;
-
             var now = DateTime.UtcNow;
 
-            // 1. SLA Breach Check
+            if (ticket.ResponseDueAt.HasValue
+                && !ticket.FirstRespondedAt.HasValue
+                && !ticket.IsResponseSlaBreached
+                && now > ticket.ResponseDueAt.Value)
+            {
+                _logger.LogWarning("Ticket #{Id} has breached its response SLA. Response was due {ResponseDueAt}.", ticket.Id, ticket.ResponseDueAt.Value);
+                ticket.IsResponseSlaBreached = true;
+                changesMade = true;
+
+                var responseMessage = $"RESPONSE SLA BREACHED: Ticket #{ticket.Id} ('{ticket.Title}') has not been picked up in time!";
+                await SendSlaNotificationsAsync(ticket, "SlaResponseBreached", responseMessage, notificationService, emailSender, cancellationToken).ConfigureAwait(false);
+            }
+
+            if (!ticket.DueDate.HasValue) continue;
+
             if (now > ticket.DueDate.Value && !ticket.IsSlaBreached)
             {
                 _logger.LogWarning("Ticket #{Id} has breached SLA. Due Date was {DueDate}.", ticket.Id, ticket.DueDate.Value);
                 ticket.IsSlaBreached = true;
                 changesMade = true;
 
-                // Send in-app notification to assignee and author
                 var message = $"SLA BREACHED: Ticket #{ticket.Id} ('{ticket.Title}') is overdue!";
                 await SendSlaNotificationsAsync(ticket, "SlaBreached", message, notificationService, emailSender, cancellationToken).ConfigureAwait(false);
             }
-            // 2. SLA Warning Check (2 hours for Critical, 24 hours for others)
-            else if (!ticket.IsSlaBreached && !ticket.SlaWarningSent)
+            else if (!ticket.IsSlaBreached && !ticket.SlaWarningSent && now > GetWarningThreshold(ticket))
             {
-                var warningThreshold = ticket.Priority == TicketPriority.Critical
-                    ? ticket.DueDate.Value.AddHours(-2)
-                    : ticket.DueDate.Value.AddDays(-1);
+                _logger.LogInformation("Ticket #{Id} is approaching SLA breach. Due Date is {DueDate}.", ticket.Id, ticket.DueDate.Value);
+                ticket.SlaWarningSent = true;
+                changesMade = true;
 
-                if (now > warningThreshold)
-                {
-                    _logger.LogInformation("Ticket #{Id} is approaching SLA breach. Due Date is {DueDate}.", ticket.Id, ticket.DueDate.Value);
-                    ticket.SlaWarningSent = true;
-                    changesMade = true;
-
-                    // Send in-app notification to assignee and author
-                    var message = $"SLA WARNING: Ticket #{ticket.Id} ('{ticket.Title}') is approaching its due date!";
-                    await SendSlaNotificationsAsync(ticket, "SlaWarning", message, notificationService, emailSender, cancellationToken).ConfigureAwait(false);
-                }
+                var message = $"SLA WARNING: Ticket #{ticket.Id} ('{ticket.Title}') is approaching its due date!";
+                await SendSlaNotificationsAsync(ticket, "SlaWarning", message, notificationService, emailSender, cancellationToken).ConfigureAwait(false);
             }
         }
 
@@ -110,6 +112,21 @@ public sealed class SlaBackgroundService : BackgroundService
             await repo.UnitOfWork.SaveChangesAsync().ConfigureAwait(false);
             await realtimeNotifier.NotifyTicketsChangedAsync().ConfigureAwait(false);
         }
+    }
+
+    private static DateTime GetWarningThreshold(Ticket ticket)
+    {
+        var dueDate = ticket.DueDate!.Value;
+
+        if (ticket.SlaPolicy is { } policy && policy.ResolutionMinutes > 0)
+        {
+            var remaining = policy.ResolutionMinutes * (100d - SlaPolicy.NormalizeThreshold(policy.WarningThresholdPercent)) / 100d;
+            return dueDate.AddMinutes(-remaining);
+        }
+
+        return ticket.Priority == TicketPriority.Critical
+            ? dueDate.AddHours(-2)
+            : dueDate.AddDays(-1);
     }
 
     private async Task SendSlaNotificationsAsync(

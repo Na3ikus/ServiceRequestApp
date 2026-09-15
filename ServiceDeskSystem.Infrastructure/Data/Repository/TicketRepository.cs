@@ -90,10 +90,11 @@ namespace ServiceDeskSystem.Infrastructure.Data.Repository
                     .ThenInclude(d => d!.Person)
                         .ThenInclude(p => p!.ContactInfos)
                             .ThenInclude(ci => ci.ContactType)
+                .Include(t => t.SlaPolicy)
                 .Where(t => t.Status != TicketStatus.Resolved
                             && t.Status != TicketStatus.Closed
                             && t.Status != TicketStatus.Done
-                            && t.DueDate != null)
+                            && (t.DueDate != null || t.ResponseDueAt != null))
                 .ToListAsync()
                 .ConfigureAwait(false);
         }

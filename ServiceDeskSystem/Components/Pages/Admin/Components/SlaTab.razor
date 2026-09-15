@@ -1,0 +1,249 @@
+@inherits BaseComponent
+@using ServiceDeskSystem.Domain.Entities
+@using ServiceDeskSystem.Domain.Enums
+
+@{
+    var filtered = GetFilteredPolicies();
+}
+
+<div class="atab-card">
+    <div class="atab-toolbar">
+        <div class="atab-toolbar-left">
+            <h2 class="atab-title">@L.Translate("sla.title")</h2>
+            @if (filtered is not null)
+            {
+                <span class="atab-count-badge">@filtered.Count</span>
+            }
+        </div>
+        <div class="atab-toolbar-right">
+            <div class="atab-search-wrap">
+                <svg class="atab-search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0" />
+                </svg>
+                <input type="search"
+                       class="atab-search-input"
+                       placeholder="@(L.Translate("search.label"))..."
+                       @bind="SearchQuery"
+                       @bind:event="oninput" />
+            </div>
+            <button @onclick="RecalculateAsync" class="atab-add-btn" disabled="@IsRecalculating" title="@L.Translate("sla.recalculateHint")">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                @L.Translate("sla.recalculate")
+            </button>
+            <button @onclick="ShowAddPolicy" class="atab-add-btn">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                @L.Translate("sla.addPolicy")
+            </button>
+        </div>
+    </div>
+
+    @if (Policies is null)
+    {
+        <div class="atab-loading">
+            <svg class="atab-spinner" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+            </svg>
+            <span>@L.Translate("common.loading")</span>
+        </div>
+    }
+    else if (filtered is not null && filtered.Count == 0)
+    {
+        <div class="atab-empty">
+            <div class="atab-empty-icon">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                          d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
+            <p class="atab-empty-title">@(string.IsNullOrWhiteSpace(SearchQuery) ? L.Translate("sla.noPolicies") : L.Translate("admin.noSearchResults"))</p>
+            @if (!string.IsNullOrWhiteSpace(SearchQuery))
+            {
+                <button class="atab-empty-clear" @onclick="@(() => SearchQuery = string.Empty)">
+                    @L.Translate("admin.clearSearch")
+                </button>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="atab-table-wrap">
+            <table class="atab-table w-full min-w-[860px] table-fixed">
+                <thead>
+                    <tr>
+                        <th class="atab-th sortable w-3/12 @(SortColumn == "name" ? "sort-active" : "")"
+                            @onclick="@(() => SetSort("name"))">
+                            @L.Translate("sla.policyName")
+                            <span class="sort-arrow">@GetSortArrow("name")</span>
+                        </th>
+                        <th class="atab-th sortable w-2/12 @(SortColumn == "priority" ? "sort-active" : "")"
+                            @onclick="@(() => SetSort("priority"))">
+                            @L.Translate("sla.priority")
+                            <span class="sort-arrow">@GetSortArrow("priority")</span>
+                        </th>
+                        <th class="atab-th w-2/12">@L.Translate("sla.scope")</th>
+                        <th class="atab-th atab-th-center w-1/12">@L.Translate("sla.response")</th>
+                        <th class="atab-th atab-th-center w-1/12">@L.Translate("sla.resolution")</th>
+                        <th class="atab-th atab-th-center w-1/12">@L.Translate("sla.warnAt")</th>
+                        <th class="atab-th atab-th-center w-1/12">@L.Translate("sla.status")</th>
+                        <th class="atab-th atab-th-actions w-1/12">@L.Translate("admin.actions")</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var policy in filtered!)
+                    {
+                        <tr class="atab-row @(policy.IsActive ? string.Empty : "opacity-60")">
+                            <td class="atab-td atab-td-primary truncate" title="@policy.Name">
+                                <span class="font-semibold">@policy.Name</span>
+                                @if (policy.EscalateOnBreach)
+                                {
+                                    <span class="ml-2 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wide bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">
+                                        @L.Translate("sla.escalates")
+                                    </span>
+                                }
+                            </td>
+                            <td class="atab-td">
+                                <span class="sla-priority-chip @GetPriorityClass(policy.Priority)">@policy.Priority</span>
+                            </td>
+                            <td class="atab-td truncate">
+                                @(policy.Product?.Name ?? L.Translate("sla.allProducts"))
+                            </td>
+                            <td class="atab-td atab-td-center font-mono text-xs">@SlaPolicy.FormatMinutes(policy.ResponseMinutes)</td>
+                            <td class="atab-td atab-td-center font-mono text-xs">@SlaPolicy.FormatMinutes(policy.ResolutionMinutes)</td>
+                            <td class="atab-td atab-td-center font-mono text-xs">@policy.WarningThresholdPercent%</td>
+                            <td class="atab-td atab-td-center">
+                                <button class="sla-status-toggle @(policy.IsActive ? "is-active" : "is-inactive")"
+                                        @onclick="@(() => ToggleActiveAsync(policy))"
+                                        title="@(policy.IsActive ? L.Translate("sla.disable") : L.Translate("sla.enable"))">
+                                    @(policy.IsActive ? L.Translate("sla.active") : L.Translate("sla.inactive"))
+                                </button>
+                            </td>
+                            <td class="atab-td atab-td-actions text-right pr-4">
+                                <div class="flex justify-end gap-2 inline-flex">
+                                    <button class="atab-action-btn edit" @onclick="@(() => EditPolicy(policy))" title="@L.Translate("admin.edit")">
+                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                        </svg>
+                                    </button>
+                                    <button class="atab-action-btn delete" @onclick="@(() => DeletePolicyAsync(policy))" title="@L.Translate("admin.delete")">
+                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div class="atab-footer">
+            <span class="atab-footer-info">
+                @if (!string.IsNullOrWhiteSpace(SearchQuery))
+                {
+                    @($"{filtered!.Count} / {Policies?.Count ?? 0}")
+                }
+                else
+                {
+                    @($"{Policies?.Count ?? 0}")
+                }
+            </span>
+        </div>
+    }
+</div>
+
+<Modal IsOpen="ShowModal"
+       Title="@ModalTitle"
+       Subtitle="@L.Translate("sla.title")"
+       ErrorMessage="@ErrorMessage"
+       IsSaving="IsSaving"
+       OnClose="CloseModal"
+       OnSave="SaveModalAsync"
+       CancelText="@L.Translate("common.cancel")"
+       SaveText="@L.Translate("common.save")"
+       SavingText="@L.Translate("common.saving")">
+    <HeaderIcon>
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+    </HeaderIcon>
+    <ChildContent>
+        <div class="amodal-field">
+            <label class="amodal-label">@L.Translate("sla.policyName")</label>
+            <input type="text" class="amodal-input" @bind="EditingPolicy.Name" placeholder="@L.Translate("sla.namePlaceholder")" />
+        </div>
+
+        <div class="amodal-field">
+            <label class="amodal-label">@L.Translate("sla.description")</label>
+            <input type="text" class="amodal-input" @bind="EditingPolicy.Description" />
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="amodal-field">
+                <label class="amodal-label">@L.Translate("sla.priority")</label>
+                <select class="amodal-input" @bind="EditingPolicy.Priority">
+                    @foreach (var priority in Enum.GetValues<TicketPriority>())
+                    {
+                        <option value="@priority">@priority</option>
+                    }
+                </select>
+            </div>
+
+            <div class="amodal-field">
+                <label class="amodal-label">@L.Translate("sla.scope")</label>
+                <select class="amodal-input" @bind="SelectedProductId">
+                    <option value="0">@L.Translate("sla.allProducts")</option>
+                    @if (Products is not null)
+                    {
+                        @foreach (var product in Products)
+                        {
+                            <option value="@product.Id">@product.Name</option>
+                        }
+                    }
+                </select>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="amodal-field">
+                <label class="amodal-label">@L.Translate("sla.responseMinutes")</label>
+                <input type="number" min="1" class="amodal-input" @bind="EditingPolicy.ResponseMinutes" />
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">@SlaPolicy.FormatMinutes(EditingPolicy.ResponseMinutes)</p>
+            </div>
+
+            <div class="amodal-field">
+                <label class="amodal-label">@L.Translate("sla.resolutionMinutes")</label>
+                <input type="number" min="1" class="amodal-input" @bind="EditingPolicy.ResolutionMinutes" />
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">@SlaPolicy.FormatMinutes(EditingPolicy.ResolutionMinutes)</p>
+            </div>
+        </div>
+
+        <div class="amodal-field">
+            <label class="amodal-label">@L.Translate("sla.warnAt") — @EditingPolicy.WarningThresholdPercent%</label>
+            <input type="range" min="1" max="99" step="1" class="w-full" @bind="EditingPolicy.WarningThresholdPercent" @bind:event="oninput" />
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">@L.Translate("sla.warnAtDesc")</p>
+        </div>
+
+        <div class="amodal-field">
+            <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="w-4 h-4" @bind="EditingPolicy.EscalateOnBreach" />
+                <span class="amodal-label mb-0">@L.Translate("sla.escalateOnBreach")</span>
+            </label>
+        </div>
+
+        <div class="amodal-field">
+            <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="w-4 h-4" @bind="EditingPolicy.IsActive" />
+                <span class="amodal-label mb-0">@L.Translate("sla.active")</span>
+            </label>
+        </div>
+    </ChildContent>
+</Modal>
