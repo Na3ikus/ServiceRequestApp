@@ -74,6 +74,7 @@ namespace ServiceDeskSystem.Infrastructure.Data.Repository
                 .Include(t => t.Comments)
                 .Include(t => t.Tags)
                 .OrderByDescending(t => t.CreatedAt)
+                .AsSplitQuery()
                 .AsNoTracking()
                 .ToListAsync()
                 .ConfigureAwait(false);
@@ -95,6 +96,7 @@ namespace ServiceDeskSystem.Infrastructure.Data.Repository
                             && t.Status != TicketStatus.Closed
                             && t.Status != TicketStatus.Done
                             && (t.DueDate != null || t.ResponseDueAt != null))
+                .AsSplitQuery()
                 .ToListAsync()
                 .ConfigureAwait(false);
         }
@@ -108,6 +110,7 @@ namespace ServiceDeskSystem.Infrastructure.Data.Repository
                 .Include(t => t.Tags)
                 .Include(t => t.Comments)
                 .ThenInclude(c => c.Author)
+                .AsSplitQuery()
                 .FirstOrDefaultAsync(t => t.Id == id)
                 .ConfigureAwait(false);
         }
@@ -124,6 +127,7 @@ namespace ServiceDeskSystem.Infrastructure.Data.Repository
                 .OrderByDescending(t => t.CreatedAt)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
+                .AsSplitQuery()
                 .AsNoTracking()
                 .ToListAsync()
                 .ConfigureAwait(false);

@@ -1,6 +1,5 @@
 
 using ServiceDeskSystem.Application.Common.Models;
-using ServiceDeskSystem.Domain.Constants;
 using ServiceDeskSystem.Domain.Entities;
 using ServiceDeskSystem.Domain.Enums;
 using ServiceDeskSystem.Domain.Interfaces;

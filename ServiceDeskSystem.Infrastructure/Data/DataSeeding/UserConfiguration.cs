@@ -1,27 +1,21 @@
-using System.Security.Cryptography;
 using Microsoft.EntityFrameworkCore;
 using ServiceDeskSystem.Domain.Entities;
 using ServiceDeskSystem.Domain.Enums;
 
 namespace ServiceDeskSystem.Infrastructure.Data.DataSeeding;
 
+/// <summary>
+/// Seeds the demo accounts. Password hashes are fixed literals rather than computed at
+/// model-build time: a freshly salted hash on every build makes the seed non-deterministic,
+/// which makes every new EF migration rewrite these rows.
+/// </summary>
 internal static class UserConfiguration
 {
-    private const int Pbkdf2Iterations = 100_000;
-
-    private static string ComputeSecureHash(string password)
-    {
-        var salt = RandomNumberGenerator.GetBytes(16);
-
-        var hash = Rfc2898DeriveBytes.Pbkdf2(
-            password,
-            salt,
-            Pbkdf2Iterations,
-            HashAlgorithmName.SHA256,
-            32);
-
-        return Convert.ToBase64String(salt) + ":" + Convert.ToBase64String(hash);
-    }
+    private const string AdminPasswordHash = "U3ZjRGVza1NlZWRTYWx0MQ==:orhXRQyasnY0tbIjWT972XgUcYbQYFJOZKf3kiGWZqc=";
+    private const string KovalenkoPasswordHash = "U3ZjRGVza1NlZWRTYWx0Mg==:FkNHdz+zH4OkjeLqfT7fVPpxlPIko9BPjX0oXp5SQiQ=";
+    private const string ShevchenkoPasswordHash = "U3ZjRGVza1NlZWRTYWx0Mw==:NPGoKnpCuSvcy5UOjkFBuUsfPWfY7Wy9n8HEZZZBA30=";
+    private const string SmithPasswordHash = "U3ZjRGVza1NlZWRTYWx0NA==:zggZqFDVV5pvh+rK54pZ0zRivz8AGkR4u4NeVmEdlr4=";
+    private const string BondarenkoPasswordHash = "U3ZjRGVza1NlZWRTYWx0NQ==:aluImitgI/5MSw+YERyrtv48OrALZ/MfTegJlKLJfYo=";
 
     public static void Seed(ModelBuilder modelBuilder)
     {
@@ -30,7 +24,7 @@ internal static class UserConfiguration
             {
                 Id = 1,
                 Login = "admin",
-                PasswordHash = ComputeSecureHash("admin123"),
+                PasswordHash = AdminPasswordHash,
                 Role = UserRole.Admin,
                 PersonId = 1,
                 IsActive = true,
@@ -39,7 +33,7 @@ internal static class UserConfiguration
             {
                 Id = 2,
                 Login = "o.kovalenko",
-                PasswordHash = ComputeSecureHash("dev123"),
+                PasswordHash = KovalenkoPasswordHash,
                 Role = UserRole.Developer,
                 PersonId = 2,
                 IsActive = true,
@@ -48,7 +42,7 @@ internal static class UserConfiguration
             {
                 Id = 3,
                 Login = "m.shevchenko",
-                PasswordHash = ComputeSecureHash("client123"),
+                PasswordHash = ShevchenkoPasswordHash,
                 Role = UserRole.User,
                 PersonId = 3,
                 IsActive = true,
@@ -57,7 +51,7 @@ internal static class UserConfiguration
             {
                 Id = 4,
                 Login = "j.smith",
-                PasswordHash = ComputeSecureHash("client123"),
+                PasswordHash = SmithPasswordHash,
                 Role = UserRole.User,
                 PersonId = 4,
                 IsActive = true,
@@ -66,11 +60,10 @@ internal static class UserConfiguration
             {
                 Id = 5,
                 Login = "a.bondarenko",
-                PasswordHash = ComputeSecureHash("dev123"),
+                PasswordHash = BondarenkoPasswordHash,
                 Role = UserRole.Developer,
                 PersonId = 5,
                 IsActive = true,
             });
     }
 }
-

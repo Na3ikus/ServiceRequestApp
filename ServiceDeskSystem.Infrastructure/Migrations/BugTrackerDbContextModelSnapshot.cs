@@ -69,7 +69,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
 
                     b.HasIndex("UploadedById");
 
-                    b.ToTable("Attachments");
+                    b.ToTable("Attachments", (string)null);
                 });
 
             modelBuilder.Entity("ServiceDeskSystem.Domain.Entities.AuditLog", b =>
@@ -111,7 +111,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                     b.HasIndex("EntityName", "EntityId")
                         .HasDatabaseName("IX_AuditLogs_EntityName_EntityId");
 
-                    b.ToTable("AuditLogs");
+                    b.ToTable("AuditLogs", (string)null);
                 });
 
             modelBuilder.Entity("ServiceDeskSystem.Domain.Entities.Comment", b =>
@@ -147,7 +147,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                     b.HasIndex("TicketId", "CreatedAt")
                         .HasDatabaseName("IX_Comments_TicketId_CreatedAt");
 
-                    b.ToTable("Comments");
+                    b.ToTable("Comments", (string)null);
 
                     b.HasData(
                         new
@@ -287,7 +287,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
 
                     b.HasIndex("PersonId");
 
-                    b.ToTable("ContactInfos");
+                    b.ToTable("ContactInfos", (string)null);
                 });
 
             modelBuilder.Entity("ServiceDeskSystem.Domain.Entities.ContactType", b =>
@@ -304,7 +304,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ContactTypes");
+                    b.ToTable("ContactTypes", (string)null);
 
                     b.HasData(
                         new
@@ -366,7 +366,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
 
                     b.HasIndex("RecipientUserId", "IsRead", "CreatedAt");
 
-                    b.ToTable("Notifications");
+                    b.ToTable("Notifications", (string)null);
                 });
 
             modelBuilder.Entity("ServiceDeskSystem.Domain.Entities.Person", b =>
@@ -393,7 +393,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("People");
+                    b.ToTable("People", (string)null);
 
                     b.HasData(
                         new
@@ -463,7 +463,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
 
                     b.HasIndex("TechStackId");
 
-                    b.ToTable("Products");
+                    b.ToTable("Products", (string)null);
 
                     b.HasData(
                         new
@@ -583,7 +583,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                         .IsUnique()
                         .HasDatabaseName("IX_SlaPolicies_Priority_ProductId");
 
-                    b.ToTable("SlaPolicies");
+                    b.ToTable("SlaPolicies", (string)null);
 
                     b.HasData(
                         new
@@ -669,7 +669,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("Tags");
+                    b.ToTable("Tags", (string)null);
 
                     b.HasData(
                         new
@@ -728,7 +728,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("TechStacks");
+                    b.ToTable("TechStacks", (string)null);
 
                     b.HasData(
                         new
@@ -885,7 +885,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                     b.HasIndex("Status", "ResponseDueAt")
                         .HasDatabaseName("IX_Tickets_Status_ResponseDueAt");
 
-                    b.ToTable("Tickets");
+                    b.ToTable("Tickets", (string)null);
 
                     b.HasData(
                         new
@@ -1140,7 +1140,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                     b.HasIndex("PersonId")
                         .IsUnique();
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
 
                     b.HasData(
                         new
@@ -1148,7 +1148,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                             Id = 1,
                             IsActive = true,
                             Login = "admin",
-                            PasswordHash = "Bx8lP0xcJC+39VZ74hJQww==:f0/ad7/0TSy7RtEaYQLpFrR4QWyixXutOxjfjh+rD88=",
+                            PasswordHash = "U3ZjRGVza1NlZWRTYWx0MQ==:orhXRQyasnY0tbIjWT972XgUcYbQYFJOZKf3kiGWZqc=",
                             PersonId = 1,
                             Role = "Admin"
                         },
@@ -1157,7 +1157,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                             Id = 2,
                             IsActive = true,
                             Login = "o.kovalenko",
-                            PasswordHash = "S6VqSpcr2y2l7M9oZ6lgfw==:hYr1UkAbgChdm6/xJeqiF0CgObBMjW157asfk2gTaJ4=",
+                            PasswordHash = "U3ZjRGVza1NlZWRTYWx0Mg==:FkNHdz+zH4OkjeLqfT7fVPpxlPIko9BPjX0oXp5SQiQ=",
                             PersonId = 2,
                             Role = "Developer"
                         },
@@ -1166,7 +1166,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                             Id = 3,
                             IsActive = true,
                             Login = "m.shevchenko",
-                            PasswordHash = "lmWVVi6W2MdvmRvilcUDog==:3wsoEtGxAFLQUv+/kPZ55PZUqGHVsU8qM8ELBrJEF0U=",
+                            PasswordHash = "U3ZjRGVza1NlZWRTYWx0Mw==:NPGoKnpCuSvcy5UOjkFBuUsfPWfY7Wy9n8HEZZZBA30=",
                             PersonId = 3,
                             Role = "User"
                         },
@@ -1175,7 +1175,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                             Id = 4,
                             IsActive = true,
                             Login = "j.smith",
-                            PasswordHash = "lZ8FkJGw6XTig+/IrSL2pg==:6fEe8q2YsRsGzKT8Z+k/MDofAgevBz4I2lPMT+xegu8=",
+                            PasswordHash = "U3ZjRGVza1NlZWRTYWx0NA==:zggZqFDVV5pvh+rK54pZ0zRivz8AGkR4u4NeVmEdlr4=",
                             PersonId = 4,
                             Role = "User"
                         },
@@ -1184,7 +1184,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                             Id = 5,
                             IsActive = true,
                             Login = "a.bondarenko",
-                            PasswordHash = "m8kjROFeIS6KmTIOT9kInA==:3FW2bPtJQP89nbn9LLYp0EiH7qA20mBlKwtFpWi4Ses=",
+                            PasswordHash = "U3ZjRGVza1NlZWRTYWx0NQ==:aluImitgI/5MSw+YERyrtv48OrALZ/MfTegJlKLJfYo=",
                             PersonId = 5,
                             Role = "Developer"
                         });
@@ -1220,7 +1220,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("WorkLogs");
+                    b.ToTable("WorkLogs", (string)null);
                 });
 
             modelBuilder.Entity("TagTicket", b =>

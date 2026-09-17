@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using ServiceDeskSystem.Domain.Constants;
 using ServiceDeskSystem.Domain.Entities;
 using ServiceDeskSystem.Domain.Enums;
 

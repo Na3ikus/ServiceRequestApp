@@ -35,6 +35,8 @@ public partial class DashboardStats : ServiceDeskSystem.Components.UI.Base.BaseC
 
     protected override async Task OnInitializedAsync()
     {
+        var animationToken = this.animationCts.Token;
+
         Task<int> totalTicketsTask = this.TicketStatisticsService.GetTotalTicketsCountAsync();
         Task<int> openTicketsTask = this.TicketStatisticsService.GetOpenTicketsCountAsync();
         Task<int> criticalTicketsTask = this.TicketStatisticsService.GetCriticalTicketsCountAsync();
@@ -52,7 +54,12 @@ public partial class DashboardStats : ServiceDeskSystem.Components.UI.Base.BaseC
         this.criticalTickets = await criticalTicketsTask;
         this.myTickets = await myTicketsTask;
 
-        _ = this.AnimateNumbersAsync(this.animationCts.Token);
+        if (this.disposed)
+        {
+            return;
+        }
+
+        _ = this.AnimateNumbersAsync(animationToken);
     }
 
     private static int GetPercentage(int part, int total) =>
@@ -63,26 +70,35 @@ public partial class DashboardStats : ServiceDeskSystem.Components.UI.Base.BaseC
         const int Steps = 25;
         const int DelayMs = 15;
 
-        for (int i = 1; i <= Steps; i++)
+        try
         {
-            cancellationToken.ThrowIfCancellationRequested();
+            for (int i = 1; i <= Steps; i++)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
 
-            float progress = (float)i / Steps;
-            float eased = progress * (2 - progress);
+                float progress = (float)i / Steps;
+                float eased = progress * (2 - progress);
 
-            this.displayTotalTickets = (int)(this.totalTickets * eased);
-            this.displayOpenTickets = (int)(this.openTickets * eased);
-            this.displayCriticalTickets = (int)(this.criticalTickets * eased);
-            this.displayMyTickets = (int)(this.myTickets * eased);
+                this.displayTotalTickets = (int)(this.totalTickets * eased);
+                this.displayOpenTickets = (int)(this.openTickets * eased);
+                this.displayCriticalTickets = (int)(this.criticalTickets * eased);
+                this.displayMyTickets = (int)(this.myTickets * eased);
 
+                await this.InvokeAsync(this.StateHasChanged);
+                await Task.Delay(DelayMs, cancellationToken);
+            }
+
+            this.displayTotalTickets = this.totalTickets;
+            this.displayOpenTickets = this.openTickets;
+            this.displayCriticalTickets = this.criticalTickets;
+            this.displayMyTickets = this.myTickets;
             await this.InvokeAsync(this.StateHasChanged);
-            await Task.Delay(DelayMs, cancellationToken);
         }
-
-        this.displayTotalTickets = this.totalTickets;
-        this.displayOpenTickets = this.openTickets;
-        this.displayCriticalTickets = this.criticalTickets;
-        this.displayMyTickets = this.myTickets;
-        await this.InvokeAsync(this.StateHasChanged);
+        catch (OperationCanceledException)
+        {
+        }
+        catch (ObjectDisposedException)
+        {
+        }
     }
 }
