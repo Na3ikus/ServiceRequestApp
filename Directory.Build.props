@@ -1,0 +1,14 @@
+<Project>
+
+  <PropertyGroup>
+    <Version>1.0.0</Version>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+    <Product>ServiceDeskSystem</Product>
+    <Company>Na3ikus</Company>
+    <Copyright>Copyright (c) 2026 Na3ikus</Copyright>
+    <RepositoryUrl>https://github.com/Na3ikus/ServiceRequestApp</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+  </PropertyGroup>
+
+</Project>
