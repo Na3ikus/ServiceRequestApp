@@ -154,7 +154,7 @@ html,
   -o-tab-size: 4;
      tab-size: 4;
   /* 3 */
-  font-family: Inter, sans-serif;
+  font-family: Geist, Inter, system-ui, sans-serif;
   /* 4 */
   font-feature-settings: normal;
   /* 5 */
@@ -243,7 +243,7 @@ code,
 kbd,
 samp,
 pre {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-family: "Geist Mono", "JetBrains Mono", ui-monospace, monospace;
   /* 1 */
   font-feature-settings: normal;
   /* 2 */
@@ -554,6 +554,93 @@ video {
   display: none;
 }
 
+:root {
+  --canvas: 255 255 255;
+  --surface: 250 250 250;
+  --line: 229 229 229;
+  --fg: 23 23 23;
+  --muted: 115 115 115;
+  --accent: 198 244 50;
+  --accent-ink: 0 0 0;
+  --on-accent: 0 0 0;
+  --danger: 220 38 38;
+  --row-py: 0.625rem;
+  --cell-px: 0.75rem;
+}
+
+.dark {
+  --canvas: 0 0 0;
+  --surface: 10 10 10;
+  --line: 31 31 31;
+  --fg: 237 237 237;
+  --muted: 122 122 122;
+  --accent-ink: var(--accent);
+  --danger: 255 77 77;
+}
+
+/* Accents: light theme uses lighter fills (highlighter under black text). */
+
+html[data-accent="amber"] {
+  --accent: 255 194 51;
+}
+
+html[data-accent="phosphor"] {
+  --accent: 92 255 173;
+}
+
+html[data-accent="ice"] {
+  --accent: 122 240 245;
+}
+
+html.dark[data-accent="amber"] {
+  --accent: 255 176 0;
+}
+
+html.dark[data-accent="phosphor"] {
+  --accent: 51 255 153;
+}
+
+html.dark[data-accent="ice"] {
+  --accent: 77 232 240;
+}
+
+html[data-contrast="high"] {
+  --muted: 64 64 64;
+  --line: 163 163 163;
+}
+
+html.dark[data-contrast="high"] {
+  --muted: 163 163 163;
+  --line: 58 58 58;
+}
+
+html[data-density="compact"] {
+  --row-py: 0.375rem;
+  --cell-px: 0.5rem;
+}
+
+html[data-motion="reduced"] *,
+    html[data-motion="reduced"] *::before,
+    html[data-motion="reduced"] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+body {
+  background-color: rgb(var(--canvas));
+  color: rgb(var(--fg));
+  font-family: Geist, Inter, system-ui, sans-serif;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+table th,
+    table td {
+  padding: var(--row-py) var(--cell-px);
+}
+
 .pointer-events-none {
   pointer-events: none;
 }
@@ -748,11 +835,6 @@ video {
 .mx-auto {
   margin-left: auto;
   margin-right: auto;
-}
-
-.my-2 {
-  margin-top: 0.5rem;
-  margin-bottom: 0.5rem;
 }
 
 .my-8 {
@@ -1757,11 +1839,6 @@ video {
 .rounded-b-3xl {
   border-bottom-right-radius: 1.5rem;
   border-bottom-left-radius: 1.5rem;
-}
-
-.rounded-r-lg {
-  border-top-right-radius: 0.5rem;
-  border-bottom-right-radius: 0.5rem;
 }
 
 .rounded-t-lg {
@@ -3051,11 +3128,11 @@ video {
 }
 
 .font-mono {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-family: "Geist Mono", "JetBrains Mono", ui-monospace, monospace;
 }
 
 .font-sans {
-  font-family: Inter, sans-serif;
+  font-family: Geist, Inter, system-ui, sans-serif;
 }
 
 .font-serif {
@@ -3273,6 +3350,11 @@ video {
   color: rgb(22 78 99 / var(--tw-text-opacity, 1));
 }
 
+.text-danger {
+  --tw-text-opacity: 1;
+  color: rgb(var(--danger) / var(--tw-text-opacity, 1));
+}
+
 .text-emerald-100 {
   --tw-text-opacity: 1;
   color: rgb(209 250 229 / var(--tw-text-opacity, 1));
@@ -3411,11 +3493,6 @@ video {
 .text-orange-800 {
   --tw-text-opacity: 1;
   color: rgb(154 52 18 / var(--tw-text-opacity, 1));
-}
-
-.text-pink-600 {
-  --tw-text-opacity: 1;
-  color: rgb(219 39 119 / var(--tw-text-opacity, 1));
 }
 
 .text-purple-500 {
@@ -3867,196 +3944,114 @@ video {
   transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
 }
 
+/* Accent emphasis: highlighter fill in light theme, accent-colored text in dark. */
+
+.dark .mark {
+  background-color: transparent;
+  color: rgb(var(--accent));
+  padding: 0;
+}
+
 .\[color-scheme\:light\] {
   color-scheme: light;
 }
 
-/* Custom styles below */
+/* ============================================= */
 
-/* Language toggle slider */
+/* DESIGN TOKENS                                 */
 
-.lang-slider {
-  position: absolute;
-  top: 0.375rem;
-  bottom: 0.375rem;
-  width: calc(50% - 6px);
-  background: linear-gradient(to right, rgb(59 130 246), rgb(168 85 247));
-  border-radius: 9999px;
-  transition: all 0.3s ease-out;
-  box-shadow: 0 10px 15px -3px rgb(59 130 246 / 0.3);
-}
+/* Space-separated RGB channels so Tailwind      */
 
-.lang-slider.en {
-  left: 0.375rem;
-}
-
-.lang-slider.uk {
-  left: calc(50% + 3px);
-}
-
-/* Main layout language toggle slider */
-
-.lang-slider-main {
-  position: absolute;
-  top: 0.25rem;
-  bottom: 0.25rem;
-  width: calc(50% - 4px);
-  border-radius: 9999px;
-  transition: all 0.3s ease-out;
-  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-}
-
-.lang-slider-main.en {
-  left: 0.25rem;
-}
-
-.lang-slider-main.uk {
-  left: calc(50% + 2px);
-}
+/* opacity modifiers work: bg-accent/20.         */
 
 /* ============================================= */
 
-/* PREMIUM RICH TEXT EDITOR (QUILL) THEME STYLES */
-
 /* ============================================= */
 
-/* Remove default Quill borders, padding, and backgrounds to use the parent container wrappers */
+/* RICH TEXT EDITOR (QUILL)                      */
+
+/* ============================================= */
 
 .quill-wrapper .ql-toolbar.ql-snow,
 .quill-wrapper .ql-container.ql-snow {
   border: none !important;
 }
 
-/* Light Theme Editor Styling */
-
 .quill-wrapper {
-  background-color: #ffffff;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+  background-color: rgb(var(--canvas));
 }
 
 .quill-wrapper .ql-toolbar.ql-snow {
-  background-color: #f8fafc;
-  border-bottom: 1px solid #e2e8f0 !important;
+  background-color: rgb(var(--surface));
+  border-bottom: 1px solid rgb(var(--line)) !important;
   padding: 8px 12px !important;
+}
+
+.quill-wrapper .ql-container.ql-snow {
+  background-color: rgb(var(--canvas)) !important;
 }
 
 .quill-wrapper .ql-editor {
   min-height: 120px;
-  font-family: 'Inter', sans-serif;
-  font-size: 0.95rem;
+  font-family: Geist, Inter, system-ui, sans-serif;
+  font-size: 0.9375rem;
   line-height: 1.6;
-  color: #1f2937;
-  /* gray-800 */
+  color: rgb(var(--fg)) !important;
 }
 
-/* Dark Theme Editor Styling - Perfect background blending and stealth look */
-
-.dark .quill-wrapper {
-  background-color: #1f2937 !important;
-  /* bg-gray-800 to match the form cards */
-  border-color: #4b5563 !important;
-  /* border-gray-600 */
-}
-
-.dark .quill-wrapper .ql-toolbar.ql-snow {
-  background-color: #111827 !important;
-  /* bg-gray-900 for dark toolbar */
-  border-bottom: 1px solid rgba(75, 85, 99, 0.5) !important;
-}
-
-.dark .quill-wrapper .ql-container.ql-snow {
-  background-color: #1f2937 !important;
-  /* matches wrapper background */
-}
-
-.dark .quill-wrapper .ql-editor {
-  color: #f3f4f6 !important;
-  /* gray-100 */
-}
-
-.dark .quill-wrapper .ql-editor.ql-blank::before {
-  color: #9ca3af !important;
-  /* placeholder color */
+.quill-wrapper .ql-editor.ql-blank::before {
+  color: rgb(var(--muted)) !important;
   font-style: normal;
 }
 
-/* Toolbar button styling & interactive hover states */
-
 .quill-wrapper .ql-snow .ql-stroke {
-  stroke: #64748b !important;
-  /* slate-500 */
+  stroke: rgb(var(--muted)) !important;
   stroke-width: 2px;
   transition: stroke 0.2s ease;
 }
 
 .quill-wrapper .ql-snow .ql-fill {
-  fill: #64748b !important;
+  fill: rgb(var(--muted)) !important;
   transition: fill 0.2s ease;
 }
 
 .quill-wrapper .ql-snow .ql-picker {
-  color: #64748b !important;
+  color: rgb(var(--muted)) !important;
   font-weight: 500;
   transition: color 0.2s ease;
 }
-
-/* Dark theme icon colors */
-
-.dark .quill-wrapper .ql-snow .ql-stroke {
-  stroke: #9ca3af !important;
-  /* gray-400 */
-}
-
-.dark .quill-wrapper .ql-snow .ql-fill {
-  fill: #9ca3af !important;
-}
-
-.dark .quill-wrapper .ql-snow .ql-picker {
-  color: #9ca3af !important;
-}
-
-/* Hover & Active states - vibrant blue accent */
 
 .quill-wrapper .ql-snow.ql-toolbar button:hover .ql-stroke,
 .quill-wrapper .ql-snow.ql-toolbar button.ql-active .ql-stroke,
 .quill-wrapper .ql-snow.ql-toolbar .ql-picker-label:hover .ql-stroke,
 .quill-wrapper .ql-snow.ql-toolbar .ql-picker-label.ql-active .ql-stroke {
-  stroke: #3b82f6 !important;
-  /* blue-500 */
+  stroke: rgb(var(--accent-ink)) !important;
 }
 
 .quill-wrapper .ql-snow.ql-toolbar button:hover .ql-fill,
 .quill-wrapper .ql-snow.ql-toolbar button.ql-active .ql-fill,
 .quill-wrapper .ql-snow.ql-toolbar .ql-picker-label:hover .ql-fill,
 .quill-wrapper .ql-snow.ql-toolbar .ql-picker-label.ql-active .ql-fill {
-  fill: #3b82f6 !important;
+  fill: rgb(var(--accent-ink)) !important;
 }
 
 .quill-wrapper .ql-snow.ql-toolbar button:hover,
 .quill-wrapper .ql-snow.ql-toolbar button.ql-active,
 .quill-wrapper .ql-snow.ql-toolbar .ql-picker-label:hover,
 .quill-wrapper .ql-snow.ql-toolbar .ql-picker-label.ql-active {
-  color: #3b82f6 !important;
+  color: rgb(var(--accent-ink)) !important;
 }
-
-/* Picker Dropdown Options for premium styling */
 
 .quill-wrapper .ql-snow .ql-picker-options {
-  background-color: #ffffff !important;
-  border: 1px solid #e2e8f0 !important;
-  border-radius: 12px !important;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1) !important;
+  background-color: rgb(var(--canvas)) !important;
+  border: 1px solid rgb(var(--line)) !important;
+  border-radius: 8px !important;
   padding: 6px !important;
-}
-
-.dark .quill-wrapper .ql-snow .ql-picker-options {
-  background-color: #111827 !important;
-  border: 1px solid rgba(75, 85, 99, 0.6) !important;
 }
 
 .quill-wrapper .ql-snow .ql-picker-item:hover,
 .quill-wrapper .ql-snow .ql-picker-item.ql-selected {
-  color: #3b82f6 !important;
+  color: rgb(var(--accent-ink)) !important;
 }
 
 /* ============================================= */
@@ -4065,28 +4060,13 @@ video {
 
 /* ============================================= */
 
-/* Light Mode Autofill */
-
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,
 input:-webkit-autofill:active {
-  -webkit-box-shadow: 0 0 0 1000px #f9fafb inset !important;
-  -webkit-text-fill-color: #111827 !important;
-  caret-color: #111827;
-  -webkit-transition: background-color 5000s ease-in-out 0s;
-  transition: background-color 5000s ease-in-out 0s;
-}
-
-/* Dark Mode Autofill */
-
-.dark input:-webkit-autofill,
-.dark input:-webkit-autofill:hover,
-.dark input:-webkit-autofill:focus,
-.dark input:-webkit-autofill:active {
-  -webkit-box-shadow: 0 0 0 1000px #111827 inset !important;
-  -webkit-text-fill-color: #f3f4f6 !important;
-  caret-color: #ffffff;
+  -webkit-box-shadow: 0 0 0 1000px rgb(var(--surface)) inset !important;
+  -webkit-text-fill-color: rgb(var(--fg)) !important;
+  caret-color: rgb(var(--fg));
   -webkit-transition: background-color 5000s ease-in-out 0s;
   transition: background-color 5000s ease-in-out 0s;
 }
@@ -5676,11 +5656,6 @@ input:-webkit-autofill:active {
   color: rgb(251 146 60 / var(--tw-text-opacity, 1));
 }
 
-.dark\:text-pink-400:is(.dark *) {
-  --tw-text-opacity: 1;
-  color: rgb(244 114 182 / var(--tw-text-opacity, 1));
-}
-
 .dark\:text-purple-200:is(.dark *) {
   --tw-text-opacity: 1;
   color: rgb(233 213 255 / var(--tw-text-opacity, 1));
@@ -6436,4 +6411,4 @@ input:-webkit-autofill:active {
     --tw-shadow-colored: 0 0 #0000;
     box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
   }
-}
+}

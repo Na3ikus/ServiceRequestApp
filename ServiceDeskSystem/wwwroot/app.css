@@ -1,7 +1,3 @@
-html, body {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-}
-
 a, .btn-link {
     color: #006bb7;
 }
@@ -918,11 +914,6 @@ a, .btn-link {
 html,
 body {
     overflow: hidden;
-    background-color: #f3f4f6; /* bg-gray-100 */
-}
-
-.dark body {
-    background-color: #111827; /* bg-gray-900 */
 }
 
 /* Smooth page transitions */
@@ -2687,22 +2678,6 @@ h3[tabindex] {
 /* ═══════════════════════════════════════════════════════════
    NEW VISUAL CUSTOMIZATION SETTINGS — CSS DATA-* ATTRIBUTES
    ═══════════════════════════════════════════════════════════ */
-
-/* ── Font Families ── */
-[data-font="inter"],
-[data-font="inter"] * { font-family: 'Inter', sans-serif !important; }
-
-[data-font="jetbrains"],
-[data-font="jetbrains"] * { font-family: 'JetBrains Mono', monospace !important; }
-
-[data-font="outfit"],
-[data-font="outfit"] * { font-family: 'Outfit', sans-serif !important; }
-
-[data-font="nunito"],
-[data-font="nunito"] * { font-family: 'Nunito', sans-serif !important; }
-
-[data-font="fira"],
-[data-font="fira"] * { font-family: 'Fira Sans', sans-serif !important; }
 
 /* ── Border Radius ── */
 [data-radius="sharp"] button:not(.theme-preview-card):not(.notif-position-btn):not(.btn-icon-only),

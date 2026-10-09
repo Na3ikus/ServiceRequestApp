@@ -1,13 +1,14 @@
 /** @type {import('tailwindcss').Config} */
+const token = (name) => `rgb(var(--${name}) / <alpha-value>)`;
+
 module.exports = {
     content: [
         "./Components/**/*.razor",
         "./Components/**/*.cshtml",
+        "./Components/**/*.cs",
         "./Pages/**/*.razor",
         "./Pages/**/*.cshtml",
-        "./**/*.razor",
-        "./**/*.html",
-        "./**/*.cs"
+        "./wwwroot/**/*.html"
     ],
     darkMode: 'class',
     safelist: [
@@ -17,16 +18,19 @@ module.exports = {
     theme: {
         extend: {
             fontFamily: {
-                sans: ['Inter', 'sans-serif'],
+                sans: ['Geist', 'Inter', 'system-ui', 'sans-serif'],
+                mono: ['"Geist Mono"', '"JetBrains Mono"', 'ui-monospace', 'monospace'],
             },
             colors: {
-                brand: {
-                    50: '#eef2ff',
-                    100: '#e0e7ff',
-                    500: '#6366f1',
-                    600: '#4f46e5',
-                    700: '#4338ca',
-                },
+                canvas: token('canvas'),
+                surface: token('surface'),
+                line: token('line'),
+                fg: token('fg'),
+                muted: token('muted'),
+                accent: token('accent'),
+                'accent-ink': token('accent-ink'),
+                'on-accent': token('on-accent'),
+                danger: token('danger'),
             },
             animation: {
                 'fade-in': 'fadeIn 0.3s ease-in-out',
