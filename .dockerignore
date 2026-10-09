@@ -12,5 +12,6 @@
 **/*.dbmdl
 **/*.jfm
 **/bin
+**/node_modules
 **/obj
 **/testresults

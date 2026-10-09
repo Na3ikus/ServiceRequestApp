@@ -20,6 +20,8 @@
 **ServiceDesk** is a modern, responsive IT Service Management (ITSM) system built with **.NET 10** and **Blazor Server**. It simplifies incident tracking, SLA management, and team collaboration with native multilingual support (🇬🇧 English / 🇺🇦 Ukrainian) and role-based access control (RBAC).
 
 > 💻 **Setup Note:** Uses a local MySQL database. Connection settings are in `appsettings.Development.json`. For Docker deployment, use environment variables.
+>
+> 🎨 **Styles:** Requires **Node.js 22+**. `dotnet build` compiles Tailwind; use `-p:SkipTailwindBuild=true` to skip.
 
 ---
 
