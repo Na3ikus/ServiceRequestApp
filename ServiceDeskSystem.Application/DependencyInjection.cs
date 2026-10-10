@@ -56,6 +56,7 @@ public static class DependencyInjection
     {
         services.AddScoped<ILocalizationService, LocalizationService>();
         services.AddScoped<IThemeService, ThemeService>();
+        services.AddScoped<ServiceDeskSystem.Application.Services.Preferences.IPreferencesService, ServiceDeskSystem.Application.Services.Preferences.PreferencesService>();
         services.AddScoped<IToastService, ToastService>();
 
         return services;

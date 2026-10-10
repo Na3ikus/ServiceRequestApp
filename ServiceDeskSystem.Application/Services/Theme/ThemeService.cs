@@ -1,15 +1,19 @@
 using Microsoft.JSInterop;
-using ServiceDeskSystem.Application.Services.Theme;
 
 namespace ServiceDeskSystem.Application.Services.Theme;
 
-public sealed class ThemeService : IThemeService
+/// <summary>
+/// Theme state for Blazor components. Persistence and applying the <c>dark</c> class
+/// live in <c>wwwroot/js/prefs.js</c>; this service mirrors them and follows OS changes.
+/// </summary>
+public sealed class ThemeService : IThemeService, IDisposable
 {
     private readonly IJSRuntime jsRuntime;
     private string currentTheme = "light";
-    private string preferredTheme = "light"; // "light" | "dark" | "system"
+    private string preferredTheme = "system"; // "light" | "dark" | "system"
     private bool initialized;
     private bool isSidebarCollapsed;
+    private DotNetObjectReference<ThemeService>? selfReference;
 
     public ThemeService(IJSRuntime jsRuntime)
     {
@@ -32,22 +36,11 @@ public sealed class ThemeService : IThemeService
         {
             try
             {
-                this.preferredTheme = await this.jsRuntime.InvokeAsync<string>("themeManager.getTheme");
+                this.preferredTheme = await this.jsRuntime.InvokeAsync<string>("prefs.get", "theme");
+                this.currentTheme = await this.jsRuntime.InvokeAsync<string>("prefs.resolveTheme");
 
-                if (this.preferredTheme == "system")
-                {
-                    var prefersDark = await this.jsRuntime.InvokeAsync<bool>(
-                        "eval", "window.matchMedia('(prefers-color-scheme: dark)').matches");
-                    this.currentTheme = prefersDark ? "dark" : "light";
-                    var action = this.currentTheme == "dark" ? "add" : "remove";
-                    await this.jsRuntime.InvokeVoidAsync(
-                        "eval",
-                        $"document.documentElement.classList.{action}('dark')");
-                }
-                else
-                {
-                    this.currentTheme = this.preferredTheme;
-                }
+                this.selfReference ??= DotNetObjectReference.Create(this);
+                await this.jsRuntime.InvokeVoidAsync("prefs.onSystemThemeChange", this.selfReference);
 
                 this.isSidebarCollapsed = await this.jsRuntime.InvokeAsync<bool>("sidebarManager.getCollapsed");
                 this.initialized = true;
@@ -55,7 +48,7 @@ public sealed class ThemeService : IThemeService
             catch
             {
                 this.currentTheme = "light";
-                this.preferredTheme = "light";
+                this.preferredTheme = "system";
             }
         }
     }
@@ -69,47 +62,38 @@ public sealed class ThemeService : IThemeService
 
         this.preferredTheme = theme;
 
-        string resolvedTheme;
-        if (theme == "system")
-        {
-            try
-            {
-                var prefersDark = await this.jsRuntime.InvokeAsync<bool>(
-                    "eval", "window.matchMedia('(prefers-color-scheme: dark)').matches");
-                resolvedTheme = prefersDark ? "dark" : "light";
-            }
-            catch
-            {
-                resolvedTheme = "light";
-            }
-        }
-        else
-        {
-            resolvedTheme = theme;
-        }
-
-        if (this.currentTheme == resolvedTheme && this.preferredTheme != "system")
-        {
-            return;
-        }
-
-        this.currentTheme = resolvedTheme;
-
+        string resolvedTheme = theme;
         try
         {
-            // Save preference ("system", "light", or "dark")
-            await this.jsRuntime.InvokeVoidAsync("localStorage.setItem", "theme", this.preferredTheme);
-            // Apply resolved class to <html>
-            var action = resolvedTheme == "dark" ? "add" : "remove";
-            await this.jsRuntime.InvokeVoidAsync(
-                "eval",
-                $"document.documentElement.classList.{action}('dark')");
+            await this.jsRuntime.InvokeVoidAsync("prefs.set", "theme", theme);
+            if (theme == "system")
+            {
+                resolvedTheme = await this.jsRuntime.InvokeAsync<string>("prefs.resolveTheme");
+            }
         }
         catch
         {
             // Ignore JS interop errors during prerendering
+            if (theme == "system")
+            {
+                resolvedTheme = "light";
+            }
         }
 
+        this.currentTheme = resolvedTheme;
+        this.ThemeChanged?.Invoke(this, EventArgs.Empty);
+    }
+
+    /// <summary>Called by <c>prefs.js</c> when the OS color scheme changes while the theme is <c>system</c>.</summary>
+    [JSInvokable]
+    public void OnSystemThemeChanged(bool isDark)
+    {
+        if (this.preferredTheme != "system")
+        {
+            return;
+        }
+
+        this.currentTheme = isDark ? "dark" : "light";
         this.ThemeChanged?.Invoke(this, EventArgs.Empty);
     }
 
@@ -136,5 +120,11 @@ public sealed class ThemeService : IThemeService
 
             this.ThemeChanged?.Invoke(this, EventArgs.Empty);
         }
+    }
+
+    public void Dispose()
+    {
+        this.selfReference?.Dispose();
+        this.selfReference = null;
     }
 }
