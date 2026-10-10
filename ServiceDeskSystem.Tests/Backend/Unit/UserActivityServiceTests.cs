@@ -53,7 +53,7 @@ public class UserActivityServiceTests
         _comments.Setup(r => r.GetCreatedTimesByAuthorAsync(UserId, It.IsAny<DateTime>())).ReturnsAsync([NoonUtc(10, 5), NoonUtc(10, 5)]);
         _history.Setup(r => r.GetChangeTimesByUserAsync(UserId, It.IsAny<DateTime>())).ReturnsAsync([NoonUtc(10, 5)]);
         _workLogs.Setup(r => r.GetEntriesByUserSinceAsync(UserId, It.IsAny<DateTime>()))
-            .ReturnsAsync([(new DateTime(2026, 10, 5), 90)]);
+            .ReturnsAsync([(NoonUtc(10, 5), 90)]);
 
         var result = await _service.GetDailyActivityAsync(UserId, new DateOnly(2026, 10, 1), new DateOnly(2026, 10, 10));
 
@@ -80,10 +80,12 @@ public class UserActivityServiceTests
     }
 
     [Test]
-    public async Task Work_log_date_is_used_as_calendar_day()
+    public async Task Work_log_stored_as_utc_of_local_midnight_lands_on_the_picked_day()
     {
+        // WorkLogService stores DateTime.Today (local midnight) converted to UTC.
+        var pickedDay = new DateTime(2026, 10, 3, 0, 0, 0, DateTimeKind.Local).ToUniversalTime();
         _workLogs.Setup(r => r.GetEntriesByUserSinceAsync(UserId, It.IsAny<DateTime>()))
-            .ReturnsAsync([(new DateTime(2026, 10, 3), 30), (new DateTime(2026, 10, 3), 15)]);
+            .ReturnsAsync([(pickedDay, 30), (pickedDay, 15)]);
 
         var result = await _service.GetDailyActivityAsync(UserId, new DateOnly(2026, 10, 1), new DateOnly(2026, 10, 10));
 

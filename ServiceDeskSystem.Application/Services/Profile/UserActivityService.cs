@@ -61,8 +61,8 @@ public sealed class UserActivityService(IRepositoryFacadeFactory repositoryFacad
 
         foreach (var (dateLogged, minutes) in workLogs)
         {
-            // DateLogged is the calendar day the user picked, not a moment in time.
-            Add(DateOnly.FromDateTime(dateLogged), 3, minutes);
+            // WorkLogService stores the picked local date converted to UTC.
+            Add(LocalDate(dateLogged), 3, minutes);
         }
 
         return days

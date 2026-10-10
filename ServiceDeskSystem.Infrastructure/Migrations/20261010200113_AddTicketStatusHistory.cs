@@ -55,12 +55,14 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                 column: "TicketId");
 
             // One-time backfill from the audit log ("Status changed from X to Y", enum names) so
-            // existing history is kept. Enum names are mapped to the stored strings, rows for
-            // deleted tickets are skipped and unknown users become NULL. The join compares as
-            // strings so non-numeric EntityId values cannot raise conversion errors in strict mode.
+            // existing history is kept. Enum names are mapped to the stored strings and rows for
+            // deleted tickets are skipped. ChangedByUserId stays NULL: before this change the audit
+            // log recorded the assigned developer instead of the acting user, so it is unreliable.
+            // The join compares as strings so non-numeric EntityId values cannot raise conversion
+            // errors in strict mode.
             migrationBuilder.Sql("""
                 INSERT INTO `TicketStatusHistory` (`TicketId`, `OldStatus`, `NewStatus`, `ChangedByUserId`, `ChangedAt`)
-                SELECT x.`TicketId`, x.`OldStatus`, x.`NewStatus`, x.`UserId`, x.`ChangedAt`
+                SELECT x.`TicketId`, x.`OldStatus`, x.`NewStatus`, NULL, x.`ChangedAt`
                 FROM (
                     SELECT
                         t.`Id` AS `TicketId`,
@@ -68,12 +70,10 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                             'InProgress', 'In Progress'), 'CodeReview', 'Code Review') AS `OldStatus`,
                         REPLACE(REPLACE(SUBSTRING_INDEX(a.`Changes`, ' to ', -1),
                             'InProgress', 'In Progress'), 'CodeReview', 'Code Review') AS `NewStatus`,
-                        u.`Id` AS `UserId`,
                         a.`Timestamp` AS `ChangedAt`,
                         a.`Id` AS `AuditId`
                     FROM `AuditLogs` a
                     JOIN `Tickets` t ON CAST(t.`Id` AS CHAR) = a.`EntityId`
-                    LEFT JOIN `Users` u ON u.`Id` = a.`UserId`
                     WHERE a.`Action` = 'STATUS_UPDATE'
                       AND a.`EntityName` = 'Ticket'
                       AND a.`Changes` LIKE 'Status changed from % to %'

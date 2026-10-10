@@ -86,7 +86,7 @@ public sealed class TicketsController(
     public async Task<IActionResult> UpdateStatus(int id, [FromBody] UpdateStatusRequest request)
     {
         logger.LogInformation("Updating ticket {TicketId} status to {Status}", id, request.Status);
-        var success = await ticketService.UpdateTicketStatusAsync(id, request.Status).ConfigureAwait(false);
+        var success = await ticketService.UpdateTicketStatusAsync(id, request.Status, currentUserService.UserId).ConfigureAwait(false);
 
         if (!success)
         {

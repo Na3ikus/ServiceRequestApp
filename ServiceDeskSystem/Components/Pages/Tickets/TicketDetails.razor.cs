@@ -283,7 +283,7 @@ public partial class TicketDetails : BaseComponent
             return;
         }
 
-        var success = await this.TicketService.UpdateTicketStatusAsync(this.Ticket.Id, newStatus);
+        var success = await this.TicketService.UpdateTicketStatusAsync(this.Ticket.Id, newStatus, this.AuthService.CurrentUser?.Id);
         if (success)
         {
             this.Ticket.Status = newStatus;

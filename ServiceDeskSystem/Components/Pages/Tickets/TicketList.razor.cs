@@ -134,7 +134,7 @@ public partial class TicketList : BaseComponent
             return;
         }
 
-        var success = await this.TicketService.UpdateTicketStatusAsync(args.TicketId, args.NewStatus).ConfigureAwait(false);
+        var success = await this.TicketService.UpdateTicketStatusAsync(args.TicketId, args.NewStatus, this.AuthService.CurrentUser?.Id).ConfigureAwait(false);
         if (success)
         {
             ticket.Status = args.NewStatus;

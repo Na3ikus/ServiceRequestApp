@@ -197,7 +197,7 @@ public partial class DeveloperDashboard : BaseComponent
             return;
         }
 
-        var success = await this.TicketService.UpdateTicketStatusAsync(args.TicketId, args.NewStatus);
+        var success = await this.TicketService.UpdateTicketStatusAsync(args.TicketId, args.NewStatus, this.AuthService.CurrentUser?.Id);
         if (success)
         {
             ticket.Status = args.NewStatus;

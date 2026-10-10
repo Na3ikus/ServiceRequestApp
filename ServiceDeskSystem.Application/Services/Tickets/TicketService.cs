@@ -119,7 +119,7 @@ public sealed class TicketService(
 
 
 
-    public async Task<bool> UpdateTicketStatusAsync(int ticketId, TicketStatus newStatus)
+    public async Task<bool> UpdateTicketStatusAsync(int ticketId, TicketStatus newStatus, int? actorUserId)
     {
         await using var repo = repositoryFacadeFactory.Create();
         var ticket = await repo.Tickets.GetByIdAsync(ticketId).ConfigureAwait(false);
@@ -130,7 +130,7 @@ public sealed class TicketService(
         }
 
         var oldStatus = ticket.Status;
-        ticket.ChangeStatus(newStatus, ticket.DeveloperId); // Use Domain Entity method
+        ticket.ChangeStatus(newStatus, actorUserId);
         await repo.UnitOfWork.SaveChangesAsync().ConfigureAwait(false);
 
         var events = ticket.DomainEvents.ToList();

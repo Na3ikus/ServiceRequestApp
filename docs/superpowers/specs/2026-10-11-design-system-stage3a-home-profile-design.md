@@ -43,7 +43,13 @@ after a cleanup. Status changes get their own table.
   from `AuditLogs` rows with `Action = 'STATUS_UPDATE'`, `EntityName =
   'Ticket'` and `Changes` = `Status changed from X to Y` (enum names mapped
   to the stored strings, e.g. `InProgress` → `In Progress`), only for tickets
-  that still exist; unknown users become `NULL`.
+  that still exist. Backfilled rows get `ChangedByUserId = NULL`: until this
+  change `UpdateTicketStatusAsync` recorded the assigned developer as the
+  actor, so the audit log's user is unreliable.
+- `ITicketService.UpdateTicketStatusAsync(ticketId, status, actorUserId)`
+  takes the acting user explicitly (Blazor pages pass the current user, the
+  API passes the token's user). This also fixes status notifications naming
+  the developer instead of the person who changed the status.
 - The audit log stays as is (clearable admin journal).
 
 ### `IUserActivityService` (Application/Services/Profile)
@@ -54,8 +60,9 @@ after a cleanup. Status changes get their own table.
   and `Total` (= the four counts; every action weighs 1).
 - Sources: `Ticket.CreatedAt` (author), `Comment.CreatedAt` (author),
   `TicketStatusHistory.ChangedAt` (changed by), `WorkLog.DateLogged` (user).
-  Timestamps are converted to local time before taking the date;
-  `DateLogged` is used as a calendar date.
+  All timestamps, including `DateLogged` (stored as UTC of the picked local
+  date), are converted to local time before taking the date. "Local" is the
+  server time zone, which matches the users' zone in this deployment.
 - New repository methods return timestamps since a date for one user.
 - `IWorkLogService.GetTotalTimeSpentForUserAsync(int userId)` (passthrough to
   the existing repository method) for the profile "hours logged" figure.
