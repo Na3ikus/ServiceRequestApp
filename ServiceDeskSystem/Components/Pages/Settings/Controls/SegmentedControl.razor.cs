@@ -23,14 +23,6 @@ public partial class SegmentedControl : ComponentBase
     [Parameter]
     public EventCallback<string> ValueChanged { get; set; }
 
-    protected override void OnParametersSet()
-    {
-        if (this.buttons.Length != this.Options.Count)
-        {
-            this.buttons = new ElementReference[this.Options.Count];
-        }
-    }
-
     private int SelectedIndex
     {
         get
@@ -47,8 +39,13 @@ public partial class SegmentedControl : ComponentBase
         }
     }
 
-    // Exactly one option is reachable with Tab: the selected one, or the first if none is.
-    private bool IsTabStop(int index) => index == Math.Max(this.SelectedIndex, 0);
+    protected override void OnParametersSet()
+    {
+        if (this.buttons.Length != this.Options.Count)
+        {
+            this.buttons = new ElementReference[this.Options.Count];
+        }
+    }
 
     private static string ButtonClass(bool selected, int index)
     {
@@ -56,6 +53,9 @@ public partial class SegmentedControl : ComponentBase
         var state = selected ? " bg-fg text-canvas" : " text-muted hover:text-fg";
         return "px-3 py-1.5 transition-colors focus-visible:outline focus-visible:outline-1 focus-visible:outline-accent-ink focus-visible:-outline-offset-2" + border + state;
     }
+
+    // Exactly one option is reachable with Tab: the selected one, or the first if none is.
+    private bool IsTabStop(int index) => index == Math.Max(this.SelectedIndex, 0);
 
     private async Task SelectAsync(int index)
     {

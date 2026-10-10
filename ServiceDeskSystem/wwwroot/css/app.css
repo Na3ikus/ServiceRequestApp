@@ -678,10 +678,6 @@ table th,
   bottom: -2.5rem;
 }
 
-.-bottom-\[20\%\] {
-  bottom: -20%;
-}
-
 .-left-10 {
   left: -2.5rem;
 }
@@ -690,24 +686,12 @@ table th,
   left: -1.5rem;
 }
 
-.-left-\[10\%\] {
-  left: -10%;
-}
-
 .-right-10 {
   right: -2.5rem;
 }
 
-.-right-\[10\%\] {
-  right: -10%;
-}
-
 .-top-10 {
   top: -2.5rem;
-}
-
-.-top-\[20\%\] {
-  top: -20%;
 }
 
 .bottom-0 {
@@ -724,10 +708,6 @@ table th,
 
 .left-0 {
   left: 0px;
-}
-
-.left-\[20\%\] {
-  left: 20%;
 }
 
 .left-\[9px\] {
@@ -764,14 +744,6 @@ table th,
 
 .top-4 {
   top: 1rem;
-}
-
-.top-\[10\%\] {
-  top: 10%;
-}
-
-.z-0 {
-  z-index: 0;
 }
 
 .z-10 {
@@ -1125,14 +1097,6 @@ table th,
   height: 4.5rem;
 }
 
-.h-\[50\%\] {
-  height: 50%;
-}
-
-.h-\[60\%\] {
-  height: 60%;
-}
-
 .h-full {
   height: 100%;
 }
@@ -1347,18 +1311,6 @@ table th,
 
 .w-\[360px\] {
   width: 360px;
-}
-
-.w-\[45\%\] {
-  width: 45%;
-}
-
-.w-\[50\%\] {
-  width: 50%;
-}
-
-.w-\[60\%\] {
-  width: 60%;
 }
 
 .w-fit {
@@ -3873,16 +3825,6 @@ table th,
 
 .blur-3xl {
   --tw-blur: blur(64px);
-  filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
-}
-
-.blur-\[100px\] {
-  --tw-blur: blur(100px);
-  filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
-}
-
-.blur-\[120px\] {
-  --tw-blur: blur(120px);
   filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
 }
 
