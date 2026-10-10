@@ -92,24 +92,6 @@
     min-width: 0;
 }
 
-/* Status badge */
-.status-badge {
-    padding: 0.25rem 0.75rem;
-    border-radius: 9999px;
-    font-size: 0.95rem;
-    font-weight: 600;
-    white-space: nowrap;
-    flex-shrink: 0;
-}
-
-/* Priority badge */
-.priority-badge {
-    padding: 0.125rem 0.5rem;
-    border-radius: 0.25rem;
-    font-size: 0.75rem;
-    font-weight: 600;
-}
-
 /* Comment section styles */
 .comment-item {
     border-left: 4px solid #3b82f6;

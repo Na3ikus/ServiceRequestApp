@@ -43,30 +43,6 @@
     }
 }
 
-/* Enhanced status badges - more vibrant */
-.status-badge-enhanced {
-    padding: 0.375rem 0.875rem;
-    border-radius: 9999px;
-    font-size: 0.875rem;
-    font-weight: 600;
-    white-space: nowrap;
-    flex-shrink: 0;
-    letter-spacing: 0.025em;
-    text-transform: capitalize;
-    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-}
-
-/* Priority badges - more vibrant */
-.priority-badge-enhanced {
-    padding: 0.25rem 0.625rem;
-    border-radius: 0.375rem;
-    font-size: 0.75rem;
-    font-weight: 600;
-    letter-spacing: 0.025em;
-    text-transform: uppercase;
-    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-}
-
 /* Hover effects for interactive elements */
 .ticket-card {
     transition: all 0.2s ease-in-out;

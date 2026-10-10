@@ -123,18 +123,6 @@ a, .btn-link {
     min-width: 110px;
 }
 
-.ticket-status-badge {
-    display: inline-block;
-    min-width: 92px;
-    text-align: center;
-}
-
-.ticket-priority-badge {
-    display: inline-block;
-    min-width: 80px;
-    text-align: center;
-}
-
 .header-actions {
     flex-shrink: 0;
     gap: 12px;
@@ -788,13 +776,6 @@ table td, table th {
 
 table td.allow-wrap, table th.allow-wrap {
     white-space: normal;
-}
-
-/* Status and priority badges - fixed width */
-.ticket-status-badge,
-.ticket-priority-badge {
-    display: inline-block;
-    text-align: center;
 }
 
 /* Prevent button size changes */
@@ -1852,10 +1833,6 @@ h3[tabindex] {
 
 /* Users specific */
 .auser-info { display: flex; align-items: center; gap: 0.7rem; }
-.auser-avatar { width: 2.2rem; height: 2.2rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 800; letter-spacing: 0.02em; flex-shrink: 0; border: 2px solid #fff; box-shadow: 0 1px 4px rgb(0 0 0 / 0.1); }
-.avatar-admin { background: linear-gradient(135deg, #dc2626, #b91c1c); color: #fff; }
-.avatar-dev   { background: linear-gradient(135deg, #7c3aed, #6d28d9); color: #fff; }
-.avatar-user  { background: linear-gradient(135deg, #2563eb, #1d4ed8); color: #fff; }
 .auser-details { display: flex; flex-direction: column; gap: 0.1rem; min-width: 0; }
 .auser-name { font-weight: 600; font-size: 0.875rem; color: rgb(15 23 42); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .dark .auser-name { color: rgb(226 232 240); }

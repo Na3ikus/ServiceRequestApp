@@ -25,11 +25,9 @@ public class HelperUsageTests
     {
         var repoRoot = FindRepoRoot();
         var componentsRoot = Path.Combine(repoRoot, "ServiceDeskSystem", "Components");
-        var excludedFile = Path.Combine(componentsRoot, "UI", "Base", "BaseComponent.cs");
 
         var files = Directory.EnumerateFiles(componentsRoot, "*.razor", SearchOption.AllDirectories)
             .Concat(Directory.EnumerateFiles(componentsRoot, "*.razor.cs", SearchOption.AllDirectories))
-            .Where(f => !string.Equals(Path.GetFullPath(f), Path.GetFullPath(excludedFile), StringComparison.OrdinalIgnoreCase))
             .ToList();
 
         var violations = new List<string>();
@@ -47,6 +45,17 @@ public class HelperUsageTests
         }
 
         violations.Should().BeEmpty(because: string.Join(Environment.NewLine, violations));
+    }
+
+    [Test]
+    public void Ticket_status_css_is_gone()
+    {
+        var repoRoot = FindRepoRoot();
+        var cssPath = Path.Combine(repoRoot, "ServiceDeskSystem", "wwwroot", "css", "ticket-status.css");
+        var appRazorPath = Path.Combine(repoRoot, "ServiceDeskSystem", "Components", "App.razor");
+
+        File.Exists(cssPath).Should().BeFalse(because: $"{cssPath} should have been deleted");
+        File.ReadAllText(appRazorPath).Should().NotContain("ticket-status.css");
     }
 
     private static string FindRepoRoot()

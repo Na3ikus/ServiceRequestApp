@@ -24,89 +24,11 @@ public abstract class BaseComponent : ComponentBase, IDisposable
 
     protected bool IsAdminOrDeveloper => this.AuthService.CurrentUser?.Role is UserRole.Admin or UserRole.Developer;
 
-    /// <summary>
-    /// Returns a Tailwind CSS gradient color pair based on a hash of the given name.
-    /// Used for deterministic, consistent avatar background colors per user.
-    /// </summary>
-    /// <param name="name">The user's login name or display name.</param>
-    /// <returns>A Tailwind gradient utility class string, e.g. "from-blue-500 to-indigo-600".</returns>
-    public static string GetAvatarGradient(string? name)
-    {
-        if (string.IsNullOrEmpty(name))
-        {
-            return "from-blue-500 to-purple-600";
-        }
-
-        var hash = Math.Abs(name.Aggregate(0, (acc, c) => (acc * 31) + c)) % 6;
-
-        return hash switch
-        {
-            0 => "from-blue-500 to-indigo-600",
-            1 => "from-emerald-500 to-teal-600",
-            2 => "from-violet-500 to-purple-600",
-            3 => "from-rose-500 to-pink-600",
-            4 => "from-amber-500 to-orange-600",
-            5 => "from-cyan-500 to-blue-600",
-            _ => "from-blue-500 to-purple-600",
-        };
-    }
-
     public void Dispose()
     {
         this.Dispose(true);
         GC.SuppressFinalize(this);
     }
-
-    protected static string GetStatusBadgeClass(TicketStatus status) => status switch
-    {
-        TicketStatus.New => "bg-purple-200 text-purple-900 dark:bg-purple-900 dark:text-purple-200 font-semibold",
-        TicketStatus.Open => "bg-blue-200 text-blue-900 dark:bg-blue-900 dark:text-blue-200 font-semibold",
-        TicketStatus.InProgress => "bg-yellow-200 text-yellow-900 dark:bg-yellow-900 dark:text-yellow-200 font-semibold",
-        TicketStatus.Resolved => "bg-green-200 text-green-900 dark:bg-green-900 dark:text-green-200 font-semibold",
-        TicketStatus.Closed => "bg-gray-200 text-gray-900 dark:bg-gray-700 dark:text-gray-200 font-semibold",
-        TicketStatus.Testing => "bg-cyan-200 text-cyan-900 dark:bg-cyan-900 dark:text-cyan-200 font-semibold",
-        TicketStatus.CodeReview => "bg-indigo-200 text-indigo-900 dark:bg-indigo-900 dark:text-indigo-200 font-semibold",
-        TicketStatus.Done => "bg-emerald-200 text-emerald-900 dark:bg-emerald-900 dark:text-emerald-200 font-semibold",
-        _ => "bg-gray-200 text-gray-900 dark:bg-gray-700 dark:text-gray-200 font-semibold",
-    };
-
-    protected static string GetPriorityBadgeClass(TicketPriority priority) => priority switch
-    {
-        TicketPriority.Critical => "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
-        TicketPriority.High => "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200",
-        TicketPriority.Medium => "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
-        TicketPriority.Low => "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
-        _ => "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200",
-    };
-
-    protected static string GetTicketTypeBadgeClass(TicketType type) => type switch
-    {
-        TicketType.Bug => "bg-red-100 text-red-800 dark:bg-red-950/60 dark:text-red-300 border border-red-200/60 dark:border-red-800/40",
-        TicketType.Support => "bg-blue-100 text-blue-800 dark:bg-blue-950/60 dark:text-blue-300 border border-blue-200/60 dark:border-blue-800/40",
-        TicketType.Consultation => "bg-purple-100 text-purple-800 dark:bg-purple-950/60 dark:text-purple-300 border border-purple-200/60 dark:border-purple-800/40",
-        TicketType.Project => "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-800/40",
-        _ => "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300 border border-gray-200 dark:border-gray-700",
-    };
-
-    protected static string GetPriorityColorClass(TicketPriority priority) => priority switch
-    {
-        TicketPriority.Critical => "bg-gradient-to-br from-red-500 to-rose-600",
-        TicketPriority.High => "bg-gradient-to-br from-orange-400 to-red-500",
-        TicketPriority.Medium => "bg-gradient-to-br from-amber-400 to-orange-500",
-        TicketPriority.Low => "bg-gradient-to-br from-green-400 to-emerald-500",
-        _ => "bg-gradient-to-br from-gray-400 to-gray-500",
-    };
-
-    protected static string GetStatusDotColor(TicketStatus status) => status switch
-    {
-        TicketStatus.Open => "bg-blue-500",
-        TicketStatus.InProgress => "bg-amber-500",
-        TicketStatus.Testing => "bg-cyan-500",
-        TicketStatus.CodeReview => "bg-indigo-500",
-        TicketStatus.Resolved => "bg-green-500",
-        TicketStatus.Closed => "bg-gray-500",
-        _ => "bg-purple-500",
-    };
 
     protected void ViewTicket(int id) => this.Navigation.NavigateTo($"/ticket/{id}");
 
