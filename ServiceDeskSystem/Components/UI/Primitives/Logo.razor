@@ -1,0 +1,17 @@
+@inject ILocalizationService L
+
+<span data-logo role="img" aria-label="@L.Translate("nav.serviceDesk")" class="inline-flex items-baseline font-mono font-medium leading-none @SizeClass(Size)">
+    <span aria-hidden="true" class="text-fg">sd</span><span aria-hidden="true" class="logo-cursor text-accent-ink">_</span>
+</span>
+
+@code {
+    [Parameter]
+    public LogoSize Size { get; set; } = LogoSize.Md;
+
+    private static string SizeClass(LogoSize size) => size switch
+    {
+        LogoSize.Md => "text-[20px]",
+        LogoSize.Lg => "text-[40px]",
+        _ => throw new ArgumentOutOfRangeException(nameof(size), size, null),
+    };
+}

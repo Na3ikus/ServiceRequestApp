@@ -97,6 +97,45 @@
     }
 }
 
+@layer components {
+    /* Form controls shared by Stage 2c auth screens and reused in Stage 3. */
+    .input-field {
+        @apply h-9 w-full rounded-md border border-line bg-surface px-3 text-[15px] text-fg placeholder:text-muted;
+    }
+
+    .input-field:focus {
+        @apply border-fg outline-none;
+    }
+
+    .input-field[aria-invalid="true"] {
+        @apply border-danger;
+    }
+
+    .btn-accent {
+        @apply h-9 rounded-md bg-accent px-4 text-on-accent font-medium text-[15px];
+    }
+
+    .btn-accent:hover {
+        @apply bg-accent/90;
+    }
+
+    .btn-accent:disabled {
+        @apply opacity-50 cursor-not-allowed;
+    }
+
+    .btn-accent:focus-visible {
+        @apply outline outline-2 outline-fg outline-offset-2;
+    }
+
+    .btn-ghost {
+        @apply h-8 rounded-md border border-line px-2 text-muted;
+    }
+
+    .btn-ghost:hover {
+        @apply text-fg bg-surface;
+    }
+}
+
 /* ============================================= */
 /* RICH TEXT EDITOR (QUILL)                      */
 /* ============================================= */

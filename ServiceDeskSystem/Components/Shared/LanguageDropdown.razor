@@ -4,20 +4,13 @@
 @implements IDisposable
 
 <div class="relative inline-block text-left" @onclick:stopPropagation="true">
-    <button type="button" 
+    <button type="button"
             @onclick="ToggleDropdown"
-            class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/60 text-xs sm:text-sm font-semibold shadow-xs transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-            aria-expanded="@isOpen"
-            aria-haspopup="true">
-        <!-- Globe Icon -->
-        <svg class="w-4 h-4 text-gray-500 dark:text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-        </svg>
-        <span>@GetCurrentLanguageDisplay()</span>
-        <!-- Dropdown chevron -->
-        <svg class="w-3.5 h-3.5 text-gray-400 transition-transform duration-200 @(isOpen ? "rotate-180" : "")" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-        </svg>
+            class="btn-ghost inline-flex items-center gap-1 font-mono text-[13px]"
+            aria-haspopup="menu"
+            aria-expanded="@(isOpen ? "true" : "false")">
+        <span>@L.CurrentLanguage</span>
+        <span aria-hidden="true">▾</span>
     </button>
 
     @if (isOpen)
@@ -25,24 +18,18 @@
         <!-- Backdrop for clicking outside -->
         <div class="fixed inset-0 z-40" @onclick="CloseDropdown"></div>
 
-        <div class="absolute right-0 mt-1.5 w-44 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-xl py-1 z-50 animate-in fade-in zoom-in-95 duration-100" role="menu">
+        <div class="absolute right-0 z-50 mt-1 w-40 rounded-lg border border-line bg-surface py-1" role="menu">
             @foreach (var lang in L.SupportedLanguages)
             {
                 var isSelected = lang.Code == L.CurrentLanguage;
                 <button type="button"
                         @onclick="@(() => SelectLanguage(lang.Code))"
                         role="menuitem"
-                        class="w-full flex items-center justify-between px-3.5 py-2 text-xs sm:text-sm font-medium transition-colors duration-150 @(isSelected ? "bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 font-semibold" : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/60")">
-                    <div class="flex items-center gap-2">
-                        <span class="font-bold text-[10px] px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 uppercase tracking-wider">@lang.Code</span>
-                        <span>@lang.NativeName</span>
-                    </div>
-                    @if (isSelected)
-                    {
-                        <svg class="w-4 h-4 text-blue-600 dark:text-blue-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
-                        </svg>
-                    }
+                        aria-current="@(isSelected ? "true" : "false")"
+                        class="flex h-8 w-full items-center gap-2 rounded-md px-2 text-left hover:bg-canvas">
+                    <span aria-hidden="true" class="w-3 font-mono text-[13px] text-accent-ink">@(isSelected ? "›" : "")</span>
+                    <span class="font-mono text-[13px] text-muted">@lang.Code</span>
+                    <span class="text-[13px] text-fg">@lang.NativeName</span>
                 </button>
             }
         </div>
@@ -81,12 +68,6 @@
             await JS.InvokeVoidAsync("localStorage.setItem", "settings.language", code);
         }
         catch { }
-    }
-
-    private string GetCurrentLanguageDisplay()
-    {
-        var current = L.SupportedLanguages.FirstOrDefault(l => l.Code == L.CurrentLanguage);
-        return current?.NativeName ?? L.CurrentLanguage.ToUpperInvariant();
     }
 
     public void Dispose()
