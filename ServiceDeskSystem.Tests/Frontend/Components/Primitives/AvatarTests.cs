@@ -25,6 +25,10 @@ public class AvatarTests
     [TestCase("", "?")]
     [TestCase("   ", "?")]
     [TestCase(null, "?")]
+    [TestCase("---", "?")]
+    [TestCase("...", "?")]
+    [TestCase("_", "?")]
+    [TestCase("Nazar\tHutsol", "NH")]
     public void Initials_cases(string? name, string expected)
     {
         Avatar.Initials(name).Should().Be(expected);

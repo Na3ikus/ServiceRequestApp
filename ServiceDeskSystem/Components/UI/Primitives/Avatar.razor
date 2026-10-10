@@ -24,7 +24,16 @@ else
             return "?";
         }
 
-        var parts = name.Split([' ', '.', '_', '-'], StringSplitOptions.RemoveEmptyEntries);
+        var parts = name
+            .Split(['.', '_', '-'])
+            .SelectMany(chunk => chunk.Split(default(char[]), StringSplitOptions.RemoveEmptyEntries))
+            .Where(part => part.Length > 0)
+            .ToArray();
+
+        if (parts.Length == 0)
+        {
+            return "?";
+        }
 
         if (parts.Length >= 2)
         {
@@ -39,8 +48,8 @@ else
 
     private static string SizeClass(AvatarSize size) => size switch
     {
-        AvatarSize.Sm => "h-6 w-6 text-[12px]",
-        AvatarSize.Md => "h-7 w-7 text-[12px]",
+        AvatarSize.Sm => "h-6 w-6 text-[13px]",
+        AvatarSize.Md => "h-7 w-7 text-[13px]",
         AvatarSize.Lg => "h-10 w-10 text-[13px]",
         _ => throw new ArgumentOutOfRangeException(nameof(size), size, null),
     };
