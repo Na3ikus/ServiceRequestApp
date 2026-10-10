@@ -103,4 +103,14 @@ public class WorkLogServiceTests
         result.Success.Should().BeFalse();
         _mockWorkLogRepo.Verify(r => r.CreateAsync(It.IsAny<WorkLog>()), Times.Never);
     }
+
+    [Test]
+    public async Task GetTotalTimeSpentForUserAsync_ReturnsRepositorySum()
+    {
+        _mockWorkLogRepo.Setup(r => r.GetTotalTimeSpentForUserAsync(5)).ReturnsAsync(135);
+
+        var total = await _workLogService.GetTotalTimeSpentForUserAsync(5);
+
+        total.Should().Be(135);
+    }
 }

@@ -69,7 +69,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
 
                     b.HasIndex("UploadedById");
 
-                    b.ToTable("Attachments", (string)null);
+                    b.ToTable("Attachments");
                 });
 
             modelBuilder.Entity("ServiceDeskSystem.Domain.Entities.AuditLog", b =>
@@ -111,7 +111,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                     b.HasIndex("EntityName", "EntityId")
                         .HasDatabaseName("IX_AuditLogs_EntityName_EntityId");
 
-                    b.ToTable("AuditLogs", (string)null);
+                    b.ToTable("AuditLogs");
                 });
 
             modelBuilder.Entity("ServiceDeskSystem.Domain.Entities.Comment", b =>
@@ -147,7 +147,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                     b.HasIndex("TicketId", "CreatedAt")
                         .HasDatabaseName("IX_Comments_TicketId_CreatedAt");
 
-                    b.ToTable("Comments", (string)null);
+                    b.ToTable("Comments");
 
                     b.HasData(
                         new
@@ -287,7 +287,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
 
                     b.HasIndex("PersonId");
 
-                    b.ToTable("ContactInfos", (string)null);
+                    b.ToTable("ContactInfos");
                 });
 
             modelBuilder.Entity("ServiceDeskSystem.Domain.Entities.ContactType", b =>
@@ -304,7 +304,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ContactTypes", (string)null);
+                    b.ToTable("ContactTypes");
 
                     b.HasData(
                         new
@@ -366,7 +366,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
 
                     b.HasIndex("RecipientUserId", "IsRead", "CreatedAt");
 
-                    b.ToTable("Notifications", (string)null);
+                    b.ToTable("Notifications");
                 });
 
             modelBuilder.Entity("ServiceDeskSystem.Domain.Entities.Person", b =>
@@ -393,7 +393,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("People", (string)null);
+                    b.ToTable("People");
 
                     b.HasData(
                         new
@@ -463,7 +463,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
 
                     b.HasIndex("TechStackId");
 
-                    b.ToTable("Products", (string)null);
+                    b.ToTable("Products");
 
                     b.HasData(
                         new
@@ -583,7 +583,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                         .IsUnique()
                         .HasDatabaseName("IX_SlaPolicies_Priority_ProductId");
 
-                    b.ToTable("SlaPolicies", (string)null);
+                    b.ToTable("SlaPolicies");
 
                     b.HasData(
                         new
@@ -669,7 +669,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("Tags", (string)null);
+                    b.ToTable("Tags");
 
                     b.HasData(
                         new
@@ -728,7 +728,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("TechStacks", (string)null);
+                    b.ToTable("TechStacks");
 
                     b.HasData(
                         new
@@ -885,7 +885,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                     b.HasIndex("Status", "ResponseDueAt")
                         .HasDatabaseName("IX_Tickets_Status_ResponseDueAt");
 
-                    b.ToTable("Tickets", (string)null);
+                    b.ToTable("Tickets");
 
                     b.HasData(
                         new
@@ -1106,6 +1106,43 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                         });
                 });
 
+            modelBuilder.Entity("ServiceDeskSystem.Domain.Entities.TicketStatusHistory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("ChangedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int?>("ChangedByUserId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("NewStatus")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("varchar(32)");
+
+                    b.Property<string>("OldStatus")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("varchar(32)");
+
+                    b.Property<int>("TicketId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TicketId");
+
+                    b.HasIndex("ChangedByUserId", "ChangedAt")
+                        .HasDatabaseName("IX_TicketStatusHistory_ChangedByUserId_ChangedAt");
+
+                    b.ToTable("TicketStatusHistory", (string)null);
+                });
+
             modelBuilder.Entity("ServiceDeskSystem.Domain.Entities.User", b =>
                 {
                     b.Property<int>("Id")
@@ -1140,7 +1177,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                     b.HasIndex("PersonId")
                         .IsUnique();
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users");
 
                     b.HasData(
                         new
@@ -1220,7 +1257,7 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("WorkLogs", (string)null);
+                    b.ToTable("WorkLogs");
                 });
 
             modelBuilder.Entity("TagTicket", b =>
@@ -1396,6 +1433,24 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                     b.Navigation("Product");
 
                     b.Navigation("SlaPolicy");
+                });
+
+            modelBuilder.Entity("ServiceDeskSystem.Domain.Entities.TicketStatusHistory", b =>
+                {
+                    b.HasOne("ServiceDeskSystem.Domain.Entities.User", "ChangedByUser")
+                        .WithMany()
+                        .HasForeignKey("ChangedByUserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("ServiceDeskSystem.Domain.Entities.Ticket", "Ticket")
+                        .WithMany()
+                        .HasForeignKey("TicketId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ChangedByUser");
+
+                    b.Navigation("Ticket");
                 });
 
             modelBuilder.Entity("ServiceDeskSystem.Domain.Entities.User", b =>

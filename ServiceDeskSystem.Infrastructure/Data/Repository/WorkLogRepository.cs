@@ -52,4 +52,15 @@ public sealed class WorkLogRepository : TemplateRepository<WorkLog>, IWorkLogRep
             .SumAsync(w => w.TimeSpentMinutes)
             .ConfigureAwait(false);
     }
+
+    public async Task<List<(DateTime DateLogged, int Minutes)>> GetEntriesByUserSinceAsync(int userId, DateTime since)
+    {
+        var rows = await this.DbSet
+            .Where(w => w.UserId == userId && w.DateLogged >= since)
+            .Select(w => new { w.DateLogged, w.TimeSpentMinutes })
+            .ToListAsync()
+            .ConfigureAwait(false);
+
+        return rows.Select(r => (r.DateLogged, r.TimeSpentMinutes)).ToList();
+    }
 }

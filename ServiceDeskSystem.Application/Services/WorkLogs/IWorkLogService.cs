@@ -8,5 +8,6 @@ public interface IWorkLogService
     Task<IEnumerable<WorkLog>> GetWorkLogsByTicketIdAsync(int ticketId);
     Task<IEnumerable<WorkLog>> GetWorkLogsByUserIdAsync(int userId);
     Task<int> GetTotalTimeSpentForTicketAsync(int ticketId);
+    Task<int> GetTotalTimeSpentForUserAsync(int userId);
     Task<(bool Success, string? ErrorMessage)> DeleteWorkLogAsync(int workLogId, int currentUserId);
 }

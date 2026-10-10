@@ -21,6 +21,15 @@ namespace ServiceDeskSystem.Infrastructure.Data.Repository
                 .FirstOrDefaultAsync(c => c.Id == id)
                 .ConfigureAwait(false);
         }
+
+        public async Task<List<DateTime>> GetCreatedTimesByAuthorAsync(int authorId, DateTime sinceUtc)
+        {
+            return await this.DbSet
+                .Where(c => c.AuthorId == authorId && c.CreatedAt >= sinceUtc)
+                .Select(c => c.CreatedAt)
+                .ToListAsync()
+                .ConfigureAwait(false);
+        }
     }
 }
 

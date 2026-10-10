@@ -9,4 +9,5 @@ public interface IWorkLogRepository : IRepository<WorkLog>
     Task<IEnumerable<WorkLog>> GetByUserIdAsync(int userId);
     Task<int> GetTotalTimeSpentForTicketAsync(int ticketId);
     Task<int> GetTotalTimeSpentForUserAsync(int userId);
+    Task<List<(DateTime DateLogged, int Minutes)>> GetEntriesByUserSinceAsync(int userId, DateTime since);
 }

@@ -21,6 +21,7 @@ namespace ServiceDeskSystem.Infrastructure.Data.Repository
         private readonly Lazy<WorkLogRepository> _workLogRepository;
         private readonly Lazy<AttachmentRepository> _attachmentRepository;
         private readonly Lazy<SlaPolicyRepository> _slaPolicyRepository;
+        private readonly Lazy<TicketStatusHistoryRepository> _ticketStatusHistoryRepository;
 
         public RepositoryFacade(IDbContextFactory<BugTrackerDbContext> contextFactory)
         {
@@ -40,6 +41,7 @@ namespace ServiceDeskSystem.Infrastructure.Data.Repository
             this._workLogRepository = new Lazy<WorkLogRepository>(() => new WorkLogRepository(this._context));
             this._attachmentRepository = new Lazy<AttachmentRepository>(() => new AttachmentRepository(this._context));
             this._slaPolicyRepository = new Lazy<SlaPolicyRepository>(() => new SlaPolicyRepository(this._context));
+            this._ticketStatusHistoryRepository = new Lazy<TicketStatusHistoryRepository>(() => new TicketStatusHistoryRepository(this._context));
             this.UnitOfWork = new ServiceDeskSystem.Infrastructure.Data.UnitOfWork(this._context);
         }
 
@@ -57,6 +59,7 @@ namespace ServiceDeskSystem.Infrastructure.Data.Repository
         public IWorkLogRepository WorkLogs => this._workLogRepository.Value;
         public IAttachmentRepository Attachments => this._attachmentRepository.Value;
         public ISlaPolicyRepository SlaPolicies => this._slaPolicyRepository.Value;
+        public ITicketStatusHistoryRepository TicketStatusHistory => this._ticketStatusHistoryRepository.Value;
         public IUnitOfWork UnitOfWork { get; }
 
         public async ValueTask DisposeAsync()

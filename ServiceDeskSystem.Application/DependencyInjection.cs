@@ -41,6 +41,7 @@ public static class DependencyInjection
         services.AddScoped<IAdminService, AdminService>();
         services.AddScoped<IAuditService, AuditService>();
         services.AddScoped<IProfileService, ProfileService>();
+        services.AddScoped<IUserActivityService, UserActivityService>();
         services.AddScoped<INotificationService, NotificationService>();
         services.AddScoped<ITagService, TagService>();
         services.AddScoped<ServiceDeskSystem.Application.Services.Sla.ISlaPolicyService, ServiceDeskSystem.Application.Services.Sla.SlaPolicyService>();

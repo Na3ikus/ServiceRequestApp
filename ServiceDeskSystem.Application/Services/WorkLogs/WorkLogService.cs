@@ -82,6 +82,12 @@ public class WorkLogService : IWorkLogService
         return await repo.WorkLogs.GetTotalTimeSpentForTicketAsync(ticketId).ConfigureAwait(false);
     }
 
+    public async Task<int> GetTotalTimeSpentForUserAsync(int userId)
+    {
+        await using var repo = this._repositoryFacadeFactory.Create();
+        return await repo.WorkLogs.GetTotalTimeSpentForUserAsync(userId).ConfigureAwait(false);
+    }
+
     public async Task<IEnumerable<WorkLog>> GetWorkLogsByTicketIdAsync(int ticketId)
     {
         await using var repo = this._repositoryFacadeFactory.Create();

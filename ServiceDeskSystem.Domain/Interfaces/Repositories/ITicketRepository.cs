@@ -19,6 +19,7 @@ public interface ITicketRepository : IRepository<Ticket>
     Task<int> GetCountByStatusAsync(TicketStatus status);
     Task<int> GetCountByPriorityAsync(TicketPriority priority);
     Task<int> GetCountByAuthorIdAsync(int authorId);
+    Task<List<DateTime>> GetCreatedTimesByAuthorAsync(int authorId, DateTime sinceUtc);
     Task<int> GetCountByDeveloperIdAsync(int developerId);
     Task<int> GetDeveloperInProgressCountAsync(int developerId);
     Task<int> GetDeveloperCompletedCountAsync(int developerId);
