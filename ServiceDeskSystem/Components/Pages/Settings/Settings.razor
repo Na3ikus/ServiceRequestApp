@@ -43,7 +43,7 @@
         <div class="flex items-center gap-3">
             <SegmentedControl Label="@L.Translate("settings.sidebar")" Options="SidebarOptions"
                               Value="@(Theme.IsSidebarCollapsed ? "compact" : "full")" ValueChanged="SetSidebarAsync" />
-            <kbd class="font-mono text-[12px] text-muted border border-line rounded px-1.5 py-px">Ctrl+B</kbd>
+            <Kbd>Ctrl+B</Kbd>
         </div>
     </SettingRow>
 
@@ -83,7 +83,7 @@
         <div class="flex items-center gap-3">
             <button type="button" class="font-mono text-[13px] text-fg border border-line rounded-md px-2.5 py-1 hover:bg-surface"
                     @onclick="ShowHotkeysHelpAsync">
-                @L.Translate("settings.showAll") <kbd class="font-mono text-[12px] text-muted border border-line rounded px-1.5 py-px ml-1">?</kbd>
+                @L.Translate("settings.showAll") <Kbd>?</Kbd>
             </button>
             <ToggleSwitch Label="@L.Translate("settings.keyboardShortcuts")" Value="@prefs.Shortcuts"
                           ValueChanged="@(on => SetAsync(PreferenceSchema.Shortcuts, Bool(on)))" />

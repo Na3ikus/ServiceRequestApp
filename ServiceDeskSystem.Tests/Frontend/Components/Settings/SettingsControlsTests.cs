@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using NUnit.Framework;
 using ServiceDeskSystem.Components.Pages.Settings.Controls;
+using ServiceDeskSystem.Components.UI.Primitives;
 
 namespace ServiceDeskSystem.Tests.Frontend.Components.Settings;
 
