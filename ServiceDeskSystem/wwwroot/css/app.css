@@ -1184,6 +1184,10 @@ table th,
   height: 20rem;
 }
 
+.h-9 {
+  height: 2.25rem;
+}
+
 .h-\[18px\] {
   height: 18px;
 }
@@ -3102,6 +3106,10 @@ table th,
 
 .text-13 {
   font-size: 0.8125rem;
+}
+
+.text-14 {
+  font-size: 0.875rem;
 }
 
 .text-15 {
