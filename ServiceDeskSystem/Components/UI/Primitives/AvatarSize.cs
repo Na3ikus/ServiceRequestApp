@@ -8,4 +8,5 @@ public enum AvatarSize
     Sm,
     Md,
     Lg,
+    Xl,
 }

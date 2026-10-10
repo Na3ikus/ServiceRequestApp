@@ -37,6 +37,7 @@ public class AvatarTests
     [TestCase(AvatarSize.Sm, "h-6")]
     [TestCase(AvatarSize.Md, "h-7")]
     [TestCase(AvatarSize.Lg, "h-10")]
+    [TestCase(AvatarSize.Xl, "h-16")]
     public void Size_classes(AvatarSize size, string expectedClass)
     {
         var cut = _host.Context.RenderComponent<Avatar>(p => p

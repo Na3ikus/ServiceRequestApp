@@ -95,6 +95,27 @@
         color: rgb(var(--accent));
         padding: 0;
     }
+
+    /* Terminal cursor: logo "sd_" and the home greeting. */
+    .cursor-blink {
+        animation: cursor-blink 1.2s step-end infinite;
+    }
+
+    @keyframes cursor-blink {
+        0%, 49.9% {
+            opacity: 1;
+        }
+
+        50%, 100% {
+            opacity: 0;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .cursor-blink {
+            animation: none;
+        }
+    }
 }
 
 @layer components {

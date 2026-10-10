@@ -127,5 +127,6 @@
   "statusAction.rejectCode": "Reject Code",
   "statusAction.closeTicket": "Close Ticket",
   "statusAction.reopenTicket": "Reopen Ticket",
-  "statusAction.closeDirectly": "Close Directly"
+  "statusAction.closeDirectly": "Close Directly",
+  "dashboard.ofTotal": "{0}% of all"
 }

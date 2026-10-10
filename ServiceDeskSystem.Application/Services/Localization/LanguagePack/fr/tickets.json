@@ -127,5 +127,6 @@
   "statusAction.rejectCode": "Rejeter le code",
   "statusAction.closeTicket": "Fermer le ticket",
   "statusAction.reopenTicket": "Rouvrir le ticket",
-  "statusAction.closeDirectly": "Fermer directement"
+  "statusAction.closeDirectly": "Fermer directement",
+  "dashboard.ofTotal": "{0}% du total"
 }

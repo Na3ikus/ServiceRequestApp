@@ -31,5 +31,12 @@
   "settings.resetDefaults": "скинути до типових",
   "settings.resetConfirmTitle": "Скинути налаштування?",
   "settings.resetConfirmText": "Вигляд, розкладка, налаштування заявок і сповіщень повернуться до типових. Мова не зміниться.",
-  "settings.resetConfirmButton": "Скинути"
+  "settings.resetConfirmButton": "Скинути",
+  "settings.section.appearance": "Вигляд",
+  "settings.section.layout": "Розкладка",
+  "settings.section.locale": "Мова та регіон",
+  "settings.section.tickets": "Заявки",
+  "settings.section.notifications": "Сповіщення",
+  "settings.section.keyboard": "Клавіатура",
+  "settings.section.system": "Система"
 }

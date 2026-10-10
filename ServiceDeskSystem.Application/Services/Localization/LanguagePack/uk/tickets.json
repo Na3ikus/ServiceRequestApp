@@ -127,5 +127,6 @@
   "statusAction.rejectCode": "Відхилити код",
   "statusAction.closeTicket": "Закрити заявку",
   "statusAction.reopenTicket": "Відкрити знову",
-  "statusAction.closeDirectly": "Примусово закрити"
+  "statusAction.closeDirectly": "Примусово закрити",
+  "dashboard.ofTotal": "{0}% від усіх"
 }

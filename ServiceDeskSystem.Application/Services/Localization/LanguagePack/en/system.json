@@ -69,5 +69,6 @@
   "markdown.italic": "Italic",
   "markdown.code": "Inline Code",
   "markdown.quote": "Quote Block",
-  "markdown.link": "Insert Link"
+  "markdown.link": "Insert Link",
+  "home.overview": "Overview"
 }

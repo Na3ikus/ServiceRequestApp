@@ -127,5 +127,6 @@
   "statusAction.rejectCode": "Code ablehnen",
   "statusAction.closeTicket": "Ticket schließen",
   "statusAction.reopenTicket": "Ticket wiedereröffnen",
-  "statusAction.closeDirectly": "Direkt schließen"
+  "statusAction.closeDirectly": "Direkt schließen",
+  "dashboard.ofTotal": "{0}% von allen"
 }

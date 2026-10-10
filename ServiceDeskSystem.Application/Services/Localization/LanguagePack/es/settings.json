@@ -31,5 +31,12 @@
   "settings.resetDefaults": "restablecer valores",
   "settings.resetConfirmTitle": "¿Restablecer la configuración?",
   "settings.resetConfirmText": "La apariencia, el diseño y las preferencias de tickets y notificaciones vuelven a sus valores predeterminados. El idioma no cambia.",
-  "settings.resetConfirmButton": "Restablecer"
+  "settings.resetConfirmButton": "Restablecer",
+  "settings.section.appearance": "Apariencia",
+  "settings.section.layout": "Diseño",
+  "settings.section.locale": "Idioma y región",
+  "settings.section.tickets": "Tickets",
+  "settings.section.notifications": "Notificaciones",
+  "settings.section.keyboard": "Teclado",
+  "settings.section.system": "Sistema"
 }

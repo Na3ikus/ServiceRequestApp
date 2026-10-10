@@ -109,12 +109,12 @@ public class HelperUsageTests
     }
 
     [Test]
-    public void Logo_cursor_uses_a_valid_step_timing()
+    public void Cursor_blink_uses_a_valid_step_timing()
     {
         // steps(1, jump-none) is invalid CSS and silently drops the whole animation.
-        var css = File.ReadAllText(Path.Combine(FindRepoRoot(), "ServiceDeskSystem", "Components", "UI", "Primitives", "Logo.razor.css"));
+        var css = File.ReadAllText(Path.Combine(FindRepoRoot(), "ServiceDeskSystem", "Styles", "input.css"));
 
-        css.Should().Contain("animation: logo-blink").And.NotContain("jump-none");
+        css.Should().Contain("animation: cursor-blink 1.2s step-end infinite").And.NotContain("jump-none");
     }
 
     private static bool IsNotExcluded(string file)

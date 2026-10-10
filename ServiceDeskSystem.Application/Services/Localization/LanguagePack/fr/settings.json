@@ -31,5 +31,12 @@
   "settings.resetDefaults": "réinitialiser",
   "settings.resetConfirmTitle": "Réinitialiser les paramètres ?",
   "settings.resetConfirmText": "L'apparence, la mise en page et les préférences de tickets et de notifications reprennent leurs valeurs par défaut. La langue ne change pas.",
-  "settings.resetConfirmButton": "Réinitialiser"
+  "settings.resetConfirmButton": "Réinitialiser",
+  "settings.section.appearance": "Apparence",
+  "settings.section.layout": "Mise en page",
+  "settings.section.locale": "Langue et région",
+  "settings.section.tickets": "Tickets",
+  "settings.section.notifications": "Notifications",
+  "settings.section.keyboard": "Clavier",
+  "settings.section.system": "Système"
 }

@@ -69,5 +69,6 @@
   "markdown.italic": "Kursiv",
   "markdown.code": "Inline-Code",
   "markdown.quote": "Zitatblock",
-  "markdown.link": "Link einfügen"
+  "markdown.link": "Link einfügen",
+  "home.overview": "Übersicht"
 }

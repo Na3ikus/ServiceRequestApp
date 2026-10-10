@@ -31,5 +31,12 @@
   "settings.resetDefaults": "auf Standard zurücksetzen",
   "settings.resetConfirmTitle": "Einstellungen zurücksetzen?",
   "settings.resetConfirmText": "Darstellung, Layout, Ticket- und Benachrichtigungseinstellungen werden zurückgesetzt. Die Sprache bleibt unverändert.",
-  "settings.resetConfirmButton": "Zurücksetzen"
+  "settings.resetConfirmButton": "Zurücksetzen",
+  "settings.section.appearance": "Darstellung",
+  "settings.section.layout": "Layout",
+  "settings.section.locale": "Sprache & Region",
+  "settings.section.tickets": "Tickets",
+  "settings.section.notifications": "Benachrichtigungen",
+  "settings.section.keyboard": "Tastatur",
+  "settings.section.system": "System"
 }
