@@ -1,0 +1,18 @@
+@using ServiceDeskSystem.Domain.Enums
+@inject ILocalizationService L
+
+<Tag Tone="TicketTones.For(Priority)">@L.Translate(PriorityKey(Priority))</Tag>
+
+@code {
+    [Parameter]
+    public TicketPriority Priority { get; set; }
+
+    private static string PriorityKey(TicketPriority priority) => priority switch
+    {
+        TicketPriority.Low => "priority.low",
+        TicketPriority.Medium => "priority.medium",
+        TicketPriority.High => "priority.high",
+        TicketPriority.Critical => "priority.critical",
+        _ => throw new ArgumentOutOfRangeException(nameof(priority), priority, null),
+    };
+}

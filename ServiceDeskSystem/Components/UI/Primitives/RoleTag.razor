@@ -1,0 +1,17 @@
+@using ServiceDeskSystem.Domain.Enums
+@inject ILocalizationService L
+
+<Tag Tone="Tone.Muted">@L.Translate(RoleKey(Role))</Tag>
+
+@code {
+    [Parameter]
+    public UserRole Role { get; set; }
+
+    private static string RoleKey(UserRole role) => role switch
+    {
+        UserRole.Admin => "admin.roleAdmin",
+        UserRole.Developer => "admin.roleDeveloper",
+        UserRole.User => "admin.roleUser",
+        _ => throw new ArgumentOutOfRangeException(nameof(role), role, null),
+    };
+}

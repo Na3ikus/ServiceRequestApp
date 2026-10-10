@@ -1,0 +1,18 @@
+@using ServiceDeskSystem.Domain.Enums
+@inject ILocalizationService L
+
+<Tag Tone="TicketTones.For(Type)">@L.Translate(TypeKey(Type))</Tag>
+
+@code {
+    [Parameter]
+    public TicketType Type { get; set; }
+
+    private static string TypeKey(TicketType type) => type switch
+    {
+        TicketType.Support => "ticketType.support",
+        TicketType.Bug => "ticketType.bug",
+        TicketType.Project => "ticketType.project",
+        TicketType.Consultation => "ticketType.consultation",
+        _ => throw new ArgumentOutOfRangeException(nameof(type), type, null),
+    };
+}

@@ -1,0 +1,32 @@
+<span data-tone="@ToneAttribute(Tone)" title="@Title" class="inline-flex items-center whitespace-nowrap font-mono text-[13px] leading-[1.45] border rounded-md px-[7px] py-px @ToneClass(Tone)">
+    @ChildContent
+</span>
+
+@code {
+    [Parameter]
+    public Tone Tone { get; set; } = Tone.Muted;
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter]
+    public string? Title { get; set; }
+
+    private static string ToneAttribute(Tone tone) => tone switch
+    {
+        Tone.Accent => "accent",
+        Tone.Danger => "danger",
+        Tone.Active => "active",
+        Tone.Muted => "muted",
+        _ => throw new ArgumentOutOfRangeException(nameof(tone), tone, null),
+    };
+
+    private static string ToneClass(Tone tone) => tone switch
+    {
+        Tone.Accent => "border-black bg-accent text-on-accent dark:border-accent dark:bg-transparent dark:text-accent",
+        Tone.Danger => "border-danger text-danger",
+        Tone.Active => "border-line text-fg",
+        Tone.Muted => "border-line text-muted",
+        _ => throw new ArgumentOutOfRangeException(nameof(tone), tone, null),
+    };
+}
