@@ -14,11 +14,7 @@
                 
                 <!-- Icon & Title Section -->
                 <div class="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
-                    <div class="w-10 h-10 rounded-full flex shrink-0 items-center justify-center shadow-sm @GetPriorityColorClass(ticket.Priority)">
-                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path>
-                        </svg>
-                    </div>
+                    <span class="w-14 shrink-0 font-mono text-[13px] text-muted">#@ticket.Id</span>
                     
                     <div class="flex-1 min-w-0">
                         <div class="flex items-center gap-2 mb-1">
@@ -30,16 +26,14 @@
                         <!-- Badges row -->
                         <div class="flex flex-wrap items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400">
                             <!-- Type Badge -->
-                            <span class="@GetTicketTypeBadgeClass(ticket.Type) px-2 py-0.5 text-xs font-semibold rounded shadow-xs shrink-0">
-                                @GetTicketTypeText(ticket.Type)
-                            </span>
+                            <TypeTag Type="ticket.Type" />
 
                             <!-- Status Badge -->
-                            <span class="flex items-center gap-1.5 px-2 py-0.5 text-xs font-semibold rounded bg-gray-50 dark:bg-gray-700 border border-gray-100 dark:border-gray-600 shadow-sm shrink-0">
-                                <span class="w-2 h-2 rounded-full @GetStatusDotColor(ticket.Status)"></span>
-                                @GetStatusText(ticket.Status)
-                            </span>
-                            
+                            <StatusTag Status="ticket.Status" />
+
+                            <!-- Priority Badge -->
+                            <PriorityTag Priority="ticket.Priority" />
+
                             @if (!ticket.IsPriorityAssessed && IsAdminOrDeveloper)
                             {
                                 <span class="flex items-center gap-1 px-2 py-0.5 rounded bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300 font-bold border border-amber-200 dark:border-amber-800 animate-pulse shrink-0">

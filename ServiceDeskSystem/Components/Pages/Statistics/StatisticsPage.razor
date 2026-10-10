@@ -378,11 +378,9 @@
                             <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
                                 @foreach (var item in ExtendedData.TypeDistributions)
                                 {
-                                    var badgeClass = GetTicketTypeBadgeClass(item.Type);
-                                    var typeName = GetTicketTypeText(item.Type);
                                     <div class="p-4 rounded-xl bg-gray-50/80 dark:bg-gray-900/50 border border-gray-200/60 dark:border-gray-700/50 flex flex-col justify-between">
                                         <div class="flex items-center justify-between mb-2">
-                                            <span class="px-2 py-0.5 rounded-md text-xs font-bold @badgeClass">@typeName</span>
+                                            <TypeTag Type="item.Type" />
                                             <span class="text-xs font-bold text-gray-500 dark:text-gray-400">@item.Percentage%</span>
                                         </div>
                                         <div>

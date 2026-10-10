@@ -73,16 +73,16 @@
                 <tbody>
                     @foreach (var user in filteredUsers!)
                     {
-                        var initials = GetInitials(user.Person.FirstName, user.Person.LastName);
-                        var avatarClass = GetAvatarClass(user.Role);
-
                         <tr class="atab-row">
                             <!-- Avatar + Name + Login -->
                             <td class="atab-td truncate">
                                 <div class="auser-info">
-                                    <div class="auser-avatar @avatarClass shrink-0">@initials</div>
+                                    <Avatar Name="@GetDisplayName(user)" Size="AvatarSize.Sm" />
                                     <div class="auser-details truncate">
-                                        <span class="auser-name truncate">@($"{user.Person.FirstName} {user.Person.LastName}")</span>
+                                        <div class="flex items-center gap-2">
+                                            <span class="auser-name truncate">@($"{user.Person.FirstName} {user.Person.LastName}")</span>
+                                            <RoleTag Role="user.Role" />
+                                        </div>
                                         <span class="auser-login truncate">@@@user.Login</span>
                                     </div>
                                 </div>

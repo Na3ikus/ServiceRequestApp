@@ -20,9 +20,7 @@
                 <span class="text-xs font-mono font-bold text-gray-400 dark:text-gray-500 flex-shrink-0">#@Ticket.Id</span>
                 
                 <!-- Ticket Type Badge -->
-                <span class="@GetTicketTypeBadgeClass(Ticket.Type) px-1.5 py-0.5 rounded text-[10px] font-bold flex-shrink-0">
-                    @GetTicketTypeText(Ticket.Type)
-                </span>
+                <TypeTag Type="Ticket.Type" />
 
                 @if (!Ticket.IsPriorityAssessed && IsAdminOrDeveloper)
                 {
@@ -32,9 +30,7 @@
                 }
             </div>
 
-            <span class="@GetPriorityBadgeClass(Ticket.Priority) px-2 py-0.5 rounded text-xs font-semibold flex-shrink-0">
-                @GetPriorityText(Ticket.Priority)
-            </span>
+            <PriorityTag Priority="Ticket.Priority" />
         </div>
 
         <!-- Title -->
@@ -67,9 +63,7 @@
     <div class="flex items-center justify-between gap-2 pt-2 border-t border-gray-100 dark:border-gray-700/40 mt-1">
         <!-- Author avatar -->
         <div class="flex items-center gap-1.5 min-w-0">
-            <div class="w-5 h-5 rounded-full bg-gradient-to-br from-gray-400 to-gray-600 flex items-center justify-center flex-shrink-0">
-                <span class="text-white text-[9px] font-bold">@(Ticket.Author?.Login?.Length > 0 ? Ticket.Author.Login.Substring(0, 1).ToUpper() : "?")</span>
-            </div>
+            <Avatar Name="@Ticket.Author?.Login" Size="AvatarSize.Sm" ShowTitle="true" />
             <span class="text-xs text-gray-500 dark:text-gray-400 truncate max-w-[80px]">@Ticket.Author?.Login</span>
         </div>
 
@@ -77,9 +71,7 @@
         @if (Ticket.Developer is not null)
         {
             <div class="flex items-center gap-1 min-w-0">
-                <div class="w-5 h-5 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center flex-shrink-0">
-                    <span class="text-white text-[9px] font-bold">@(Ticket.Developer.Login?.Length > 0 ? Ticket.Developer.Login.Substring(0, 1).ToUpper() : "?")</span>
-                </div>
+                <Avatar Name="@Ticket.Developer.Login" Size="AvatarSize.Sm" ShowTitle="true" />
                 <span class="text-xs font-semibold text-emerald-600 dark:text-emerald-400 truncate max-w-[80px]">@Ticket.Developer.Login</span>
             </div>
         }

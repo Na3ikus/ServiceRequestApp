@@ -101,30 +101,10 @@
                                     <svg class="w-3.5 h-3.5 text-blue-500 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"></path></svg>
                                     @Ticket.Id
                                 </span>
-                                <span class="@GetTicketTypeBadgeClass(Ticket.Type) px-3 py-1 rounded-full text-sm font-semibold whitespace-nowrap shadow-sm inline-flex items-center gap-1.5">
-                                    @if (Ticket.Type == TicketType.Bug)
-                                    {
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                                    }
-                                    else if (Ticket.Type == TicketType.Support)
-                                    {
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-                                    }
-                                    else if (Ticket.Type == TicketType.Consultation)
-                                    {
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
-                                    }
-                                    else
-                                    {
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
-                                    }
-                                    @GetTicketTypeText(Ticket.Type)
-                                </span>
-                                <span class="@GetStatusBadgeClass(Ticket.Status) px-3 py-1 rounded-full text-sm font-semibold whitespace-nowrap shadow-sm">
-                                    @GetStatusText(Ticket.Status)
-                                </span>
-                                <span class="@GetPriorityBadgeClass(Ticket.Priority) px-3 py-1 rounded-full text-sm font-semibold whitespace-nowrap shadow-sm hidden sm:inline-flex">
-                                    @GetPriorityText(Ticket.Priority)
+                                <TypeTag Type="Ticket.Type" />
+                                <StatusTag Status="Ticket.Status" />
+                                <span class="hidden sm:inline-flex">
+                                    <PriorityTag Priority="Ticket.Priority" />
                                 </span>
                                 @if (Ticket.Tags != null)
                                 {
@@ -153,9 +133,7 @@
                     
                     <div class="flex flex-wrap items-center gap-4 text-sm text-gray-600 dark:text-blue-100/90 bg-gray-50 dark:bg-black/20 p-3 rounded-xl border border-gray-100 dark:border-white/5 backdrop-blur-sm inline-flex shadow-sm dark:shadow-inner">
                         <div class="flex items-center gap-2">
-                            <div class="w-6 h-6 rounded-full bg-gradient-to-br @(GetAvatarGradient(Ticket.Author?.Login)) flex items-center justify-center text-white text-xs font-bold ring-2 ring-white dark:ring-white/20 shadow-sm">
-                                @(Ticket.Author?.Login?.Substring(0, 1).ToUpper() ?? "?")
-                            </div>
+                            <Avatar Name="@Ticket.Author?.Login" Size="AvatarSize.Sm" />
                             <span class="font-medium text-gray-800 dark:text-white">@Ticket.Author?.Login</span>
                         </div>
                         <div class="w-1.5 h-1.5 rounded-full bg-gray-300 dark:bg-blue-400/50"></div>
@@ -166,8 +144,8 @@
                             @Ticket.CreatedAt.ToString("MMM dd, yyyy HH:mm")
                         </span>
                         <div class="w-1.5 h-1.5 rounded-full bg-gray-300 dark:bg-blue-400/50 sm:hidden"></div>
-                        <span class="sm:hidden @GetPriorityBadgeClass(Ticket.Priority) px-2 py-0.5 rounded-md text-xs font-semibold shadow-sm">
-                            @GetPriorityText(Ticket.Priority)
+                        <span class="sm:hidden">
+                            <PriorityTag Priority="Ticket.Priority" />
                         </span>
                     </div>
                 </div>
@@ -326,18 +304,13 @@
 
                                     <div class="comment-surface @(comment.IsInternal ? "bg-amber-50/70 dark:bg-amber-950/20 border-amber-300 dark:border-amber-700/50 shadow-sm shadow-amber-500/5" : "bg-gray-50 dark:bg-gray-700/40 border-gray-100 dark:border-gray-700/50") rounded-xl p-3 sm:p-4 border transition-colors hover:border-blue-200 dark:hover:border-blue-800/50">
                                         <div class="flex flex-wrap items-center gap-2 mb-2">
-                                            <div class="w-6 h-6 bg-gradient-to-br @(comment.IsInternal ? "from-amber-500 to-orange-600" : "from-blue-500 to-purple-600") rounded-full flex items-center justify-center flex-shrink-0">
-                                                <span class="text-white text-[10px] font-bold">@(comment.Author?.Login?.Substring(0, 1).ToUpper() ?? "?")</span>
-                                            </div>
+                                            <Avatar Name="@comment.Author?.Login" Size="AvatarSize.Sm" />
                                             <span class="font-medium text-sm text-gray-800 dark:text-white">@comment.Author?.Login</span>
                                             <span class="text-xs text-gray-400 dark:text-gray-500">@comment.CreatedAt.ToString("MMM dd, yyyy HH:mm")</span>
 
                                             @if (comment.IsInternal)
                                             {
-                                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700/50">
-                                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-                                                    @L.Translate("details.internalNote")
-                                                </span>
+                                                <Tag Tone="Tone.Muted">@L.Translate("details.internalNote")</Tag>
                                             }
 
                                             @if (CanEditComment(comment) || CanDeleteComment(comment))
@@ -455,9 +428,7 @@
                     <div class="space-y-4 relative z-10">
                         <div class="flex items-center justify-between gap-4 p-2.5 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
                             <span class="text-sm font-medium text-gray-500 dark:text-gray-400">@L.Translate("details.type")</span>
-                            <span class="@GetTicketTypeBadgeClass(Ticket.Type) inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-semibold shadow-xs leading-5">
-                                @GetTicketTypeText(Ticket.Type)
-                            </span>
+                            <TypeTag Type="Ticket.Type" />
                         </div>
 
                         <div class="flex items-center justify-between gap-4 p-2.5 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
@@ -488,9 +459,7 @@
                                 }
                                 else
                                 {
-                                    <span class="ticket-priority-badge @GetPriorityBadgeClass(Ticket.Priority) inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-semibold shadow-sm leading-5">
-                                        @GetPriorityText(Ticket.Priority)
-                                    </span>
+                                    <PriorityTag Priority="Ticket.Priority" />
                                 }
                             </div>
                             @if (IsAdminOrDeveloper && (EditPriority != Ticket.Priority || !Ticket.IsPriorityAssessed))

@@ -106,9 +106,7 @@
                         <div class="py-3 flex flex-col sm:flex-row gap-3 items-start justify-between group">
                             <div class="flex-1">
                                 <div class="flex items-center gap-2 mb-1">
-                                    <div class="w-5 h-5 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 text-white text-[9px] font-bold flex items-center justify-center flex-shrink-0">
-                                        @(log.User?.Login?.Substring(0, 1).ToUpper() ?? "?")
-                                    </div>
+                                    <Avatar Name="@log.User?.Login" Size="AvatarSize.Sm" />
                                     <span class="font-medium text-sm text-gray-800 dark:text-gray-200">@log.User?.Login</span>
                                     <span class="text-[11px] text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700/50 px-2 py-0.5 rounded-full">
                                         @log.DateLogged.ToString("dd.MM.yyyy")

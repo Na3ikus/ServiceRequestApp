@@ -29,19 +29,12 @@ public partial class UsersTab : BaseComponent
 
     protected string SearchQuery { get; set; } = string.Empty;
 
-    protected static string GetInitials(string firstName, string lastName)
+    protected static string GetDisplayName(User user)
     {
-        var f = string.IsNullOrWhiteSpace(firstName) ? string.Empty : firstName[0].ToString().ToUpperInvariant();
-        var l = string.IsNullOrWhiteSpace(lastName) ? string.Empty : lastName[0].ToString().ToUpperInvariant();
-        return $"{f}{l}";
+        ArgumentNullException.ThrowIfNull(user);
+        var fullName = $"{user.Person.FirstName} {user.Person.LastName}".Trim();
+        return string.IsNullOrWhiteSpace(fullName) ? user.Login : fullName;
     }
-
-    protected static string GetAvatarClass(UserRole role) => role switch
-    {
-        UserRole.Admin => "avatar-admin",
-        UserRole.Developer => "avatar-dev",
-        _ => "avatar-user",
-    };
 
     protected static string GetRoleSelectClass(UserRole role) => role switch
     {

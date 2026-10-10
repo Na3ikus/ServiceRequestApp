@@ -138,27 +138,18 @@
                                             @(!ticket.IsPriorityAssessed && (currentUser.Role == UserRole.Admin || currentUser.Role == UserRole.Developer)
                                                 ? "border-dashed border-amber-400 bg-amber-50/20 dark:bg-amber-950/10 hover:border-amber-500" 
                                                 : "border-gray-100 dark:border-gray-700/50 bg-gray-50/50 dark:bg-gray-800/30 hover:bg-white dark:hover:bg-gray-700/50 hover:border-blue-200 dark:hover:border-blue-500/30")">
-                                    <div class="w-10 h-10 rounded-full flex shrink-0 items-center justify-center shadow-sm @GetPriorityColorClass(ticket.Priority)">
-                                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path>
-                                        </svg>
-                                    </div>
+                                    <span class="w-14 shrink-0 font-mono text-[13px] text-muted">#@ticket.Id</span>
                                     <div class="flex-1 min-w-0">
                                         <div class="flex items-center justify-between gap-2 mb-1">
                                             <p class="text-sm font-semibold text-gray-900 dark:text-white truncate group-hover/card:text-blue-600 dark:group-hover/card:text-blue-400 transition-colors">
                                                 @ticket.Title
                                             </p>
-                                            <span class="text-xs font-mono font-medium text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded-full whitespace-nowrap border border-gray-200 dark:border-gray-600">#@ticket.Id</span>
                                         </div>
                                         <div class="flex flex-wrap items-center gap-3 text-xs text-gray-500 dark:text-gray-400 font-medium">
-                                            <span class="@GetTicketTypeBadgeClass(ticket.Type) px-2 py-0.5 text-xs font-semibold rounded shadow-2xs shrink-0">
-                                                @GetTicketTypeText(ticket.Type)
-                                            </span>
-                                            <span class="flex items-center gap-1.5 px-2 py-0.5 rounded bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 shadow-sm shrink-0">
-                                                <span class="w-2 h-2 rounded-full @GetStatusDotColor(ticket.Status)"></span>
-                                                @GetStatusText(ticket.Status)
-                                            </span>
-                                            
+                                            <TypeTag Type="ticket.Type" />
+                                            <StatusTag Status="ticket.Status" />
+                                            <PriorityTag Priority="ticket.Priority" />
+
                                             @if (ticket.Tags != null && ticket.Tags.Count > 0)
                                             {
                                                 @foreach (var tag in ticket.Tags.Take(3))
