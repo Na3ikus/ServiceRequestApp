@@ -12,7 +12,7 @@
 
         @if (!string.IsNullOrEmpty(ErrorMessage))
         {
-            <div class="mb-4 rounded-md border border-danger px-3 py-2 text-[13px] text-danger" role="alert">
+            <div class="mb-4 rounded-md border border-danger px-3 py-2 text-13 text-danger" role="alert">
                 @ErrorMessage
             </div>
         }
@@ -20,18 +20,18 @@
         <div class="space-y-4">
             <!-- Username field -->
             <div>
-                <label for="username" class="mb-1 block text-[13px] text-muted">
+                <label for="username" class="mb-1 block text-13 text-muted">
                     @L.Translate("login.username")
                 </label>
                 <input id="username" type="text" @bind="loginModel.Username" @bind:event="oninput"
                        placeholder="@L.Translate("login.enterUsername")"
                        class="input-field" />
-                <ValidationMessage For="@(() => loginModel.Username)" class="mt-1 text-[13px] text-danger" />
+                <ValidationMessage For="@(() => loginModel.Username)" class="mt-1 text-13 text-danger" />
             </div>
 
             <!-- Password field -->
             <div>
-                <label for="password" class="mb-1 block text-[13px] text-muted">
+                <label for="password" class="mb-1 block text-13 text-muted">
                     @L.Translate("login.password")
                 </label>
                 <div class="relative">
@@ -63,9 +63,9 @@
                 </div>
                 @if (IsCapsLockOn)
                 {
-                    <p class="mt-1.5 text-[13px] text-muted"><Kbd>Caps Lock</Kbd> @L.Translate("auth.capsLock")</p>
+                    <p class="mt-1.5 text-13 text-muted"><Kbd>Caps Lock</Kbd> @L.Translate("auth.capsLock")</p>
                 }
-                <ValidationMessage For="@(() => loginModel.Password)" class="mt-1 text-[13px] text-danger" />
+                <ValidationMessage For="@(() => loginModel.Password)" class="mt-1 text-13 text-danger" />
             </div>
 
             <!-- Submit button -->
@@ -83,7 +83,7 @@
     </EditForm>
 
     <!-- Register Link -->
-    <p class="mt-4 text-center text-[13px] text-muted">
+    <p class="mt-4 text-center text-13 text-muted">
         @L.Translate("login.noAccount")
         <a href="/register" class="text-fg underline">
             @L.Translate("login.signUp")
@@ -95,23 +95,23 @@
     {
         <div class="mt-6 border-t border-line pt-4">
             <div class="mb-2 flex items-center justify-between">
-                <span class="font-mono text-[13px] text-muted"># demo</span>
+                <span class="font-mono text-13 text-muted"># demo</span>
                 <Tag Tone="Tone.Muted">@(Env.IsDevelopment() ? "Dev Mode" : "Demo")</Tag>
             </div>
 
             <div class="space-y-1">
                 <button type="button" @onclick='@(() => FillDemoAccount("admin", "admin123"))'
-                        class="btn-ghost flex h-8 w-full items-center justify-start gap-2 font-mono text-[13px]">
+                        class="btn-ghost flex h-8 w-full items-center justify-start gap-2 font-mono text-13">
                     <RoleTag Role="UserRole.Admin" /> <span>admin</span>
                 </button>
 
                 <button type="button" @onclick='@(() => FillDemoAccount("o.kovalenko", "dev123"))'
-                        class="btn-ghost flex h-8 w-full items-center justify-start gap-2 font-mono text-[13px]">
+                        class="btn-ghost flex h-8 w-full items-center justify-start gap-2 font-mono text-13">
                     <RoleTag Role="UserRole.Developer" /> <span>o.kovalenko</span>
                 </button>
 
                 <button type="button" @onclick='@(() => FillDemoAccount("m.shevchenko", "client123"))'
-                        class="btn-ghost flex h-8 w-full items-center justify-start gap-2 font-mono text-[13px]">
+                        class="btn-ghost flex h-8 w-full items-center justify-start gap-2 font-mono text-13">
                     <RoleTag Role="UserRole.User" /> <span>m.shevchenko</span>
                 </button>
             </div>

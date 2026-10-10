@@ -100,7 +100,7 @@
 @layer components {
     /* Form controls shared by Stage 2c auth screens and reused in Stage 3. */
     .input-field {
-        @apply h-9 w-full rounded-md border border-line bg-surface px-3 text-[15px] text-fg placeholder:text-muted;
+        @apply h-9 w-full rounded-md border border-line bg-surface px-3 text-15 text-fg placeholder:text-muted;
     }
 
     .input-field:focus {
@@ -112,7 +112,7 @@
     }
 
     .btn-accent {
-        @apply h-9 rounded-md bg-accent px-4 text-on-accent font-medium text-[15px];
+        @apply h-9 rounded-md bg-accent px-4 text-on-accent font-medium text-15;
     }
 
     .btn-accent:hover {

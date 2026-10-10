@@ -12,7 +12,7 @@
         @foreach (var menuSection in sections)
         {
             <section class="mb-4 last:mb-0">
-                <h2 class="mb-1 px-2 font-mono text-[13px] text-muted"># @menuSection.Title</h2>
+                <h2 class="mb-1 px-2 font-mono text-13 text-muted"># @menuSection.Title</h2>
                 <ul>
                     @foreach (var item in menuSection.Items)
                     {
@@ -20,7 +20,7 @@
                             <NavLink href="@item.Url"
                                      Match="@item.Match"
                                      ActiveClass="active"
-                                     class="group flex h-8 items-center rounded-md px-2 font-mono text-[13px] text-muted hover:bg-canvas hover:text-fg [&.active]:text-fg">
+                                     class="group flex h-8 items-center rounded-md px-2 font-mono text-13 text-muted hover:bg-canvas hover:text-fg [&.active]:text-fg">
                                 <span aria-hidden="true" class="invisible w-[1ch] flex-shrink-0 text-accent-ink group-[.active]:visible">›</span>
                                 <span class="ml-[1ch] truncate">@item.Title</span>
                             </NavLink>
@@ -32,6 +32,6 @@
     </div>
 
     <div class="flex-shrink-0 border-t border-line px-4 py-3">
-        <span class="text-[13px] text-muted">@L.Translate("common.footer")</span>
+        <span class="text-13 text-muted">@L.Translate("common.footer")</span>
     </div>
 </nav>

@@ -10,8 +10,8 @@
 
     private static string SizeClass(LogoSize size) => size switch
     {
-        LogoSize.Md => "text-[20px]",
-        LogoSize.Lg => "text-[40px]",
+        LogoSize.Md => "text-20",
+        LogoSize.Lg => "text-40",
         _ => throw new ArgumentOutOfRangeException(nameof(size), size, null),
     };
 }

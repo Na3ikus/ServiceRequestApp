@@ -34,8 +34,8 @@ public class LogoTests
         span.GetAttribute("aria-label").Should().Be("nav.serviceDesk");
     }
 
-    [TestCase(LogoSize.Md, "text-[20px]")]
-    [TestCase(LogoSize.Lg, "text-[40px]")]
+    [TestCase(LogoSize.Md, "text-20")]
+    [TestCase(LogoSize.Lg, "text-40")]
     public void Size_classes(LogoSize size, string expectedClass)
     {
         var cut = _host.Context.RenderComponent<Logo>(p => p.Add(x => x.Size, size));

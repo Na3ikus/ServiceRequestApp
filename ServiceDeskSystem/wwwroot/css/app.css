@@ -654,7 +654,7 @@ table th,
   background-color: rgb(var(--surface) / var(--tw-bg-opacity, 1));
   padding-left: 0.75rem;
   padding-right: 0.75rem;
-  font-size: 15px;
+  font-size: 0.9375rem;
   --tw-text-opacity: 1;
   color: rgb(var(--fg) / var(--tw-text-opacity, 1));
 }
@@ -688,7 +688,7 @@ table th,
   background-color: rgb(var(--accent) / var(--tw-bg-opacity, 1));
   padding-left: 1rem;
   padding-right: 1rem;
-  font-size: 15px;
+  font-size: 0.9375rem;
   font-weight: 500;
   --tw-text-opacity: 1;
   color: rgb(var(--on-accent) / var(--tw-text-opacity, 1));
@@ -1049,8 +1049,8 @@ table th,
   margin-top: 2rem;
 }
 
-.mt-\[7px\] {
-  margin-top: 7px;
+.mt-\[0\.4375rem\] {
+  margin-top: 0.4375rem;
 }
 
 .line-clamp-2 {
@@ -3096,6 +3096,22 @@ table th,
   font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
 }
 
+.text-12 {
+  font-size: 0.75rem;
+}
+
+.text-13 {
+  font-size: 0.8125rem;
+}
+
+.text-15 {
+  font-size: 0.9375rem;
+}
+
+.text-20 {
+  font-size: 1.25rem;
+}
+
 .text-2xl {
   font-size: 1.5rem;
   line-height: 2rem;
@@ -3106,32 +3122,16 @@ table th,
   line-height: 2.25rem;
 }
 
+.text-40 {
+  font-size: 2.5rem;
+}
+
 .text-\[10px\] {
   font-size: 10px;
 }
 
 .text-\[11px\] {
   font-size: 11px;
-}
-
-.text-\[12px\] {
-  font-size: 12px;
-}
-
-.text-\[13px\] {
-  font-size: 13px;
-}
-
-.text-\[15px\] {
-  font-size: 15px;
-}
-
-.text-\[20px\] {
-  font-size: 20px;
-}
-
-.text-\[40px\] {
-  font-size: 40px;
 }
 
 .text-base {

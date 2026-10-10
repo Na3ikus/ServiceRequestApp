@@ -1,5 +1,5 @@
 .logo-cursor {
-    animation: logo-blink 1.2s steps(1, jump-none) infinite;
+    animation: logo-blink 1.2s step-end infinite;
 }
 
 @keyframes logo-blink {

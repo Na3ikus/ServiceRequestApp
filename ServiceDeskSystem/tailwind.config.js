@@ -32,6 +32,14 @@ module.exports = {
                 'on-accent': token('on-accent'),
                 danger: token('danger'),
             },
+            // Type scale in rem so the interface-scale setting (html font-size %) resizes text.
+            fontSize: {
+                '12': '0.75rem',
+                '13': '0.8125rem',
+                '15': '0.9375rem',
+                '20': '1.25rem',
+                '40': '2.5rem',
+            },
             animation: {
                 'fade-in': 'fadeIn 0.3s ease-in-out',
                 'slide-up': 'slideUp 0.4s ease-out',

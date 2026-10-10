@@ -66,6 +66,34 @@ public class HelperUsageTests
         File.ReadAllText(appRazorPath).Should().NotContain("ticket-status.css");
     }
 
+    [Test]
+    public void Text_sizes_use_rem_tokens_not_pixels()
+    {
+        // text-[13px] ignores the interface-scale setting; use text-12/13/15/20/40 (rem) instead.
+        // 10px/11px on legacy pages are left for Stage 3.
+        var repoRoot = FindRepoRoot();
+        var componentsRoot = Path.Combine(repoRoot, "ServiceDeskSystem", "Components");
+        var inputCss = Path.Combine(repoRoot, "ServiceDeskSystem", "Styles", "input.css");
+        var pixelSize = new System.Text.RegularExpressions.Regex(@"text-\[(1[2-9]|[2-9]\d)px\]");
+
+        var violations = Directory.EnumerateFiles(componentsRoot, "*.razor", SearchOption.AllDirectories)
+            .Append(inputCss)
+            .Where(IsNotExcluded)
+            .SelectMany(file => pixelSize.Matches(File.ReadAllText(file)).Select(m => $"{file}: {m.Value}"))
+            .ToList();
+
+        violations.Should().BeEmpty(because: string.Join(Environment.NewLine, violations));
+    }
+
+    [Test]
+    public void Logo_cursor_uses_a_valid_step_timing()
+    {
+        // steps(1, jump-none) is invalid CSS and silently drops the whole animation.
+        var css = File.ReadAllText(Path.Combine(FindRepoRoot(), "ServiceDeskSystem", "Components", "UI", "Primitives", "Logo.razor.css"));
+
+        css.Should().Contain("animation: logo-blink").And.NotContain("jump-none");
+    }
+
     private static bool IsNotExcluded(string file)
     {
         var normalized = file.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);

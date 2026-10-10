@@ -48,9 +48,9 @@ else
 
     private static string SizeClass(AvatarSize size) => size switch
     {
-        AvatarSize.Sm => "h-6 w-6 text-[13px]",
-        AvatarSize.Md => "h-7 w-7 text-[13px]",
-        AvatarSize.Lg => "h-10 w-10 text-[13px]",
+        AvatarSize.Sm => "h-6 w-6 text-13",
+        AvatarSize.Md => "h-7 w-7 text-13",
+        AvatarSize.Lg => "h-10 w-10 text-13",
         _ => throw new ArgumentOutOfRangeException(nameof(size), size, null),
     };
 }

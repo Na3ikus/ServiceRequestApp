@@ -5,7 +5,7 @@
     @if (!authRestored)
     {
         <div class="relative z-10 flex h-screen items-center justify-center bg-canvas">
-            <div class="font-mono text-[13px] text-muted">@L.Translate("common.loading").ToLower(System.Globalization.CultureInfo.CurrentCulture)</div>
+            <div class="font-mono text-13 text-muted">@L.Translate("common.loading").ToLower(System.Globalization.CultureInfo.CurrentCulture)</div>
         </div>
     }
     else if (!AuthService.IsAuthenticated)
@@ -75,7 +75,7 @@
                                 </svg>
                                 @if (UnreadNotificationsCount > 0)
                                 {
-                                    <span class="absolute -right-1.5 -top-1.5 rounded bg-accent px-1 font-mono text-[12px] leading-4 text-on-accent">@UnreadNotificationsCount</span>
+                                    <span class="absolute -right-1.5 -top-1.5 rounded bg-accent px-1 font-mono text-12 leading-4 text-on-accent">@UnreadNotificationsCount</span>
                                 }
                             </button>
 
@@ -83,7 +83,7 @@
                             {
                                 <div class="absolute right-0 z-50 mt-1 w-[360px] max-w-[calc(100vw-1.5rem)] overflow-hidden rounded-lg border border-line bg-surface">
                                     <div class="flex items-center justify-between gap-2 border-b border-line px-3 py-2">
-                                        <span class="font-mono text-[13px] text-muted">
+                                        <span class="font-mono text-13 text-muted">
                                             # notifications
                                             @if (UnreadNotificationsCount > 0)
                                             {
@@ -93,7 +93,7 @@
                                         @if (UnreadNotificationsCount > 0)
                                         {
                                             <button type="button"
-                                                    class="text-[13px] text-muted hover:text-fg"
+                                                    class="text-13 text-muted hover:text-fg"
                                                     @onclick="MarkNotificationsAsReadAsync">
                                                 @L.Translate("notifications.markAllRead")
                                             </button>
@@ -110,18 +110,18 @@
                                             @foreach (var item in Notifications)
                                             {
                                                 <div class="flex items-start gap-2 border-b border-dashed border-line px-3 py-2 last:border-b-0">
-                                                    <span aria-hidden="true" class="mt-[7px] h-1.5 w-1.5 flex-shrink-0 rounded-full @(item.IsRead ? string.Empty : "bg-accent")"></span>
+                                                    <span aria-hidden="true" class="mt-[0.4375rem] h-1.5 w-1.5 flex-shrink-0 rounded-full @(item.IsRead ? string.Empty : "bg-accent")"></span>
                                                     <button type="button"
                                                             class="min-w-0 flex-1 text-left"
                                                             @onclick="() => OpenNotificationAsync(item)">
-                                                        <span class="flex items-center justify-between gap-2 font-mono text-[13px] text-muted">
+                                                        <span class="flex items-center justify-between gap-2 font-mono text-13 text-muted">
                                                             <span>#@item.TicketId</span>
                                                             <span class="whitespace-nowrap">@FormatNotificationTime(item.CreatedAt)</span>
                                                         </span>
-                                                        <span class="block break-words text-[13px] text-fg">@item.Message</span>
+                                                        <span class="block break-words text-13 text-fg">@item.Message</span>
                                                     </button>
                                                     <button type="button"
-                                                            class="flex-shrink-0 px-1 font-mono text-[13px] text-muted hover:text-danger"
+                                                            class="flex-shrink-0 px-1 font-mono text-13 text-muted hover:text-danger"
                                                             aria-label="@L.Translate("notifications.delete")"
                                                             @onclick="() => DeleteNotificationAsync(item.Id)">
                                                         ×
@@ -138,19 +138,19 @@
                             <summary class="header-dropdown-summary flex items-center gap-2 rounded-md px-1 hover:bg-surface"
                                      aria-label="@AuthService.CurrentUser?.Login">
                                 <Avatar Name="@AuthService.CurrentUser?.Login" Size="AvatarSize.Md" />
-                                <span class="hidden text-[13px] text-fg sm:inline">
+                                <span class="hidden text-13 text-fg sm:inline">
                                     @(AuthService.CurrentUser?.Person?.FirstName ?? AuthService.CurrentUser?.Login)
                                 </span>
                             </summary>
 
                             <div class="header-dropdown-menu absolute right-0 z-50 mt-1 w-48 rounded-lg border border-line bg-surface p-1">
                                 <NavLink href="profile"
-                                         class="flex h-8 w-full items-center rounded-md px-2 text-[13px] text-fg hover:bg-canvas">
+                                         class="flex h-8 w-full items-center rounded-md px-2 text-13 text-fg hover:bg-canvas">
                                     @L.Translate("profile.title")
                                 </NavLink>
                                 <button type="button"
                                         @onclick="HandleLogout"
-                                        class="flex h-8 w-full items-center rounded-md px-2 text-left text-[13px] text-fg hover:bg-canvas hover:text-danger">
+                                        class="flex h-8 w-full items-center rounded-md px-2 text-left text-13 text-fg hover:bg-canvas hover:text-danger">
                                     @L.Translate("common.logout")
                                 </button>
                             </div>

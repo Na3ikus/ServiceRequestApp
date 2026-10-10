@@ -6,7 +6,7 @@
 <div class="relative inline-block text-left" @onclick:stopPropagation="true">
     <button type="button"
             @onclick="ToggleDropdown"
-            class="btn-ghost inline-flex items-center gap-1 font-mono text-[13px]"
+            class="btn-ghost inline-flex items-center gap-1 font-mono text-13"
             aria-haspopup="menu"
             aria-expanded="@(isOpen ? "true" : "false")">
         <span>@L.CurrentLanguage</span>
@@ -27,9 +27,9 @@
                         role="menuitem"
                         aria-current="@(isSelected ? "true" : "false")"
                         class="flex h-8 w-full items-center gap-2 rounded-md px-2 text-left hover:bg-canvas">
-                    <span aria-hidden="true" class="w-3 font-mono text-[13px] text-accent-ink">@(isSelected ? "›" : "")</span>
-                    <span class="font-mono text-[13px] text-muted">@lang.Code</span>
-                    <span class="text-[13px] text-fg">@lang.NativeName</span>
+                    <span aria-hidden="true" class="w-3 font-mono text-13 text-accent-ink">@(isSelected ? "›" : "")</span>
+                    <span class="font-mono text-13 text-muted">@lang.Code</span>
+                    <span class="text-13 text-fg">@lang.NativeName</span>
                 </button>
             }
         </div>
