@@ -85,6 +85,29 @@ public class HelperUsageTests
         violations.Should().BeEmpty(because: string.Join(Environment.NewLine, violations));
     }
 
+    [TestCase("Shared/Modal.razor")]
+    [TestCase("Shared/HotkeysModal.razor")]
+    [TestCase("Shared/CommandPalette.razor")]
+    [TestCase("UI/Elements/ToastContainer.razor")]
+    public void Overlays_have_no_gradients_or_blur(string relativePath)
+    {
+        var path = Path.Combine(FindRepoRoot(), "ServiceDeskSystem", "Components", relativePath);
+
+        File.ReadAllText(path).Should()
+            .NotContain("bg-gradient").And
+            .NotContain("backdrop-blur").And
+            .NotContain("shadow-2xl").And
+            .NotContain("<svg");
+    }
+
+    [Test]
+    public void Breadcrumb_is_gone()
+    {
+        var path = Path.Combine(FindRepoRoot(), "ServiceDeskSystem", "Components", "Shared", "Breadcrumb.razor");
+
+        File.Exists(path).Should().BeFalse();
+    }
+
     [Test]
     public void Logo_cursor_uses_a_valid_step_timing()
     {

@@ -69,13 +69,6 @@
     else
     {
         <div class="space-y-6">
-            <Breadcrumb Items="@(new List<Breadcrumb.BreadcrumbItem>
-            {
-                new(L.Translate("nav.home"), "/"),
-                new(L.Translate("nav.allTickets"), "/tickets"),
-                new($"#{Ticket.Id} {Ticket.Title}")
-            })" />
-
             @if (!Ticket.IsPriorityAssessed && IsAdminOrDeveloper)
             {
                 <div class="bg-amber-50 dark:bg-amber-950/20 border border-amber-300 dark:border-amber-900/50 rounded-2xl p-4 sm:p-5 flex items-start gap-3 shadow-md animate-pulse">

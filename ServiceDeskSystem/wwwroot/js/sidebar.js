@@ -6,8 +6,12 @@ window.sidebarManager = {
             const tag = (event.target.tagName || '').toLowerCase();
             const isInput = tag === 'input' || tag === 'textarea' || tag === 'select' || event.target.isContentEditable;
 
-            // Application keyboard shortcuts (only when not typing)
+            // Application keyboard shortcuts (only when not typing and no dialog is open)
             if (isInput || event.ctrlKey || event.metaKey || event.altKey) {
+                return;
+            }
+
+            if (document.querySelector('[aria-modal="true"]')) {
                 return;
             }
 

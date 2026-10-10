@@ -97,6 +97,7 @@
         }
     }
 
+    // Esc is ignored while saving so the result of the save is not lost.
     private Task HandleKeyDown(KeyboardEventArgs e) =>
-        e.Key == "Escape" ? OnClose.InvokeAsync() : Task.CompletedTask;
+        e.Key == "Escape" && !IsSaving ? OnClose.InvokeAsync() : Task.CompletedTask;
 }

@@ -122,6 +122,21 @@ public class ModalTests
     }
 
     [Test]
+    public void EscapeIsIgnoredWhileSaving()
+    {
+        var closed = 0;
+
+        var cut = _host.Context.RenderComponent<Modal>(p => p
+            .Add(m => m.IsOpen, true)
+            .Add(m => m.IsSaving, true)
+            .Add(m => m.OnClose, EventCallback.Factory.Create(this, () => closed++)));
+
+        cut.Find(".amodal-overlay").KeyDown(key: "Escape");
+
+        closed.Should().Be(0);
+    }
+
+    [Test]
     public void ErrorIsAnnouncedAsAlert()
     {
         var cut = _host.Context.RenderComponent<Modal>(p => p
