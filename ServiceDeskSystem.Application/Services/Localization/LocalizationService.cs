@@ -85,7 +85,9 @@ public sealed class LocalizationService : ILocalizationService
                     var directoryPath = Path.Combine(basePath, lang);
                     if (Directory.Exists(directoryPath))
                     {
-                        var files = Directory.GetFiles(directoryPath, "*.json", SearchOption.AllDirectories);
+                        // Sorted so loading order (and therefore which file wins) is deterministic.
+                        var files = Directory.GetFiles(directoryPath, "*.json", SearchOption.AllDirectories)
+                            .OrderBy(f => f, StringComparer.Ordinal);
 
                         foreach (var filePath in files)
                         {
