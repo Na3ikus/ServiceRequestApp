@@ -241,7 +241,7 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
                 this.L.SetLanguage(savedLang);
             }
 
-            await this.JS.InvokeVoidAsync("themeManager.restoreAllVisualSettings");
+            await this.JS.InvokeVoidAsync("prefs.applyAll");
         }
         catch
         {

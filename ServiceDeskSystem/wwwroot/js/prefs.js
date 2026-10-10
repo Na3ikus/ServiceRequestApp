@@ -85,12 +85,171 @@
         storage.setItem(MIGRATED_KEY, '1');
     }
 
-    const api = { SCHEMA, OBSOLETE_KEYS, normalize, migrate };
+    // ---- Runtime (browser). DOM/storage are looked up at call time so the
+    // pure functions above stay loadable under Node.
+
+    const DARK_QUERY = '(prefers-color-scheme: dark)';
+    const MOTION_QUERY = '(prefers-reduced-motion: reduce)';
+    const THEME_TRANSITION_MS = 220;
+
+    let transitionTimer = null;
+    let systemThemeListener = null;
+
+    function root() {
+        return globalThis.document.documentElement;
+    }
+
+    function read(key) {
+        try {
+            return globalThis.localStorage.getItem(key);
+        } catch (e) {
+            return null;
+        }
+    }
+
+    function osMatches(query) {
+        return typeof globalThis.matchMedia === 'function' && globalThis.matchMedia(query).matches;
+    }
+
+    function get(name) {
+        const e = entry(name);
+        const raw = read(e.key);
+        if (name === 'reducedMotion' && raw === null) {
+            return osMatches(MOTION_QUERY) ? 'true' : 'false';
+        }
+        return normalize(name, raw);
+    }
+
+    function getAll() {
+        const all = {};
+        for (const name of Object.keys(SCHEMA)) all[name] = get(name);
+        return all;
+    }
+
+    function resolveTheme() {
+        const theme = get('theme');
+        if (theme === 'system') return osMatches(DARK_QUERY) ? 'dark' : 'light';
+        return theme;
+    }
+
+    function apply(name, value) {
+        const html = root();
+        switch (name) {
+            case 'theme':
+                html.classList.toggle('dark', resolveTheme() === 'dark');
+                break;
+            case 'accent':
+                html.setAttribute('data-accent', value);
+                break;
+            case 'scale':
+                html.style.fontSize = value + '%';
+                break;
+            case 'contrast':
+                html.setAttribute('data-contrast', value);
+                break;
+            case 'reducedMotion':
+                html.setAttribute('data-motion', value === 'true' ? 'reduced' : 'full');
+                break;
+            case 'density':
+                html.setAttribute('data-density', value);
+                break;
+            case 'contentWidth':
+                html.setAttribute('data-content-width', value);
+                break;
+            case 'toastPosition':
+                html.setAttribute('data-notif-position', value);
+                break;
+            default:
+                break; // no DOM effect
+        }
+    }
+
+    function applyAll() {
+        for (const name of Object.keys(SCHEMA)) apply(name, get(name));
+    }
+
+    // Smooth color transition for explicit theme switches only (not on load).
+    function startThemeTransition() {
+        const html = root();
+        if (transitionTimer) clearTimeout(transitionTimer);
+        html.classList.add('theme-transitioning');
+        transitionTimer = setTimeout(() => {
+            html.classList.remove('theme-transitioning');
+            transitionTimer = null;
+        }, THEME_TRANSITION_MS);
+    }
+
+    function set(name, value) {
+        const e = entry(name);
+        if (!e.values.includes(value)) return false;
+        try {
+            globalThis.localStorage.setItem(e.key, value);
+        } catch (err) {
+            // Storage unavailable: still apply for this page view.
+        }
+        if (name === 'theme') startThemeTransition();
+        apply(name, value);
+        return true;
+    }
+
+    function reset() {
+        for (const name of Object.keys(SCHEMA)) {
+            try {
+                globalThis.localStorage.removeItem(SCHEMA[name].key);
+            } catch (e) {
+                // Ignore storage errors.
+            }
+        }
+        applyAll();
+    }
+
+    function onSystemThemeChange(dotNetRef) {
+        systemThemeListener = dotNetRef;
+    }
+
+    function init() {
+        try {
+            migrate(globalThis.localStorage);
+        } catch (e) {
+            // Storage unavailable: defaults still apply below.
+        }
+        applyAll();
+
+        if (typeof globalThis.matchMedia !== 'function') return;
+
+        globalThis.matchMedia(DARK_QUERY).addEventListener('change', (ev) => {
+            if (get('theme') !== 'system') return;
+            apply('theme', 'system');
+            if (systemThemeListener) {
+                systemThemeListener.invokeMethodAsync('OnSystemThemeChanged', !!ev.matches);
+            }
+        });
+        globalThis.matchMedia(MOTION_QUERY).addEventListener('change', () => {
+            if (read(SCHEMA.reducedMotion.key) !== null) return;
+            apply('reducedMotion', get('reducedMotion'));
+        });
+    }
+
+    const api = {
+        SCHEMA,
+        OBSOLETE_KEYS,
+        normalize,
+        migrate,
+        init,
+        get,
+        getAll,
+        set,
+        reset,
+        applyAll,
+        resolveTheme,
+        onSystemThemeChange,
+    };
 
     if (typeof module !== 'undefined' && module.exports) {
         module.exports = api;
     }
     if (typeof window !== 'undefined') {
         window.prefs = api;
+        init();
     }
 })();

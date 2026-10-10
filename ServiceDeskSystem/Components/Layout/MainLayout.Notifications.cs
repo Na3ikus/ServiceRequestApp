@@ -164,10 +164,11 @@ public partial class MainLayout
             if (this.UnreadNotificationsCount > previousUnread)
             {
                 this.StartNotificationPulse();
-                await this.PlayNotificationSoundAsync();
+
+                var newest = this.notifications.FirstOrDefault();
+                await this.NotifyNewAsync(newest);
 
                 // Show visual toast notification for the newest received notification
-                var newest = this.notifications.FirstOrDefault();
                 if (newest != null)
                 {
                     await this.ToastService.ShowToastAsync(newest.Message, ToastType.Info);
@@ -275,11 +276,15 @@ public partial class MainLayout
         }
     }
 
-    private async Task PlayNotificationSoundAsync()
+    private async Task NotifyNewAsync(UserNotificationDto? newest)
     {
+        var title = newest != null ? $"ServiceDesk #{newest.TicketId}" : "ServiceDesk";
+        var body = newest?.Message ?? string.Empty;
+
         try
         {
-            await this.JS.InvokeVoidAsync("notificationManager.playNewNotificationSound");
+            // Sound and desktop notification are gated by user preferences in prefs.js.
+            await this.JS.InvokeVoidAsync("notificationManager.notifyNew", title, body);
         }
         catch
         {

@@ -12,6 +12,82 @@ function memoryStorage(initial = {}) {
     };
 }
 
+function fakeBrowser({ storage = {}, osDark = false, osReducedMotion = false } = {}) {
+    const classes = new Set();
+    const attrs = new Map();
+    const root = {
+        classList: {
+            add: (c) => classes.add(c),
+            remove: (c) => classes.delete(c),
+            toggle: (c, force) => (force ? classes.add(c) : classes.delete(c)),
+            contains: (c) => classes.has(c),
+        },
+        setAttribute: (n, v) => attrs.set(n, String(v)),
+        getAttribute: (n) => (attrs.has(n) ? attrs.get(n) : null),
+        removeAttribute: (n) => attrs.delete(n),
+        style: {},
+    };
+    const queries = {
+        '(prefers-color-scheme: dark)': { matches: osDark, listeners: [] },
+        '(prefers-reduced-motion: reduce)': { matches: osReducedMotion, listeners: [] },
+    };
+    const local = memoryStorage(storage);
+    globalThis.document = { documentElement: root };
+    globalThis.localStorage = local;
+    globalThis.matchMedia = (q) => {
+        const mq = queries[q];
+        return {
+            get matches() { return mq.matches; },
+            addEventListener: (_type, fn) => mq.listeners.push(fn),
+        };
+    };
+    return {
+        root,
+        classes,
+        storage: local,
+        setOsDark(value) {
+            const mq = queries['(prefers-color-scheme: dark)'];
+            mq.matches = value;
+            mq.listeners.forEach((fn) => fn({ matches: value }));
+        },
+    };
+}
+
+test('set rejects invalid value without writing', () => {
+    const b = fakeBrowser();
+    prefs.init();
+    const before = b.storage.snapshot();
+    assert.equal(prefs.set('density', 'huge'), false);
+    assert.deepEqual(b.storage.snapshot(), before);
+});
+
+test('set applies attribute', () => {
+    const b = fakeBrowser();
+    prefs.init();
+    assert.equal(prefs.set('density', 'compact'), true);
+    assert.equal(b.root.getAttribute('data-density'), 'compact');
+    assert.equal(b.storage.getItem('settings.tableDensity'), 'compact');
+});
+
+test('theme system follows OS', () => {
+    const b = fakeBrowser({ storage: { theme: 'system' }, osDark: true });
+    prefs.init();
+    assert.equal(b.classes.has('dark'), true);
+    b.setOsDark(false);
+    assert.equal(b.classes.has('dark'), false);
+});
+
+test('reset restores defaults', () => {
+    const b = fakeBrowser();
+    prefs.init();
+    prefs.set('accent', 'amber');
+    assert.equal(b.root.getAttribute('data-accent'), 'amber');
+    prefs.reset();
+    assert.equal(prefs.get('accent'), 'lime');
+    assert.equal(b.root.getAttribute('data-accent'), 'lime');
+    assert.equal(b.storage.getItem('settings.accentColor'), null);
+});
+
 test('normalize returns allowed value', () => {
     assert.equal(prefs.normalize('accent', 'amber'), 'amber');
 });

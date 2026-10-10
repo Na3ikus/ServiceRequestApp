@@ -45,6 +45,41 @@ window.notificationManager = {
         window.__languageOutsideClickHandler = null;
     },
 
+    notifyNew: async function (title, body) {
+        if (window.prefs.get('sound') === 'true') {
+            await this.playNewNotificationSound();
+        }
+
+        if (window.prefs.get('desktopNotifications') === 'true'
+            && 'Notification' in window
+            && Notification.permission === 'granted'
+            && document.hidden) {
+            try {
+                new Notification(title, { body: body });
+            }
+            catch {
+                // Some browsers only allow notifications from a service worker.
+            }
+        }
+    },
+
+    requestDesktopPermission: async function () {
+        if (!('Notification' in window)) {
+            return 'denied';
+        }
+
+        if (Notification.permission !== 'default') {
+            return Notification.permission;
+        }
+
+        try {
+            return await Notification.requestPermission();
+        }
+        catch {
+            return 'denied';
+        }
+    },
+
     playNewNotificationSound: async function () {
         try {
             const AudioContextType = window.AudioContext || window.webkitAudioContext;

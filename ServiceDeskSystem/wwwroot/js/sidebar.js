@@ -88,45 +88,6 @@ window.sidebarManager = {
     }
 };
 
-// Initialize visual settings from localStorage on page load
-(function () {
-    var accent = localStorage.getItem('settings.accentColor');
-    if (accent && accent !== 'blue') {
-        document.documentElement.setAttribute('data-accent', accent);
-    }
-
-    var density = localStorage.getItem('settings.tableDensity');
-    if (density) {
-        document.documentElement.setAttribute('data-density', density);
-    }
-
-    var cardStyle = localStorage.getItem('settings.cardStyle');
-    if (cardStyle) {
-        document.documentElement.setAttribute('data-card-style', cardStyle);
-    } else {
-        document.documentElement.setAttribute('data-card-style', 'elevated');
-    }
-
-    var hoverStyle = localStorage.getItem('settings.hoverStyle');
-    if (hoverStyle) {
-        document.documentElement.setAttribute('data-hover-style', hoverStyle);
-    }
-
-    var bgTexture = localStorage.getItem('settings.bgTexture');
-    if (bgTexture && bgTexture !== 'clean') {
-        document.documentElement.setAttribute('data-bg-texture', bgTexture);
-    }
-
-    // Apply font size setting on every page load
-    var fontSize = localStorage.getItem('settings.fontSize');
-    if (fontSize) {
-        var pct = parseInt(fontSize, 10);
-        if (!isNaN(pct) && pct >= 85 && pct <= 115) {
-            document.documentElement.style.fontSize = pct + '%';
-        }
-    }
-})();
-
 // Close header dropdown details when clicking outside
 document.addEventListener('click', function (event) {
     var details = document.querySelectorAll('details.header-dropdown');
