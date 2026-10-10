@@ -1,0 +1,47 @@
+@if (ShowTitle)
+{
+    <span data-avatar title="@Name" role="img" aria-label="@Name" class="inline-flex shrink-0 items-center justify-center rounded-md border border-line bg-surface font-mono font-medium text-fg @SizeClass(Size)">@Initials(Name)</span>
+}
+else
+{
+    <span data-avatar aria-hidden="true" class="inline-flex shrink-0 items-center justify-center rounded-md border border-line bg-surface font-mono font-medium text-fg @SizeClass(Size)">@Initials(Name)</span>
+}
+
+@code {
+    [Parameter]
+    public string? Name { get; set; }
+
+    [Parameter]
+    public AvatarSize Size { get; set; } = AvatarSize.Md;
+
+    [Parameter]
+    public bool ShowTitle { get; set; }
+
+    public static string Initials(string? name)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            return "?";
+        }
+
+        var parts = name.Split([' ', '.', '_', '-'], StringSplitOptions.RemoveEmptyEntries);
+
+        if (parts.Length >= 2)
+        {
+            return (parts[0][0].ToString() + parts[1][0]).ToUpperInvariant();
+        }
+
+        var single = parts[0];
+        return single.Length >= 2
+            ? single[..2].ToUpperInvariant()
+            : single[..1].ToUpperInvariant();
+    }
+
+    private static string SizeClass(AvatarSize size) => size switch
+    {
+        AvatarSize.Sm => "h-6 w-6 text-[12px]",
+        AvatarSize.Md => "h-7 w-7 text-[12px]",
+        AvatarSize.Lg => "h-10 w-10 text-[13px]",
+        _ => throw new ArgumentOutOfRangeException(nameof(size), size, null),
+    };
+}
