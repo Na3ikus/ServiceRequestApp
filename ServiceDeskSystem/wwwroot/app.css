@@ -795,11 +795,12 @@ select {
 
 .toast {
     pointer-events: auto;
-    padding: 1rem 1.5rem;
-    border-radius: 0.75rem;
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    padding: 0.625rem 0.875rem;
+    border: 1px solid rgb(var(--line));
+    border-radius: 8px;
+    background: rgb(var(--surface));
     display: flex;
-    align-items: center;
+    align-items: baseline;
     gap: 0.75rem;
     min-width: 300px;
     max-width: 400px;
@@ -833,69 +834,36 @@ select {
     animation: slideOutRight 0.3s ease-in forwards;
 }
 
-.toast-success {
-    background-color: #10b981;
-    color: #1a1a1a;
-}
-
-.dark .toast-success {
-    background-color: #059669;
-    color: #fff;
-}
-
-.toast-error {
-    background-color: #ef4444;
-    color: #1a1a1a;
-}
-
-.dark .toast-error {
-    background-color: #dc2626;
-    color: #fff;
-}
-
-.toast-warning {
-    background-color: #f59e0b;
-    color: #1a1a1a;
-}
-
-.dark .toast-warning {
-    background-color: #d97706;
-    color: #fff;
-}
-
-.toast-info {
-    background-color: #3b82f6;
-    color: #1a1a1a;
-}
-
-.dark .toast-info {
-    background-color: #2563eb;
-    color: #fff;
-}
-
-.toast-icon {
+.toast-label {
     flex-shrink: 0;
-    width: 1.5rem;
-    height: 1.5rem;
+    font-family: "Geist Mono", ui-monospace, monospace;
+    font-size: 0.8125rem;
 }
+
+.toast-success .toast-label { color: rgb(var(--accent-ink)); }
+.toast-error .toast-label,
+.toast-warning .toast-label { color: rgb(var(--danger)); }
+.toast-info .toast-label { color: rgb(var(--muted)); }
 
 .toast-message {
     flex: 1;
-    font-size: 0.875rem;
-    font-weight: 500;
+    font-size: 0.8125rem;
+    color: rgb(var(--fg));
 }
 
 .toast-close {
     flex-shrink: 0;
-    width: 1.25rem;
-    height: 1.25rem;
+    border: 0;
+    background: transparent;
+    color: rgb(var(--muted));
+    font-family: "Geist Mono", ui-monospace, monospace;
+    font-size: 0.9375rem;
+    line-height: 1;
     cursor: pointer;
-    opacity: 0.8;
-    transition: opacity 0.2s;
 }
 
 .toast-close:hover {
-    opacity: 1;
+    color: rgb(var(--fg));
 }
 
 h1:focus,
@@ -1038,61 +1006,6 @@ h3[tabindex] {
     color: var(--bs-secondary-color);
     text-align: end;
 }
-.toast-error {
-    background-color: #ef4444;
-    color: #1a1a1a;
-}
-
-.dark .toast-error {
-    background-color: #dc2626;
-    color: #fff;
-}
-
-.toast-warning {
-    background-color: #f59e0b;
-    color: #1a1a1a;
-}
-
-.dark .toast-warning {
-    background-color: #d97706;
-    color: #fff;
-}
-
-.toast-info {
-    background-color: #3b82f6;
-    color: #1a1a1a;
-}
-
-.dark .toast-info {
-    background-color: #2563eb;
-    color: #fff;
-}
-
-.toast-icon {
-    flex-shrink: 0;
-    width: 1.5rem;
-    height: 1.5rem;
-}
-
-.toast-message {
-    flex: 1;
-    font-size: 0.875rem;
-    font-weight: 500;
-}
-
-.toast-close {
-    flex-shrink: 0;
-    width: 1.25rem;
-    height: 1.25rem;
-    cursor: pointer;
-    opacity: 0.8;
-    transition: opacity 0.2s;
-}
-
-.toast-close:hover {
-    opacity: 1;
-}
-
 h1:focus,
 h2:focus,
 h3:focus,
@@ -1695,44 +1608,27 @@ h3[tabindex] {
 /* =============================================
    ADMIN MODALS — shared (amodal-*)
    ============================================= */
-.amodal-overlay { position: fixed; inset: 0; z-index: 100; background: rgb(0 0 0 / 0.45); backdrop-filter: blur(3px); display: flex; align-items: center; justify-content: center; padding: 1rem; }
-.amodal-box { position: relative; background: #fff; border-radius: 1.25rem; box-shadow: 0 25px 60px rgb(0 0 0 / 0.2); width: 100%; max-width: 520px; padding: 0; overflow: hidden; border: 1px solid rgb(226 232 240); }
-.dark .amodal-box { background: rgb(15 23 42); border-color: rgb(51 65 85); }
-.amodal-close { position: absolute; top: 1rem; right: 1rem; z-index: 2; width: 2rem; height: 2rem; border: 0; background: rgb(241 245 249); border-radius: 0.5rem; color: rgb(100 116 139); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 140ms ease; }
-.amodal-close:hover { background: rgb(226 232 240); color: rgb(30 41 59); }
-.dark .amodal-close { background: rgb(30 41 59); color: rgb(148 163 184); }
-.amodal-close svg { width: 1rem; height: 1rem; }
-.amodal-header { display: flex; align-items: center; gap: 0.85rem; padding: 1.25rem 1.5rem 0; }
-.amodal-header-icon { width: 2.75rem; height: 2.75rem; border-radius: 0.75rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.amodal-header-icon.blue   { background: rgb(239 246 255); color: rgb(37 99 235); }
-.amodal-header-icon.purple { background: rgb(245 243 255); color: rgb(109 40 217); }
-.dark .amodal-header-icon.blue   { background: rgb(37 99 235 / 0.18); color: rgb(147 197 253); }
-.dark .amodal-header-icon.purple { background: rgb(124 58 237 / 0.18); color: rgb(196 181 253); }
-.amodal-header-icon svg { width: 1.4rem; height: 1.4rem; }
-.amodal-title { font-size: 1rem; font-weight: 700; color: rgb(15 23 42); margin: 0 0 0.2rem; }
-.dark .amodal-title { color: rgb(226 232 240); }
-.amodal-subtitle { font-size: 0.8rem; color: rgb(100 116 139); margin: 0; }
+.amodal-overlay { position: fixed; inset: 0; z-index: 100; background: rgb(var(--canvas) / 0.8); display: flex; align-items: center; justify-content: center; padding: 1rem; }
+.amodal-box { position: relative; background: rgb(var(--surface)); color: rgb(var(--fg)); border: 1px solid rgb(var(--line)); border-radius: 8px; box-shadow: 0 8px 24px rgb(0 0 0 / 0.12); width: 100%; max-width: 520px; max-height: calc(100vh - 2rem); overflow-y: auto; font-size: 0.9375rem; outline: none; animation: fade-in 160ms ease; }
+.amodal-close { position: absolute; top: 0.75rem; right: 0.75rem; width: 2rem; height: 2rem; border: 0; background: transparent; border-radius: 6px; color: rgb(var(--muted)); font-family: "Geist Mono", ui-monospace, monospace; font-size: 1rem; line-height: 1; cursor: pointer; }
+.amodal-close:hover { color: rgb(var(--fg)); background: rgb(var(--canvas)); }
+.amodal-header { padding: 1.25rem 3.5rem 0 1.5rem; }
+.amodal-title { font-size: 0.9375rem; font-weight: 500; color: rgb(var(--fg)); margin: 0; }
+.amodal-subtitle { font-size: 0.8125rem; color: rgb(var(--muted)); margin: 0.125rem 0 0; }
 .amodal-body { padding: 1.25rem 1.5rem; display: flex; flex-direction: column; gap: 0.85rem; }
 .amodal-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
 .amodal-field { display: flex; flex-direction: column; gap: 0.3rem; }
-.amodal-label { font-size: 0.8rem; font-weight: 600; color: rgb(71 85 105); }
-.dark .amodal-label { color: rgb(148 163 184); }
-.amodal-input { padding: 0.55rem 0.85rem; border: 1px solid rgb(203 213 225); border-radius: 0.6rem; font-size: 0.875rem; background: #fff; color: rgb(15 23 42); outline: none; transition: border-color 150ms ease, box-shadow 150ms ease; width: 100%; box-sizing: border-box; }
-.amodal-input:focus { border-color: rgb(37 99 235); box-shadow: 0 0 0 3px rgb(37 99 235 / 0.12); }
-.dark .amodal-input { background: rgb(30 41 59); border-color: rgb(51 65 85); color: rgb(226 232 240); }
-.dark .amodal-input:focus { border-color: rgb(96 165 250); box-shadow: 0 0 0 3px rgb(96 165 250 / 0.15); }
+.amodal-label { font-size: 0.8125rem; color: rgb(var(--muted)); }
+.amodal-input { height: 2.25rem; padding: 0 0.75rem; border: 1px solid rgb(var(--line)); border-radius: 6px; font-size: 0.9375rem; background: rgb(var(--canvas)); color: rgb(var(--fg)); outline: none; width: 100%; box-sizing: border-box; }
+.amodal-input:focus { border-color: rgb(var(--fg)); }
+.amodal-input::placeholder { color: rgb(var(--muted)); }
+textarea.amodal-input { height: auto; padding: 0.5rem 0.75rem; }
 .amodal-textarea { resize: vertical; min-height: 5rem; }
-.amodal-error { padding: 0.6rem 0.85rem; background: rgb(254 242 242); border: 1px solid rgb(254 202 202); border-radius: 0.6rem; font-size: 0.8rem; color: rgb(185 28 28); }
-.dark .amodal-error { background: rgb(185 28 28 / 0.15); border-color: rgb(185 28 28 / 0.3); color: rgb(252 165 165); }
-.amodal-footer { display: flex; justify-content: flex-end; gap: 0.6rem; padding: 1rem 1.5rem; border-top: 1px solid rgb(241 245 249); background: rgb(248 250 252); }
-.dark .amodal-footer { border-top-color: rgb(30 41 59); background: rgb(15 23 42 / 0.5); }
-.amodal-btn-cancel { padding: 0.5rem 1rem; border: 1px solid rgb(203 213 225); border-radius: 0.6rem; background: #fff; color: rgb(71 85 105); font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: all 140ms ease; }
-.amodal-btn-cancel:hover { background: rgb(241 245 249); border-color: rgb(148 163 184); }
-.dark .amodal-btn-cancel { background: rgb(30 41 59); border-color: rgb(51 65 85); color: rgb(148 163 184); }
-.amodal-btn-save { display: flex; align-items: center; gap: 0.4rem; padding: 0.5rem 1.25rem; background: linear-gradient(135deg, #2563eb, #4f46e5); color: #fff; border: 0; border-radius: 0.6rem; font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: opacity 140ms ease, transform 140ms ease; box-shadow: 0 2px 8px rgb(37 99 235 / 0.3); }
-.amodal-btn-save:hover:not(:disabled) { opacity: 0.9; transform: translateY(-1px); }
-.amodal-btn-save:disabled { opacity: 0.6; cursor: not-allowed; }
-.amodal-spin { width: 1rem; height: 1rem; animation: spin 0.8s linear infinite; }
+.amodal-error { padding: 0.5rem 0.75rem; border: 1px solid rgb(var(--danger)); border-radius: 6px; font-size: 0.8125rem; color: rgb(var(--danger)); }
+.amodal-footer { display: flex; justify-content: flex-end; gap: 0.5rem; padding: 1rem 1.5rem; border-top: 1px solid rgb(var(--line)); }
+.amodal-btn-cancel { height: 2.25rem; padding: 0 1rem; border: 1px solid rgb(var(--line)); border-radius: 6px; background: transparent; color: rgb(var(--muted)); font-size: 0.9375rem; cursor: pointer; }
+.amodal-btn-cancel:hover { color: rgb(var(--fg)); background: rgb(var(--canvas)); }
+.amodal-btn-save { display: inline-flex; align-items: center; gap: 0.4rem; cursor: pointer; }
 
 @keyframes fade-in {
     from { opacity: 0; transform: scale(0.97) translateY(6px); }

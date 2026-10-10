@@ -103,4 +103,54 @@ public class ModalTests
         cut.Find(".amodal-overlay").Click();
         closed.Should().Be(1);
     }
+
+    [Test]
+    public void EscapeClosesEvenWhenOverlayClickIsDisabled()
+    {
+        var closed = 0;
+
+        var cut = _host.Context.RenderComponent<Modal>(p => p
+            .Add(m => m.IsOpen, true)
+            .Add(m => m.CloseOnOverlayClick, false)
+            .Add(m => m.OnClose, EventCallback.Factory.Create(this, () => closed++)));
+
+        cut.Find(".amodal-overlay").KeyDown(key: "Enter");
+        closed.Should().Be(0);
+
+        cut.Find(".amodal-overlay").KeyDown(key: "Escape");
+        closed.Should().Be(1);
+    }
+
+    [Test]
+    public void ErrorIsAnnouncedAsAlert()
+    {
+        var cut = _host.Context.RenderComponent<Modal>(p => p
+            .Add(m => m.IsOpen, true)
+            .Add(m => m.ErrorMessage, "Policy already exists"));
+
+        cut.Find(".amodal-error").GetAttribute("role").Should().Be("alert");
+    }
+
+    [Test]
+    public void SaveUsesAccentByDefaultAndDangerWhenRequested()
+    {
+        var cut = _host.Context.RenderComponent<Modal>(p => p.Add(m => m.IsOpen, true));
+
+        cut.Find("button.amodal-btn-save").ClassList.Should().Contain("btn-accent").And.NotContain("btn-danger");
+
+        cut.SetParametersAndRender(p => p.Add(m => m.Danger, true));
+
+        cut.Find("button.amodal-btn-save").ClassList.Should().Contain("btn-danger").And.NotContain("btn-accent");
+    }
+
+    [Test]
+    public void HasNoIconsAndALabelledCloseButton()
+    {
+        var cut = _host.Context.RenderComponent<Modal>(p => p
+            .Add(m => m.IsOpen, true)
+            .Add(m => m.Title, "Edit policy"));
+
+        cut.FindAll("svg").Should().BeEmpty();
+        cut.Find(".amodal-close").GetAttribute("aria-label").Should().Be("common.close");
+    }
 }

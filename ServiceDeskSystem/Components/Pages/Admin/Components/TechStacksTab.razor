@@ -159,7 +159,6 @@
 <Modal IsOpen="ShowModal"
        Title="@ModalTitle"
        Subtitle="@L.Translate("admin.techStacks")"
-       IconColor="purple"
        ErrorMessage="@ErrorMessage"
        IsSaving="IsSaving"
        OnClose="CloseModal"
@@ -167,12 +166,6 @@
        CancelText="@L.Translate("common.cancel")"
        SaveText="@L.Translate("common.save")"
        SavingText="@L.Translate("common.saving")">
-    <HeaderIcon>
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-        </svg>
-    </HeaderIcon>
     <ChildContent>
         <div class="amodal-field">
             <label class="amodal-label">@L.Translate("admin.name")</label>

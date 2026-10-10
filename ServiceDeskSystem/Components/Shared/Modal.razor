@@ -1,29 +1,19 @@
 @using Microsoft.AspNetCore.Components
+@using ServiceDeskSystem.Application.Services.Localization
+@inject ILocalizationService L
 
 @if (IsOpen)
 {
-    <div class="amodal-overlay" @onclick="HandleOverlayClick" role="dialog" aria-modal="true" aria-labelledby="@($"modal-title-{_id}")">
-        <div class="amodal-box animate-fade-in" @onclick:stopPropagation>
-            <button @onclick="OnClose" class="amodal-close" aria-label="Close">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-            </button>
+    <div class="amodal-overlay" @onclick="HandleOverlayClick" @onkeydown="HandleKeyDown" role="dialog" aria-modal="true" aria-labelledby="@($"modal-title-{_id}")">
+        <div class="amodal-box" tabindex="-1" @ref="_box" @onclick:stopPropagation>
+            <button type="button" @onclick="OnClose" class="amodal-close" aria-label="@L.Translate("common.close")">×</button>
 
             <div class="amodal-header">
-                @if (HeaderIcon != null)
+                <h3 class="amodal-title" id="@($"modal-title-{_id}")">@Title</h3>
+                @if (!string.IsNullOrWhiteSpace(Subtitle))
                 {
-                    <div class="amodal-header-icon @IconColor">
-                        @HeaderIcon
-                    </div>
+                    <p class="amodal-subtitle">@Subtitle</p>
                 }
-                <div>
-                    <h3 class="amodal-title" id="@($"modal-title-{_id}")">@Title</h3>
-                    @if (!string.IsNullOrWhiteSpace(Subtitle))
-                    {
-                        <p class="amodal-subtitle">@Subtitle</p>
-                    }
-                </div>
             </div>
 
             <div class="amodal-body">
@@ -31,7 +21,7 @@
 
                 @if (!string.IsNullOrWhiteSpace(ErrorMessage))
                 {
-                    <div class="amodal-error">@ErrorMessage</div>
+                    <div class="amodal-error" role="alert">@ErrorMessage</div>
                 }
             </div>
 
@@ -42,14 +32,10 @@
                 }
                 else
                 {
-                    <button @onclick="OnClose" class="amodal-btn-cancel">@CancelText</button>
-                    <button @onclick="OnSave" disabled="@IsSaving" class="amodal-btn-save">
+                    <button type="button" @onclick="OnClose" class="amodal-btn-cancel">@CancelText</button>
+                    <button type="button" @onclick="OnSave" disabled="@IsSaving" class="@(Danger ? "amodal-btn-save btn-danger" : "amodal-btn-save btn-accent")">
                         @if (IsSaving)
                         {
-                            <svg class="amodal-spin" fill="none" viewBox="0 0 24 24" aria-hidden="true">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-                            </svg>
                             <span>@SavingText</span>
                         }
                         else
@@ -65,6 +51,8 @@
 
 @code {
     private readonly string _id = Guid.NewGuid().ToString("N")[..8];
+    private ElementReference _box;
+    private bool _wasOpen;
 
     [Parameter] public bool IsOpen { get; set; }
     [Parameter] public string Title { get; set; } = string.Empty;
@@ -72,15 +60,34 @@
     [Parameter] public string? ErrorMessage { get; set; }
     [Parameter] public bool IsSaving { get; set; }
     [Parameter] public bool CloseOnOverlayClick { get; set; } = true;
+    [Parameter] public bool Danger { get; set; }
     [Parameter] public string CancelText { get; set; } = "Cancel";
     [Parameter] public string SaveText { get; set; } = "Save";
     [Parameter] public string SavingText { get; set; } = "Saving...";
-    [Parameter] public string IconColor { get; set; } = "blue";
-    [Parameter] public RenderFragment? HeaderIcon { get; set; }
     [Parameter] public RenderFragment? ChildContent { get; set; }
     [Parameter] public RenderFragment? FooterContent { get; set; }
     [Parameter] public EventCallback OnClose { get; set; }
     [Parameter] public EventCallback OnSave { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (IsOpen && !_wasOpen)
+        {
+            _wasOpen = true;
+            try
+            {
+                await _box.FocusAsync();
+            }
+            catch (JSException)
+            {
+                // Focus is best effort (e.g. during prerendering).
+            }
+        }
+        else if (!IsOpen)
+        {
+            _wasOpen = false;
+        }
+    }
 
     private void HandleOverlayClick()
     {
@@ -89,4 +96,7 @@
             OnClose.InvokeAsync();
         }
     }
+
+    private Task HandleKeyDown(KeyboardEventArgs e) =>
+        e.Key == "Escape" ? OnClose.InvokeAsync() : Task.CompletedTask;
 }

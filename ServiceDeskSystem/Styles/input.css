@@ -127,6 +127,22 @@
         @apply outline outline-2 outline-fg outline-offset-2;
     }
 
+    .btn-danger {
+        @apply h-9 rounded-md border border-danger px-4 text-danger font-medium text-15;
+    }
+
+    .btn-danger:hover {
+        @apply bg-danger/10;
+    }
+
+    .btn-danger:disabled {
+        @apply opacity-50 cursor-not-allowed;
+    }
+
+    .btn-danger:focus-visible {
+        @apply outline outline-2 outline-fg outline-offset-2;
+    }
+
     .btn-ghost {
         @apply h-8 rounded-md border border-line px-2 text-muted;
     }
