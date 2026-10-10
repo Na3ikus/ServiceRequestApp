@@ -2,7 +2,10 @@
     @if (!string.IsNullOrEmpty(Title) || Meta is not null)
     {
         <div class="flex items-center justify-between px-3.5 py-2 border-b border-line font-mono text-[13px] text-muted">
-            <span># @Title</span>
+            @if (!string.IsNullOrEmpty(Title))
+            {
+                <span># @Title</span>
+            }
             @if (Meta is not null)
             {
                 <div>@Meta</div>

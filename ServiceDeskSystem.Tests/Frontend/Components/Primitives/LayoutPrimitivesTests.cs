@@ -65,6 +65,17 @@ public class LayoutPrimitivesTests
     }
 
     [Test]
+    public void Panel_meta_only_has_no_title_marker()
+    {
+        var cut = _host.Context.RenderComponent<Panel>(p => p
+            .Add(x => x.Meta, (RenderFragment)(builder => builder.AddContent(0, "meta-slot"))));
+
+        cut.FindAll(".border-b").ToList().Should().HaveCount(1);
+        cut.Markup.Should().NotContain("#");
+        cut.Markup.Should().Contain("meta-slot");
+    }
+
+    [Test]
     public void EmptyState_action_invokes_callback()
     {
         var invoked = 0;
