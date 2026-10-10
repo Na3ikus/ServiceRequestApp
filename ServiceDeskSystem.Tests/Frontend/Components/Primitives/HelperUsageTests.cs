@@ -1,4 +1,5 @@
 using System.IO;
+using System.Linq;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -25,9 +26,16 @@ public class HelperUsageTests
     {
         var repoRoot = FindRepoRoot();
         var componentsRoot = Path.Combine(repoRoot, "ServiceDeskSystem", "Components");
+        var wwwrootRoot = Path.Combine(repoRoot, "ServiceDeskSystem", "wwwroot");
+        var appCssPath = Path.Combine(wwwrootRoot, "css", "app.css");
 
         var files = Directory.EnumerateFiles(componentsRoot, "*.razor", SearchOption.AllDirectories)
-            .Concat(Directory.EnumerateFiles(componentsRoot, "*.razor.cs", SearchOption.AllDirectories))
+            .Concat(Directory.EnumerateFiles(componentsRoot, "*.cs", SearchOption.AllDirectories))
+            .Concat(Directory.EnumerateFiles(componentsRoot, "*.css", SearchOption.AllDirectories))
+            .Concat(Directory.EnumerateFiles(wwwrootRoot, "*.css", SearchOption.AllDirectories))
+            .Where(IsNotExcluded)
+            .Where(file => !string.Equals(Path.GetFullPath(file), Path.GetFullPath(appCssPath), StringComparison.OrdinalIgnoreCase))
+            .Distinct()
             .ToList();
 
         var violations = new List<string>();
@@ -56,6 +64,14 @@ public class HelperUsageTests
 
         File.Exists(cssPath).Should().BeFalse(because: $"{cssPath} should have been deleted");
         File.ReadAllText(appRazorPath).Should().NotContain("ticket-status.css");
+    }
+
+    private static bool IsNotExcluded(string file)
+    {
+        var normalized = file.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
+        var segments = normalized.Split(Path.DirectorySeparatorChar);
+
+        return !segments.Contains("bin") && !segments.Contains("obj") && !segments.Contains("node_modules");
     }
 
     private static string FindRepoRoot()

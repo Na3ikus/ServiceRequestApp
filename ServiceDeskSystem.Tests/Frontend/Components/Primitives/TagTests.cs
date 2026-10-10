@@ -82,4 +82,30 @@ public class TagTests
 
         cut.Find("span").GetAttribute("title").Should().Be("x");
     }
+
+    [Test]
+    public void Tag_empty_title_renders_no_title_attribute()
+    {
+        var cut = _host.Context.RenderComponent<Tag>(p => p
+            .Add(x => x.Title, string.Empty)
+            .AddChildContent("X"));
+
+        cut.Find("span").GetAttribute("title").Should().BeNull();
+    }
+
+    [Test]
+    public void Tag_null_title_renders_no_title_attribute()
+    {
+        var cut = _host.Context.RenderComponent<Tag>(p => p.AddChildContent("X"));
+
+        cut.Find("span").GetAttribute("title").Should().BeNull();
+    }
+
+    [Test]
+    public void Tag_has_font_normal_weight()
+    {
+        var cut = _host.Context.RenderComponent<Tag>(p => p.AddChildContent("X"));
+
+        cut.Find("span").GetAttribute("class").Should().Contain("font-normal");
+    }
 }
