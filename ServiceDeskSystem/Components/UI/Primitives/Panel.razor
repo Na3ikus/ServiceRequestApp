@@ -1,0 +1,29 @@
+<section class="rounded-lg border border-line bg-surface @Class">
+    @if (!string.IsNullOrEmpty(Title) || Meta is not null)
+    {
+        <div class="flex items-center justify-between px-3.5 py-2 border-b border-line font-mono text-[13px] text-muted">
+            <span># @Title</span>
+            @if (Meta is not null)
+            {
+                <div>@Meta</div>
+            }
+        </div>
+    }
+    <div class="px-3.5 py-3">
+        @ChildContent
+    </div>
+</section>
+
+@code {
+    [Parameter]
+    public string? Title { get; set; }
+
+    [Parameter]
+    public RenderFragment? Meta { get; set; }
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter]
+    public string? Class { get; set; }
+}

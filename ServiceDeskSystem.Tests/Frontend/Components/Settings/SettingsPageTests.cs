@@ -49,6 +49,15 @@ public class SettingsPageTests
         cut.FindAll("button").ToList().First(b => b.TextContent.Contains(text, StringComparison.Ordinal));
 
     [Test]
+    public void Heading_is_path_header()
+    {
+        var cut = Render();
+
+        cut.Find("h1").TextContent.Should().Be("~/settings");
+        cut.Find("[aria-current=page]").TextContent.Should().Be("settings");
+    }
+
+    [Test]
     public void RendersAllSectionsForAdmin()
     {
         var cut = Render();

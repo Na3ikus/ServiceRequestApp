@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using ServiceDeskSystem.Application.Services.Preferences;
 using ServiceDeskSystem.Components.UI.Base;
+using ServiceDeskSystem.Components.UI.Primitives;
 using ServiceDeskSystem.Domain.Enums;
 using ServiceDeskSystem.Domain.Interfaces;
 
@@ -15,6 +16,8 @@ namespace ServiceDeskSystem.Components.Pages.Settings;
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Naming", "CA1724:TypeNamesShouldNotMatchNamespaces", Justification = "Blazor page component must match .razor file name")]
 public partial class Settings : BaseComponent
 {
+    private static readonly IReadOnlyList<PathSegment> SettingsSegments = [new PathSegment("settings")];
+
     // Option texts are value tokens shown in mono, like the section headings; not translated.
     private static readonly IReadOnlyList<(string Value, string Text)> ThemeOptions =
         [("light", "light"), ("dark", "dark"), ("system", "system")];

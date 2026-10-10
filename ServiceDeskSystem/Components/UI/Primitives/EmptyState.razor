@@ -1,0 +1,26 @@
+<p class="font-mono text-[13px] text-muted px-3.5 py-7">&gt; @Message
+    @if (!string.IsNullOrEmpty(ActionText))
+    {
+        <text> — <button type="button" class="text-fg hover:underline" @onclick="HandleActionAsync">@ActionText</button></text>
+    }
+    @if (!string.IsNullOrEmpty(Hotkey))
+    {
+        <Kbd>@Hotkey</Kbd>
+    }
+</p>
+
+@code {
+    [Parameter]
+    public string Message { get; set; } = string.Empty;
+
+    [Parameter]
+    public string? ActionText { get; set; }
+
+    [Parameter]
+    public EventCallback OnAction { get; set; }
+
+    [Parameter]
+    public string? Hotkey { get; set; }
+
+    private Task HandleActionAsync() => this.OnAction.InvokeAsync();
+}
