@@ -73,6 +73,10 @@ window.sidebarManager = {
         document.addEventListener('show-hotkeys-help', window.__showHotkeysHelpHandler);
     },
 
+    showHotkeysHelp: function () {
+        document.dispatchEvent(new CustomEvent('show-hotkeys-help'));
+    },
+
     unregisterHotkey: function () {
         if (!window.__sidebarHotkeyHandler) {
             return;
