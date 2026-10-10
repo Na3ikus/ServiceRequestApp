@@ -49,6 +49,15 @@ public class SettingsPageTests
         cut.FindAll("button").ToList().First(b => b.TextContent.Contains(text, StringComparison.Ordinal));
 
     [Test]
+    public void Has_no_sidebar_setting()
+    {
+        var cut = Render();
+
+        cut.FindAll("[role=radiogroup][aria-label='settings.sidebar']").Should().BeEmpty();
+        cut.Markup.Should().NotContain("Ctrl+B");
+    }
+
+    [Test]
     public void Heading_is_path_header()
     {
         var cut = Render();

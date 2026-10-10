@@ -21,7 +21,6 @@
   "settings.reduceMotionDesc": "За замовчуванням як у системі",
   "settings.density": "Щільність",
   "settings.densityDesc": "Відступи рядків у таблицях",
-  "settings.sidebar": "Бічна панель",
   "settings.defaultView": "Вигляд за замовчуванням",
   "settings.sound": "Звук",
   "settings.desktopNotificationsDesc": "Лише коли вкладка у фоні",
@@ -31,6 +30,6 @@
   "settings.recheck": "перевірити знову",
   "settings.resetDefaults": "скинути до типових",
   "settings.resetConfirmTitle": "Скинути налаштування?",
-  "settings.resetConfirmText": "Вигляд, розкладка, налаштування заявок і сповіщень повернуться до типових. Мова та бічна панель не зміняться.",
+  "settings.resetConfirmText": "Вигляд, розкладка, налаштування заявок і сповіщень повернуться до типових. Мова не зміниться.",
   "settings.resetConfirmButton": "Скинути"
 }

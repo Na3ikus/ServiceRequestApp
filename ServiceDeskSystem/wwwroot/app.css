@@ -123,15 +123,6 @@ a, .btn-link {
     min-width: 110px;
 }
 
-.header-actions {
-    flex-shrink: 0;
-    gap: 12px;
-}
-
-.header-actions > * {
-    flex-shrink: 0;
-}
-
 /* Filter section styles */
 .search-input {
     transition: all 0.2s ease-in-out;
@@ -176,14 +167,6 @@ a, .btn-link {
 
 .group label span {
     letter-spacing: 0.01em;
-}
-
-.theme-toggle {
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
 
 .logout-btn {
@@ -1285,22 +1268,8 @@ h3[tabindex] {
 .theme-transitioning [class*="bg-gradient"],
 .theme-transitioning [class*="from-"],
 .theme-transitioning [class*="to-"],
-.theme-transitioning [class*="via-"],
-.theme-transitioning .brand-icon,
-.theme-transitioning .brand-icon-svg {
+.theme-transitioning [class*="via-"] {
     transition: none !important;
-}
-
-/* Prevent sidebar logo flicker during theme switch */
-.theme-transitioning .sidebar-brand,
-.theme-transitioning .brand-link,
-.theme-transitioning .brand-title,
-.theme-transitioning .brand-icon,
-.theme-transitioning .brand-icon *,
-.theme-transitioning .sidebar-root,
-.theme-transitioning .sidebar-root * {
-    transition: none !important;
-    animation: none !important;
 }
 
 /* Ticket table row staggered entrance animation */
@@ -1318,122 +1287,6 @@ h3[tabindex] {
 .ticket-row-enter {
     animation: rowFadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     opacity: 0; /* Starts hidden until animation */
-}
-
-/* ============================
-   Login Light Theme Styles
-   ============================ */
-
-
-
-.notification-badge {
-    position: absolute;
-    top: -4px;
-    right: -4px;
-    min-width: 18px;
-    height: 18px;
-    border-radius: 9999px;
-    background: #ef4444;
-    color: #fff;
-    font-size: 0.65rem;
-    line-height: 18px;
-    font-weight: 700;
-    padding: 0 4px;
-}
-
-.notification-dropdown {
-    overflow: hidden;
-}
-
-.notification-dropdown-enter {
-    transform-origin: top right;
-    animation: notificationDropdownEnter 0.22s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-@keyframes notificationDropdownEnter {
-    from {
-        opacity: 0;
-        transform: translateY(-8px) scale(0.97);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
-}
-
-.notification-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.75rem;
-    padding: 0.875rem 1rem;
-    transition: background-color 0.15s ease, border-color 0.15s ease;
-}
-
-.notification-open-btn {
-    flex: 1;
-    border: 0;
-    background: transparent;
-    padding: 0;
-    text-align: left;
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-    cursor: pointer;
-}
-
-.notification-delete-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 0;
-    background: transparent;
-    cursor: pointer;
-}
-
-.notification-message {
-    font-size: 0.875rem;
-    line-height: 1.4;
-    word-break: break-word;
-}
-
-.notification-time {
-    font-size: 0.75rem;
-}
-
-.notification-wrapper.has-new .theme-toggle {
-    animation: notificationButtonHeartbeat 0.9s ease-in-out 2;
-}
-
-.notification-wrapper.has-new .notification-badge {
-    animation: notificationBadgePulse 0.9s ease-in-out 2;
-}
-
-@keyframes notificationButtonHeartbeat {
-    0%,
-    100% {
-        transform: scale(1);
-    }
-    25% {
-        transform: scale(1.06);
-    }
-    45% {
-        transform: scale(0.98);
-    }
-    70% {
-        transform: scale(1.04);
-    }
-}
-
-@keyframes notificationBadgePulse {
-    0%,
-    100% {
-        transform: scale(1);
-        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.55);
-    }
-    50% {
-        transform: scale(1.15);
-        box-shadow: 0 0 0 8px rgba(239, 68, 68, 0);
-    }
 }
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -1480,27 +1333,6 @@ h3[tabindex] {
 
 .critical-pulse {
     animation: criticalPulse 2s ease-in-out infinite;
-}
-
-/* ═══════════════════════════════════════════════════════════════════
-   NOTIFICATION BELL WIGGLE
-   ═══════════════════════════════════════════════════════════════════ */
-
-@keyframes bellWiggle {
-    0% { transform: rotate(0deg); }
-    10% { transform: rotate(14deg); }
-    20% { transform: rotate(-12deg); }
-    30% { transform: rotate(10deg); }
-    40% { transform: rotate(-8deg); }
-    50% { transform: rotate(5deg); }
-    60% { transform: rotate(-3deg); }
-    70% { transform: rotate(1deg); }
-    100% { transform: rotate(0deg); }
-}
-
-.notification-wrapper.has-new svg {
-    animation: bellWiggle 0.8s ease-in-out;
-    transform-origin: top center;
 }
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -1664,9 +1496,6 @@ h3[tabindex] {
         animation: none;
     }
     .critical-pulse {
-        animation: none;
-    }
-    .notification-wrapper.has-new svg {
         animation: none;
     }
     .stat-card-animated {

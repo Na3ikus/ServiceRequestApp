@@ -22,29 +22,6 @@ window.notificationManager = {
         window.__notificationOutsideClickHandler = null;
     },
 
-    registerLanguageOutsideClick: function (dotNetRef) {
-        this.unregisterLanguageOutsideClick();
-
-        window.__languageOutsideClickHandler = function (event) {
-            if (event.target.closest('.language-dropdown-wrapper')) {
-                return;
-            }
-
-            dotNetRef.invokeMethodAsync('HandleOutsideLanguageClick');
-        };
-
-        document.addEventListener('click', window.__languageOutsideClickHandler, true);
-    },
-
-    unregisterLanguageOutsideClick: function () {
-        if (!window.__languageOutsideClickHandler) {
-            return;
-        }
-
-        document.removeEventListener('click', window.__languageOutsideClickHandler, true);
-        window.__languageOutsideClickHandler = null;
-    },
-
     notifyNew: async function (title, body) {
         if (window.prefs.get('sound') === 'true') {
             await this.playNewNotificationSound();

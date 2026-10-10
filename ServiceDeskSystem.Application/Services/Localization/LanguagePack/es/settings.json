@@ -21,7 +21,6 @@
   "settings.reduceMotionDesc": "Por defecto sigue al sistema",
   "settings.density": "Densidad",
   "settings.densityDesc": "Espaciado de filas en tablas",
-  "settings.sidebar": "Barra lateral",
   "settings.defaultView": "Vista predeterminada",
   "settings.sound": "Sonido",
   "settings.desktopNotificationsDesc": "Solo cuando la pestaña está en segundo plano",
@@ -31,6 +30,6 @@
   "settings.recheck": "volver a comprobar",
   "settings.resetDefaults": "restablecer valores",
   "settings.resetConfirmTitle": "¿Restablecer la configuración?",
-  "settings.resetConfirmText": "La apariencia, el diseño y las preferencias de tickets y notificaciones vuelven a sus valores predeterminados. El idioma y la barra lateral no cambian.",
+  "settings.resetConfirmText": "La apariencia, el diseño y las preferencias de tickets y notificaciones vuelven a sus valores predeterminados. El idioma no cambia.",
   "settings.resetConfirmButton": "Restablecer"
 }

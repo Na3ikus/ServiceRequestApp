@@ -39,13 +39,6 @@
         <SegmentedControl Label="@L.Translate("settings.contentWidth")" Options="WidthOptions"
                           Value="@prefs.ContentWidth" ValueChanged="@(v => SetAsync(PreferenceSchema.ContentWidth, v))" />
     </SettingRow>
-    <SettingRow Label="@L.Translate("settings.sidebar")">
-        <div class="flex items-center gap-3">
-            <SegmentedControl Label="@L.Translate("settings.sidebar")" Options="SidebarOptions"
-                              Value="@(Theme.IsSidebarCollapsed ? "compact" : "full")" ValueChanged="SetSidebarAsync" />
-            <Kbd>Ctrl+B</Kbd>
-        </div>
-    </SettingRow>
 
     <h2 class="font-mono text-[13px] text-muted mt-6 mb-1"># locale</h2>
     <SettingRow Label="@L.Translate("settings.language")">

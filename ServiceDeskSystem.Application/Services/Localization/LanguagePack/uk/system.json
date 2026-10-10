@@ -12,6 +12,8 @@
   "nav.section.workspace": "Робоча область",
   "nav.section.management": "Управління",
   "nav.settings": "Налаштування",
+  "nav.path": "Поточний шлях",
+  "nav.openMenu": "Відкрити меню",
   "login.title": "Увійдіть у свій акаунт",
   "login.username": "Ім'я користувача",
   "login.password": "Пароль",

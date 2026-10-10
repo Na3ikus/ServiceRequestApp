@@ -141,7 +141,7 @@ test('migrate snaps fontSize', () => {
 test('migrate removes all OBSOLETE_KEYS', () => {
     const initial = {};
     for (const k of prefs.OBSOLETE_KEYS) initial[k] = 'x';
-    assert.equal(prefs.OBSOLETE_KEYS.length, 11);
+    assert.equal(prefs.OBSOLETE_KEYS.length, 12);
     const s = memoryStorage(initial);
     prefs.migrate(s);
     for (const k of prefs.OBSOLETE_KEYS) assert.equal(s.getItem(k), null, k);

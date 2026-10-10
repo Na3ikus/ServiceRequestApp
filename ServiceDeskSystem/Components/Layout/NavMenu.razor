@@ -1,50 +1,28 @@
 @inherits ServiceDeskSystem.Components.UI.Base.BaseComponent
 
 <!-- Created by Nazar "N1h3" Hutsol -->
-<nav class="sidebar-root @(IsCollapsed ? "is-collapsed" : string.Empty) @(Theme.IsDarkMode ? "is-dark" : string.Empty)" role="navigation" aria-label="Main navigation">
-    <div class="sidebar-brand">
-        <button type="button"
-                class="collapse-btn"
-                @onclick="ToggleCollapseAsync"
-                aria-label="@(IsCollapsed ? "Розгорнути меню" : "Згорнути меню")">
-            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-        </button>
-
-        <a href="" class="brand-link" aria-label="@L.Translate("nav.serviceDesk")">
-            <span class="brand-title">@L.Translate("nav.serviceDesk")</span>
+<nav class="flex h-full w-full flex-col border-r border-line bg-surface" aria-label="Main navigation">
+    <div class="flex h-12 flex-shrink-0 items-center border-b border-line px-4">
+        <a href="" class="inline-flex">
+            <Logo Size="LogoSize.Md" />
         </a>
     </div>
 
-    <div class="sidebar-content">
+    <div class="flex-1 overflow-y-auto px-2 py-4">
         @foreach (var menuSection in sections)
         {
-            <section class="menu-section">
-                <button type="button"
-                        class="section-toggle"
-                        @onclick="() => ToggleSection(menuSection.Id)"
-                        aria-expanded="@(menuSection.IsExpanded.ToString().ToLowerInvariant())">
-                    <span class="section-title">@menuSection.Title</span>
-                    <svg class="section-chevron @(menuSection.IsExpanded ? "expanded" : string.Empty)" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                    </svg>
-                </button>
-
-                <ul class="menu-list @((menuSection.IsExpanded || IsCollapsed) ? "open" : string.Empty)">
+            <section class="mb-4 last:mb-0">
+                <h2 class="mb-1 px-2 font-mono text-[13px] text-muted"># @menuSection.Title</h2>
+                <ul>
                     @foreach (var item in menuSection.Items)
                     {
                         <li>
                             <NavLink href="@item.Url"
                                      Match="@item.Match"
-                                     class="menu-link"
                                      ActiveClass="active"
-                             data-tooltip="@item.Title"
-                             aria-label="@item.Title">
-                                <svg class="menu-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="@GetIconPath(item.IconKey)" />
-                                </svg>
-                                <span class="menu-label">@item.Title</span>
+                                     class="group flex h-8 items-center rounded-md px-2 font-mono text-[13px] text-muted hover:bg-canvas hover:text-fg [&.active]:text-fg">
+                                <span aria-hidden="true" class="invisible w-[1ch] flex-shrink-0 text-accent-ink group-[.active]:visible">›</span>
+                                <span class="ml-[1ch] truncate">@item.Title</span>
                             </NavLink>
                         </li>
                     }
@@ -53,8 +31,7 @@
         }
     </div>
 
-    <div class="sidebar-footer">
-        <span class="footer-text">@L.Translate("common.footer")</span>
+    <div class="flex-shrink-0 border-t border-line px-4 py-3">
+        <span class="text-[13px] text-muted">@L.Translate("common.footer")</span>
     </div>
 </nav>
-

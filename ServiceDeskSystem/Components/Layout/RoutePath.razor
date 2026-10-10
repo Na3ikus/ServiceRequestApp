@@ -1,0 +1,30 @@
+@inherits ServiceDeskSystem.Components.UI.Base.BaseComponent
+
+<!-- Created by Nazar "N1h3" Hutsol -->
+<nav aria-label="@L.Translate("nav.path")" class="min-w-0 truncate font-mono text-[13px] text-muted">
+    @if (segments.Count == 0)
+    {
+        <span class="text-fg" aria-current="page">~</span>
+    }
+    else
+    {
+        <a href="" class="hover:text-fg">~</a><span>/</span>
+        @for (var i = 0; i < segments.Count; i++)
+        {
+            var segment = segments[i];
+            if (i > 0)
+            {
+                <span>/</span>
+            }
+
+            if (i == segments.Count - 1)
+            {
+                <span class="text-fg" aria-current="page">@segment.Text</span>
+            }
+            else
+            {
+                <span>@segment.Text</span>
+            }
+        }
+    }
+</nav>

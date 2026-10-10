@@ -12,6 +12,8 @@
   "nav.section.workspace": "Workspace",
   "nav.section.management": "Administration",
   "nav.settings": "Settings",
+  "nav.path": "Current path",
+  "nav.openMenu": "Open menu",
   "login.title": "Sign in to your account",
   "login.username": "Username",
   "login.password": "Password",

@@ -11,7 +11,7 @@ namespace ServiceDeskSystem.Components.Pages.Settings;
 
 /// <summary>
 /// User preferences page. Every control persists through <see cref="IPreferencesService"/>
-/// (or <c>IThemeService</c> / <c>ILocalizationService</c> for theme, sidebar and language).
+/// (or <c>IThemeService</c> / <c>ILocalizationService</c> for theme and language).
 /// </summary>
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Naming", "CA1724:TypeNamesShouldNotMatchNamespaces", Justification = "Blazor page component must match .razor file name")]
 public partial class Settings : BaseComponent
@@ -30,9 +30,6 @@ public partial class Settings : BaseComponent
 
     private static readonly IReadOnlyList<(string Value, string Text)> WidthOptions =
         [("narrow", "narrow"), ("standard", "standard"), ("wide", "wide")];
-
-    private static readonly IReadOnlyList<(string Value, string Text)> SidebarOptions =
-        [("full", "full"), ("compact", "compact")];
 
     private static readonly IReadOnlyList<(string Value, string Text)> DateFormatOptions =
         [("DD/MM/YYYY", "dd/mm/yyyy"), ("MM/DD/YYYY", "mm/dd/yyyy"), ("YYYY-MM-DD", "yyyy-mm-dd")];
@@ -100,8 +97,6 @@ public partial class Settings : BaseComponent
     }
 
     private void SetTheme(string theme) => this.Theme.SetTheme(theme);
-
-    private Task SetSidebarAsync(string value) => this.Theme.SetSidebarCollapsedAsync(value == "compact");
 
     private async Task SetLanguageAsync(string code)
     {

@@ -12,7 +12,6 @@ public sealed class ThemeService : IThemeService, IDisposable
     private string currentTheme = "light";
     private string preferredTheme = "system"; // "light" | "dark" | "system"
     private bool initialized;
-    private bool isSidebarCollapsed;
     private DotNetObjectReference<ThemeService>? selfReference;
 
     public ThemeService(IJSRuntime jsRuntime)
@@ -28,8 +27,6 @@ public sealed class ThemeService : IThemeService, IDisposable
 
     public bool IsSystemTheme => this.preferredTheme == "system";
 
-    public bool IsSidebarCollapsed => this.isSidebarCollapsed;
-
     public async Task InitializeAsync()
     {
         if (!this.initialized)
@@ -42,7 +39,6 @@ public sealed class ThemeService : IThemeService, IDisposable
                 this.selfReference ??= DotNetObjectReference.Create(this);
                 await this.jsRuntime.InvokeVoidAsync("prefs.onSystemThemeChange", this.selfReference);
 
-                this.isSidebarCollapsed = await this.jsRuntime.InvokeAsync<bool>("sidebarManager.getCollapsed");
                 this.initialized = true;
             }
             catch
@@ -101,25 +97,6 @@ public sealed class ThemeService : IThemeService, IDisposable
     {
         var newTheme = this.currentTheme == "light" ? "dark" : "light";
         this.SetTheme(newTheme);
-    }
-
-    public async Task SetSidebarCollapsedAsync(bool collapsed)
-    {
-        if (this.isSidebarCollapsed != collapsed)
-        {
-            this.isSidebarCollapsed = collapsed;
-
-            try
-            {
-                await this.jsRuntime.InvokeVoidAsync("sidebarManager.setCollapsed", collapsed);
-            }
-            catch
-            {
-                // Ignore JS interop errors during prerendering
-            }
-
-            this.ThemeChanged?.Invoke(this, EventArgs.Empty);
-        }
     }
 
     public void Dispose()

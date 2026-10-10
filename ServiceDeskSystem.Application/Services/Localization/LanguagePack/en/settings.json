@@ -21,7 +21,6 @@
   "settings.reduceMotionDesc": "Follows OS setting by default",
   "settings.density": "Density",
   "settings.densityDesc": "Row spacing in tables",
-  "settings.sidebar": "Sidebar",
   "settings.defaultView": "Default view",
   "settings.sound": "Sound",
   "settings.desktopNotificationsDesc": "Only when the tab is in background",
@@ -31,6 +30,6 @@
   "settings.recheck": "re-check",
   "settings.resetDefaults": "reset to defaults",
   "settings.resetConfirmTitle": "Reset settings?",
-  "settings.resetConfirmText": "Appearance, layout, ticket and notification preferences return to their defaults. Language and sidebar stay as they are.",
+  "settings.resetConfirmText": "Appearance, layout, ticket and notification preferences return to their defaults. Language stays as it is.",
   "settings.resetConfirmButton": "Reset"
 }

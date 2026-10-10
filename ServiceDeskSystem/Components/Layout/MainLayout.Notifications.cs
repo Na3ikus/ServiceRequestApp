@@ -15,7 +15,6 @@ public partial class MainLayout
         }
 
         this.isNotificationsOpen = false;
-        this.StopNotificationPulse();
         await this.UnregisterNotificationOutsideClickAsync();
         await this.InvokeAsync(this.StateHasChanged);
     }
@@ -23,7 +22,6 @@ public partial class MainLayout
     private async Task ToggleNotificationsAsync()
     {
         this.isNotificationsOpen = !this.isNotificationsOpen;
-        this.StopNotificationPulse();
 
         if (this.isNotificationsOpen)
         {
@@ -163,8 +161,6 @@ public partial class MainLayout
 
             if (this.UnreadNotificationsCount > previousUnread)
             {
-                this.StartNotificationPulse();
-
                 var newest = this.notifications.FirstOrDefault();
                 await this.NotifyNewAsync(newest);
 
@@ -227,52 +223,6 @@ public partial class MainLayout
         catch
         {
             // Ignore JS interop issues during reconnect/shutdown.
-        }
-    }
-
-    private void StartNotificationPulse()
-    {
-        this.StopNotificationPulse(clearState: false);
-        this.hasNewNotificationPulse = true;
-
-        this.notificationPulseCts = new CancellationTokenSource();
-        var token = this.notificationPulseCts.Token;
-
-        _ = Task.Run(async () =>
-        {
-            try
-            {
-                await Task.Delay(NotificationPulseDuration, token);
-            }
-            catch (OperationCanceledException)
-            {
-                return;
-            }
-
-            try
-            {
-                await this.InvokeAsync(() =>
-                {
-                    this.hasNewNotificationPulse = false;
-                    this.StateHasChanged();
-                });
-            }
-            catch
-            {
-                // Ignore UI updates during disposal.
-            }
-        });
-    }
-
-    private void StopNotificationPulse(bool clearState = true)
-    {
-        this.notificationPulseCts?.Cancel();
-        this.notificationPulseCts?.Dispose();
-        this.notificationPulseCts = null;
-
-        if (clearState)
-        {
-            this.hasNewNotificationPulse = false;
         }
     }
 

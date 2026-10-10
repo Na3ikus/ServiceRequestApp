@@ -34,6 +34,7 @@
         'settings.badgeStyle',
         'settings.customAccentHex',
         'settings.animations',
+        'sidebarCollapsed',
     ];
 
     const MIGRATED_KEY = 'prefs.migrated';
