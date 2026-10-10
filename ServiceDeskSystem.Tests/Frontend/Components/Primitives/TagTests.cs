@@ -68,7 +68,7 @@ public class TagTests
         var @class = span.GetAttribute("class");
         @class.Should().Contain("bg-accent");
         @class.Should().Contain("text-on-accent");
-        @class.Should().Contain("border-black");
+        @class.Should().Contain("border-accent-ink");
         @class.Should().Contain("dark:text-accent");
         @class.Should().Contain("dark:bg-transparent");
     }

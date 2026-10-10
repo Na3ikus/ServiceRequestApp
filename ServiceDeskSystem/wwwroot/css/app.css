@@ -1834,6 +1834,11 @@ table th,
   border-color: rgb(var(--accent) / var(--tw-border-opacity, 1));
 }
 
+.border-accent-ink {
+  --tw-border-opacity: 1;
+  border-color: rgb(var(--accent-ink) / var(--tw-border-opacity, 1));
+}
+
 .border-amber-200 {
   --tw-border-opacity: 1;
   border-color: rgb(253 230 138 / var(--tw-border-opacity, 1));
