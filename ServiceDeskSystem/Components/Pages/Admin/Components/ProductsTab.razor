@@ -1,205 +1,126 @@
 @inherits BaseComponent
 
 @{
-    var filteredProducts = GetFilteredProducts();
+    var rows = GetFilteredProducts();
 }
 
-<!-- Table Section Card -->
-<div class="atab-card">
+<AdminToolbar @bind-Value="SearchQuery">
+    <Actions>
+        <button type="button" data-action="add" class="btn-accent h-8 px-3 text-13" title="@L.Translate("admin.addProduct")"
+                @onclick="ShowAddProduct">+ @Heading("table.product")</button>
+    </Actions>
+</AdminToolbar>
 
-    <!-- Toolbar -->
-    <div class="atab-toolbar">
-        <div class="atab-toolbar-left">
-            <h2 class="atab-title">@L.Translate("admin.products")</h2>
-            @if (filteredProducts is not null)
-            {
-                <span class="atab-count-badge">@filteredProducts.Count</span>
-            }
-        </div>
-        <div class="atab-toolbar-right">
-            <div class="atab-search-wrap">
-                <svg class="atab-search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0" />
-                </svg>
-                <input type="search"
-                       class="atab-search-input"
-                       placeholder="@(L.Translate("search.label"))..."
-                       @bind="SearchQuery"
-                       @bind:event="oninput" />
-            </div>
-            <button @onclick="ShowAddProduct" class="atab-add-btn">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                </svg>
-                @L.Translate("admin.addProduct")
-            </button>
-        </div>
-    </div>
-
-    @if (Products is null)
+@if (rows is null)
+{
+    <p data-loading class="px-3.5 py-7 font-mono text-13 text-muted">@Heading("common.loading")</p>
+}
+else if (rows.Count == 0 && !Row.IsAdding)
+{
+    @if (string.IsNullOrWhiteSpace(SearchQuery))
     {
-        <div class="atab-loading">
-            <svg class="atab-spinner" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-            </svg>
-            <span>@L.Translate("common.loading")</span>
-        </div>
-    }
-    else if (filteredProducts is not null && filteredProducts.Count == 0)
-    {
-        <div class="atab-empty">
-            <div class="atab-empty-icon">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                        d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                </svg>
-            </div>
-            <p class="atab-empty-title">@(string.IsNullOrWhiteSpace(SearchQuery) ? L.Translate("admin.noProducts") : L.Translate("admin.noSearchResults"))</p>
-            @if (!string.IsNullOrWhiteSpace(SearchQuery))
-            {
-                <button class="atab-empty-clear" @onclick="@(() => SearchQuery = string.Empty)">
-                    @L.Translate("admin.clearSearch")
-                </button>
-            }
-        </div>
+        <EmptyState Message="@L.Translate("admin.noProducts")" />
     }
     else
     {
-        <div class="atab-table-wrap">
-            <table class="atab-table w-full min-w-[800px] table-fixed">
-                <thead>
-                    <tr>
-                        <th class="atab-th sortable w-2/12 @(SortColumn == "name" ? "sort-active" : "")"
-                            @onclick="@(() => SetSort("name"))">
-                            @L.Translate("admin.name")
-                            <span class="sort-arrow">@GetSortArrow("name")</span>
-                        </th>
-                        <th class="atab-th w-4/12">@L.Translate("admin.description")</th>
-                        <th class="atab-th sortable w-2/12 @(SortColumn == "version" ? "sort-active" : "")"
-                            @onclick="@(() => SetSort("version"))">
-                            @L.Translate("admin.version")
-                            <span class="sort-arrow">@GetSortArrow("version")</span>
-                        </th>
-                        <th class="atab-th sortable w-2/12 @(SortColumn == "techstack" ? "sort-active" : "")"
-                            @onclick="@(() => SetSort("techstack"))">
-                            @L.Translate("admin.techStack")
-                            <span class="sort-arrow">@GetSortArrow("techstack")</span>
-                        </th>
-                        <th class="atab-th atab-th-center w-1/12">
-                            <svg style="width:1rem;height:1rem;display:inline-block;vertical-align:middle;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                            </svg>
-                        </th>
-                        <th class="atab-th atab-th-actions w-1/12">@L.Translate("admin.actions")</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var product in filteredProducts!)
+        <EmptyState Message="@L.Translate("admin.noSearchResults")" ActionText="@Heading("admin.clearSearch")" OnAction="ClearSearch" />
+    }
+}
+else
+{
+    <div class="overflow-x-auto">
+        <table data-term class="w-full min-w-[720px] border-collapse text-left text-14">
+            <thead>
+                <tr class="border-b border-line font-mono text-13 text-muted">
+                    <SortHeader Text="@Heading("admin.name")" Column="name" Sort="Sort" OnSort="SortBy" Class="w-[22%]" />
+                    <th class="font-normal">@Heading("admin.description")</th>
+                    <SortHeader Text="@Heading("admin.version")" Column="version" Sort="Sort" OnSort="SortBy" Class="w-28" />
+                    <SortHeader Text="@Heading("admin.techStack")" Column="techstack" Sort="Sort" OnSort="SortBy" Class="w-40" />
+                    <th class="w-20 text-right font-normal">@Heading("admin.tickets")</th>
+                    <th class="w-24 font-normal"><span class="sr-only">@L.Translate("admin.actions")</span></th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Row.IsAdding)
+                {
+                    @EditFields(L.Translate("admin.addProduct"))
+                }
+                @foreach (var product in rows)
+                {
+                    var tickets = product.Tickets?.Count ?? 0;
+                    if (Row.IsEditing(product.Id))
                     {
-                        <tr class="atab-row">
-                            <td class="atab-td atab-td-primary truncate" title="@product.Name">@product.Name</td>
-                            <td class="atab-td">
-                                <div class="truncate" title="@product.Description">@product.Description</div>
-                            </td>
-                            <td class="atab-td atab-td-nowrap truncate">
-                                <span class="atab-version-badge">@product.CurrentVersion</span>
-                            </td>
-                            <td class="atab-td atab-td-nowrap truncate">
+                        @EditFields(L.Translate("admin.editProduct"))
+                    }
+                    else if (Row.IsDeleting(product.Id))
+                    {
+                        <DeletePrompt @key="@($"delete-{product.Id}")" Columns="Columns" Kind="product" Name="@product.Name"
+                                      IsDeleting="Row.IsBusy" OnConfirm="() => DeleteProductAsync(product)" OnCancel="Row.Close" />
+                    }
+                    else
+                    {
+                        <tr @key="product" data-row="@product.Id" class="border-b border-dashed border-line hover:bg-surface">
+                            <td class="truncate text-fg" title="@product.Name">@product.Name</td>
+                            <td class="max-w-0 truncate text-muted" title="@product.Description">@product.Description</td>
+                            <td class="truncate font-mono text-13">@product.CurrentVersion</td>
+                            <td>
                                 @if (product.TechStack is not null)
                                 {
-                                    <span class="atab-stack-badge @GetStackColorClass(product.TechStack.Type)">
-                                        @product.TechStack.Name
-                                    </span>
+                                    <Tag Title="@product.TechStack.Type">@product.TechStack.Name</Tag>
                                 }
                             </td>
-                            <td class="atab-td atab-td-center">
-                                <span class="atab-ticket-count @(product.Tickets?.Count > 0 ? "has-tickets" : "")">
-                                    @(product.Tickets?.Count ?? 0)
-                                </span>
-                            </td>
-                            <td class="atab-td atab-td-actions text-right pr-4">
-                                <div class="flex justify-end gap-2 inline-flex">
-                                    <button @onclick="@(() => EditProduct(product))"
-                                            class="atab-action-btn edit"
-                                            title="@L.Translate("common.edit")">
-                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                        </svg>
-                                    </button>
-                                    <button @onclick="@(() => DeleteProduct(product))"
-                                            class="atab-action-btn delete @(product.Tickets?.Count > 0 ? "disabled" : "")"
-                                            disabled="@(product.Tickets?.Count > 0)"
-                                            title="@(product.Tickets?.Count > 0 ? L.Translate("admin.cannotDeleteProductWithTickets") : L.Translate("common.delete"))">
-                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                        </svg>
-                                    </button>
-                                </div>
+                            <td class="text-right font-mono @(tickets == 0 ? "text-muted" : "text-fg")">@tickets</td>
+                            <td class="whitespace-nowrap text-right font-mono text-13">
+                                <button type="button" data-action="edit" class="text-muted hover:text-fg" @onclick="() => EditProduct(product)">@Heading("common.edit")</button>
+                                <button type="button" data-action="delete" class="ml-3 text-muted hover:text-danger disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:text-muted"
+                                        disabled="@(tickets > 0)"
+                                        title="@(tickets > 0 ? L.Translate("admin.cannotDeleteProductWithTickets") : L.Translate("common.delete"))"
+                                        aria-label="@(tickets > 0 ? L.Translate("admin.cannotDeleteProductWithTickets") : L.Translate("common.delete"))"
+                                        @onclick="() => Row.ConfirmDelete(product.Id)">×</button>
                             </td>
                         </tr>
                     }
-                </tbody>
-            </table>
-        </div>
-
-        <div class="atab-footer">
-            <span class="atab-footer-info">
-                @if (!string.IsNullOrWhiteSpace(SearchQuery))
-                {
-                    @($"{filteredProducts!.Count} / {Products?.Count ?? 0}")
                 }
-                else
-                {
-                    @($"{Products?.Count ?? 0}")
-                }
-            </span>
-        </div>
-    }
-</div>
+            </tbody>
+        </table>
+    </div>
+}
 
-<!-- Modal -->
-<Modal IsOpen="ShowModal"
-       Title="@ModalTitle"
-       Subtitle="@L.Translate("admin.products")"
-       ErrorMessage="@ErrorMessage"
-       IsSaving="IsSaving"
-       OnClose="CloseModal"
-       OnSave="SaveModal"
-       CancelText="@L.Translate("common.cancel")"
-       SaveText="@L.Translate("common.save")"
-       SavingText="@L.Translate("common.saving")">
-    <ChildContent>
-        <div class="amodal-field">
-            <label class="amodal-label">@L.Translate("admin.name")</label>
-            <input type="text" @bind="EditingProduct.Name" class="amodal-input"
-                   placeholder="@L.Translate("admin.productNamePlaceholder")" />
-        </div>
-        <div class="amodal-field">
-            <label class="amodal-label">@L.Translate("admin.description")</label>
-            <textarea @bind="EditingProduct.Description" rows="3" class="amodal-input amodal-textarea"
-                      placeholder="@L.Translate("admin.productDescriptionPlaceholder")"></textarea>
-        </div>
-        <div class="amodal-row-2">
-            <div class="amodal-field">
-                <label class="amodal-label">@L.Translate("admin.version")</label>
-                <input type="text" @bind="EditingProduct.CurrentVersion" class="amodal-input"
-                       placeholder="1.0.0" />
+@code {
+    private const int Columns = 6;
+
+    private RenderFragment EditFields(string label) => __builder =>
+    {
+        <EditRow @key="@($"edit-{EditingProduct.Id}-{Row.IsAdding}")" Columns="Columns" Label="@label" IsSaving="Row.IsBusy" Error="@Row.Error"
+                 OnSave="SaveAsync" OnCancel="Row.Close" FocusTarget="() => firstField">
+            <div class="grid grid-cols-1 gap-3 md:grid-cols-[2fr_3fr_1fr_1.5fr]">
+                <div>
+                    <label for="product-name" class="mb-1 block text-13 text-muted">@Heading("admin.name")</label>
+                    <input id="product-name" type="text" class="input-field h-8 px-2.5 text-14" @ref="firstField"
+                           placeholder="@L.Translate("admin.productNamePlaceholder")"
+                           @bind="EditingProduct.Name" @bind:event="oninput" />
+                </div>
+                <div>
+                    <label for="product-description" class="mb-1 block text-13 text-muted">@Heading("admin.description")</label>
+                    <input id="product-description" type="text" class="input-field h-8 px-2.5 text-14"
+                           placeholder="@L.Translate("admin.productDescriptionPlaceholder")"
+                           @bind="EditingProduct.Description" @bind:event="oninput" />
+                </div>
+                <div>
+                    <label for="product-version" class="mb-1 block text-13 text-muted">@Heading("admin.version")</label>
+                    <input id="product-version" type="text" class="input-field h-8 px-2.5 font-mono text-13" placeholder="1.0.0"
+                           @bind="EditingProduct.CurrentVersion" @bind:event="oninput" />
+                </div>
+                <div>
+                    <label for="product-stack" class="mb-1 block text-13 text-muted">@Heading("admin.techStack")</label>
+                    <select id="product-stack" class="input-field h-8 min-w-0 px-2 text-14" @bind="EditingProduct.TechStackId">
+                        @foreach (var ts in TechStacks ?? [])
+                        {
+                            <option value="@ts.Id">@ts.Name (@ts.Type)</option>
+                        }
+                    </select>
+                </div>
             </div>
-            <div class="amodal-field">
-                <label class="amodal-label">@L.Translate("admin.techStack")</label>
-                <select @bind="EditingProduct.TechStackId" class="amodal-input amodal-select">
-                    @foreach (var ts in TechStacks ?? [])
-                    {
-                        <option value="@ts.Id">@ts.Name (@ts.Type)</option>
-                    }
-                </select>
-            </div>
-        </div>
-    </ChildContent>
-</Modal>
+        </EditRow>
+    };
+}

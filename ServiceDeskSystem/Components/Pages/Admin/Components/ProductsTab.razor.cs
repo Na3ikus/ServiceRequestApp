@@ -8,10 +8,12 @@ using ServiceDeskSystem.Domain.Entities;
 namespace ServiceDeskSystem.Components.Pages.Admin.Components;
 
 /// <summary>
-/// Admin panel products management tab component.
+/// Admin products section: table with inline edit and a delete prompt.
 /// </summary>
 public partial class ProductsTab : BaseComponent
 {
+    private ElementReference firstField;
+
     [Parameter]
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1002:Do not expose generic lists", Justification = "Blazor parameter")]
     public IList<Product>? Products { get; set; }
@@ -31,118 +33,45 @@ public partial class ProductsTab : BaseComponent
 
     protected Product EditingProduct { get; set; } = new ();
 
-    protected bool ShowModal { get; set; }
+    protected RowState Row { get; } = new ();
 
-    protected string ModalTitle { get; set; } = string.Empty;
-
-    protected bool IsEditing { get; set; }
-
-    protected bool IsSaving { get; set; }
-
-    protected string? ErrorMessage { get; set; }
+    protected TableSort Sort { get; } = new ("name");
 
     protected string SearchQuery { get; set; } = string.Empty;
 
-    protected string SortColumn { get; set; } = "name";
-
-    protected bool SortAscending { get; set; } = true;
-
-    protected static string GetStackColorClass(string type)
+    protected IList<Product>? GetFilteredProducts()
     {
-        if (string.IsNullOrWhiteSpace(type))
-        {
-            return "stack-default";
-        }
-
-        var t = type.ToUpperInvariant();
-
-        if (t.Contains("C#", StringComparison.OrdinalIgnoreCase) || t.Contains(".NET", StringComparison.OrdinalIgnoreCase) || t.Contains("DOTNET", StringComparison.OrdinalIgnoreCase))
-        {
-            return "stack-dotnet";
-        }
-
-        if (t.Contains("C++", StringComparison.OrdinalIgnoreCase) || t.Contains("EMBED", StringComparison.OrdinalIgnoreCase))
-        {
-            return "stack-cpp";
-        }
-
-        if (t.Contains("JAVA", StringComparison.OrdinalIgnoreCase) && !t.Contains("SCRIPT", StringComparison.OrdinalIgnoreCase))
-        {
-            return "stack-java";
-        }
-
-        if (t.Contains("JAVASCRIPT", StringComparison.OrdinalIgnoreCase) || t.Contains("JS", StringComparison.OrdinalIgnoreCase) || t.Contains("NODE", StringComparison.OrdinalIgnoreCase) || t.Contains("REACT", StringComparison.OrdinalIgnoreCase) || t.Contains("VUE", StringComparison.OrdinalIgnoreCase) || t.Contains("ANGULAR", StringComparison.OrdinalIgnoreCase))
-        {
-            return "stack-js";
-        }
-
-        if (t.Contains("PYTHON", StringComparison.OrdinalIgnoreCase) || t.Contains("PY", StringComparison.OrdinalIgnoreCase))
-        {
-            return "stack-python";
-        }
-
-        if (t.Contains("ANDROID", StringComparison.OrdinalIgnoreCase) || t.Contains("KOTLIN", StringComparison.OrdinalIgnoreCase) || t.Contains("IOS", StringComparison.OrdinalIgnoreCase) || t.Contains("SWIFT", StringComparison.OrdinalIgnoreCase) || t.Contains("MOBILE", StringComparison.OrdinalIgnoreCase))
-        {
-            return "stack-mobile";
-        }
-
-        if (t.Contains("PHP", StringComparison.OrdinalIgnoreCase))
-        {
-            return "stack-php";
-        }
-
-        if (t.Contains("GO", StringComparison.OrdinalIgnoreCase) || t.Contains("RUST", StringComparison.OrdinalIgnoreCase))
-        {
-            return "stack-go";
-        }
-
-        return "stack-default";
-    }
-
-    protected IList<Product>? GetFilteredProducts() =>
-        this.Products?
+        var query = this.Products?
             .Where(p =>
                 string.IsNullOrWhiteSpace(this.SearchQuery) ||
                 p.Name.Contains(this.SearchQuery, StringComparison.OrdinalIgnoreCase) ||
                 p.Description.Contains(this.SearchQuery, StringComparison.OrdinalIgnoreCase) ||
                 (p.TechStack?.Name ?? string.Empty).Contains(this.SearchQuery, StringComparison.OrdinalIgnoreCase) ||
-                p.CurrentVersion.Contains(this.SearchQuery, StringComparison.OrdinalIgnoreCase))
-            .OrderBy(
-                p => this.SortColumn switch
-            {
-                "version" => p.CurrentVersion,
-                "techstack" => p.TechStack?.Name ?? string.Empty,
-                _ => p.Name,
-            }, this.SortAscending ? StringComparer.OrdinalIgnoreCase : new ReverseStringComparer())
-            .ToList();
+                p.CurrentVersion.Contains(this.SearchQuery, StringComparison.OrdinalIgnoreCase));
 
-    protected void SetSort(string column)
-    {
-        if (this.SortColumn == column)
+        if (query is null)
         {
-            this.SortAscending = !this.SortAscending;
+            return null;
         }
-        else
+
+        Func<Product, string> key = this.Sort.Column switch
         {
-            this.SortColumn = column;
-            this.SortAscending = true;
-        }
+            "version" => p => p.CurrentVersion,
+            "techstack" => p => p.TechStack?.Name ?? string.Empty,
+            _ => p => p.Name,
+        };
+
+        return this.Sort.Apply(query, key, StringComparer.OrdinalIgnoreCase).ToList();
     }
 
-    protected string GetSortArrow(string column)
-    {
-        if (this.SortColumn != column)
-        {
-            return "↕";
-        }
+    protected void SortBy(string column) => this.Sort.Toggle(column);
 
-        return this.SortAscending ? "↑" : "↓";
-    }
+    protected void ClearSearch() => this.SearchQuery = string.Empty;
 
     protected void ShowAddProduct()
     {
         this.EditingProduct = new Product { TechStackId = this.TechStacks?.FirstOrDefault()?.Id ?? 0 };
-        this.OpenModal(this.L.Translate("admin.addProduct"), isEdit: false);
+        this.Row.Add();
     }
 
     protected void EditProduct(Product product)
@@ -157,16 +86,18 @@ public partial class ProductsTab : BaseComponent
             CurrentVersion = product.CurrentVersion,
             TechStackId = product.TechStackId,
         };
-        this.OpenModal(this.L.Translate("admin.editProduct"), isEdit: true);
+        this.Row.Edit(product.Id);
     }
 
-    protected async Task DeleteProduct(Product product)
+    protected async Task DeleteProductAsync(Product product)
     {
         ArgumentNullException.ThrowIfNull(product);
 
+        this.Row.Begin();
         try
         {
             var success = await this.AdminService.DeleteProductAsync(product.Id);
+            this.Row.Close();
             if (success)
             {
                 await this.ToastService.ShowToastAsync(this.L.Translate("admin.productDeleted"), ToastType.Success);
@@ -179,75 +110,40 @@ public partial class ProductsTab : BaseComponent
         }
         catch (Exception ex)
         {
+            this.Row.Close();
             await this.ToastService.ShowToastAsync($"Error deleting product: {ex.Message}", ToastType.Error);
         }
     }
 
-    protected void CloseModal()
-    {
-        this.ShowModal = false;
-        this.ErrorMessage = null;
-    }
-
-    protected async Task SaveModal()
-    {
-        this.IsSaving = true;
-        this.ErrorMessage = null;
-
-        try
-        {
-            await this.SaveProductAsync();
-
-            if (this.ErrorMessage is null)
-            {
-                await this.OnProductsChanged.InvokeAsync();
-                this.CloseModal();
-            }
-        }
-        catch (Exception ex)
-        {
-            this.ErrorMessage = ex.Message;
-        }
-        finally
-        {
-            this.IsSaving = false;
-        }
-    }
-
-    private async Task SaveProductAsync()
+    protected async Task SaveAsync()
     {
         if (string.IsNullOrWhiteSpace(this.EditingProduct.Name))
         {
-            this.ErrorMessage = this.L.Translate("admin.nameRequired");
+            this.Row.Fail(this.L.Translate("admin.nameRequired"));
             return;
         }
 
-        if (this.IsEditing)
+        var isNew = this.Row.IsAdding;
+        this.Row.Begin();
+        try
         {
-            await this.AdminService.UpdateProductAsync(this.EditingProduct);
-            await this.ToastService.ShowToastAsync(this.L.Translate("admin.productUpdated"), ToastType.Success);
-        }
-        else
-        {
-            await this.AdminService.CreateProductAsync(this.EditingProduct);
-            await this.ToastService.ShowToastAsync(this.L.Translate("admin.productCreated"), ToastType.Success);
-        }
-    }
+            if (isNew)
+            {
+                await this.AdminService.CreateProductAsync(this.EditingProduct);
+                await this.ToastService.ShowToastAsync(this.L.Translate("admin.productCreated"), ToastType.Success);
+            }
+            else
+            {
+                await this.AdminService.UpdateProductAsync(this.EditingProduct);
+                await this.ToastService.ShowToastAsync(this.L.Translate("admin.productUpdated"), ToastType.Success);
+            }
 
-    private void OpenModal(string title, bool isEdit)
-    {
-        this.ModalTitle = title;
-        this.IsEditing = isEdit;
-        this.ErrorMessage = null;
-        this.ShowModal = true;
-    }
-
-    private sealed class ReverseStringComparer : IComparer<string>
-    {
-        public int Compare(string? x, string? y)
+            this.Row.Close();
+            await this.OnProductsChanged.InvokeAsync();
+        }
+        catch (Exception ex)
         {
-            var result = StringComparer.OrdinalIgnoreCase.Compare(x, y);
-            return -result;
+            this.Row.Fail(ex.Message);
         }
     }
 }

@@ -1,4 +1,3 @@
-using System.Globalization;
 using Microsoft.AspNetCore.Components;
 using ServiceDeskSystem.Application.Services.Tags;
 using ServiceDeskSystem.Application.Services.Toasts;
@@ -9,10 +8,12 @@ using ServiceDeskSystem.Domain.Entities;
 namespace ServiceDeskSystem.Components.Pages.Admin.Components;
 
 /// <summary>
-/// Admin panel tags management tab component.
+/// Admin tags section: table with inline edit (colour presets, live preview) and a delete prompt.
 /// </summary>
 public partial class TagsTab : BaseComponent
 {
+    private const string DefaultColor = "#3B82F6";
+
     private static readonly string[] PresetColors =
     [
         "#EF4444",
@@ -26,6 +27,8 @@ public partial class TagsTab : BaseComponent
         "#EC4899",
         "#64748B",
     ];
+
+    private ElementReference firstField;
 
     [Parameter]
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1002:Do not expose generic lists", Justification = "Blazor parameter")]
@@ -42,66 +45,39 @@ public partial class TagsTab : BaseComponent
 
     protected Tag EditingTag { get; set; } = new ();
 
-    protected bool ShowModal { get; set; }
+    protected RowState Row { get; } = new ();
 
-    protected string ModalTitle { get; set; } = string.Empty;
-
-    protected bool IsEditing { get; set; }
-
-    protected bool IsSaving { get; set; }
-
-    protected string? ErrorMessage { get; set; }
+    protected TableSort Sort { get; } = new ("name");
 
     protected string SearchQuery { get; set; } = string.Empty;
 
-    protected string SortColumn { get; set; } = "name";
-
-    protected bool SortAscending { get; set; } = true;
-
     protected IList<Tag>? GetFilteredTags()
     {
-        IComparer<string> comparer = this.SortAscending ? StringComparer.OrdinalIgnoreCase : new ReverseStringComparer();
-        return this.Tags?
+        var query = this.Tags?
             .Where(t =>
                 string.IsNullOrWhiteSpace(this.SearchQuery) ||
-                t.Name.Contains(this.SearchQuery, StringComparison.OrdinalIgnoreCase))
-            .OrderBy(
-                t => this.SortColumn switch
-                {
-                    "count" => (t.Tickets?.Count ?? 0).ToString("D10", CultureInfo.InvariantCulture),
-                    _ => t.Name,
-                },
-                comparer)
-            .ToList();
-    }
+                t.Name.Contains(this.SearchQuery, StringComparison.OrdinalIgnoreCase));
 
-    protected void SetSort(string column)
-    {
-        if (this.SortColumn == column)
+        if (query is null)
         {
-            this.SortAscending = !this.SortAscending;
-        }
-        else
-        {
-            this.SortColumn = column;
-            this.SortAscending = true;
-        }
-    }
-
-    protected string GetSortArrow(string column)
-    {
-        if (this.SortColumn != column)
-        {
-            return "↕";
+            return null;
         }
 
-        return this.SortAscending ? "↑" : "↓";
+        var ordered = this.Sort.Column == "count"
+            ? this.Sort.Apply(query, t => t.Tickets?.Count ?? 0)
+            : this.Sort.Apply(query, t => t.Name, StringComparer.OrdinalIgnoreCase);
+
+        return ordered.ThenBy(t => t.Name, StringComparer.OrdinalIgnoreCase).ToList();
     }
+
+    protected void SortBy(string column) => this.Sort.Toggle(column);
+
+    protected void ClearSearch() => this.SearchQuery = string.Empty;
 
     protected void ShowAddTag()
     {
-        this.EditingTag = new Tag { Color = "#3B82F6" };
-        this.OpenModal(this.L.Translate("tags.addTag"), isEdit: false);
+        this.EditingTag = new Tag { Color = DefaultColor };
+        this.Row.Add();
     }
 
     protected void EditTag(Tag tag)
@@ -114,16 +90,18 @@ public partial class TagsTab : BaseComponent
             Name = tag.Name,
             Color = tag.Color,
         };
-        this.OpenModal(this.L.Translate("tags.editTag"), isEdit: true);
+        this.Row.Edit(tag.Id);
     }
 
-    protected async Task DeleteTag(Tag tag)
+    protected async Task DeleteTagAsync(Tag tag)
     {
         ArgumentNullException.ThrowIfNull(tag);
 
+        this.Row.Begin();
         try
         {
             var success = await this.TagService.DeleteTagAsync(tag.Id, this.AuthService.CurrentUser?.Id);
+            this.Row.Close();
             if (success)
             {
                 await this.ToastService.ShowToastAsync(this.L.Translate("tags.deleted"), ToastType.Success);
@@ -132,82 +110,40 @@ public partial class TagsTab : BaseComponent
         }
         catch (Exception ex)
         {
+            this.Row.Close();
             await this.ToastService.ShowToastAsync($"Error deleting tag: {ex.Message}", ToastType.Error);
         }
     }
 
-    protected void CloseModal()
-    {
-        this.ShowModal = false;
-        this.ErrorMessage = null;
-    }
-
-    protected async Task SaveModal()
-    {
-        this.IsSaving = true;
-        this.ErrorMessage = null;
-
-        try
-        {
-            await this.SaveTagAsync();
-
-            if (this.ErrorMessage is null)
-            {
-                await this.OnTagsChanged.InvokeAsync();
-                this.CloseModal();
-            }
-        }
-        catch (Exception ex)
-        {
-            this.ErrorMessage = ex.Message;
-        }
-        finally
-        {
-            this.IsSaving = false;
-        }
-    }
-
-    private async Task SaveTagAsync()
+    protected async Task SaveAsync()
     {
         if (string.IsNullOrWhiteSpace(this.EditingTag.Name))
         {
-            this.ErrorMessage = this.L.Translate("tags.nameRequired");
+            this.Row.Fail(this.L.Translate("tags.nameRequired"));
             return;
         }
 
-        if (this.IsEditing)
+        var isNew = this.Row.IsAdding;
+        this.Row.Begin();
+        try
         {
-            await this.TagService.UpdateTagAsync(
-                this.EditingTag.Id,
-                this.EditingTag.Name,
-                this.EditingTag.Color,
-                this.AuthService.CurrentUser?.Id);
-            await this.ToastService.ShowToastAsync(this.L.Translate("tags.updated"), ToastType.Success);
-        }
-        else
-        {
-            await this.TagService.CreateTagAsync(
-                this.EditingTag.Name,
-                this.EditingTag.Color,
-                this.AuthService.CurrentUser?.Id);
-            await this.ToastService.ShowToastAsync(this.L.Translate("tags.created"), ToastType.Success);
-        }
-    }
+            if (isNew)
+            {
+                await this.TagService.CreateTagAsync(this.EditingTag.Name, this.EditingTag.Color, this.AuthService.CurrentUser?.Id);
+                await this.ToastService.ShowToastAsync(this.L.Translate("tags.created"), ToastType.Success);
+            }
+            else
+            {
+                await this.TagService.UpdateTagAsync(this.EditingTag.Id, this.EditingTag.Name, this.EditingTag.Color, this.AuthService.CurrentUser?.Id);
+                await this.ToastService.ShowToastAsync(this.L.Translate("tags.updated"), ToastType.Success);
+            }
 
-    private void OpenModal(string title, bool isEdit)
-    {
-        this.ModalTitle = title;
-        this.IsEditing = isEdit;
-        this.ErrorMessage = null;
-        this.ShowModal = true;
-    }
-
-    private sealed class ReverseStringComparer : IComparer<string>
-    {
-        public int Compare(string? x, string? y)
+            this.Row.Close();
+            await this.OnTagsChanged.InvokeAsync();
+        }
+        catch (Exception ex)
         {
-            var result = StringComparer.OrdinalIgnoreCase.Compare(x, y);
-            return -result;
+            this.Row.Fail(ex.Message);
         }
     }
 }

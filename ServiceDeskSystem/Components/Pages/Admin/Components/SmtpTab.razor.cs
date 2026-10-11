@@ -1,86 +1,46 @@
-using System.Net.Mail;
 using Microsoft.AspNetCore.Components;
-using ServiceDeskSystem.Application.Services.Toasts;
-using ServiceDeskSystem.Application.Services.Toasts.Models;
 using ServiceDeskSystem.Components.UI.Base;
-using ServiceDeskSystem.Domain.Interfaces;
 
 namespace ServiceDeskSystem.Components.Pages.Admin.Components;
 
 /// <summary>
-/// SMTP configuration and diagnostics tab component.
+/// SMTP section: a terminal log of checks and test emails, and the test email form.
+/// The log and the commands live in <see cref="Admin"/> for the time the page is open.
 /// </summary>
 public partial class SmtpTab : BaseComponent
 {
+    private string recipient = string.Empty;
+    private string subject = "ServiceDesk SMTP test";
+
+    /// <summary>
+    /// Gets or sets the log entries, oldest first.
+    /// </summary>
     [Parameter]
-    public bool? SmtpCheckSuccess { get; set; }
+    public IReadOnlyList<SmtpLogEntry> Log { get; set; } = [];
 
+    /// <summary>
+    /// Gets or sets a value indicating whether a connection check is running.
+    /// </summary>
     [Parameter]
-    public string? SmtpCheckMessage { get; set; }
+    public bool IsChecking { get; set; }
 
+    /// <summary>
+    /// Gets or sets a value indicating whether a test email is being sent.
+    /// </summary>
     [Parameter]
-    public bool IsCheckingSmtp { get; set; }
+    public bool IsSending { get; set; }
 
+    /// <summary>
+    /// Gets or sets the callback that runs a connection check.
+    /// </summary>
     [Parameter]
-    public EventCallback OnCheckSmtp { get; set; }
+    public EventCallback OnCheck { get; set; }
 
-    [Inject]
-    protected IToastService ToastService { get; set; } = null!;
+    /// <summary>
+    /// Gets or sets the callback that sends a test email.
+    /// </summary>
+    [Parameter]
+    public EventCallback<SmtpTestEmail> OnSend { get; set; }
 
-    [Inject]
-    protected IEmailSender EmailSender { get; set; } = null!;
-
-    protected string SmtpTestRecipient { get; set; } = string.Empty;
-
-    protected string SmtpTestSubject { get; set; } = "ServiceDesk SMTP test";
-
-    protected bool IsSendingTestEmail { get; set; }
-
-    protected bool? SmtpSendSuccess { get; set; }
-
-    protected string? SmtpSendMessage { get; set; }
-
-    protected async Task SendSmtpTestEmailAsync()
-    {
-        if (this.IsSendingTestEmail)
-        {
-            return;
-        }
-
-        var recipient = this.SmtpTestRecipient.Trim();
-        if (string.IsNullOrWhiteSpace(recipient) || !MailAddress.TryCreate(recipient, out _))
-        {
-            this.SmtpSendSuccess = false;
-            this.SmtpSendMessage = "Enter a valid recipient email.";
-            await this.ToastService.ShowToastAsync(this.SmtpSendMessage, ToastType.Warning).ConfigureAwait(false);
-            return;
-        }
-
-        this.IsSendingTestEmail = true;
-        this.SmtpSendMessage = null;
-
-        try
-        {
-            var subject = string.IsNullOrWhiteSpace(this.SmtpTestSubject) ? "ServiceDesk SMTP test" : this.SmtpTestSubject.Trim();
-            var utcNow = DateTime.UtcNow;
-            var textBody = $"SMTP test email from ServiceDeskSystem at {utcNow:O}.";
-            var htmlBody = $"<p><strong>SMTP test email</strong> from ServiceDeskSystem.</p><p>UTC: {utcNow:O}</p>";
-
-            await this.EmailSender.SendAsync(recipient, subject, htmlBody, textBody).ConfigureAwait(false);
-
-            this.SmtpSendSuccess = true;
-            this.SmtpSendMessage = "Test email sent successfully.";
-            await this.ToastService.ShowToastAsync(this.SmtpSendMessage, ToastType.Success).ConfigureAwait(false);
-        }
-        catch (Exception ex)
-        {
-            this.SmtpSendSuccess = false;
-            this.SmtpSendMessage = ex.Message;
-            await this.ToastService.ShowToastAsync($"Test email failed: {ex.Message}", ToastType.Error).ConfigureAwait(false);
-        }
-        finally
-        {
-            this.IsSendingTestEmail = false;
-        }
-    }
+    private Task SendAsync() => this.IsSending ? Task.CompletedTask : this.OnSend.InvokeAsync(new SmtpTestEmail(this.recipient, this.subject));
 }
