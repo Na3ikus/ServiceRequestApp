@@ -128,5 +128,7 @@
   "statusAction.closeTicket": "Close Ticket",
   "statusAction.reopenTicket": "Reopen Ticket",
   "statusAction.closeDirectly": "Close Directly",
-  "dashboard.ofTotal": "{0}% of all"
+  "dashboard.ofTotal": "{0}% of all",
+  "table.type": "Type",
+  "tickets.nothingFound": "Nothing matches the filters"
 }

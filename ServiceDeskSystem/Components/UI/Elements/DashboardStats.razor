@@ -1,23 +1,9 @@
 @inherits ServiceDeskSystem.Components.UI.Base.BaseComponent
 
 <div class="grid grid-cols-2 lg:grid-cols-4 gap-px overflow-hidden rounded-lg border border-line bg-line">
-    @Figure("dashboard.totalTickets", displayTotalTickets, null, false, false)
-    @Figure("dashboard.openTickets", displayOpenTickets, displayTotalTickets, false, false)
-    @Figure("dashboard.criticalPriority", displayCriticalTickets, displayTotalTickets, true, criticalTickets > 0)
-    @Figure("dashboard.myTickets", displayMyTickets, displayTotalTickets, false, false)
+    <StatFigure Label="@Heading("dashboard.totalTickets")" Value="displayTotalTickets" />
+    <StatFigure Label="@Heading("dashboard.openTickets")" Value="displayOpenTickets" Total="displayTotalTickets" />
+    <StatFigure Label="@Heading("dashboard.criticalPriority")" Value="displayCriticalTickets" Total="displayTotalTickets"
+                Danger="true" Alarm="criticalTickets > 0" />
+    <StatFigure Label="@Heading("dashboard.myTickets")" Value="displayMyTickets" Total="displayTotalTickets" />
 </div>
-
-@code {
-    private RenderFragment Figure(string labelKey, int value, int? total, bool critical, bool alarm) => __builder =>
-    {
-        var share = GetPercentage(value, total ?? value);
-        <div data-stat class="bg-canvas px-4 py-4">
-            <p class="font-mono text-13 text-muted"># @Heading(labelKey)</p>
-            <p class="mt-2 font-mono text-40 leading-none tabular-nums @(alarm ? "text-danger" : "text-fg")">@value</p>
-            <div class="mt-3 h-0.5 bg-line" aria-hidden="true">
-                <div class="h-full @(critical ? "bg-danger" : "bg-fg")" style="width: @(share)%"></div>
-            </div>
-            <p class="mt-1.5 font-mono text-12 text-muted">@string.Format(UiCulture, L.Translate("dashboard.ofTotal"), share)</p>
-        </div>
-    };
-}

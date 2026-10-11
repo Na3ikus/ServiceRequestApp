@@ -2,8 +2,9 @@ using System.Security.Cryptography;
 using System.Threading;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
-using ServiceDeskSystem.Components.Features;
+using ServiceDeskSystem.Components.Features.Tickets;
 using ServiceDeskSystem.Components.UI.Base;
+using ServiceDeskSystem.Components.UI.Primitives;
 using ServiceDeskSystem.Domain.Entities;
 using ServiceDeskSystem.Domain.Enums;
 
@@ -14,6 +15,10 @@ namespace ServiceDeskSystem.Components.Pages.Developer;
 /// </summary>
 public partial class DeveloperDashboard : BaseComponent
 {
+    private const string TableView = "TABLE";
+    private const string KanbanView = "KANBAN";
+
+    private static readonly IReadOnlyList<PathSegment> Segments = [new ("developer")];
     private static readonly TimeSpan BaseRefreshInterval = TimeSpan.FromSeconds(12);
     private static readonly TimeSpan MaxRefreshJitter = TimeSpan.FromSeconds(3);
 
@@ -21,6 +26,7 @@ public partial class DeveloperDashboard : BaseComponent
     private Task? refreshLoopTask;
     private bool isRefreshing;
     private bool authRestored;
+    private TicketFilterState filter = new ();
 
     [Inject]
     private ITicketService TicketService { get; set; } = null!;
@@ -39,7 +45,10 @@ public partial class DeveloperDashboard : BaseComponent
 
     private int completedCount { get; set; }
 
-    private string viewMode { get; set; } = "Table";
+    private string viewMode { get; set; } = TableView;
+
+    private IReadOnlyList<(string Value, string Text)> ViewOptions =>
+        [(TableView, this.Heading("kanban.viewTable")), (KanbanView, this.Heading("kanban.viewKanban"))];
 
     private int CurrentUserId => this.AuthService.CurrentUser?.Id ?? 0;
 

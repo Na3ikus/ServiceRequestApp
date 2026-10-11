@@ -8,38 +8,23 @@
 
 <!-- Created by Nazar "N1h3" Hutsol -->
 <div class="kanban-board overflow-x-auto pb-4" @ref="boardContainer">
-    <div class="flex gap-4 min-w-max h-full">
+    <div class="flex gap-3 min-w-max h-full">
         @foreach (var column in Columns)
         {
             var col = column;
-            var colTickets = GetTicketsForColumn(col.Status);
+            var colTickets = GetTicketsForColumn(col);
 
-            <div class="kanban-column flex flex-col w-72 flex-shrink-0">
-                <!-- Column Header -->
-                <div class="flex items-center justify-between mb-3 px-1">
-                    <div class="flex items-center gap-2">
-                        <div class="w-3 h-3 rounded-full @col.DotColor flex-shrink-0"></div>
-                        <span class="text-sm font-semibold text-gray-700 dark:text-gray-200">
-                            @GetStatusText(col.Status)
-                        </span>
-                    </div>
-                    <span class="inline-flex items-center justify-center min-w-[24px] h-6 px-2 rounded-full 
-                                 bg-gray-200 dark:bg-gray-700 text-xs font-bold text-gray-600 dark:text-gray-300">
-                        @colTickets.Count
-                    </span>
+            <section class="kanban-column flex flex-col w-72 flex-shrink-0" aria-label="@GetStatusText(col)">
+                <div class="mb-2 flex items-center justify-between px-1 font-mono text-13">
+                    <h3 data-column-title class="text-muted"># @GetStatusText(col).ToLower(UiCulture)</h3>
+                    <span class="tabular-nums text-muted">@colTickets.Count</span>
                 </div>
 
-                <!-- Drop Zone (column body) -->
-                <div class="kanban-drop-zone flex-1 min-h-[200px] rounded-2xl p-2.5 space-y-2.5
-                            bg-gray-100/70 dark:bg-gray-800/40 border border-gray-200/50 dark:border-gray-700/40
-                            transition-all duration-200"
-                     @ref="dropZoneRefs[col.Status]">
-
+                <div class="kanban-drop-zone flex-1 min-h-[200px] space-y-2 rounded-lg border border-line bg-surface p-2"
+                     @ref="dropZoneRefs[col]">
                     @if (colTickets.Count == 0)
                     {
-                        <div class="flex items-center justify-center h-24 text-xs text-gray-400 dark:text-gray-600 italic select-none">
-                            @L.Translate("kanban.noTickets")
-                        </div>
+                        <p class="select-none px-1 py-6 text-center font-mono text-13 text-muted">@L.Translate("kanban.noTickets").ToLower(UiCulture)</p>
                     }
                     else
                     {
@@ -50,22 +35,22 @@
                         }
                     }
                 </div>
-            </div>
+            </section>
         }
     </div>
 </div>
 
 @code {
-    private static readonly KanbanColumnDef[] Columns =
+    private static readonly TicketStatus[] Columns =
     [
-        new(TicketStatus.New,         "bg-purple-500"),
-        new(TicketStatus.Open,        "bg-blue-500"),
-        new(TicketStatus.InProgress, "bg-amber-500"),
-        new(TicketStatus.Testing,     "bg-cyan-500"),
-        new(TicketStatus.CodeReview, "bg-indigo-500"),
-        new(TicketStatus.Done,        "bg-emerald-500"),
-        new(TicketStatus.Resolved,    "bg-green-500"),
-        new(TicketStatus.Closed,      "bg-gray-500"),
+        TicketStatus.New,
+        TicketStatus.Open,
+        TicketStatus.InProgress,
+        TicketStatus.Testing,
+        TicketStatus.CodeReview,
+        TicketStatus.Done,
+        TicketStatus.Resolved,
+        TicketStatus.Closed,
     ];
 
     private readonly Dictionary<TicketStatus, ElementReference> dropZoneRefs = new();
@@ -73,7 +58,7 @@
     private ElementReference boardContainer;
 
     [Parameter, EditorRequired]
-    public IList<Ticket> Tickets { get; set; } = new List<Ticket>();
+    public IReadOnlyList<Ticket> Tickets { get; set; } = [];
 
     /// <summary>Current user ID — needed to determine if a card is draggable.</summary>
     [Parameter]
@@ -97,7 +82,7 @@
     {
         base.OnInitialized();
         foreach (var col in Columns)
-            EnsureDropZoneRef(col.Status);
+            EnsureDropZoneRef(col);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -111,9 +96,9 @@
 
             foreach (var col in Columns)
             {
-                if (dropZoneRefs.TryGetValue(col.Status, out var el))
+                if (dropZoneRefs.TryGetValue(col, out var el))
                 {
-                    await JSRuntime.InvokeVoidAsync("kanban.initDropZone", el, dotnetRef, col.Status.ToString());
+                    await JSRuntime.InvokeVoidAsync("kanban.initDropZone", el, dotnetRef, col.ToString());
                 }
             }
         }
@@ -143,6 +128,4 @@
         dotnetRef?.Dispose();
         await Task.CompletedTask;
     }
-
-    private record KanbanColumnDef(TicketStatus Status, string DotColor);
 }

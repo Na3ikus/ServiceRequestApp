@@ -6,78 +6,55 @@
 @inherits ServiceDeskSystem.Components.UI.Base.BaseComponent
 
 <!-- Created by Nazar "N1h3" Hutsol -->
-<div class="kanban-card @(CanDrag ? "cursor-grab active:cursor-grabbing" : "cursor-pointer") 
-     rounded-xl shadow-xs border p-3.5 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 flex flex-col justify-between
-     @(!Ticket.IsPriorityAssessed && IsAdminOrDeveloper
-         ? "border-dashed border-amber-400/80 dark:border-amber-500/50 bg-amber-50/20 dark:bg-amber-950/15 hover:border-amber-500" 
-         : "bg-white dark:bg-gray-800 border-gray-200/80 dark:border-gray-700/60 hover:border-blue-400/60 dark:hover:border-blue-500/50")"
-@ref="cardElement" draggable="@(CanDrag ? "true" : "false")" @onclick="HandleClick">
-
-    <div>
-        <!-- Header: ID + Type + Unassessed + Priority -->
-        <div class="flex items-center justify-between gap-1.5 mb-2.5">
-            <div class="flex items-center gap-1.5 flex-wrap min-w-0">
-                <span class="text-xs font-mono font-bold text-gray-400 dark:text-gray-500 flex-shrink-0">#@Ticket.Id</span>
-                
-                <!-- Ticket Type Badge -->
-                <TypeTag Type="Ticket.Type" />
-
-                @if (!Ticket.IsPriorityAssessed && IsAdminOrDeveloper)
-                {
-                    <span class="px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300 text-[10px] font-bold border border-amber-200 dark:border-amber-800/60 shrink-0">
-                        ⚠️ @L.Translate("tickets.triageCompact")
-                    </span>
-                }
-            </div>
-
-            <PriorityTag Priority="Ticket.Priority" />
+<div data-kanban-card class="kanban-card @(CanDrag ? "cursor-grab active:cursor-grabbing" : "cursor-pointer")
+     flex flex-col gap-2 rounded-lg border border-line bg-canvas p-3 hover:border-muted"
+     @ref="cardElement" draggable="@(CanDrag ? "true" : "false")" @onclick="HandleClick">
+    <div class="flex items-center justify-between gap-2">
+        <div class="flex min-w-0 flex-wrap items-center gap-1.5">
+            <span class="font-mono text-13 text-muted">#@Ticket.Id</span>
+            <TypeTag Type="Ticket.Type" />
         </div>
-
-        <!-- Title -->
-        <p class="text-sm font-semibold text-gray-800 dark:text-white line-clamp-2 leading-snug mb-2.5">
-            @Ticket.Title
-        </p>
-
-        <!-- Tags (if any) -->
-        @if (Ticket.Tags is { Count: > 0 })
-        {
-            <div class="flex flex-wrap gap-1 mb-2.5">
-                @foreach (var tag in Ticket.Tags.Take(3))
-                {
-                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold"
-                          style="background-color: @(tag.Color)18; color: @tag.Color; border: 1px solid @(tag.Color)35;">
-                        #@tag.Name
-                    </span>
-                }
-                @if (Ticket.Tags.Count > 3)
-                {
-                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300">
-                        +@(Ticket.Tags.Count - 3)
-                    </span>
-                }
-            </div>
-        }
+        <PriorityTag Priority="Ticket.Priority" />
     </div>
 
-    <!-- Footer: Author + Assignee -->
-    <div class="flex items-center justify-between gap-2 pt-2 border-t border-gray-100 dark:border-gray-700/40 mt-1">
-        <!-- Author avatar -->
-        <div class="flex items-center gap-1.5 min-w-0">
-            <Avatar Name="@Ticket.Author?.Login" Size="AvatarSize.Sm" ShowTitle="true" />
-            <span class="text-xs text-gray-500 dark:text-gray-400 truncate max-w-[80px]">@Ticket.Author?.Login</span>
-        </div>
+    <a href="@($"/ticket/{Ticket.Id}")" class="line-clamp-2 text-15 leading-snug text-fg hover:underline" draggable="false"
+       @onclick:preventDefault="true">@Ticket.Title</a>
 
-        <!-- Assignee or unassigned -->
+    @if (Ticket.Tags.Count > 0 || (IsAdminOrDeveloper && !Ticket.IsPriorityAssessed))
+    {
+        <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
+            @foreach (var tag in Ticket.Tags.Take(3))
+            {
+                <span class="inline-flex items-center gap-1.5 text-13 text-muted">
+                    <span class="h-2 w-2 rounded-full" style="background-color: @tag.Color" aria-hidden="true"></span>@tag.Name
+                </span>
+            }
+            @if (Ticket.Tags.Count > 3)
+            {
+                <span class="font-mono text-13 text-muted">+@(Ticket.Tags.Count - 3)</span>
+            }
+            @if (IsAdminOrDeveloper && !Ticket.IsPriorityAssessed)
+            {
+                <span data-triage class="font-mono text-13 text-danger">[@Heading("tickets.triageRequired")]</span>
+            }
+        </div>
+    }
+
+    <div class="flex items-center justify-between gap-2 border-t border-dashed border-line pt-2 text-13">
+        <span class="flex min-w-0 items-center gap-1.5 text-muted">
+            <Avatar Name="@Ticket.Author?.Login" Size="AvatarSize.Sm" />
+            <span class="truncate">@Ticket.Author?.Login</span>
+        </span>
         @if (Ticket.Developer is not null)
         {
-            <div class="flex items-center gap-1 min-w-0">
-                <Avatar Name="@Ticket.Developer.Login" Size="AvatarSize.Sm" ShowTitle="true" />
-                <span class="text-xs font-semibold text-emerald-600 dark:text-emerald-400 truncate max-w-[80px]">@Ticket.Developer.Login</span>
-            </div>
+            <span class="flex min-w-0 items-center gap-1.5 text-fg">
+                <Avatar Name="@Ticket.Developer.Login" Size="AvatarSize.Sm" />
+                <span class="truncate">@Ticket.Developer.Login</span>
+            </span>
         }
         else
         {
-            <span class="text-xs text-gray-400 dark:text-gray-500 italic flex-shrink-0">@L.Translate("table.unassigned")</span>
+            <span class="shrink-0 text-muted">@Heading("table.unassigned")</span>
         }
     </div>
 </div>
