@@ -1,7 +1,7 @@
 <!-- Created by Nazar "N1h3" Hutsol -->
-<Router AppAssembly="typeof(Program).Assembly" NotFoundPage="typeof(Pages.NotFound)">
+<Router AppAssembly="typeof(Program).Assembly" NotFoundPage="typeof(Pages.NotFound)" OnNavigateAsync="RecoverOnNavigate">
     <Found Context="routeData">
-        <ErrorBoundary>
+        <ErrorBoundary @ref="errorBoundary">
             <ChildContent>
                 <RouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)" />
                 <FocusOnNavigate RouteData="routeData" Selector="h1" />
@@ -24,3 +24,10 @@
         </ErrorBoundary>
     </Found>
 </Router>
+
+@code {
+    private ErrorBoundary? errorBoundary;
+
+    // Without this one error keeps "Something went wrong" on every page until a reload.
+    private void RecoverOnNavigate(NavigationContext context) => errorBoundary?.Recover();
+}

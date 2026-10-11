@@ -1,11 +1,17 @@
 @inherits BaseComponent
+@implements IAsyncDisposable
 
 <!-- Created by Nazar "N1h3" Hutsol -->
 <div class="flex min-h-screen flex-col bg-canvas lg:flex-row">
     <div class="hidden lg:flex lg:w-1/2 lg:flex-col lg:border-r lg:border-line lg:bg-surface lg:p-12">
         <Logo Size="LogoSize.Lg" />
         <div class="flex flex-1 items-center">
-            <p class="max-w-[24ch] text-20 text-fg">@L.Translate("auth.tagline")</p>
+            @* typewriter.js types the phrases; screen readers get only the tagline. *@
+            <p @ref="typewriter" data-typewriter data-phrases="@PhrasesJson"
+               class="min-h-[4lh] max-w-[30ch] font-mono text-20 text-fg">
+                <span class="sr-only">@L.Translate("auth.tagline")</span>
+                <span aria-hidden="true"><span class="text-muted">&gt; </span><span data-typewriter-text></span><span class="cursor-blink text-accent-ink">_</span></span>
+            </p>
         </div>
         <p class="text-13 text-muted">@L.Translate("common.footer") &copy; @DateTime.Now.Year</p>
     </div>
@@ -49,6 +55,14 @@
 </div>
 
 @code {
+    private const int QuoteCount = 8;
+
+    private ElementReference typewriter;
+    private bool typing;
+
+    [Inject]
+    private IJSRuntime JS { get; set; } = null!;
+
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
 
@@ -57,4 +71,36 @@
 
     [Parameter]
     public string Subtitle { get; set; } = string.Empty;
+
+    private string PhrasesJson => System.Text.Json.JsonSerializer.Serialize(
+        Enumerable.Range(1, QuoteCount)
+            .Select(i => L.Translate($"auth.quote.{i}"))
+            .Prepend(L.Translate("auth.tagline")));
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("typewriter.start", typewriter);
+            typing = true;
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        // Prerendering disposes the shell without JS; only stop what was started.
+        if (typing)
+        {
+            try
+            {
+                await JS.InvokeVoidAsync("typewriter.stop", typewriter);
+            }
+            catch (JSDisconnectedException)
+            {
+                // The circuit is gone, and the timer with it.
+            }
+        }
+
+        Dispose();
+    }
 }

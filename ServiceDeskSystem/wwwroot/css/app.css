@@ -1214,6 +1214,10 @@ table th,
   min-height: 200px;
 }
 
+.min-h-\[4lh\] {
+  min-height: 4lh;
+}
+
 .min-h-screen {
   min-height: 100vh;
 }
@@ -1440,8 +1444,8 @@ table th,
   max-width: 80rem;
 }
 
-.max-w-\[24ch\] {
-  max-width: 24ch;
+.max-w-\[30ch\] {
+  max-width: 30ch;
 }
 
 .max-w-\[380px\] {
