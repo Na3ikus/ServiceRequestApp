@@ -278,5 +278,10 @@
   "sla.deleted": "SLA policy deleted",
   "sla.recalculate": "Recalculate",
   "sla.recalculateHint": "Reapply policies to all open tickets",
-  "sla.recalculated": "SLA deadlines recalculated for {0} ticket(s)"
+  "sla.recalculated": "SLA deadlines recalculated for {0} ticket(s)",
+  "calendar.today": "Today",
+  "calendar.previousMonth": "Previous month",
+  "calendar.nextMonth": "Next month",
+  "calendar.noEvents": "No start dates or deadlines this month",
+  "calendar.overdue": "Overdue"
 }

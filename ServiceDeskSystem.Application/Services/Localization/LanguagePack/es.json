@@ -232,5 +232,10 @@
   "sla.deleted": "Política de SLA eliminada",
   "sla.recalculate": "Recalcular",
   "sla.recalculateHint": "Aplicar las políticas a todos los tickets abiertos",
-  "sla.recalculated": "Plazos de SLA recalculados para {0} ticket(s)"
+  "sla.recalculated": "Plazos de SLA recalculados para {0} ticket(s)",
+  "calendar.today": "Hoy",
+  "calendar.previousMonth": "Mes anterior",
+  "calendar.nextMonth": "Mes siguiente",
+  "calendar.noEvents": "No hay inicios ni plazos este mes",
+  "calendar.overdue": "Vencido"
 }

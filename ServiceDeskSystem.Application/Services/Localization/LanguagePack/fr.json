@@ -232,5 +232,10 @@
   "sla.deleted": "Politique SLA supprimée",
   "sla.recalculate": "Recalculer",
   "sla.recalculateHint": "Appliquer les politiques à tous les tickets ouverts",
-  "sla.recalculated": "Échéances SLA recalculées pour {0} ticket(s)"
+  "sla.recalculated": "Échéances SLA recalculées pour {0} ticket(s)",
+  "calendar.today": "Aujourd'hui",
+  "calendar.previousMonth": "Mois précédent",
+  "calendar.nextMonth": "Mois suivant",
+  "calendar.noEvents": "Aucun début ni échéance ce mois-ci",
+  "calendar.overdue": "En retard"
 }

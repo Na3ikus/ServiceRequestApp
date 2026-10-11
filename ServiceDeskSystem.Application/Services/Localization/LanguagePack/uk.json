@@ -280,5 +280,10 @@
   "sla.deleted": "Політику SLA видалено",
   "sla.recalculate": "Перерахувати",
   "sla.recalculateHint": "Застосувати політики до всіх відкритих тікетів",
-  "sla.recalculated": "Дедлайни SLA перераховано для {0} тікетів"
+  "sla.recalculated": "Дедлайни SLA перераховано для {0} тікетів",
+  "calendar.today": "Сьогодні",
+  "calendar.previousMonth": "Попередній місяць",
+  "calendar.nextMonth": "Наступний місяць",
+  "calendar.noEvents": "У цьому місяці немає стартів і дедлайнів",
+  "calendar.overdue": "Прострочено"
 }

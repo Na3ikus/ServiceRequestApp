@@ -232,5 +232,10 @@
   "sla.deleted": "SLA-Richtlinie gelöscht",
   "sla.recalculate": "Neu berechnen",
   "sla.recalculateHint": "Richtlinien auf alle offenen Tickets anwenden",
-  "sla.recalculated": "SLA-Fristen für {0} Ticket(s) neu berechnet"
+  "sla.recalculated": "SLA-Fristen für {0} Ticket(s) neu berechnet",
+  "calendar.today": "Heute",
+  "calendar.previousMonth": "Vorheriger Monat",
+  "calendar.nextMonth": "Nächster Monat",
+  "calendar.noEvents": "Keine Starttermine oder Fristen in diesem Monat",
+  "calendar.overdue": "Überfällig"
 }
