@@ -30,7 +30,7 @@ public partial class UserProfile : BaseComponent
     private IReadOnlyList<(string LabelKey, double Value)>? numbers;
     private IReadOnlyList<DailyActivityDto>? activity;
     private List<Ticket>? recentTickets;
-    private DateOnly today = DateOnly.FromDateTime(DateTime.Now);
+    private DateOnly today;
 
     [Inject]
     public IProfileService ProfileService { get; set; } = null!;
@@ -59,6 +59,7 @@ public partial class UserProfile : BaseComponent
 
     protected override async Task OnInitializedAsync()
     {
+        this.today = this.UserZone.Today;
         try
         {
             this.user = this.AuthService.CurrentUser;
@@ -110,6 +111,19 @@ public partial class UserProfile : BaseComponent
         }
     }
 
+    /// <inheritdoc/>
+    protected override void OnTimeZoneChanged(object? sender, EventArgs e) => this.InvokeAsync(async () =>
+    {
+        // Days are counted in the user's zone, so the map is rebuilt once the browser reports it.
+        this.today = this.UserZone.Today;
+        if (this.user is not null && this.model is not null)
+        {
+            await this.LoadActivityAsync(this.user);
+        }
+
+        this.StateHasChanged();
+    });
+
     private async Task LoadStatsAsync(User current)
     {
         // The figures are secondary: a failure leaves the form usable and drops the skeletons.
@@ -123,10 +137,15 @@ public partial class UserProfile : BaseComponent
             this.recentTickets ??= [];
         }
 
+        await this.LoadActivityAsync(current);
+    }
+
+    private async Task LoadActivityAsync(User current)
+    {
         try
         {
             this.activity = await this.ActivityService.GetDailyActivityAsync(
-                current.Id, ActivityHeatmap.FirstMonday(this.today), this.today);
+                current.Id, ActivityHeatmap.FirstMonday(this.today), this.today, this.UserZone.Zone);
         }
         catch (Exception)
         {

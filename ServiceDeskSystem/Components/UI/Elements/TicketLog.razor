@@ -37,7 +37,7 @@ else
                             <span data-triage class="font-mono text-13 text-danger">[@Heading("tickets.triageRequired")]</span>
                         }
                     </span>
-                    <span class="ml-auto shrink-0 font-mono text-13 text-muted">@ticket.CreatedAt.ToLocalTime().ToString("dd MMM yyyy, HH:mm", UiCulture)</span>
+                    <span class="ml-auto shrink-0 font-mono text-13 text-muted">@ToLocal(ticket.CreatedAt).ToString("dd MMM yyyy, HH:mm", UiCulture)</span>
                 </a>
             </li>
         }

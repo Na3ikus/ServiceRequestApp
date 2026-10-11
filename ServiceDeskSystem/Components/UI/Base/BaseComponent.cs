@@ -23,6 +23,12 @@ public abstract class BaseComponent : ComponentBase, IDisposable
     [Inject]
     protected ServiceDeskSystem.Application.Services.Auth.IAuthService AuthService { get; set; } = null!;
 
+    /// <summary>
+    /// Gets or sets the browser's time zone; show stored UTC times through <see cref="ToLocal"/>.
+    /// </summary>
+    [Inject]
+    protected ServiceDeskSystem.Application.Services.Time.IUserTimeZone UserZone { get; set; } = null!;
+
     protected bool IsAdminOrDeveloper => this.AuthService.CurrentUser?.Role is UserRole.Admin or UserRole.Developer;
 
     /// <summary>
@@ -53,6 +59,11 @@ public abstract class BaseComponent : ComponentBase, IDisposable
     protected void ViewTicket(int id) => this.Navigation.NavigateTo($"/ticket/{id}");
 
     /// <summary>
+    /// Converts a stored UTC timestamp to the user's time zone.
+    /// </summary>
+    protected DateTime ToLocal(DateTime utc) => this.UserZone.ToLocal(utc);
+
+    /// <summary>
     /// Section heading text: translated and lowercased in the UI culture (<c># overview</c>).
     /// </summary>
     protected string Heading(string key) => this.L.Translate(key).ToLower(this.UiCulture);
@@ -61,6 +72,7 @@ public abstract class BaseComponent : ComponentBase, IDisposable
     {
         this.L.LanguageChanged += this.OnStateChanged;
         this.Theme.ThemeChanged += this.OnStateChanged;
+        this.UserZone.Changed += this.OnTimeZoneChanged;
         base.OnInitialized();
     }
 
@@ -75,6 +87,7 @@ public abstract class BaseComponent : ComponentBase, IDisposable
         {
             this.L.LanguageChanged -= this.OnStateChanged;
             this.Theme.ThemeChanged -= this.OnStateChanged;
+            this.UserZone.Changed -= this.OnTimeZoneChanged;
         }
 
         this.disposed = true;
@@ -112,4 +125,9 @@ public abstract class BaseComponent : ComponentBase, IDisposable
     };
 
     protected virtual void OnStateChanged(object? sender, EventArgs e) => this.InvokeAsync(this.StateHasChanged);
+
+    /// <summary>
+    /// Runs when the browser reports its time zone (after the first render); re-renders by default.
+    /// </summary>
+    protected virtual void OnTimeZoneChanged(object? sender, EventArgs e) => this.InvokeAsync(this.StateHasChanged);
 }

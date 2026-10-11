@@ -51,6 +51,7 @@ public sealed class ComponentTestHost : IDisposable
         this.Context.Services.AddSingleton(this.Auth.Object);
         this.Context.Services.AddSingleton(this.SlaPolicyService.Object);
         this.Context.Services.AddSingleton(this.ToastService.Object);
+        this.Context.Services.AddSingleton<ServiceDeskSystem.Application.Services.Time.IUserTimeZone>(this.TimeZone);
     }
 
     public BunitContext Context { get; }
@@ -66,6 +67,8 @@ public sealed class ComponentTestHost : IDisposable
     public Mock<IToastService> ToastService { get; }
 
     public Mock<IPreferencesService> Preferences { get; }
+
+    public ServiceDeskSystem.Application.Services.Time.UserTimeZone TimeZone { get; } = new ();
 
     public void Dispose()
     {

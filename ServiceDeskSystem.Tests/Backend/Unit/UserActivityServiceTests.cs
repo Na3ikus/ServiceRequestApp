@@ -55,7 +55,7 @@ public class UserActivityServiceTests
         _workLogs.Setup(r => r.GetEntriesByUserSinceAsync(UserId, It.IsAny<DateTime>()))
             .ReturnsAsync([(NoonUtc(10, 5), 90)]);
 
-        var result = await _service.GetDailyActivityAsync(UserId, new DateOnly(2026, 10, 1), new DateOnly(2026, 10, 10));
+        var result = await _service.GetDailyActivityAsync(UserId, new DateOnly(2026, 10, 1), new DateOnly(2026, 10, 10), TimeZoneInfo.Local);
 
         result.Should().ContainSingle();
         var day = result[0];
@@ -74,7 +74,7 @@ public class UserActivityServiceTests
         _comments.Setup(r => r.GetCreatedTimesByAuthorAsync(UserId, It.IsAny<DateTime>()))
             .ReturnsAsync([NoonUtc(10, 8), NoonUtc(9, 1), NoonUtc(10, 2), NoonUtc(10, 20)]);
 
-        var result = await _service.GetDailyActivityAsync(UserId, new DateOnly(2026, 10, 1), new DateOnly(2026, 10, 10));
+        var result = await _service.GetDailyActivityAsync(UserId, new DateOnly(2026, 10, 1), new DateOnly(2026, 10, 10), TimeZoneInfo.Local);
 
         result.Select(d => d.Date).Should().Equal(new DateOnly(2026, 10, 2), new DateOnly(2026, 10, 8));
     }
@@ -87,16 +87,32 @@ public class UserActivityServiceTests
         _workLogs.Setup(r => r.GetEntriesByUserSinceAsync(UserId, It.IsAny<DateTime>()))
             .ReturnsAsync([(pickedDay, 30), (pickedDay, 15)]);
 
-        var result = await _service.GetDailyActivityAsync(UserId, new DateOnly(2026, 10, 1), new DateOnly(2026, 10, 10));
+        var result = await _service.GetDailyActivityAsync(UserId, new DateOnly(2026, 10, 1), new DateOnly(2026, 10, 10), TimeZoneInfo.Local);
 
         result.Should().ContainSingle().Which.Should().Match<ServiceDeskSystem.Application.Services.Profile.Models.DailyActivityDto>(
             d => d.Date == new DateOnly(2026, 10, 3) && d.WorkLogs == 2 && d.WorkMinutes == 45);
     }
 
     [Test]
+    public async Task Dates_follow_the_given_zone_not_the_server_zone()
+    {
+        // 22:30 UTC on 4 Oct is already 5 Oct in Kyiv (UTC+3) and still 4 Oct in New York (UTC-4).
+        var lateEvening = new DateTime(2026, 10, 4, 22, 30, 0, DateTimeKind.Utc);
+        _comments.Setup(r => r.GetCreatedTimesByAuthorAsync(UserId, It.IsAny<DateTime>())).ReturnsAsync([lateEvening]);
+
+        var kyiv = await _service.GetDailyActivityAsync(
+            UserId, new DateOnly(2026, 10, 1), new DateOnly(2026, 10, 10), TimeZoneInfo.FindSystemTimeZoneById("Europe/Kyiv"));
+        var newYork = await _service.GetDailyActivityAsync(
+            UserId, new DateOnly(2026, 10, 1), new DateOnly(2026, 10, 10), TimeZoneInfo.FindSystemTimeZoneById("America/New_York"));
+
+        kyiv.Should().ContainSingle().Which.Date.Should().Be(new DateOnly(2026, 10, 5));
+        newYork.Should().ContainSingle().Which.Date.Should().Be(new DateOnly(2026, 10, 4));
+    }
+
+    [Test]
     public async Task Queries_sources_from_one_day_before_range_start()
     {
-        await _service.GetDailyActivityAsync(UserId, new DateOnly(2026, 10, 1), new DateOnly(2026, 10, 10));
+        await _service.GetDailyActivityAsync(UserId, new DateOnly(2026, 10, 1), new DateOnly(2026, 10, 10), TimeZoneInfo.Local);
 
         var expected = new DateTime(2026, 9, 30, 0, 0, 0, DateTimeKind.Utc);
         _tickets.Verify(r => r.GetCreatedTimesByAuthorAsync(UserId, expected));
@@ -106,7 +122,7 @@ public class UserActivityServiceTests
     [Test]
     public async Task Inverted_range_returns_empty_without_queries()
     {
-        var result = await _service.GetDailyActivityAsync(UserId, new DateOnly(2026, 10, 10), new DateOnly(2026, 10, 1));
+        var result = await _service.GetDailyActivityAsync(UserId, new DateOnly(2026, 10, 10), new DateOnly(2026, 10, 1), TimeZoneInfo.Local);
 
         result.Should().BeEmpty();
         _tickets.VerifyNoOtherCalls();

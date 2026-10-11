@@ -21,6 +21,7 @@ public class ProfilePageTests
     private Mock<IProfileService> _profile;
     private Mock<ITicketService> _tickets;
     private Mock<ITicketStatisticsService> _stats;
+    private Mock<IUserActivityService> _activity;
 
     [SetUp]
     public void SetUp()
@@ -45,15 +46,15 @@ public class ProfilePageTests
         _stats.Setup(s => s.GetDeveloperDashboardStatsAsync(It.IsAny<int>())).ReturnsAsync(new DeveloperDashboardStatsDto(6, 2, 3));
         var workLogs = new Mock<IWorkLogService>();
         workLogs.Setup(w => w.GetTotalTimeSpentForUserAsync(It.IsAny<int>())).ReturnsAsync(90);
-        var activity = new Mock<IUserActivityService>();
-        activity.Setup(a => a.GetDailyActivityAsync(It.IsAny<int>(), It.IsAny<DateOnly>(), It.IsAny<DateOnly>()))
+        _activity = new Mock<IUserActivityService>();
+        _activity.Setup(a => a.GetDailyActivityAsync(It.IsAny<int>(), It.IsAny<DateOnly>(), It.IsAny<DateOnly>(), It.IsAny<TimeZoneInfo>()))
             .ReturnsAsync([]);
 
         _host.Context.Services.AddSingleton(_profile.Object);
         _host.Context.Services.AddSingleton(_tickets.Object);
         _host.Context.Services.AddSingleton(_stats.Object);
         _host.Context.Services.AddSingleton(workLogs.Object);
-        _host.Context.Services.AddSingleton(activity.Object);
+        _host.Context.Services.AddSingleton(_activity.Object);
     }
 
     [TearDown]
@@ -131,6 +132,18 @@ public class ProfilePageTests
         cut.Find("#profile-last").Input("Kovalenko");
 
         cut.FindAll("[data-saved]").Should().BeEmpty();
+    }
+
+    [Test]
+    public void Activity_is_reloaded_in_the_browser_zone()
+    {
+        var cut = _host.Context.RenderComponent<UserProfile>();
+
+        _host.TimeZone.Set(TimeZoneInfo.Local.Id == "Pacific/Kiritimati" ? "Etc/GMT+12" : "Pacific/Kiritimati");
+
+        cut.WaitForAssertion(() => _activity.Verify(
+            a => a.GetDailyActivityAsync(1, It.IsAny<DateOnly>(), It.IsAny<DateOnly>(), It.Is<TimeZoneInfo>(z => z.Id == _host.TimeZone.Zone.Id)),
+            Times.Once));
     }
 
     [Test]

@@ -63,6 +63,9 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
     [Inject]
     private IDbContextFactory<BugTrackerDbContext> DbContextFactory { get; set; } = null!;
 
+    [Inject]
+    private ServiceDeskSystem.Application.Services.Time.IUserTimeZone UserZone { get; set; } = null!;
+
     /// <summary>
     /// Gets the signed-in user's full name (avatar initials, top bar), or the login when no name is set.
     /// </summary>
@@ -145,6 +148,7 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
         }
 
         await this.Theme.InitializeAsync();
+        await this.ReadBrowserTimeZoneAsync();
         await this.AuthService.EnsureRestoredAsync();
 
         this.dotNetRef = DotNetObjectReference.Create(this);
@@ -354,9 +358,21 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
         }
     }
 
+    private async Task ReadBrowserTimeZoneAsync()
+    {
+        try
+        {
+            this.UserZone.Set(await this.JS.InvokeAsync<string?>("prefs.timeZone"));
+        }
+        catch (JSException)
+        {
+            // Older cached prefs.js: keep the server zone.
+        }
+    }
+
     private string FormatNotificationTime(DateTime utcDateTime)
     {
-        return utcDateTime.ToLocalTime().ToString("g", this.GetCurrentCultureInfo());
+        return this.UserZone.ToLocal(utcDateTime).ToString("g", this.GetCurrentCultureInfo());
     }
 
     private sealed class DatabaseHealthResponse

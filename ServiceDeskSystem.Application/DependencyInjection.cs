@@ -59,6 +59,7 @@ public static class DependencyInjection
         services.AddScoped<IThemeService, ThemeService>();
         services.AddScoped<ServiceDeskSystem.Application.Services.Preferences.IPreferencesService, ServiceDeskSystem.Application.Services.Preferences.PreferencesService>();
         services.AddScoped<IToastService, ToastService>();
+        services.AddScoped<ServiceDeskSystem.Application.Services.Time.IUserTimeZone, ServiceDeskSystem.Application.Services.Time.UserTimeZone>();
 
         return services;
     }

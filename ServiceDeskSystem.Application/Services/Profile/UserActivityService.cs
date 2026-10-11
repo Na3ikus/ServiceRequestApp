@@ -9,14 +9,14 @@ namespace ServiceDeskSystem.Application.Services.Profile;
 /// </summary>
 public sealed class UserActivityService(IRepositoryFacadeFactory repositoryFacadeFactory) : IUserActivityService
 {
-    public async Task<IReadOnlyList<DailyActivityDto>> GetDailyActivityAsync(int userId, DateOnly from, DateOnly to)
+    public async Task<IReadOnlyList<DailyActivityDto>> GetDailyActivityAsync(int userId, DateOnly from, DateOnly to, TimeZoneInfo zone)
     {
         if (to < from)
         {
             return [];
         }
 
-        // One extra day on the UTC side covers any local time-zone offset; exact filtering is by local date below.
+        // One extra day on the UTC side covers any zone offset; exact filtering is by the date in the zone below.
         var sinceUtc = from.AddDays(-1).ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
 
         await using var repo = repositoryFacadeFactory.Create();
@@ -46,23 +46,23 @@ public sealed class UserActivityService(IRepositoryFacadeFactory repositoryFacad
 
         foreach (var t in tickets)
         {
-            Add(LocalDate(t), 0);
+            Add(LocalDate(t, zone), 0);
         }
 
         foreach (var c in comments)
         {
-            Add(LocalDate(c), 1);
+            Add(LocalDate(c, zone), 1);
         }
 
         foreach (var s in statusChanges)
         {
-            Add(LocalDate(s), 2);
+            Add(LocalDate(s, zone), 2);
         }
 
         foreach (var (dateLogged, minutes) in workLogs)
         {
             // WorkLogService stores the picked local date converted to UTC.
-            Add(LocalDate(dateLogged), 3, minutes);
+            Add(LocalDate(dateLogged, zone), 3, minutes);
         }
 
         return days
@@ -70,6 +70,6 @@ public sealed class UserActivityService(IRepositoryFacadeFactory repositoryFacad
             .ToList();
     }
 
-    private static DateOnly LocalDate(DateTime utc) =>
-        DateOnly.FromDateTime(DateTime.SpecifyKind(utc, DateTimeKind.Utc).ToLocalTime());
+    private static DateOnly LocalDate(DateTime utc, TimeZoneInfo zone) =>
+        DateOnly.FromDateTime(TimeZoneInfo.ConvertTimeFromUtc(DateTime.SpecifyKind(utc, DateTimeKind.Utc), zone));
 }

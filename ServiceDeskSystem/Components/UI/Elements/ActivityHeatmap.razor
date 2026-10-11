@@ -72,10 +72,11 @@ else
     public IReadOnlyList<DailyActivityDto>? Days { get; set; }
 
     /// <summary>
-    /// Gets or sets the last day of the map (local date).
+    /// Gets or sets the last day of the map (a date in the user's time zone).
     /// </summary>
     [Parameter]
-    public DateOnly Today { get; set; } = DateOnly.FromDateTime(DateTime.Now);
+    [EditorRequired]
+    public DateOnly Today { get; set; }
 
     /// <summary>
     /// First day of the map: the Monday that starts a 52-week grid whose last column holds <paramref name="today"/>.

@@ -231,6 +231,15 @@
         });
     }
 
+    // IANA zone of the browser (e.g. "Europe/Kyiv"); the server shows times in it.
+    function timeZone() {
+        try {
+            return Intl.DateTimeFormat().resolvedOptions().timeZone || null;
+        } catch {
+            return null;
+        }
+    }
+
     const api = {
         SCHEMA,
         OBSOLETE_KEYS,
@@ -244,6 +253,7 @@
         applyAll,
         resolveTheme,
         onSystemThemeChange,
+        timeZone,
     };
 
     if (typeof module !== 'undefined' && module.exports) {
