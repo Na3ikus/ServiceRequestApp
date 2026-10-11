@@ -56,7 +56,7 @@
                     <dl class="grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-line bg-line">
                         @foreach (var (labelKey, value) in numbers)
                         {
-                            <div data-number class="flex flex-col-reverse bg-canvas px-3 py-2.5">
+                            <div data-number class="flex flex-col-reverse justify-end bg-canvas px-3 py-2.5">
                                 <dt class="font-mono text-12 text-muted">@Heading(labelKey)</dt>
                                 <dd class="font-mono text-20 tabular-nums text-fg">@Number(value)</dd>
                             </div>
