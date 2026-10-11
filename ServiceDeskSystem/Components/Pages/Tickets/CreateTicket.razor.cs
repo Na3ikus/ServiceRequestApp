@@ -1,5 +1,9 @@
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Forms;
+using ServiceDeskSystem.Application.Services.Attachments;
 using ServiceDeskSystem.Application.Services.Tickets;
+using ServiceDeskSystem.Application.Services.Toasts;
+using ServiceDeskSystem.Application.Services.Toasts.Models;
 using ServiceDeskSystem.Domain.Entities;
 using ServiceDeskSystem.Domain.Enums;
 using PathSegment = ServiceDeskSystem.Components.UI.Primitives.PathSegment;
@@ -15,10 +19,28 @@ public partial class CreateTicket
 
     private static readonly TicketType[] Types = [TicketType.Bug, TicketType.Support, TicketType.Consultation, TicketType.Project];
 
+    private readonly List<PendingFile> files = [];
+
     [Inject]
     protected ITicketService TicketService { get; set; } = null!;
 
+    [Inject]
+    protected IAttachmentService AttachmentService { get; set; } = null!;
+
+    [Inject]
+    protected IToastService ToastService { get; set; } = null!;
+
     protected TicketCreateModel Model { get; set; } = new ();
+
+    /// <summary>
+    /// Gets the files picked so far; they are uploaded once the ticket exists.
+    /// </summary>
+    protected IReadOnlyList<PendingFile> Files => this.files;
+
+    /// <summary>
+    /// Gets the files refused by the last pick, as "name: reason" lines.
+    /// </summary>
+    protected IReadOnlyList<string> FileErrors { get; private set; } = [];
 
     protected IList<Product> Products { get; set; } = [];
 
@@ -101,6 +123,16 @@ public partial class CreateTicket
         try
         {
             var created = await this.TicketService.CreateTicketAsync(ticket);
+
+            var failed = await this.UploadFilesAsync(created.Id);
+            if (failed > 0)
+            {
+                // The ticket exists; the files can be added again on its page.
+                await this.ToastService.ShowToastAsync(
+                    string.Format(this.UiCulture, this.L.Translate("create.filesNotAttached"), failed),
+                    ToastType.Warning);
+            }
+
             this.Navigation.NavigateTo($"/ticket/{created.Id}");
         }
         finally
@@ -108,6 +140,57 @@ public partial class CreateTicket
             this.IsSubmitting = false;
         }
     }
+
+    /// <summary>
+    /// Keeps the picked files that pass <see cref="AttachmentRules"/>, read into memory right away:
+    /// a later pick replaces the browser's file list, so the earlier files could not be read on submit.
+    /// </summary>
+    protected async Task OnFilesPickedAsync(InputFileChangeEventArgs e)
+    {
+        var errors = new List<string>();
+
+        // Allow a large pick here so the extra files get a message instead of an exception.
+        foreach (var file in e.GetMultipleFiles(maximumFileCount: 100))
+        {
+            if (this.files.Count >= AttachmentRules.MaxFilesOnCreate)
+            {
+                errors.Add($"{file.Name}: {this.L.Translate("create.tooManyFiles")}");
+            }
+            else if (!AttachmentRules.IsAllowedType(file.Name))
+            {
+                errors.Add($"{file.Name}: {this.L.Translate("create.fileTypeNotAllowed")}");
+            }
+            else if (file.Size > AttachmentRules.MaxFileSize)
+            {
+                errors.Add($"{file.Name}: {this.L.Translate("details.fileTooLarge")}");
+            }
+            else
+            {
+                using var buffer = new MemoryStream();
+                await using (var stream = file.OpenReadStream(AttachmentRules.MaxFileSize))
+                {
+                    await stream.CopyToAsync(buffer);
+                }
+
+                this.files.Add(new PendingFile(file.Name, file.ContentType, buffer.ToArray()));
+            }
+        }
+
+        this.FileErrors = errors;
+    }
+
+    protected void RemoveFile(PendingFile file)
+    {
+        this.files.Remove(file);
+        this.FileErrors = [];
+    }
+
+    protected static string FormatSize(long bytes) => bytes switch
+    {
+        < 1024 => $"{bytes} B",
+        < 1024 * 1024 => $"{Math.Round(bytes / 1024d, 1).ToString(System.Globalization.CultureInfo.InvariantCulture)} KB",
+        _ => $"{Math.Round(bytes / 1024d / 1024d, 1).ToString(System.Globalization.CultureInfo.InvariantCulture)} MB",
+    };
 
     protected void Cancel()
     {
@@ -159,6 +242,36 @@ public partial class CreateTicket
 
     private static string ErrorId(string field) => $"create-error-{field}";
 
+    /// <summary>
+    /// Uploads the picked files to the new ticket; returns how many failed.
+    /// </summary>
+    private async Task<int> UploadFilesAsync(int ticketId)
+    {
+        var failed = 0;
+        foreach (var file in this.files)
+        {
+            try
+            {
+                using var stream = new MemoryStream(file.Content, writable: false);
+                var result = await this.AttachmentService.UploadAttachmentAsync(ticketId, file.Name, file.ContentType, stream, this.CurrentUserId);
+                if (!result.Success)
+                {
+                    failed++;
+                }
+            }
+            catch (IOException)
+            {
+                failed++;
+            }
+            catch (UnauthorizedAccessException)
+            {
+                failed++;
+            }
+        }
+
+        return failed;
+    }
+
     private void ClearError(string field)
     {
         if (this.Errors.ContainsKey(field))
@@ -166,6 +279,11 @@ public partial class CreateTicket
             this.Errors = this.Errors.Where(e => e.Key != field).ToDictionary(e => e.Key, e => e.Value);
         }
     }
+
+    /// <summary>
+    /// A file picked on the form, held in memory until the ticket is created.
+    /// </summary>
+    protected sealed record PendingFile(string Name, string ContentType, byte[] Content);
 
     /// <summary>
     /// What the create form collects. No type is chosen until the user picks one.

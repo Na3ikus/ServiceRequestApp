@@ -48,6 +48,11 @@
   "create.submit": "Створити заявку",
   "create.creating": "Створення...",
   "create.optional": "необов'язково",
+  "create.files": "файли",
+  "create.filesHint": "до 5 файлів, до 10 МБ кожен: зображення, pdf, txt, log, json, csv, docx, xlsx, zip, rar, 7z",
+  "create.fileTypeNotAllowed": "такий тип файлу не дозволено",
+  "create.tooManyFiles": "не більше 5 файлів",
+  "create.filesNotAttached": "Заявку створено, але {0} файл(и) не прикріпилися. Додайте їх на сторінці заявки.",
   "create.selectTicketType": "Виберіть тип заявки...",
   "create.selectPriority": "Виберіть пріоритет...",
   "create.selectProduct": "Виберіть продукт...",
@@ -154,7 +159,7 @@
   "create.bugDetails": "Деталі помилки",
   "create.versionPlaceholder": "напр. 1.0.4, 2.1.0-beta",
   "create.tip1": "Один запит — одна проблема.",
-  "create.tip2": "Скріншоти й файли додайте у вкладення вже після створення заявки.",
+  "create.tip2": "Скріншот або лог допоможуть команді швидше відтворити проблему.",
   "create.tip3": "Пріоритет оцінить команда.",
   "details.saveFailed": "Не вдалося зберегти зміни. Спробуйте ще раз."
 }

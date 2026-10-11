@@ -48,6 +48,11 @@
   "create.submit": "Créer le ticket",
   "create.creating": "Création en cours...",
   "create.optional": "facultatif",
+  "create.files": "fichiers",
+  "create.filesHint": "jusqu'à 5 fichiers, 10 Mo chacun : images, pdf, txt, log, json, csv, docx, xlsx, zip, rar, 7z",
+  "create.fileTypeNotAllowed": "ce type de fichier n'est pas autorisé",
+  "create.tooManyFiles": "pas plus de 5 fichiers",
+  "create.filesNotAttached": "Ticket créé, mais {0} fichier(s) n'ont pas été joints. Ajoutez-les sur la page du ticket.",
   "create.selectTicketType": "Sélectionnez le type de ticket...",
   "create.selectPriority": "Sélectionnez la priorité...",
   "create.selectProduct": "Sélectionnez le produit...",
@@ -154,7 +159,7 @@
   "create.bugDetails": "Détails du bug",
   "create.versionPlaceholder": "ex. 1.0.4, 2.1.0-beta",
   "create.tip1": "Une demande, un problème.",
-  "create.tip2": "Ajoutez captures et fichiers en pièces jointes une fois le ticket créé.",
+  "create.tip2": "Une capture d'écran ou un fichier log aide l'équipe à reproduire le problème plus vite.",
   "create.tip3": "L'équipe évaluera la priorité.",
   "details.saveFailed": "Impossible d'enregistrer les modifications. Réessayez."
 }

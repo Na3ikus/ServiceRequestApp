@@ -48,6 +48,11 @@
   "create.submit": "Create Ticket",
   "create.creating": "Creating...",
   "create.optional": "optional",
+  "create.files": "files",
+  "create.filesHint": "up to 5 files, 10 MB each: images, pdf, txt, log, json, csv, docx, xlsx, zip, rar, 7z",
+  "create.fileTypeNotAllowed": "this file type is not allowed",
+  "create.tooManyFiles": "no more than 5 files",
+  "create.filesNotAttached": "Ticket created, but {0} file(s) were not attached. Add them on the ticket page.",
   "create.selectTicketType": "Select ticket type...",
   "create.selectPriority": "Select priority...",
   "create.selectProduct": "Select product...",
@@ -154,7 +159,7 @@
   "create.bugDetails": "Bug details",
   "create.versionPlaceholder": "e.g. 1.0.4, 2.1.0-beta",
   "create.tip1": "One request, one problem.",
-  "create.tip2": "Add screenshots and files as attachments once the ticket is created.",
+  "create.tip2": "A screenshot or a log file helps the team reproduce the problem faster.",
   "create.tip3": "The team will assess the priority.",
   "details.saveFailed": "Could not save the changes. Try again."
 }

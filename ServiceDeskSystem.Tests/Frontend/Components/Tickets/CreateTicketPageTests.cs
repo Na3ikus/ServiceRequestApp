@@ -4,7 +4,10 @@ using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using NUnit.Framework;
+using Microsoft.AspNetCore.Components.Forms;
+using ServiceDeskSystem.Application.Services.Attachments;
 using ServiceDeskSystem.Application.Services.Tickets;
+using ServiceDeskSystem.Application.Services.Toasts.Models;
 using ServiceDeskSystem.Components.Pages.Tickets;
 using ServiceDeskSystem.Components.UI.Elements;
 using ServiceDeskSystem.Domain.Entities;
@@ -17,7 +20,9 @@ public class CreateTicketPageTests
 {
     private ComponentTestHost _host;
     private Mock<ITicketService> _tickets;
+    private Mock<IAttachmentService> _attachments;
     private Ticket? _created;
+    private readonly List<(int TicketId, string Name, int Length)> _uploads = [];
 
     [SetUp]
     public void SetUp()
@@ -33,6 +38,16 @@ public class CreateTicketPageTests
                 return t;
             });
         _host.Context.Services.AddSingleton(_tickets.Object);
+
+        _uploads.Clear();
+        _attachments = new Mock<IAttachmentService>();
+        _attachments.Setup(a => a.UploadAttachmentAsync(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Stream>(), It.IsAny<int>(), null))
+            .ReturnsAsync((int ticketId, string name, string _, Stream stream, int _, int? _) =>
+            {
+                _uploads.Add((ticketId, name, (int)stream.Length));
+                return (true, (string?)null, (Attachment?)null);
+            });
+        _host.Context.Services.AddSingleton(_attachments.Object);
     }
 
     [TearDown]
@@ -199,6 +214,96 @@ public class CreateTicketPageTests
         _created!.Type.Should().Be(TicketType.Project);
         _created.ProductId.Should().BeNull();
         CurrentUri.Should().EndWith("/ticket/77");
+    }
+
+    private static void PickFiles(IRenderedComponent<CreateTicket> cut, params InputFileContent[] files) =>
+        cut.FindComponent<InputFile>().UploadFiles(files);
+
+    private static InputFileContent TextFile(string name, string text = "content") => InputFileContent.CreateFromText(text, name);
+
+    private static void FillValidSupportTicket(IRenderedComponent<CreateTicket> cut)
+    {
+        PickType(cut, "Support");
+        FillTitleAndDescription(cut);
+        cut.Find("#create-product").Change("3");
+    }
+
+    [Test]
+    public void Picked_files_are_listed_and_can_be_removed()
+    {
+        SignIn(UserRole.User);
+        var cut = Render();
+
+        PickFiles(cut, TextFile("error.log"), TextFile("screen.png"));
+
+        cut.FindAll("[data-file]").Select(f => f.GetAttribute("data-file")).Should().Equal("error.log", "screen.png");
+        cut.Find("[data-preview-files]").TextContent.Should().Be("2");
+
+        cut.Find("[data-file='error.log'] [data-remove-file]").Click();
+
+        cut.FindAll("[data-file]").Select(f => f.GetAttribute("data-file")).Should().Equal("screen.png");
+    }
+
+    [Test]
+    public void Files_of_a_bad_type_or_over_the_size_limit_are_refused()
+    {
+        SignIn(UserRole.User);
+        var cut = Render();
+
+        PickFiles(
+            cut,
+            TextFile("setup.exe"),
+            InputFileContent.CreateFromBinary(new byte[AttachmentRules.MaxFileSize + 1], "huge.zip"),
+            TextFile("notes.txt"));
+
+        cut.FindAll("[data-file]").Select(f => f.GetAttribute("data-file")).Should().Equal("notes.txt");
+        var errors = cut.FindAll("[data-file-error] li").Select(e => e.TextContent).ToList();
+        errors.Should().Equal("setup.exe: create.fileTypeNotAllowed", "huge.zip: details.fileTooLarge");
+    }
+
+    [Test]
+    public void No_more_than_five_files_are_kept()
+    {
+        SignIn(UserRole.User);
+        var cut = Render();
+
+        PickFiles(cut, TextFile("1.txt"), TextFile("2.txt"), TextFile("3.txt"), TextFile("4.txt"));
+        PickFiles(cut, TextFile("5.txt"), TextFile("6.txt"));
+
+        cut.FindAll("[data-file]").Should().HaveCount(AttachmentRules.MaxFilesOnCreate);
+        cut.FindAll("[data-file-error] li").Select(e => e.TextContent).Should().Equal("6.txt: create.tooManyFiles");
+    }
+
+    [Test]
+    public void Files_are_uploaded_to_the_new_ticket_before_opening_it()
+    {
+        SignIn(UserRole.User);
+        var cut = Render();
+        FillValidSupportTicket(cut);
+        PickFiles(cut, TextFile("error.log", "stack trace"), TextFile("notes.txt", "hi"));
+
+        cut.Find("form").Submit();
+
+        _uploads.Should().Equal((77, "error.log", 11), (77, "notes.txt", 2));
+        CurrentUri.Should().EndWith("/ticket/77");
+        _host.ToastService.Verify(t => t.ShowToastAsync(It.IsAny<string>(), ToastType.Warning), Times.Never);
+    }
+
+    [Test]
+    public void A_failed_upload_still_opens_the_ticket_and_says_so()
+    {
+        SignIn(UserRole.User);
+        _attachments.Setup(a => a.UploadAttachmentAsync(77, "error.log", It.IsAny<string>(), It.IsAny<Stream>(), 5, null))
+            .ReturnsAsync((false, "disk full", (Attachment?)null));
+        var cut = Render();
+        FillValidSupportTicket(cut);
+        PickFiles(cut, TextFile("error.log"), TextFile("notes.txt"));
+
+        cut.Find("form").Submit();
+
+        _uploads.Select(u => u.Name).Should().Equal("notes.txt");
+        CurrentUri.Should().EndWith("/ticket/77");
+        _host.ToastService.Verify(t => t.ShowToastAsync("create.filesNotAttached", ToastType.Warning), Times.Once);
     }
 
     [Test]

@@ -2,6 +2,7 @@
 @inherits BaseComponent
 @rendermode InteractiveServer
 @using ServiceDeskSystem.Domain.Enums
+@using ServiceDeskSystem.Application.Services.Attachments
 
 <!-- Created by Nazar "N1h3" Hutsol -->
 <div class="max-w-6xl mx-auto p-4 sm:p-6">
@@ -113,6 +114,42 @@
                 </div>
             }
 
+            <div data-field="files" class="border-t border-line pt-5">
+                <div class="mb-2 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+                    <h2 class="font-mono text-13 text-muted"># @Heading("create.files") <span>(@L.Translate("create.optional"))</span></h2>
+                    <label data-add-file class="btn-ghost inline-flex cursor-pointer items-center font-mono text-13 focus-within:outline focus-within:outline-1 focus-within:outline-fg">
+                        + @Heading("details.fileShort")
+                        <InputFile OnChange="OnFilesPickedAsync" class="sr-only" multiple accept="@AttachmentRules.Accept" />
+                    </label>
+                </div>
+                <p class="mb-2 font-mono text-13 text-muted">&gt; @L.Translate("create.filesHint")</p>
+
+                @if (FileErrors.Count > 0)
+                {
+                    <ul data-file-error role="alert" class="mb-2 space-y-0.5 text-13 text-danger">
+                        @foreach (var error in FileErrors)
+                        {
+                            <li>@error</li>
+                        }
+                    </ul>
+                }
+
+                @if (Files.Count > 0)
+                {
+                    <ul class="border-t border-dashed border-line">
+                        @foreach (var file in Files)
+                        {
+                            <li @key="file" data-file="@file.Name" class="flex items-baseline gap-3 border-b border-dashed border-line py-2">
+                                <span class="min-w-0 flex-1 truncate text-14 text-fg">@file.Name</span>
+                                <span class="font-mono text-13 text-muted">@FormatSize(file.Content.Length)</span>
+                                <button type="button" data-remove-file class="btn-ghost h-6 px-1.5 font-mono text-13 hover:text-danger"
+                                        aria-label="@($"{L.Translate("common.delete")}: {file.Name}")" @onclick="() => RemoveFile(file)">×</button>
+                            </li>
+                        }
+                    </ul>
+                }
+            </div>
+
             <div class="flex justify-end gap-2 border-t border-line pt-4">
                 <button type="button" data-cancel class="btn-ghost h-9 px-3 text-15" @onclick="Cancel">@Heading("create.cancel")</button>
                 <button type="submit" data-submit class="btn-accent" disabled="@IsSubmitting">
@@ -140,6 +177,8 @@
                     <dd class="truncate text-fg">@(SelectedProduct?.Name ?? "—")</dd>
                     <dt class="text-muted">@Heading("details.affectedVersion")</dt>
                     <dd class="truncate font-mono text-fg">@(string.IsNullOrWhiteSpace(Model.AffectedVersion) ? "—" : Model.AffectedVersion)</dd>
+                    <dt class="text-muted">@Heading("create.files")</dt>
+                    <dd data-preview-files class="font-mono text-fg">@Files.Count</dd>
                 </dl>
             </div>
             <ul class="mt-4 space-y-1.5 font-mono text-13 text-muted">

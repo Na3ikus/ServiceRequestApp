@@ -48,6 +48,11 @@
   "create.submit": "Ticket erstellen",
   "create.creating": "Wird erstellt...",
   "create.optional": "optional",
+  "create.files": "Dateien",
+  "create.filesHint": "bis zu 5 Dateien, je 10 MB: Bilder, pdf, txt, log, json, csv, docx, xlsx, zip, rar, 7z",
+  "create.fileTypeNotAllowed": "dieser Dateityp ist nicht erlaubt",
+  "create.tooManyFiles": "nicht mehr als 5 Dateien",
+  "create.filesNotAttached": "Ticket erstellt, aber {0} Datei(en) wurden nicht angehängt. Fügen Sie sie auf der Ticketseite hinzu.",
   "create.selectTicketType": "Ticket-Typ auswählen...",
   "create.selectPriority": "Priorität auswählen...",
   "create.selectProduct": "Produkt auswählen...",
@@ -154,7 +159,7 @@
   "create.bugDetails": "Fehlerdetails",
   "create.versionPlaceholder": "z. B. 1.0.4, 2.1.0-beta",
   "create.tip1": "Eine Anfrage – ein Problem.",
-  "create.tip2": "Screenshots und Dateien fügen Sie nach dem Erstellen als Anhänge hinzu.",
+  "create.tip2": "Ein Screenshot oder eine Logdatei hilft dem Team, das Problem schneller nachzustellen.",
   "create.tip3": "Die Priorität legt das Team fest.",
   "details.saveFailed": "Die Änderungen konnten nicht gespeichert werden. Bitte erneut versuchen."
 }

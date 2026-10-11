@@ -48,6 +48,11 @@
   "create.submit": "Crear ticket",
   "create.creating": "Creando...",
   "create.optional": "opcional",
+  "create.files": "archivos",
+  "create.filesHint": "hasta 5 archivos, 10 MB cada uno: imágenes, pdf, txt, log, json, csv, docx, xlsx, zip, rar, 7z",
+  "create.fileTypeNotAllowed": "este tipo de archivo no está permitido",
+  "create.tooManyFiles": "no más de 5 archivos",
+  "create.filesNotAttached": "Ticket creado, pero {0} archivo(s) no se adjuntaron. Añádalos en la página del ticket.",
   "create.selectTicketType": "Seleccione el tipo de ticket...",
   "create.selectPriority": "Seleccione la prioridad...",
   "create.selectProduct": "Seleccione el producto...",
@@ -154,7 +159,7 @@
   "create.bugDetails": "Detalles del error",
   "create.versionPlaceholder": "p. ej. 1.0.4, 2.1.0-beta",
   "create.tip1": "Una solicitud, un problema.",
-  "create.tip2": "Añada capturas y archivos como adjuntos después de crear el ticket.",
+  "create.tip2": "Una captura o un archivo de log ayuda al equipo a reproducir el problema más rápido.",
   "create.tip3": "El equipo evaluará la prioridad.",
   "details.saveFailed": "No se pudieron guardar los cambios. Inténtelo de nuevo."
 }

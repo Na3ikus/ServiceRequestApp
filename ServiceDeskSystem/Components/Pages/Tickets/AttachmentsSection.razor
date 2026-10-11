@@ -9,7 +9,7 @@
         <label data-add-file class="btn-ghost inline-flex cursor-pointer items-center font-mono text-13 focus-within:outline focus-within:outline-1 focus-within:outline-fg"
                title="@L.Translate("details.maxFileSize")">
             + @Heading("details.fileShort")
-            <InputFile OnChange="OnInputFileChange" class="sr-only" multiple />
+            <InputFile OnChange="OnInputFileChange" class="sr-only" multiple accept="@AttachmentRules.Accept" />
         </label>
     </div>
 
@@ -76,7 +76,7 @@
 }
 
 @code {
-    private const long MaxFileSize = 10 * 1024 * 1024; // 10 MB
+    private const long MaxFileSize = AttachmentRules.MaxFileSize;
 
     private List<Attachment>? attachments;
     private bool isUploading;
