@@ -12,6 +12,9 @@ public interface ITicketService
 
     Task<Ticket?> GetTicketByIdAsync(int id);
 
+    /// <summary>Status changes of the ticket, oldest first, with the user who made each change (none for backfilled rows).</summary>
+    Task<List<TicketStatusHistory>> GetStatusHistoryAsync(int ticketId);
+
     Task<Ticket> CreateTicketAsync(Ticket ticket);
 
     /// <param name="actorUserId">The user making the change (recorded in history, audit and notifications).</param>

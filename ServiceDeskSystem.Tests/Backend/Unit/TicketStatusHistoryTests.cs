@@ -84,4 +84,31 @@ public class TicketStatusHistoryTests
         context.TicketStatusHistory.Single(h => h.ChangedByUserId == 3 && h.NewStatus == TicketStatus.CodeReview)
             .OldStatus.Should().Be(TicketStatus.Open);
     }
+
+    [Test]
+    public async Task Repository_returns_a_tickets_changes_oldest_first_with_the_user()
+    {
+        var options = new DbContextOptionsBuilder<BugTrackerDbContext>()
+            .UseInMemoryDatabase($"StatusHistoryByTicket_{Guid.NewGuid()}")
+            .Options;
+
+        await using (var seed = new BugTrackerDbContext(options))
+        {
+            seed.Users.Add(new User { Id = 3, Login = "nazar" });
+            seed.TicketStatusHistory.AddRange(
+                new TicketStatusHistory { TicketId = 7, OldStatus = TicketStatus.InProgress, NewStatus = TicketStatus.Testing, ChangedByUserId = 3, ChangedAt = new DateTime(2026, 10, 10, 12, 0, 0, DateTimeKind.Utc) },
+                new TicketStatusHistory { TicketId = 7, OldStatus = TicketStatus.Open, NewStatus = TicketStatus.InProgress, ChangedByUserId = null, ChangedAt = new DateTime(2026, 10, 10, 9, 0, 0, DateTimeKind.Utc) },
+                new TicketStatusHistory { TicketId = 8, OldStatus = TicketStatus.Open, NewStatus = TicketStatus.Closed, ChangedByUserId = 3, ChangedAt = new DateTime(2026, 10, 10, 8, 0, 0, DateTimeKind.Utc) });
+            await seed.SaveChangesAsync();
+        }
+
+        await using var context = new BugTrackerDbContext(options);
+        var repo = new TicketStatusHistoryRepository(context);
+
+        var rows = await repo.GetByTicketAsync(7);
+
+        rows.Select(r => r.NewStatus).Should().Equal(TicketStatus.InProgress, TicketStatus.Testing);
+        rows[0].ChangedByUser.Should().BeNull();
+        rows[1].ChangedByUser!.Login.Should().Be("nazar");
+    }
 }

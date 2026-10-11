@@ -40,4 +40,40 @@ public class UserTimeZoneTests
         raised.Should().Be(TimeZoneInfo.Local.Id == "America/New_York" ? 0 : 1);
         zone.Zone.Id.Should().Be("America/New_York");
     }
+
+    [Test]
+    public void Converts_a_picked_local_time_to_utc()
+    {
+        var zone = new UserTimeZone();
+        zone.Set("Europe/Kyiv");
+
+        var utc = zone.ToUtc(new DateTime(2024, 4, 20, 11, 45, 0));
+
+        utc.Should().Be(new DateTime(2024, 4, 20, 8, 45, 0));
+        utc.Kind.Should().Be(DateTimeKind.Utc);
+    }
+
+    [Test]
+    public void Local_to_utc_and_back_round_trips_across_seasons()
+    {
+        var zone = new UserTimeZone();
+        zone.Set("America/New_York");
+
+        foreach (var local in new[] { new DateTime(2026, 1, 15, 9, 30, 0), new DateTime(2026, 7, 15, 9, 30, 0) })
+        {
+            zone.ToLocal(zone.ToUtc(local)).Should().Be(local);
+        }
+    }
+
+    [Test]
+    public void A_time_inside_the_spring_forward_gap_moves_past_it()
+    {
+        var zone = new UserTimeZone();
+        zone.Set("Europe/Kyiv");
+
+        // 2026-03-29 03:00 local does not exist in Kyiv (clocks jump 03:00 -> 04:00, UTC+2 -> UTC+3).
+        var utc = zone.ToUtc(new DateTime(2026, 3, 29, 3, 30, 0));
+
+        utc.Should().Be(new DateTime(2026, 3, 29, 1, 30, 0));
+    }
 }

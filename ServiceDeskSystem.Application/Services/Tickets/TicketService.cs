@@ -48,6 +48,12 @@ public sealed class TicketService(
         return await repo.Tickets.GetByIdWithIncludesAsync(id).ConfigureAwait(false);
     }
 
+    public async Task<List<TicketStatusHistory>> GetStatusHistoryAsync(int ticketId)
+    {
+        await using var repo = repositoryFacadeFactory.Create();
+        return await repo.TicketStatusHistory.GetByTicketAsync(ticketId).ConfigureAwait(false);
+    }
+
     public async Task<Ticket> CreateTicketAsync(Ticket ticket)
     {
         ArgumentNullException.ThrowIfNull(ticket);

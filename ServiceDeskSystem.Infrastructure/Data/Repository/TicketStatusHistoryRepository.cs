@@ -22,4 +22,16 @@ public sealed class TicketStatusHistoryRepository : TemplateRepository<TicketSta
             .ToListAsync()
             .ConfigureAwait(false);
     }
+
+    public async Task<List<TicketStatusHistory>> GetByTicketAsync(int ticketId)
+    {
+        return await this.DbSet
+            .AsNoTracking()
+            .Include(h => h.ChangedByUser)
+            .Where(h => h.TicketId == ticketId)
+            .OrderBy(h => h.ChangedAt)
+            .ThenBy(h => h.Id)
+            .ToListAsync()
+            .ConfigureAwait(false);
+    }
 }

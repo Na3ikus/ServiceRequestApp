@@ -23,4 +23,10 @@ public interface IUserTimeZone
     /// Converts a stored UTC timestamp (EF returns them as <see cref="DateTimeKind.Unspecified"/>) to the user's zone.
     /// </summary>
     DateTime ToLocal(DateTime utc);
+
+    /// <summary>
+    /// Converts a wall-clock time picked in the user's zone (e.g. a <c>datetime-local</c> input) to UTC for storage.
+    /// A time skipped by a daylight-saving jump is moved forward past the gap.
+    /// </summary>
+    DateTime ToUtc(DateTime local);
 }

@@ -36,4 +36,16 @@ public sealed class UserTimeZone : IUserTimeZone
 
     public DateTime ToLocal(DateTime utc) =>
         TimeZoneInfo.ConvertTimeFromUtc(DateTime.SpecifyKind(utc, DateTimeKind.Utc), this.Zone);
+
+    public DateTime ToUtc(DateTime local)
+    {
+        var wallClock = DateTime.SpecifyKind(local, DateTimeKind.Unspecified);
+        if (this.Zone.IsInvalidTime(wallClock))
+        {
+            // Inside a spring-forward gap: the clock reads the same time an hour later.
+            wallClock = wallClock.AddHours(1);
+        }
+
+        return TimeZoneInfo.ConvertTimeToUtc(wallClock, this.Zone);
+    }
 }

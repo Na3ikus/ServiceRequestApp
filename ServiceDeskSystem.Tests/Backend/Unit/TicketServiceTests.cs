@@ -361,4 +361,20 @@ public class TicketServiceTests
         result.IsPriorityAssessed.Should().BeFalse();
         _mockTicketRepo.Verify(r => r.CreateAsync(ticket), Times.Once);
     }
+
+    [Test]
+    public async Task GetStatusHistoryAsync_ReturnsTheTicketsHistoryFromTheRepository()
+    {
+        // Arrange
+        var history = new Mock<ITicketStatusHistoryRepository>();
+        var rows = new List<TicketStatusHistory> { new() { TicketId = 42, OldStatus = TicketStatus.Open, NewStatus = TicketStatus.InProgress } };
+        history.Setup(h => h.GetByTicketAsync(42)).ReturnsAsync(rows);
+        _mockFacade.Setup(f => f.TicketStatusHistory).Returns(history.Object);
+
+        // Act
+        var result = await _ticketService.GetStatusHistoryAsync(42);
+
+        // Assert
+        result.Should().BeSameAs(rows);
+    }
 }
