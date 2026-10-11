@@ -43,6 +43,7 @@
   "common.required": "requis",
   "common.footer": "Système Service Desk",
   "common.loading": "Chargement...",
+  "common.no": "non",
   "auth.tagline": "Suivez, triez et résolvez les demandes depuis un seul terminal.",
   "auth.quote.1": "chaque ticket fermé débloque quelqu'un",
   "auth.quote.2": "statut : à l'écoute",

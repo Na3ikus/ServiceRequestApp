@@ -43,6 +43,7 @@
   "common.required": "erforderlich",
   "common.footer": "Service-Desk-System",
   "common.loading": "Wird geladen...",
+  "common.no": "nein",
   "auth.tagline": "Verfolgen, sortieren und lösen Sie Anfragen von einem Terminal aus.",
   "auth.quote.1": "jedes geschlossene Ticket hilft jemandem weiter",
   "auth.quote.2": "Status: empfangsbereit",

@@ -63,7 +63,7 @@ else
                             <td class="text-right font-mono @(products == 0 ? "text-muted" : "text-fg")">@products</td>
                             <td class="whitespace-nowrap text-right font-mono text-13">
                                 <button type="button" data-action="edit" class="text-muted hover:text-fg" @onclick="() => EditTechStack(stack)">@Heading("common.edit")</button>
-                                <button type="button" data-action="delete" class="ml-3 text-muted hover:text-danger disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:text-muted"
+                                <button type="button" data-action="delete" class="ml-3 text-muted hover:text-danger disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:text-muted"
                                         disabled="@(products > 0)"
                                         title="@(products > 0 ? L.Translate("admin.cannotDeleteTechStackWithProducts") : L.Translate("common.delete"))"
                                         aria-label="@(products > 0 ? L.Translate("admin.cannotDeleteTechStackWithProducts") : L.Translate("common.delete"))"

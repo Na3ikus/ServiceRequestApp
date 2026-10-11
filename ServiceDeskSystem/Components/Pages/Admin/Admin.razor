@@ -18,7 +18,7 @@
         <PageHeader Segments="Segments" Subtitle="@L.Translate("admin.subtitle")" />
 
         <nav data-admin-tabs aria-label="@L.Translate("nav.section.management")"
-             class="mb-5 flex gap-1 overflow-x-auto border-b border-line font-mono text-14">
+             class="mb-5 flex gap-1 overflow-x-auto overflow-y-hidden border-b border-line font-mono text-14">
             @foreach (var tab in Sections)
             {
                 var active = tab == ActiveSection;
@@ -27,7 +27,7 @@
                     <span>@tab</span>@TabBadge(tab)
                     @if (active)
                     {
-                        <span aria-hidden="true" class="absolute inset-x-2 -bottom-px h-0.5 bg-accent"></span>
+                        <span aria-hidden="true" class="absolute inset-x-2 bottom-0 h-0.5 bg-accent"></span>
                     }
                 </a>
             }

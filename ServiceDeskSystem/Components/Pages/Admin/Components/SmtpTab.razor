@@ -34,11 +34,11 @@
         <h2 id="smtp-test-heading" class="mb-3 font-mono text-13 text-muted"># @Heading("admin.smtp.testEmail")</h2>
         <form novalidate class="grid gap-3" @onsubmit="SendAsync" @onsubmit:preventDefault="true">
             <div>
-                <label for="smtp-to" class="mb-1 block text-13 text-muted">@L.Translate("admin.smtp.recipientEmail")</label>
+                <label for="smtp-to" class="mb-1 block text-13 text-muted">@Heading("admin.smtp.recipientEmail")</label>
                 <input id="smtp-to" type="email" class="input-field h-8 px-2.5 text-14" @bind="recipient" @bind:event="oninput" />
             </div>
             <div>
-                <label for="smtp-subject" class="mb-1 block text-13 text-muted">@L.Translate("admin.smtp.subject")</label>
+                <label for="smtp-subject" class="mb-1 block text-13 text-muted">@Heading("admin.smtp.subject")</label>
                 <input id="smtp-subject" type="text" class="input-field h-8 px-2.5 text-14" @bind="subject" @bind:event="oninput" />
             </div>
             <div class="flex justify-end">

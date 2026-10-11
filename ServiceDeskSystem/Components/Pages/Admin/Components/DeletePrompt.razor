@@ -10,7 +10,7 @@
                 <button type="button" data-action="confirm" class="btn-danger h-7 px-2.5 font-mono text-13 font-normal"
                         disabled="@IsDeleting" @onclick="ConfirmAsync">y, @Heading("common.delete")</button>
                 <button type="button" data-action="keep" class="btn-outline h-7 font-mono" @ref="keepButton"
-                        @onclick="CancelAsync">N</button>
+                        @onclick="CancelAsync">N, @Heading("common.no")</button>
             </span>
         </div>
     </td>

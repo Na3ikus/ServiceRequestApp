@@ -849,10 +849,6 @@ table th,
   bottom: 0px;
 }
 
-.-bottom-px {
-  bottom: -1px;
-}
-
 .-right-1\.5 {
   right: -0.375rem;
 }
@@ -1888,6 +1884,10 @@ table th,
 
 .overflow-y-auto {
   overflow-y: auto;
+}
+
+.overflow-y-hidden {
+  overflow-y: hidden;
 }
 
 .truncate {
@@ -3872,12 +3872,12 @@ input:-webkit-autofill:active {
   opacity: 0.3;
 }
 
-.disabled\:opacity-40:disabled {
-  opacity: 0.4;
-}
-
 .disabled\:opacity-50:disabled {
   opacity: 0.5;
+}
+
+.disabled\:opacity-60:disabled {
+  opacity: 0.6;
 }
 
 .disabled\:hover\:text-muted:hover:disabled {

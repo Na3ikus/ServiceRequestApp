@@ -43,6 +43,7 @@
   "common.required": "obligatorio",
   "common.footer": "Sistema Service Desk",
   "common.loading": "Cargando...",
+  "common.no": "no",
   "auth.tagline": "Rastree, clasifique y resuelva solicitudes desde una sola terminal.",
   "auth.quote.1": "cada ticket cerrado desbloquea a alguien",
   "auth.quote.2": "estado: escuchando",
