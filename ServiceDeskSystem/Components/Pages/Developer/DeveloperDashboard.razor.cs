@@ -63,6 +63,13 @@ public partial class DeveloperDashboard : BaseComponent
         this.AuthService.AuthStateChanged += this.OnAuthStateChanged;
 
         await this.LoadDataAsync();
+
+        // A page left during the load would start a refresh loop nothing cancels.
+        if (this.disposed)
+        {
+            return;
+        }
+
         this.StartAutoRefresh();
     }
 

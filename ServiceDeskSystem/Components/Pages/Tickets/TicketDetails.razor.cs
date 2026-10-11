@@ -137,6 +137,13 @@ public partial class TicketDetails : BaseComponent
         this.AuthService.AuthStateChanged += this.OnAuthStateChanged;
 
         await this.LoadTicketAsync(isInitialLoad: true);
+
+        // Logging out here re-creates the page and leaves it before the load ends.
+        if (this.disposed)
+        {
+            return;
+        }
+
         this.StartAutoRefresh();
     }
 

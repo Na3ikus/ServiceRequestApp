@@ -376,6 +376,21 @@ public class TicketDetailsPageTests
         _host.Context.Services.GetRequiredService<FakeNavigationManager>().Uri.Should().EndWith("/my-tickets");
     }
 
+    [Test]
+    public void Leaving_while_the_ticket_loads_does_not_throw()
+    {
+        // Logging out on this page re-creates it and navigates away before the load finishes.
+        SignIn(UserRole.Developer, DeveloperId);
+        var load = new TaskCompletionSource<Ticket?>();
+        _tickets.Setup(t => t.GetTicketByIdAsync(42)).Returns(load.Task);
+        Render();
+
+        _host.Context.DisposeComponents();
+        _host.Context.Renderer.Dispatcher.InvokeAsync(() => load.SetResult(_ticket)).GetAwaiter().GetResult();
+
+        _host.Context.Renderer.UnhandledException.IsCompleted.Should().BeFalse();
+    }
+
     private static void Type(IRenderedComponent<TicketDetails> cut, IRenderedComponent<RichTextEditor> editor, string html) =>
         cut.InvokeAsync(() => editor.Instance.UpdateContent(html)).GetAwaiter().GetResult();
 
