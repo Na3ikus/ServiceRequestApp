@@ -144,5 +144,16 @@
   "details.notFound": "Заявку #{0} не знайдено або її видалено",
   "details.tagShort": "Тег",
   "details.visibilityInternal": "Внутрішній",
-  "details.visibilityPublic": "Публічний"
+  "details.visibilityPublic": "Публічний",
+  "create.typeRequired": "Оберіть тип заявки",
+  "create.titleRequired": "Вкажіть заголовок",
+  "create.titleLength": "Заголовок має містити від 5 до 200 символів",
+  "create.descriptionRequired": "Додайте опис",
+  "create.descriptionLength": "Опис має містити від 10 до 5000 символів",
+  "create.productRequired": "Оберіть продукт",
+  "create.bugDetails": "Деталі помилки",
+  "create.versionPlaceholder": "напр. 1.0.4, 2.1.0-beta",
+  "create.tip1": "Один запит — одна проблема.",
+  "create.tip2": "Скріншоти й файли додайте у вкладення вже після створення заявки.",
+  "create.tip3": "Пріоритет оцінить команда."
 }

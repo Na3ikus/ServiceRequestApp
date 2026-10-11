@@ -4,271 +4,149 @@
 @using ServiceDeskSystem.Domain.Enums
 
 <!-- Created by Nazar "N1h3" Hutsol -->
-<div class="ticket-create-page max-w-3xl mx-auto p-4 sm:p-6">
-<div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-5 sm:p-8 transition-colors duration-200">
-    <div class="page-hero mb-8 p-6 rounded-2xl border border-slate-200/60 dark:border-slate-700/50 bg-gradient-to-r from-slate-50 to-white dark:from-slate-800/80 dark:to-slate-800/40 shadow-sm relative overflow-hidden">
-        <div class="page-hero-decor absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
-        <div class="flex items-center gap-4 relative">
-            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 dark:from-blue-500 dark:to-indigo-500 text-white flex items-center justify-center shadow-lg shadow-blue-500/20 ring-1 ring-white/20 transform transition-transform hover:scale-105">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                </svg>
+<div class="max-w-6xl mx-auto p-4 sm:p-6">
+    <PageHeader Segments="Segments" Subtitle="@L.Translate("create.subtitle")" />
+
+    <div class="grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_280px]">
+        <form data-create-form class="min-w-0 space-y-5" novalidate @onsubmit="HandleSubmitAsync">
+            <div data-field="type">
+                <p id="create-type-label" class="mb-1.5 text-13 text-muted">@Heading("create.ticketType") <span class="text-danger">*</span></p>
+                <div class="max-w-full overflow-x-auto">
+                    <SegmentedControl Label="@L.Translate("create.ticketType")" Options="TypeOptions"
+                                      Value="@(Model.TicketType?.ToString() ?? string.Empty)" ValueChanged="SelectType" />
+                </div>
+                @if (Model.TicketType is { } type)
+                {
+                    <p data-type-description class="mt-1.5 text-13 text-muted">@L.Translate(TypeKey(type) + ".desc")</p>
+                }
+                @ErrorFor(TicketCreateModel.TypeField)
             </div>
-            <div>
-                <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">@L.Translate("create.title")</h1>
-                <p class="text-slate-500 dark:text-slate-400 mt-1 text-sm sm:text-base">@L.Translate("create.subtitle")</p>
+
+            <div data-field="title">
+                <label for="create-title" class="mb-1.5 block text-13 text-muted">@Heading("create.ticketTitle") <span class="text-danger">*</span></label>
+                <input id="create-title" class="input-field" placeholder="@L.Translate("create.titlePlaceholder")"
+                       aria-invalid="@Invalid(TicketCreateModel.TitleField)"
+                       @bind="Model.Title" @bind:event="oninput" />
+                @ErrorFor(TicketCreateModel.TitleField)
             </div>
-        </div>
 
-        @if (!IsTypeSelected)
-        {
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mt-8">
-                <!-- Помилка -->
-                <div @onclick="() => SelectType(TicketType.Bug)" class="group relative overflow-hidden bg-white dark:bg-slate-800/60 backdrop-blur-sm rounded-2xl p-6 border border-slate-200/60 dark:border-slate-700/50 cursor-pointer transition-all duration-300 ease-out hover:scale-[1.02] hover:shadow-xl hover:shadow-red-500/10 hover:border-red-500/30 dark:hover:border-red-500/30 flex items-start gap-5">
-                    <div class="absolute inset-0 bg-gradient-to-br from-red-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-                    <div class="relative w-12 h-12 rounded-xl bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3 shadow-inner">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                        </svg>
-                    </div>
-                    <div class="relative">
-                        <h3 class="text-lg font-bold text-slate-900 dark:text-white group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors">@L.Translate("ticketType.bug")</h3>
-                        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1.5 leading-relaxed">@L.Translate("ticketType.bug.desc")</p>
-                    </div>
-                </div>
-
-                <!-- Підтримка -->
-                <div @onclick="() => SelectType(TicketType.Support)" class="group relative overflow-hidden bg-white dark:bg-slate-800/60 backdrop-blur-sm rounded-2xl p-6 border border-slate-200/60 dark:border-slate-700/50 cursor-pointer transition-all duration-300 ease-out hover:scale-[1.02] hover:shadow-xl hover:shadow-blue-500/10 hover:border-blue-500/30 dark:hover:border-blue-500/30 flex items-start gap-5">
-                    <div class="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-                    <div class="relative w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-3 shadow-inner">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"></path>
-                        </svg>
-                    </div>
-                    <div class="relative">
-                        <h3 class="text-lg font-bold text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">@L.Translate("ticketType.support")</h3>
-                        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1.5 leading-relaxed">@L.Translate("ticketType.support.desc")</p>
-                    </div>
-                </div>
-
-                <!-- Консультація -->
-                <div @onclick="() => SelectType(TicketType.Consultation)" class="group relative overflow-hidden bg-white dark:bg-slate-800/60 backdrop-blur-sm rounded-2xl p-6 border border-slate-200/60 dark:border-slate-700/50 cursor-pointer transition-all duration-300 ease-out hover:scale-[1.02] hover:shadow-xl hover:shadow-purple-500/10 hover:border-purple-500/30 dark:hover:border-purple-500/30 flex items-start gap-5">
-                    <div class="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-                    <div class="relative w-12 h-12 rounded-xl bg-purple-50 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3 shadow-inner">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
-                        </svg>
-                    </div>
-                    <div class="relative">
-                        <h3 class="text-lg font-bold text-slate-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">@L.Translate("ticketType.consultation")</h3>
-                        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1.5 leading-relaxed">@L.Translate("ticketType.consultation.desc")</p>
-                    </div>
-                </div>
-
-                <!-- Проєкт -->
-                <div @onclick="() => SelectType(TicketType.Project)" class="group relative overflow-hidden bg-white dark:bg-slate-800/60 backdrop-blur-sm rounded-2xl p-6 border border-slate-200/60 dark:border-slate-700/50 cursor-pointer transition-all duration-300 ease-out hover:scale-[1.02] hover:shadow-xl hover:shadow-emerald-500/10 hover:border-emerald-500/30 dark:hover:border-emerald-500/30 flex items-start gap-5">
-                    <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-                    <div class="relative w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-3 shadow-inner">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
-                        </svg>
-                    </div>
-                    <div class="relative">
-                        <h3 class="text-lg font-bold text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">@L.Translate("ticketType.project")</h3>
-                        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1.5 leading-relaxed">@L.Translate("ticketType.project.desc")</p>
-                    </div>
-                </div>
+            <div data-field="description">
+                <p class="mb-1.5 text-13 text-muted">@Heading("create.description") <span class="text-danger">*</span></p>
+                <RichTextEditor @bind-Value="Model.Description" Placeholder="@L.Translate("create.descriptionPlaceholder")" />
+                @ErrorFor(TicketCreateModel.DescriptionField)
             </div>
-        }
-    </div>
 
-    @if (IsTypeSelected)
-    {
-        <div class="mb-6">
-            <button type="button" @onclick="BackToTypeSelection" class="group flex items-center gap-2 px-4 py-2 rounded-lg text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200 font-medium bg-transparent border-none cursor-pointer">
-                <svg class="w-4 h-4 transform transition-transform group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-                @L.Translate("create.cancel")
-            </button>
-        </div>
-
-        <EditForm Model="Model" OnValidSubmit="HandleSubmitAsync" FormName="CreateTicketForm">
-            <DataAnnotationsValidator />
-
-            <div class="space-y-6">
-                <!-- Title -->
-                <div>
-                    <label for="title" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5 ml-1">
-                        @L.Translate("create.ticketTitle") <span class="text-red-500">*</span>
-                    </label>
-                    <InputText id="title" 
-                               @bind-Value="Model.Title" 
-                               placeholder="@L.Translate("create.titlePlaceholder")"
-                               class="w-full px-4 py-2.5 border border-slate-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 bg-slate-50 dark:bg-slate-900/50 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 transition-all shadow-sm" />
-                    <ValidationMessage For="@(() => Model.Title)" class="text-red-500 text-sm mt-1.5 ml-1" />
-                </div>
-
-                <!-- Description -->
-                <div>
-                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5 ml-1">
-                        @L.Translate("create.description") <span class="text-red-500">*</span>
-                    </label>
-                    <div class="rounded-xl overflow-hidden shadow-sm border border-slate-300 dark:border-slate-600 focus-within:ring-2 focus-within:ring-blue-500/50 focus-within:border-blue-500 transition-all bg-slate-50 dark:bg-slate-900/50">
-                        <ServiceDeskSystem.Components.UI.Elements.RichTextEditor @bind-Value="Model.Description" Placeholder="@L.Translate("create.descriptionPlaceholder")" />
-                    </div>
-                    <ValidationMessage For="@(() => Model.Description)" class="text-red-500 text-sm mt-1.5 ml-1" />
-                </div>
-
-                <!-- Type, Priority and Product Row -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <!-- Type (Readonly) -->
-                    <div>
-                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5 ml-1">
-                            @L.Translate("create.ticketType")
-                        </label>
-                        <div class="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-between shadow-inner">
-                            <span class="font-medium">@L.Translate($"ticketType.{Model.TicketType.ToString().ToLowerInvariant()}")</span>
-                            <button type="button" @onclick="BackToTypeSelection" class="text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 text-sm focus:outline-none flex items-center gap-1 bg-blue-50 dark:bg-blue-900/30 px-2 py-1 rounded-md transition-colors">
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
-                                Змінити
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Priority -->
-                    @if (IsAdminOrDeveloper)
-                    {
-                        <div>
-                            <label for="priority" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5 ml-1">
-                                @L.Translate("create.priority") <span class="text-red-500">*</span>
-                            </label>
-                            <InputSelect id="priority" 
-                                         @bind-Value="Model.Priority"
-                                         class="w-full px-4 py-2.5 border border-slate-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 bg-slate-50 dark:bg-slate-900/50 text-slate-900 dark:text-white transition-all shadow-sm">
-                                <option value="">@L.Translate("create.selectPriority")</option>
-                                @foreach (var priority in Enum.GetValues<TicketPriority>())
-                                {
-                                    <option value="@priority">@L.Translate($"priority.{priority.ToString().ToLowerInvariant()}")</option>
-                                }
-                            </InputSelect>
-                            <ValidationMessage For="@(() => Model.Priority)" class="text-red-500 text-sm mt-1.5 ml-1" />
-
-                            @if (Model.Priority == TicketPriority.Critical)
-                            {
-                                <div class="mt-3 p-3.5 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800/60 space-y-2 animate-in fade-in duration-200 shadow-sm">
-                                    <div class="flex items-center gap-2">
-                                        <svg class="w-4 h-4 text-red-600 dark:text-red-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                                        </svg>
-                                        <span class="text-xs font-bold text-red-900 dark:text-red-200">@L.Translate("create.criticalWarningTitle")</span>
-                                    </div>
-                                    <label class="flex items-center gap-2.5 text-xs font-semibold text-red-800 dark:text-red-300 cursor-pointer hover:text-red-950 dark:hover:text-red-100 transition-colors">
-                                        <input type="checkbox" @bind="IsCriticalConfirmed" class="w-4 h-4 text-red-600 rounded border-red-300 dark:border-red-700 focus:ring-red-500 dark:bg-slate-900 cursor-pointer" />
-                                        <span>@L.Translate("create.confirmCritical")</span>
-                                    </label>
-                                    @if (!string.IsNullOrEmpty(CriticalConfirmationError))
-                                    {
-                                        <div class="text-xs text-red-600 dark:text-red-400 font-bold mt-1">@CriticalConfirmationError</div>
-                                    }
-                                </div>
-                            }
-                        </div>
-                    }
-
-                    <!-- Product -->
+            @if (Model.TicketType != TicketType.Project || IsAdminOrDeveloper)
+            {
+                <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
                     @if (Model.TicketType != TicketType.Project)
                     {
-                        <div class="md:col-span-2">
-                            <label for="product" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5 ml-1">
-                                @L.Translate("create.product")
-                                @if (IsProductRequired)
-                                {
-                                    <span class="text-red-500">*</span>
-                                }
-                                else
-                                {
-                                    <span class="text-slate-400 dark:text-slate-500 font-normal"> (@L.Translate("create.optional"))</span>
-                                }
-                            </label>
-                            <InputSelect id="product" 
-                                         @bind-Value="Model.ProductId"
-                                         class="w-full px-4 py-2.5 border border-slate-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 bg-slate-50 dark:bg-slate-900/50 text-slate-900 dark:text-white transition-all shadow-sm">
+                        <div data-field="product">
+                            <label for="create-product" class="mb-1.5 block text-13 text-muted">@Heading("create.product") <span class="text-danger">*</span></label>
+                            <select id="create-product" class="input-field" aria-invalid="@Invalid(TicketCreateModel.ProductField)"
+                                    @bind="Model.ProductId">
                                 <option value="">@L.Translate("create.selectProduct")</option>
                                 @foreach (var product in Products)
                                 {
                                     <option value="@product.Id">@product.Name</option>
                                 }
-                            </InputSelect>
-                            @if (!string.IsNullOrWhiteSpace(ProductValidationError))
+                            </select>
+                            @ErrorFor(TicketCreateModel.ProductField)
+                        </div>
+                    }
+
+                    @if (IsAdminOrDeveloper)
+                    {
+                        <div data-field="priority">
+                            <label for="create-priority" class="mb-1.5 block text-13 text-muted">@Heading("create.priority") <span class="text-danger">*</span></label>
+                            <select id="create-priority" class="input-field" @bind="Model.Priority" @bind:after="OnPriorityChanged">
+                                @foreach (var priority in Enum.GetValues<TicketPriority>())
+                                {
+                                    <option value="@priority">@GetPriorityText(priority)</option>
+                                }
+                            </select>
+
+                            @if (Model.Priority == TicketPriority.Critical)
                             {
-                                <div class="text-red-500 text-sm mt-1.5 ml-1">@ProductValidationError</div>
+                                <div data-critical class="mt-2 space-y-1.5 rounded-md border border-danger px-3 py-2 text-13 text-danger">
+                                    <p class="font-medium">@L.Translate("create.criticalWarningTitle")</p>
+                                    <label class="flex cursor-pointer items-start gap-2">
+                                        <input type="checkbox" class="mt-1" @bind="IsCriticalConfirmed" />
+                                        <span>@L.Translate("create.confirmCritical")</span>
+                                    </label>
+                                    @if (!string.IsNullOrEmpty(CriticalConfirmationError))
+                                    {
+                                        <p role="alert" class="font-medium">@CriticalConfirmationError</p>
+                                    }
+                                </div>
                             }
                         </div>
                     }
                 </div>
+            }
 
-                @if (Model.TicketType == TicketType.Bug)
-                {
-                    <!-- Steps to Reproduce (Optional) -->
+            @if (Model.TicketType == TicketType.Bug)
+            {
+                <div data-bug-details class="space-y-5 border-t border-line pt-5">
+                    <h2 class="font-mono text-13 text-muted"># @Heading("create.bugDetails")</h2>
+
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5 ml-1">
-                            @L.Translate("create.stepsToReproduce")
-                        </label>
-                        <div class="rounded-xl overflow-hidden shadow-sm border border-slate-300 dark:border-slate-600 focus-within:ring-2 focus-within:ring-blue-500/50 focus-within:border-blue-500 transition-all bg-slate-50 dark:bg-slate-900/50">
-                            <ServiceDeskSystem.Components.UI.Elements.RichTextEditor @bind-Value="Model.StepsToReproduce" Placeholder="@L.Translate("create.stepsPlaceholder")" />
+                        <p class="mb-1.5 text-13 text-muted">@Heading("create.stepsToReproduce") <span>(@L.Translate("create.optional"))</span></p>
+                        <RichTextEditor @bind-Value="Model.StepsToReproduce" Placeholder="@L.Translate("create.stepsPlaceholder")" />
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+                        <div>
+                            <label for="create-environment" class="mb-1.5 block text-13 text-muted">@Heading("create.environment") <span>(@L.Translate("create.optional"))</span></label>
+                            <input id="create-environment" class="input-field" placeholder="@L.Translate("create.environmentPlaceholder")"
+                                   @bind="Model.Environment" />
+                        </div>
+                        <div>
+                            <label for="create-version" class="mb-1.5 block text-13 text-muted">@Heading("details.affectedVersion") <span>(@L.Translate("create.optional"))</span></label>
+                            <input id="create-version" class="input-field font-mono" placeholder="@L.Translate("create.versionPlaceholder")"
+                                   @bind="Model.AffectedVersion" @bind:event="oninput" />
                         </div>
                     </div>
-
-                    <!-- Environment (Optional) -->
-                    <div>
-                        <label for="environment" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5 ml-1">
-                            @L.Translate("create.environment")
-                        </label>
-                        <InputText id="environment" 
-                                   @bind-Value="Model.Environment" 
-                                   placeholder="@L.Translate("create.environmentPlaceholder")"
-                                   class="w-full px-4 py-2.5 border border-slate-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 bg-slate-50 dark:bg-slate-900/50 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 transition-all shadow-sm" />
-                    </div>
-
-                    <!-- Affected Version (Optional) -->
-                    <div>
-                        <label for="affectedVersion" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5 ml-1">
-                            @L.Translate("details.affectedVersion")
-                        </label>
-                        <InputText id="affectedVersion" 
-                                   @bind-Value="Model.AffectedVersion" 
-                                   placeholder="e.g., 1.0.4, 2.1.0-beta"
-                                   class="w-full px-4 py-2.5 border border-slate-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 bg-slate-50 dark:bg-slate-900/50 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 transition-all shadow-sm" />
-                    </div>
-                }
-
-                <!-- Form Actions -->
-                <div class="form-actions flex items-center justify-end gap-3 pt-6 border-t border-slate-200 dark:border-slate-700 mt-8">
-                    <button type="button" 
-                            @onclick="Cancel"
-                            class="px-5 py-2.5 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors font-medium">
-                        @L.Translate("create.cancel")
-                    </button>
-                    <button type="submit" 
-                            disabled="@IsSubmitting"
-                            class="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl shadow-md shadow-blue-500/30 hover:shadow-lg hover:shadow-blue-500/40 transform transition-all hover:-translate-y-0.5 disabled:translate-y-0 disabled:bg-slate-400 disabled:from-slate-400 disabled:to-slate-400 disabled:shadow-none disabled:cursor-not-allowed font-medium">
-                        @if (IsSubmitting)
-                        {
-                            <span class="flex items-center gap-2">
-                                <svg class="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
-                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>
-                                @L.Translate("create.creating")
-                            </span>
-                        }
-                        else
-                        {
-                            <span>@L.Translate("create.submit")</span>
-                        }
-                    </button>
                 </div>
+            }
+
+            <div class="flex justify-end gap-2 border-t border-line pt-4">
+                <button type="button" data-cancel class="btn-ghost h-9 px-3 text-15" @onclick="Cancel">@Heading("create.cancel")</button>
+                <button type="submit" data-submit class="btn-accent" disabled="@IsSubmitting">
+                    @Heading(IsSubmitting ? "create.creating" : "create.submit")
+                </button>
             </div>
-        </EditForm>
-    }
+        </form>
+
+        <aside data-preview class="hidden lg:block">
+            <div class="rounded-lg border border-line bg-surface p-4">
+                <p class="mb-3 font-mono text-13 text-muted">preview · #new</p>
+                <div class="mb-2 flex flex-wrap gap-1.5">
+                    @if (Model.TicketType is { } previewType)
+                    {
+                        <TypeTag Type="previewType" />
+                    }
+                    <StatusTag Status="TicketStatus.Open" />
+                    <PriorityTag Priority="PreviewPriority" />
+                </div>
+                <p data-preview-title class="break-words text-15 font-medium text-fg">@(string.IsNullOrWhiteSpace(Model.Title) ? "—" : Model.Title)</p>
+                <dl class="mt-3 grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-1 text-13">
+                    <dt class="text-muted">@Heading("table.author")</dt>
+                    <dd class="truncate text-fg">@(AuthService.CurrentUser?.Login ?? "—")</dd>
+                    <dt class="text-muted">@Heading("table.product")</dt>
+                    <dd class="truncate text-fg">@(SelectedProduct?.Name ?? "—")</dd>
+                    <dt class="text-muted">@Heading("details.affectedVersion")</dt>
+                    <dd class="truncate font-mono text-fg">@(string.IsNullOrWhiteSpace(Model.AffectedVersion) ? "—" : Model.AffectedVersion)</dd>
+                </dl>
+            </div>
+            <ul class="mt-4 space-y-1.5 font-mono text-13 text-muted">
+                <li>&gt; @L.Translate("create.tip1")</li>
+                <li>&gt; @L.Translate("create.tip2")</li>
+                @if (!IsAdminOrDeveloper)
+                {
+                    <li>&gt; @L.Translate("create.tip3")</li>
+                }
+            </ul>
+        </aside>
     </div>
 </div>

@@ -144,5 +144,16 @@
   "details.notFound": "Ticket #{0} was not found or has been deleted",
   "details.tagShort": "Tag",
   "details.visibilityInternal": "Internal",
-  "details.visibilityPublic": "Public"
+  "details.visibilityPublic": "Public",
+  "create.typeRequired": "Choose a ticket type",
+  "create.titleRequired": "Title is required",
+  "create.titleLength": "Title must be between 5 and 200 characters",
+  "create.descriptionRequired": "Description is required",
+  "create.descriptionLength": "Description must be between 10 and 5000 characters",
+  "create.productRequired": "Please select a product",
+  "create.bugDetails": "Bug details",
+  "create.versionPlaceholder": "e.g. 1.0.4, 2.1.0-beta",
+  "create.tip1": "One request, one problem.",
+  "create.tip2": "Add screenshots and files as attachments once the ticket is created.",
+  "create.tip3": "The team will assess the priority."
 }

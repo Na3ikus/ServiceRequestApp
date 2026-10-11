@@ -144,5 +144,16 @@
   "details.notFound": "Ticket #{0} wurde nicht gefunden oder gelöscht",
   "details.tagShort": "Tag",
   "details.visibilityInternal": "Intern",
-  "details.visibilityPublic": "Öffentlich"
+  "details.visibilityPublic": "Öffentlich",
+  "create.typeRequired": "Wählen Sie einen Ticket-Typ",
+  "create.titleRequired": "Titel ist erforderlich",
+  "create.titleLength": "Der Titel muss zwischen 5 und 200 Zeichen lang sein",
+  "create.descriptionRequired": "Beschreibung ist erforderlich",
+  "create.descriptionLength": "Die Beschreibung muss zwischen 10 und 5000 Zeichen lang sein",
+  "create.productRequired": "Bitte wählen Sie ein Produkt",
+  "create.bugDetails": "Fehlerdetails",
+  "create.versionPlaceholder": "z. B. 1.0.4, 2.1.0-beta",
+  "create.tip1": "Eine Anfrage – ein Problem.",
+  "create.tip2": "Screenshots und Dateien fügen Sie nach dem Erstellen als Anhänge hinzu.",
+  "create.tip3": "Die Priorität legt das Team fest."
 }

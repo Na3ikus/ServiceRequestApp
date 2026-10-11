@@ -144,5 +144,16 @@
   "details.notFound": "El ticket #{0} no existe o fue eliminado",
   "details.tagShort": "Etiqueta",
   "details.visibilityInternal": "Interno",
-  "details.visibilityPublic": "Público"
+  "details.visibilityPublic": "Público",
+  "create.typeRequired": "Elija un tipo de ticket",
+  "create.titleRequired": "El título es obligatorio",
+  "create.titleLength": "El título debe tener entre 5 y 200 caracteres",
+  "create.descriptionRequired": "La descripción es obligatoria",
+  "create.descriptionLength": "La descripción debe tener entre 10 y 5000 caracteres",
+  "create.productRequired": "Seleccione un producto",
+  "create.bugDetails": "Detalles del error",
+  "create.versionPlaceholder": "p. ej. 1.0.4, 2.1.0-beta",
+  "create.tip1": "Una solicitud, un problema.",
+  "create.tip2": "Añada capturas y archivos como adjuntos después de crear el ticket.",
+  "create.tip3": "El equipo evaluará la prioridad."
 }

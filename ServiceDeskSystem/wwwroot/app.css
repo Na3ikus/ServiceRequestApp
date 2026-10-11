@@ -303,11 +303,6 @@ a, .btn-link {
     white-space: nowrap;
 }
 
-/* Create ticket layout stability */
-.ticket-create-page .form-actions button {
-    min-width: 140px;
-}
-
 
 
 /* Ticket delete button */
