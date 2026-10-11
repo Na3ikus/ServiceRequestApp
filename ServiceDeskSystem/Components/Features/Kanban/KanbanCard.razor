@@ -7,7 +7,7 @@
 
 <!-- Created by Nazar "N1h3" Hutsol -->
 <div data-kanban-card class="kanban-card @(CanDrag ? "cursor-grab active:cursor-grabbing" : "cursor-pointer")
-     flex flex-col gap-2 rounded-lg border border-line bg-canvas p-3 hover:border-muted"
+     flex flex-col gap-2 rounded-lg border border-line bg-canvas p-3 hover:border-muted @(CanDrag ? "kanban-touch-card" : null)"
      @ref="cardElement" draggable="@(CanDrag ? "true" : "false")" @onclick="HandleClick">
     <div class="flex items-center justify-between gap-2">
         <div class="flex min-w-0 flex-wrap items-center gap-1.5">

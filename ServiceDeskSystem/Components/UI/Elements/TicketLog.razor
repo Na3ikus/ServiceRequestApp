@@ -20,7 +20,7 @@ else
         {
             <li class="border-b border-dashed border-line">
                 <a href="@($"/ticket/{ticket.Id}")" data-ticket-row class="flex flex-wrap items-center gap-x-3 gap-y-1.5 px-2 py-2.5 hover:bg-surface">
-                    <span class="w-12 shrink-0 font-mono text-13 text-muted">#@ticket.Id</span>
+                    <span class="shrink-0 font-mono text-13 text-muted sm:w-12">#@ticket.Id</span>
                     <span class="min-w-0 flex-1 basis-48 truncate text-15 text-fg">@ticket.Title</span>
                     <span class="flex flex-wrap items-center gap-2">
                         <TypeTag Type="ticket.Type" />

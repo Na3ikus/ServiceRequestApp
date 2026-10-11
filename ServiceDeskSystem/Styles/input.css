@@ -184,6 +184,13 @@
     opacity: 0.45;
 }
 
+/* Draggable cards: a long press picks the card up on touch screens, so no text selection or callout. */
+.kanban-touch-card {
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+}
+
 /* ============================================= */
 /* RICH TEXT EDITOR (QUILL)                      */
 /* ============================================= */

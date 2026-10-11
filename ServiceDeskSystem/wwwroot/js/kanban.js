@@ -5,6 +5,12 @@ window.kanban = {
     // Map of element -> AbortController for drag listeners, keyed by element reference
     _dragControllers: new WeakMap(),
 
+    // Drop zone element -> { dotnetRef, status }, used by touch drag (no HTML5 drop events on touch screens)
+    _zones: new WeakMap(),
+
+    // Board container used for edge auto-scroll during touch drag
+    _board: null,
+
     // Auto-scroll state
     _scrollRAF: null,
     _scrollContainer: null,
@@ -18,6 +24,7 @@ window.kanban = {
      */
     initBoard: function (container) {
         if (!container) return;
+        this._board = container;
 
         const EDGE_SIZE = 120;   // px from edge that triggers scroll
         const MAX_SPEED = 18;    // max px per animation frame
@@ -93,6 +100,7 @@ window.kanban = {
      */
     initDropZone: function (element, dotnetRef, status) {
         if (!element) return;
+        this._zones.set(element, { dotnetRef: dotnetRef, status: status });
 
         element.addEventListener('dragover', function (e) {
             e.preventDefault();
@@ -153,6 +161,145 @@ window.kanban = {
 
         element.addEventListener('dragend', function (e) {
             element.classList.remove('kanban-dragging');
+        }, { signal });
+
+        this._initTouchDrag(element, ticketId, status, signal);
+    },
+
+    /**
+     * Touch screens never fire HTML5 drag events, so cards also get a touch drag:
+     * a long press (LONG_PRESS_MS without moving) picks the card up, a ghost follows
+     * the finger, the drop zone under it is highlighted and releasing over another
+     * column reports the drop through the same OnTicketDropped call.
+     * Moving before the long press ends is treated as a scroll and cancels the pickup.
+     */
+    _initTouchDrag: function (element, ticketId, status, signal) {
+        const LONG_PRESS_MS = 300;
+        const MOVE_TOLERANCE = 8;
+        const EDGE_SIZE = 48;
+        const MAX_SPEED = 14;
+        const self = this;
+
+        let timer = null;
+        let startX = 0;
+        let startY = 0;
+        let ghost = null;
+        let offsetX = 0;
+        let offsetY = 0;
+        let overZone = null;
+
+        function zoneAt(x, y) {
+            const hit = document.elementFromPoint(x, y);
+            const zone = hit && hit.closest('.kanban-drop-zone');
+            return zone && self._zones.has(zone) ? zone : null;
+        }
+
+        function setOverZone(zone) {
+            if (zone === overZone) return;
+            if (overZone) overZone.classList.remove('kanban-drag-over');
+            overZone = zone;
+            if (overZone) overZone.classList.add('kanban-drag-over');
+        }
+
+        function edgeScroll(x) {
+            const board = self._board;
+            if (!board) return;
+            const rect = board.getBoundingClientRect();
+            if (x < rect.left + EDGE_SIZE) {
+                self._scrollSpeed = -MAX_SPEED;
+            } else if (x > rect.right - EDGE_SIZE) {
+                self._scrollSpeed = MAX_SPEED;
+            } else {
+                self._stopScroll();
+                return;
+            }
+            self._scrollContainer = board;
+            self._ensureScrollLoop();
+        }
+
+        function pickUp(touch) {
+            const rect = element.getBoundingClientRect();
+            offsetX = touch.clientX - rect.left;
+            offsetY = touch.clientY - rect.top;
+            ghost = element.cloneNode(true);
+            ghost.setAttribute('aria-hidden', 'true');
+            Object.assign(ghost.style, {
+                position: 'fixed',
+                left: rect.left + 'px',
+                top: rect.top + 'px',
+                width: rect.width + 'px',
+                pointerEvents: 'none',
+                zIndex: '1000',
+                opacity: '0.9',
+            });
+            document.body.appendChild(ghost);
+            element.classList.add('kanban-dragging');
+            if (navigator.vibrate) navigator.vibrate(10);
+        }
+
+        // Returns true when a picked-up card was released (the caller then cancels the tap).
+        function finish(touch) {
+            clearTimeout(timer);
+            timer = null;
+            if (!ghost) return false;
+
+            ghost.remove();
+            ghost = null;
+            element.classList.remove('kanban-dragging');
+            self._stopScroll();
+
+            const zone = touch ? zoneAt(touch.clientX, touch.clientY) : null;
+            setOverZone(null);
+
+            const target = zone && self._zones.get(zone);
+            if (target && target.status !== status) {
+                target.dotnetRef.invokeMethodAsync('OnTicketDropped', ticketId, target.status);
+            }
+
+            return true;
+        }
+
+        element.addEventListener('touchstart', function (e) {
+            if (e.touches.length !== 1) return;
+            const t = e.touches[0];
+            startX = t.clientX;
+            startY = t.clientY;
+            timer = setTimeout(function () {
+                timer = null;
+                pickUp(t);
+            }, LONG_PRESS_MS);
+        }, { signal, passive: true });
+
+        // Not passive: once a card is picked up, preventDefault stops the page from scrolling.
+        element.addEventListener('touchmove', function (e) {
+            const t = e.touches[0];
+            if (!ghost) {
+                if (timer && Math.hypot(t.clientX - startX, t.clientY - startY) > MOVE_TOLERANCE) {
+                    clearTimeout(timer);
+                    timer = null;
+                }
+                return;
+            }
+
+            e.preventDefault();
+            ghost.style.left = (t.clientX - offsetX) + 'px';
+            ghost.style.top = (t.clientY - offsetY) + 'px';
+            setOverZone(zoneAt(t.clientX, t.clientY));
+            edgeScroll(t.clientX);
+        }, { signal, passive: false });
+
+        // preventDefault on touchend stops the browser from turning the release into a click (opening the ticket).
+        element.addEventListener('touchend', function (e) {
+            if (finish(e.changedTouches[0])) e.preventDefault();
+        }, { signal, passive: false });
+
+        element.addEventListener('touchcancel', function () {
+            finish(null);
+        }, { signal });
+
+        // The long press that picks a card up must not also open the context menu.
+        element.addEventListener('contextmenu', function (e) {
+            if (ghost) e.preventDefault();
         }, { signal });
     }
 };

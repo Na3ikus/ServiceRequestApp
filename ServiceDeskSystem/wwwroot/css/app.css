@@ -3849,6 +3849,15 @@ table th,
   opacity: 0.45;
 }
 
+/* Draggable cards: a long press picks the card up on touch screens, so no text selection or callout. */
+
+.kanban-touch-card {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+       user-select: none;
+  -webkit-touch-callout: none;
+}
+
 /* ============================================= */
 
 /* RICH TEXT EDITOR (QUILL)                      */
@@ -5520,6 +5529,10 @@ input:-webkit-autofill:active {
 
   .sm\:min-h-\[140px\] {
     min-height: 140px;
+  }
+
+  .sm\:w-12 {
+    width: 3rem;
   }
 
   .sm\:grid-cols-2 {
