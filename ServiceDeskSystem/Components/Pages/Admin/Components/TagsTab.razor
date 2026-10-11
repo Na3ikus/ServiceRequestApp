@@ -59,7 +59,7 @@ else
                     }
                     else
                     {
-                        <tr @key="tag" data-row="@tag.Id" class="border-b border-dashed border-line hover:bg-surface">
+                        <tr @key="tag.Id" data-row="@tag.Id" class="border-b border-dashed border-line hover:bg-surface">
                             <td>@Chip(tag.Name, tag.Color)</td>
                             <td class="font-mono text-13 text-muted">@tag.Color</td>
                             <td class="text-right font-mono @(tickets == 0 ? "text-muted" : "text-fg")">@tickets</td>

@@ -59,7 +59,7 @@ else
                     }
                     else
                     {
-                        <tr @key="product" data-row="@product.Id" class="border-b border-dashed border-line hover:bg-surface">
+                        <tr @key="product.Id" data-row="@product.Id" class="border-b border-dashed border-line hover:bg-surface">
                             <td class="truncate text-fg" title="@product.Name">@product.Name</td>
                             <td class="max-w-0 truncate text-muted" title="@product.Description">@product.Description</td>
                             <td class="truncate font-mono text-13">@product.CurrentVersion</td>

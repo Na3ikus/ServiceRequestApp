@@ -48,7 +48,7 @@ else
                         continue;
                     }
 
-                    <tr @key="user" data-row="@user.Id" data-inactive="@(!user.IsActive)"
+                    <tr @key="user.Id" data-row="@user.Id" data-inactive="@(!user.IsActive)"
                         class="border-b border-dashed border-line hover:bg-surface @(user.IsActive ? null : "[&>td]:opacity-60")">
                         <td>
                             <div class="flex min-w-0 items-center gap-2.5">

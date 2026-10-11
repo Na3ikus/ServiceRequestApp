@@ -119,10 +119,16 @@
                     <h2 class="font-mono text-13 text-muted"># @Heading("create.files") <span>(@L.Translate("create.optional"))</span></h2>
                     <label data-add-file class="btn-ghost inline-flex cursor-pointer items-center font-mono text-13 focus-within:outline focus-within:outline-1 focus-within:outline-fg">
                         + @Heading("details.fileShort")
-                        <InputFile OnChange="OnFilesPickedAsync" class="sr-only" multiple accept="@AttachmentRules.Accept" />
+                        <InputFile OnChange="OnFilesPickedAsync" class="sr-only" multiple accept="@AttachmentRules.Accept"
+                                   disabled="@(IsReadingFiles || IsSubmitting)" />
                     </label>
                 </div>
                 <p class="mb-2 font-mono text-13 text-muted">&gt; @L.Translate("create.filesHint")</p>
+
+                @if (IsReadingFiles)
+                {
+                    <p data-reading-files role="status" class="mb-2 font-mono text-13 text-muted">@Heading("create.readingFiles") …</p>
+                }
 
                 @if (FileErrors.Count > 0)
                 {
@@ -136,12 +142,12 @@
 
                 @if (Files.Count > 0)
                 {
-                    <ul class="border-t border-dashed border-line">
+                    <ul aria-label="@L.Translate("create.files")" class="border-t border-dashed border-line">
                         @foreach (var file in Files)
                         {
                             <li @key="file" data-file="@file.Name" class="flex items-baseline gap-3 border-b border-dashed border-line py-2">
                                 <span class="min-w-0 flex-1 truncate text-14 text-fg">@file.Name</span>
-                                <span class="font-mono text-13 text-muted">@FormatSize(file.Content.Length)</span>
+                                <span class="font-mono text-13 text-muted">@FormatSize(file.Length)</span>
                                 <button type="button" data-remove-file class="btn-ghost h-6 px-1.5 font-mono text-13 hover:text-danger"
                                         aria-label="@($"{L.Translate("common.delete")}: {file.Name}")" @onclick="() => RemoveFile(file)">×</button>
                             </li>
@@ -152,7 +158,7 @@
 
             <div class="flex justify-end gap-2 border-t border-line pt-4">
                 <button type="button" data-cancel class="btn-ghost h-9 px-3 text-15" @onclick="Cancel">@Heading("create.cancel")</button>
-                <button type="submit" data-submit class="btn-accent" disabled="@IsSubmitting">
+                <button type="submit" data-submit class="btn-accent" disabled="@(IsSubmitting || IsReadingFiles)">
                     @Heading(IsSubmitting ? "create.creating" : "create.submit")
                 </button>
             </div>

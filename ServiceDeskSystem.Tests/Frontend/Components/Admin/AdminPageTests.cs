@@ -71,9 +71,16 @@ public class AdminPageTests
         cut.Find("h1").TextContent.Replace(" ", string.Empty).Should().Be("~/admin/users");
     }
 
+    [Test]
+    public void Section_names_ignore_case()
+    {
+        var cut = Render("USERS");
+
+        ActiveTab(cut).Should().Be("users");
+    }
+
     [TestCase(null)]
     [TestCase("nope")]
-    [TestCase("PRODUCTS")]
     public void Root_and_unknown_sections_render_products(string? section)
     {
         var cut = Render(section);

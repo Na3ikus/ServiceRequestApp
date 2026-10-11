@@ -52,6 +52,8 @@
   "create.filesHint": "до 5 файлів, до 10 МБ кожен: зображення, pdf, txt, log, json, csv, docx, xlsx, zip, rar, 7z",
   "create.fileTypeNotAllowed": "такий тип файлу не дозволено",
   "create.tooManyFiles": "не більше 5 файлів",
+  "create.fileReadFailed": "не вдалося прочитати файл, спробуйте ще раз",
+  "create.readingFiles": "читаю файли",
   "create.filesNotAttached": "Заявку створено, але {0} файл(и) не прикріпилися. Додайте їх на сторінці заявки.",
   "create.selectTicketType": "Виберіть тип заявки...",
   "create.selectPriority": "Виберіть пріоритет...",

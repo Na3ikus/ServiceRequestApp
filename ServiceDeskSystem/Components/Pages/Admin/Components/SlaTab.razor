@@ -65,7 +65,7 @@ else
                     }
                     else
                     {
-                        <tr @key="policy" data-row="@policy.Id" data-inactive="@(!policy.IsActive)"
+                        <tr @key="policy.Id" data-row="@policy.Id" data-inactive="@(!policy.IsActive)"
                             class="border-b border-dashed border-line hover:bg-surface @(policy.IsActive ? null : "[&>td]:opacity-60")">
                             <td>
                                 <div class="flex min-w-0 flex-wrap items-center gap-2">

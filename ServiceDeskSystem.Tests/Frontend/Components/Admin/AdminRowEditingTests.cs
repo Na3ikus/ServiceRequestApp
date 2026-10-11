@@ -226,13 +226,13 @@ public class AdminRowEditingTests
     }
 
     [Test]
-    public void Enter_on_the_prompt_does_not_delete()
+    public void Prompt_focuses_N_so_a_stray_Enter_keeps_the_record()
     {
         var cut = RenderProducts();
         cut.Find("tr[data-row='2'] [data-action=delete]").Click();
 
-        cut.Find("tr[data-delete-prompt]").KeyDown(key: "Enter");
-
+        _host.Context.JSInterop.VerifyFocusAsyncInvoke().Arguments[0]
+            .ShouldBeElementReferenceTo(cut.Find("[data-action=keep]"));
         _admin.Verify(a => a.DeleteProductAsync(It.IsAny<int>()), Times.Never);
     }
 

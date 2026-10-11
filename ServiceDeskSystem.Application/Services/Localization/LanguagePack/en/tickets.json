@@ -52,6 +52,8 @@
   "create.filesHint": "up to 5 files, 10 MB each: images, pdf, txt, log, json, csv, docx, xlsx, zip, rar, 7z",
   "create.fileTypeNotAllowed": "this file type is not allowed",
   "create.tooManyFiles": "no more than 5 files",
+  "create.fileReadFailed": "could not read the file, try again",
+  "create.readingFiles": "reading files",
   "create.filesNotAttached": "Ticket created, but {0} file(s) were not attached. Add them on the ticket page.",
   "create.selectTicketType": "Select ticket type...",
   "create.selectPriority": "Select priority...",

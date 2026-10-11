@@ -13,7 +13,7 @@
                 <span class="mr-auto hidden font-mono text-12 text-muted sm:inline">
                     <Kbd>Enter</Kbd> @Heading("common.save") · <Kbd>Esc</Kbd> @Heading("common.cancel")
                 </span>
-                <button type="button" data-action="cancel" class="btn-outline" @onclick="CancelAsync">@Heading("common.cancel")</button>
+                <button type="button" data-action="cancel" class="btn-outline" disabled="@IsSaving" @onclick="CancelAsync">@Heading("common.cancel")</button>
                 <button type="submit" data-action="save" class="btn-accent h-8 px-3 text-13" disabled="@IsSaving">
                     @(IsSaving ? Heading("common.saving") : Heading("common.save"))
                 </button>
@@ -100,7 +100,8 @@
         }
     }
 
-    private Task CancelAsync() => OnCancel.InvokeAsync();
+    // A running save is not cancelled: closing the row then would let a second save overlap it.
+    private Task CancelAsync() => IsSaving ? Task.CompletedTask : OnCancel.InvokeAsync();
 
-    private Task OnKeyDownAsync(KeyboardEventArgs e) => e.Key == "Escape" ? OnCancel.InvokeAsync() : Task.CompletedTask;
+    private Task OnKeyDownAsync(KeyboardEventArgs e) => e.Key == "Escape" ? CancelAsync() : Task.CompletedTask;
 }

@@ -24,6 +24,9 @@ public sealed class TicketService(
     {
         memoryCache.Remove("TicketCountByStatus");
         memoryCache.Remove("TicketCountByPriority");
+
+        // AdminService caches products with their tickets (the admin "tickets" column).
+        memoryCache.Remove("AllProducts");
     }
 
 

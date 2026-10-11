@@ -46,6 +46,11 @@ public partial class CreateTicket
 
     protected bool IsSubmitting { get; set; }
 
+    /// <summary>
+    /// Gets a value indicating whether picked files are still being read from the browser.
+    /// </summary>
+    protected bool IsReadingFiles { get; private set; }
+
     protected bool IsCriticalConfirmed { get; set; }
 
     protected string? CriticalConfirmationError { get; set; }
@@ -73,6 +78,13 @@ public partial class CreateTicket
         _ => throw new ArgumentOutOfRangeException(nameof(type), type, null),
     };
 
+    protected static string FormatSize(long bytes) => bytes switch
+    {
+        < 1024 => $"{bytes} B",
+        < 1024 * 1024 => $"{Math.Round(bytes / 1024d, 1).ToString(System.Globalization.CultureInfo.InvariantCulture)} KB",
+        _ => $"{Math.Round(bytes / 1024d / 1024d, 1).ToString(System.Globalization.CultureInfo.InvariantCulture)} MB",
+    };
+
     protected override async Task OnInitializedAsync()
     {
         this.Products = await this.TicketService.GetProductsAsync();
@@ -81,7 +93,8 @@ public partial class CreateTicket
 
     protected async Task HandleSubmitAsync()
     {
-        if (this.IsSubmitting)
+        // While files are being read the list is still changing; submit waits for it.
+        if (this.IsSubmitting || this.IsReadingFiles)
         {
             return;
         }
@@ -147,36 +160,50 @@ public partial class CreateTicket
     /// </summary>
     protected async Task OnFilesPickedAsync(InputFileChangeEventArgs e)
     {
-        var errors = new List<string>();
-
-        // Allow a large pick here so the extra files get a message instead of an exception.
-        foreach (var file in e.GetMultipleFiles(maximumFileCount: 100))
+        if (this.IsReadingFiles || this.IsSubmitting)
         {
-            if (this.files.Count >= AttachmentRules.MaxFilesOnCreate)
-            {
-                errors.Add($"{file.Name}: {this.L.Translate("create.tooManyFiles")}");
-            }
-            else if (!AttachmentRules.IsAllowedType(file.Name))
-            {
-                errors.Add($"{file.Name}: {this.L.Translate("create.fileTypeNotAllowed")}");
-            }
-            else if (file.Size > AttachmentRules.MaxFileSize)
-            {
-                errors.Add($"{file.Name}: {this.L.Translate("details.fileTooLarge")}");
-            }
-            else
-            {
-                using var buffer = new MemoryStream();
-                await using (var stream = file.OpenReadStream(AttachmentRules.MaxFileSize))
-                {
-                    await stream.CopyToAsync(buffer);
-                }
-
-                this.files.Add(new PendingFile(file.Name, file.ContentType, buffer.ToArray()));
-            }
+            return;
         }
 
-        this.FileErrors = errors;
+        var errors = new List<string>();
+        this.IsReadingFiles = true;
+
+        try
+        {
+            // Allow a large pick here so the extra files get a message instead of an exception.
+            foreach (var file in e.GetMultipleFiles(maximumFileCount: 100))
+            {
+                if (this.files.Count >= AttachmentRules.MaxFilesOnCreate)
+                {
+                    errors.Add($"{file.Name}: {this.L.Translate("create.tooManyFiles")}");
+                }
+                else if (!AttachmentRules.IsAllowedType(file.Name))
+                {
+                    errors.Add($"{file.Name}: {this.L.Translate("create.fileTypeNotAllowed")}");
+                }
+                else if (file.Size > AttachmentRules.MaxFileSize)
+                {
+                    errors.Add($"{file.Name}: {this.L.Translate("details.fileTooLarge")}");
+                }
+                else
+                {
+                    var (ok, content) = await ReadAsync(file);
+                    if (ok)
+                    {
+                        this.files.Add(new PendingFile(file.Name, file.ContentType, content));
+                    }
+                    else
+                    {
+                        errors.Add($"{file.Name}: {this.L.Translate("create.fileReadFailed")}");
+                    }
+                }
+            }
+        }
+        finally
+        {
+            this.IsReadingFiles = false;
+            this.FileErrors = errors;
+        }
     }
 
     protected void RemoveFile(PendingFile file)
@@ -184,13 +211,6 @@ public partial class CreateTicket
         this.files.Remove(file);
         this.FileErrors = [];
     }
-
-    protected static string FormatSize(long bytes) => bytes switch
-    {
-        < 1024 => $"{bytes} B",
-        < 1024 * 1024 => $"{Math.Round(bytes / 1024d, 1).ToString(System.Globalization.CultureInfo.InvariantCulture)} KB",
-        _ => $"{Math.Round(bytes / 1024d / 1024d, 1).ToString(System.Globalization.CultureInfo.InvariantCulture)} MB",
-    };
 
     protected void Cancel()
     {
@@ -243,27 +263,43 @@ public partial class CreateTicket
     private static string ErrorId(string field) => $"create-error-{field}";
 
     /// <summary>
+    /// Reads a picked file into one array of its size; <c>Ok</c> is false when the browser could not deliver it.
+    /// </summary>
+    private static async Task<(bool Ok, byte[] Content)> ReadAsync(IBrowserFile file)
+    {
+        try
+        {
+            var content = new byte[file.Size];
+            await using var stream = file.OpenReadStream(AttachmentRules.MaxFileSize);
+            await stream.ReadExactlyAsync(content);
+            return (true, content);
+        }
+        catch (Exception ex) when (ex is IOException or OperationCanceledException or Microsoft.JSInterop.JSException or InvalidOperationException)
+        {
+            return (false, []);
+        }
+    }
+
+    /// <summary>
     /// Uploads the picked files to the new ticket; returns how many failed.
     /// </summary>
     private async Task<int> UploadFilesAsync(int ticketId)
     {
         var failed = 0;
-        foreach (var file in this.files)
+        foreach (var file in this.files.ToList())
         {
             try
             {
-                using var stream = new MemoryStream(file.Content, writable: false);
+                using var stream = file.OpenRead();
                 var result = await this.AttachmentService.UploadAttachmentAsync(ticketId, file.Name, file.ContentType, stream, this.CurrentUserId);
                 if (!result.Success)
                 {
                     failed++;
                 }
             }
-            catch (IOException)
-            {
-                failed++;
-            }
-            catch (UnauthorizedAccessException)
+#pragma warning disable CA1031 // The ticket already exists: any failed file is reported, the page must still open it.
+            catch (Exception)
+#pragma warning restore CA1031
             {
                 failed++;
             }
@@ -283,7 +319,16 @@ public partial class CreateTicket
     /// <summary>
     /// A file picked on the form, held in memory until the ticket is created.
     /// </summary>
-    protected sealed record PendingFile(string Name, string ContentType, byte[] Content);
+    protected sealed class PendingFile(string name, string contentType, byte[] content)
+    {
+        public string Name { get; } = name;
+
+        public string ContentType { get; } = contentType;
+
+        public long Length => content.LongLength;
+
+        public Stream OpenRead() => new MemoryStream(content, writable: false);
+    }
 
     /// <summary>
     /// What the create form collects. No type is chosen until the user picks one.

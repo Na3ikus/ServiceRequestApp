@@ -22,6 +22,7 @@ public partial class UsersTab : BaseComponent
     ];
 
     private int? failedRoleUserId;
+    private int? savingRoleUserId;
 
     [Parameter]
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1002:Do not expose generic lists", Justification = "Blazor parameter")]
@@ -87,6 +88,12 @@ public partial class UsersTab : BaseComponent
     {
         ArgumentNullException.ThrowIfNull(user);
 
+        // One role save at a time: arrow keys in the control would otherwise send overlapping saves.
+        if (this.savingRoleUserId is not null)
+        {
+            return;
+        }
+
         this.failedRoleUserId = null;
         if (!Enum.TryParse<UserRole>(value, out var newRole) || newRole == user.Role)
         {
@@ -99,25 +106,33 @@ public partial class UsersTab : BaseComponent
             return;
         }
 
-        bool success;
+        this.savingRoleUserId = user.Id;
         try
         {
-            success = await this.AdminService.UpdateUserRoleAsync(user.Id, newRole);
-        }
-        catch (Exception)
-        {
-            success = false;
-        }
+            bool success;
+            try
+            {
+                success = await this.AdminService.UpdateUserRoleAsync(user.Id, newRole);
+            }
+            catch (Exception)
+            {
+                success = false;
+            }
 
-        if (!success)
-        {
-            this.failedRoleUserId = user.Id;
-            return;
-        }
+            if (!success)
+            {
+                this.failedRoleUserId = user.Id;
+                return;
+            }
 
-        user.Role = newRole;
-        await this.ToastService.ShowToastAsync(this.L.Translate("admin.userUpdated"), ToastType.Success);
-        await this.OnUsersChanged.InvokeAsync();
+            user.Role = newRole;
+            await this.ToastService.ShowToastAsync(this.L.Translate("admin.userUpdated"), ToastType.Success);
+            await this.OnUsersChanged.InvokeAsync();
+        }
+        finally
+        {
+            this.savingRoleUserId = null;
+        }
     }
 
     protected async Task ToggleUserStatusAsync(int userId)

@@ -307,6 +307,23 @@ public class CreateTicketPageTests
     }
 
     [Test]
+    public void An_upload_that_throws_still_opens_the_ticket_once()
+    {
+        SignIn(UserRole.User);
+        _attachments.Setup(a => a.UploadAttachmentAsync(77, "error.log", It.IsAny<string>(), It.IsAny<Stream>(), 5, null))
+            .ThrowsAsync(new InvalidOperationException("db is down"));
+        var cut = Render();
+        FillValidSupportTicket(cut);
+        PickFiles(cut, TextFile("error.log"));
+
+        cut.Find("form").Submit();
+
+        CurrentUri.Should().EndWith("/ticket/77");
+        _tickets.Verify(t => t.CreateTicketAsync(It.IsAny<Ticket>()), Times.Once);
+        _host.ToastService.Verify(t => t.ShowToastAsync("create.filesNotAttached", ToastType.Warning), Times.Once);
+    }
+
+    [Test]
     public void Cancel_goes_home()
     {
         SignIn(UserRole.User);
