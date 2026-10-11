@@ -223,6 +223,7 @@ public partial class UserProfile : BaseComponent
             if (result.Success)
             {
                 this.isSaved = true;
+                this.AuthService.UpdateCurrentPerson(this.model.FirstName, this.model.LastName, this.model.MiddleName);
             }
             else
             {

@@ -946,16 +946,16 @@ h3[tabindex] {
 }
 
 /* Input fields placeholder and text */
-.dark input::placeholder {
+.dark input:not(.input-field)::placeholder {
     color: rgb(156 163 175) !important; /* gray-400 */
 }
 
-.dark input {
+.dark input:not(.input-field) {
     color: rgb(255 255 255) !important; /* white */
     background-color: rgb(55 65 81) !important; /* gray-700 */
 }
 
-.dark select {
+.dark select:not(.input-field) {
     color: rgb(255 255 255) !important; /* white */
     background-color: rgb(55 65 81) !important; /* gray-700 */
 }
@@ -1086,16 +1086,16 @@ h3[tabindex] {
 }
 
 /* Input fields placeholder and text */
-.dark input::placeholder {
+.dark input:not(.input-field)::placeholder {
     color: rgb(156 163 175) !important; /* gray-400 */
 }
 
-.dark input {
+.dark input:not(.input-field) {
     color: rgb(255 255 255) !important; /* white */
     background-color: rgb(55 65 81) !important; /* gray-700 */
 }
 
-.dark select {
+.dark select:not(.input-field) {
     color: rgb(255 255 255) !important; /* white */
     background-color: rgb(55 65 81) !important; /* gray-700 */
 }

@@ -164,6 +164,7 @@ public class ProfilePageTests
         cut.Find("form").Submit();
 
         cut.Find("[data-saved]").TextContent.Should().Contain("[ok]");
+        _host.Auth.Verify(a => a.UpdateCurrentPerson("Olena", "Koval", null), Times.Once);
     }
 
     [Test]

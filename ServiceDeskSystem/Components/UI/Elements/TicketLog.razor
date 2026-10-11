@@ -34,7 +34,7 @@ else
                         }
                         @if (ShowTriage && !ticket.IsPriorityAssessed)
                         {
-                            <span data-triage class="font-mono text-13 text-danger" title="@L.Translate("tickets.triageRequired")">[triage]</span>
+                            <span data-triage class="font-mono text-13 text-danger">[@Heading("tickets.triageRequired")]</span>
                         }
                     </span>
                     <span class="ml-auto shrink-0 font-mono text-13 text-muted">@ticket.CreatedAt.ToLocalTime().ToString("dd MMM yyyy, HH:mm", UiCulture)</span>

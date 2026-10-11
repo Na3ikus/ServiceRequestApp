@@ -63,6 +63,19 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
     [Inject]
     private IDbContextFactory<BugTrackerDbContext> DbContextFactory { get; set; } = null!;
 
+    /// <summary>
+    /// Gets the signed-in user's full name (avatar initials, top bar), or the login when no name is set.
+    /// </summary>
+    private string? DisplayName
+    {
+        get
+        {
+            var user = this.AuthService.CurrentUser;
+            var fullName = $"{user?.Person?.FirstName} {user?.Person?.LastName}".Trim();
+            return fullName.Length > 0 ? fullName : user?.Login;
+        }
+    }
+
     [JSInvokable]
     public Task HandleThemeHotkey()
     {

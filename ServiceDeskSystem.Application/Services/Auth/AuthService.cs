@@ -48,7 +48,7 @@ public sealed class AuthService(
             if (stored.Success && stored.Value > 0)
             {
                 await using var repo = repositoryFacadeFactory.Create();
-                var user = await repo.Users.GetByIdAsync(stored.Value).ConfigureAwait(false);
+                var user = await repo.Users.GetByIdWithPersonAndContactsAsync(stored.Value).ConfigureAwait(false);
 
                 if (user is not null && user.IsActive)
                 {
@@ -243,6 +243,19 @@ public sealed class AuthService(
         {
             return (false, "Database connection is unavailable.");
         }
+    }
+
+    public void UpdateCurrentPerson(string firstName, string lastName, string? middleName)
+    {
+        if (this.CurrentUser?.Person is not { } person)
+        {
+            return;
+        }
+
+        person.FirstName = firstName;
+        person.LastName = lastName;
+        person.MiddleName = middleName;
+        this.AuthStateChanged?.Invoke(this, EventArgs.Empty);
     }
 
     public async Task LogoutAsync()

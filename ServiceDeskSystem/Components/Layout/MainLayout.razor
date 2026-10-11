@@ -137,9 +137,9 @@
                         <details class="header-dropdown relative">
                             <summary class="header-dropdown-summary flex items-center gap-2 rounded-md px-1 hover:bg-surface"
                                      aria-label="@AuthService.CurrentUser?.Login">
-                                <Avatar Name="@AuthService.CurrentUser?.Login" Size="AvatarSize.Md" />
+                                <Avatar Name="@DisplayName" Size="AvatarSize.Md" />
                                 <span class="hidden text-13 text-fg sm:inline">
-                                    @(AuthService.CurrentUser?.Person?.FirstName ?? AuthService.CurrentUser?.Login)
+                                    @DisplayName
                                 </span>
                             </summary>
 
