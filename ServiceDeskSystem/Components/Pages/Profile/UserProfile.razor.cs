@@ -27,7 +27,7 @@ public partial class UserProfile : BaseComponent
     private UpdateProfileRequest? model;
     private List<ContactTypeDto> contactTypes = new List<ContactTypeDto>();
     private User? user;
-    private IReadOnlyList<(string LabelKey, string Value)> numbers = [];
+    private IReadOnlyList<(string LabelKey, double Value)>? numbers;
     private IReadOnlyList<DailyActivityDto>? activity;
     private List<Ticket>? recentTickets;
     private DateOnly today = DateOnly.FromDateTime(DateTime.Now);
@@ -112,17 +112,25 @@ public partial class UserProfile : BaseComponent
 
     private async Task LoadStatsAsync(User current)
     {
+        // The figures are secondary: a failure leaves the form usable and drops the skeletons.
         try
         {
             await this.LoadNumbersAndTicketsAsync(current);
+        }
+        catch (Exception)
+        {
+            this.numbers ??= [];
+            this.recentTickets ??= [];
+        }
+
+        try
+        {
             this.activity = await this.ActivityService.GetDailyActivityAsync(
                 current.Id, ActivityHeatmap.FirstMonday(this.today), this.today);
         }
         catch (Exception)
         {
-            // The figures are secondary: leave the form usable and drop the skeletons.
-            this.recentTickets ??= [];
-            this.activity ??= [];
+            this.activity = [];
         }
     }
 
@@ -134,9 +142,9 @@ public partial class UserProfile : BaseComponent
             var resolved = authored.Count(t => t.Status is TicketStatus.Resolved or TicketStatus.Done or TicketStatus.Closed);
             this.numbers =
             [
-                ("profile.stat.created", this.Number(authored.Count)),
-                ("profile.stat.open", this.Number(authored.Count - resolved)),
-                ("profile.stat.resolved", this.Number(resolved)),
+                ("profile.stat.created", authored.Count),
+                ("profile.stat.open", authored.Count - resolved),
+                ("profile.stat.resolved", resolved),
             ];
             this.recentTickets = authored.OrderByDescending(t => t.CreatedAt).Take(5).ToList();
         }
@@ -147,21 +155,25 @@ public partial class UserProfile : BaseComponent
             var assigned = await this.TicketService.GetDeveloperTicketsAsync(current.Id);
             this.numbers =
             [
-                ("profile.stat.assigned", this.Number(stats.AssignedCount)),
-                ("profile.stat.inProgress", this.Number(stats.InProgressCount)),
-                ("profile.stat.completed", this.Number(stats.CompletedCount)),
-                ("profile.stat.hours", (minutes / 60.0).ToString("0.#", this.UiCulture)),
+                ("profile.stat.assigned", stats.AssignedCount),
+                ("profile.stat.inProgress", stats.InProgressCount),
+                ("profile.stat.completed", stats.CompletedCount),
+                ("profile.stat.hours", minutes / 60.0),
             ];
             this.recentTickets = assigned.OrderByDescending(t => t.CreatedAt).Take(5).ToList();
         }
     }
 
-    private string Number(int value) => value.ToString(this.UiCulture);
+    // Formatted at render time so a language switch also switches the decimal separator.
+    private string Number(double value) => value.ToString("0.#", this.UiCulture);
+
+    private void ClearSaved() => this.isSaved = false;
 
     private string ContactTypeName(int typeId) => this.contactTypes.FirstOrDefault(t => t.Id == typeId)?.Name ?? string.Empty;
 
     private void AddContact()
     {
+        this.ClearSaved();
         this.model?.Contacts.Add(new UpdateContactRequest
         {
             ContactTypeId = this.contactTypes.FirstOrDefault()?.Id ?? 0,
@@ -170,6 +182,7 @@ public partial class UserProfile : BaseComponent
 
     private void RemoveContact(UpdateContactRequest contact)
     {
+        this.ClearSaved();
         this.model?.Contacts.Remove(contact);
     }
 

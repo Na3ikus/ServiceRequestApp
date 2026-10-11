@@ -108,12 +108,14 @@ Two columns on `lg` (left 280px card, right form); stacked below.
   User: created / open / resolved; Developer & Admin: assigned / in progress
   / completed / hours logged.
 - **# activity** (full width under both columns): `ActivityHeatmap` —
-  26 weeks × 7 days ending today, weeks as columns starting Monday, month
-  labels above, Mon/Wed/Fri labels on the left (UI culture). Cell 12px,
+  52 weeks × 7 days ending today (changed from 26 after the browser check:
+  the map now fills the content width with fluid square cells; narrow
+  screens scroll, starting at the latest week), weeks as columns starting Monday, month
+  labels above, Mon/Wed/Fri labels on the left (UI culture). Cell fluid,
   gap 3px, radius 2px. Level 0 = `line`; levels 1–4 = `accent` at 25/50/75/100%
   (relative to the busiest day). Each cell has a `title` with the breakdown
   (`12 Oct · 7 actions — tickets 2, comments 3, status 1, work logs 1 (1h 30m)`).
-  Summary line `N actions in 6 months` and a less→more legend. Grid is
+  Summary line `N actions in the last year` and a less→more legend. Grid is
   `role="img"` with the summary as `aria-label`; cells `aria-hidden`.
 - **# recent tickets**: 5 rows in the Home log style (User: authored;
   Developer/Admin: assigned).

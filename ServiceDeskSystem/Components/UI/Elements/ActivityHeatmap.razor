@@ -3,7 +3,7 @@
 
 @if (Days is null)
 {
-    <div class="h-[8.25rem] rounded-md bg-surface" aria-busy="true"></div>
+    <div class="h-48 rounded-md bg-surface" aria-busy="true"></div>
 }
 else
 {
@@ -13,40 +13,39 @@ else
     var first = FirstMonday(Today);
     var summary = string.Format(culture, L.Translate("profile.activitySummary"), Days.Sum(d => d.Total));
 
-    <div class="overflow-x-auto">
-        <div class="inline-flex gap-[3px]">
-            <div class="mt-[18px] mr-1 grid grid-rows-7 gap-[3px] font-mono text-12 leading-3 text-muted" aria-hidden="true">
-                @for (var row = 0; row < 7; row++)
+    @* Fills the content width; narrow screens scroll and start at the latest weeks (rtl scroller, ltr grid). *@
+    <div class="overflow-x-auto [direction:rtl]">
+        <div data-heatmap role="img" aria-label="@summary"
+             class="grid min-w-[44rem] gap-[3px] font-mono text-12 leading-none text-muted [direction:ltr]"
+             style="grid-template-columns: auto repeat(@Weeks, minmax(0, 1fr))">
+            @for (var week = 0; week < Weeks; week++)
+            {
+                var monday = first.AddDays(week * 7);
+                // Week 0 only gets a label when its month lasts past it, so two labels never touch.
+                var showMonth = week == 0 ? first.AddDays(7).Month == first.Month : monday.Month != monday.AddDays(-7).Month;
+                <span data-month class="pb-1 whitespace-nowrap" style="grid-column: @(week + 2); grid-row: 1">@(showMonth ? monday.ToString("MMM", culture) : null)</span>
+            }
+            @for (var row = 0; row < 7; row += 2)
+            {
+                if (row < 6)
                 {
-                    <span class="h-3">@(row % 2 == 0 && row < 6 ? DayLabel(row, culture) : null)</span>
+                    <span class="self-center pr-1.5" style="grid-column: 1; grid-row: @(row + 2)">@DayLabel(row, culture)</span>
                 }
-            </div>
-            <div>
-                <div class="flex h-[15px] gap-[3px] font-mono text-12 leading-3 text-muted" aria-hidden="true">
-                    @for (var week = 0; week < Weeks; week++)
-                    {
-                        var monday = first.AddDays(week * 7);
-                        var showMonth = week == 0 || monday.Month != monday.AddDays(-7).Month;
-                        <span data-month class="w-3 overflow-visible whitespace-nowrap">@(showMonth ? monday.ToString("MMM", culture) : null)</span>
-                    }
-                </div>
-                <div data-heatmap role="img" aria-label="@summary" class="mt-[3px] grid grid-flow-col grid-rows-7 gap-[3px]">
-                    @for (var i = 0; i < Weeks * 7; i++)
-                    {
-                        var date = first.AddDays(i);
-                        if (date > Today)
-                        {
-                            <span class="h-3 w-3" aria-hidden="true"></span>
-                            continue;
-                        }
+            }
+            @for (var i = 0; i < Weeks * 7; i++)
+            {
+                var date = first.AddDays(i);
+                if (date > Today)
+                {
+                    break;
+                }
 
-                        byDate.TryGetValue(date, out var day);
-                        var level = Level(day?.Total ?? 0, busiest);
-                        <span data-cell data-level="@level" aria-hidden="true" title="@Tooltip(date, day, culture)"
-                              class="h-3 w-3 rounded-sm @LevelClass(level)"></span>
-                    }
-                </div>
-            </div>
+                byDate.TryGetValue(date, out var day);
+                var level = Level(day?.Total ?? 0, busiest);
+                <span data-cell data-level="@level" aria-hidden="true" title="@Tooltip(date, day, culture)"
+                      class="aspect-square rounded-sm @LevelClass(level)"
+                      style="grid-column: @((i / 7) + 2); grid-row: @((i % 7) + 2)"></span>
+            }
         </div>
     </div>
 
@@ -64,7 +63,7 @@ else
 }
 
 @code {
-    private const int Weeks = 26;
+    private const int Weeks = 52;
 
     /// <summary>
     /// Gets or sets the active days (from <c>IUserActivityService</c>); <c>null</c> shows a skeleton.
@@ -79,7 +78,7 @@ else
     public DateOnly Today { get; set; } = DateOnly.FromDateTime(DateTime.Now);
 
     /// <summary>
-    /// First day of the map: the Monday that starts a 26-week grid whose last column holds <paramref name="today"/>.
+    /// First day of the map: the Monday that starts a 52-week grid whose last column holds <paramref name="today"/>.
     /// </summary>
     public static DateOnly FirstMonday(DateOnly today)
     {
@@ -105,18 +104,23 @@ else
     private static string DayLabel(int row, System.Globalization.CultureInfo culture) =>
         culture.DateTimeFormat.GetAbbreviatedDayName((DayOfWeek)((row + 1) % 7));
 
-    private static string Duration(int minutes) => minutes switch
+    private string Duration(int minutes, System.Globalization.CultureInfo culture)
     {
-        < 60 => $"{minutes}m",
-        _ when minutes % 60 == 0 => $"{minutes / 60}h",
-        _ => $"{minutes / 60}h {minutes % 60}m",
-    };
+        var hours = string.Format(culture, L.Translate("profile.activityHours"), minutes / 60);
+        var rest = string.Format(culture, L.Translate("profile.activityMinutes"), minutes % 60);
+        return minutes switch
+        {
+            < 60 => rest,
+            _ when minutes % 60 == 0 => hours,
+            _ => $"{hours} {rest}",
+        };
+    }
 
     private string Tooltip(DateOnly date, DailyActivityDto? day, System.Globalization.CultureInfo culture)
     {
         var label = date.ToString("d MMM", culture);
         return day is null || day.Total == 0
             ? string.Format(culture, L.Translate("profile.activityNone"), label)
-            : string.Format(culture, L.Translate("profile.activityTooltip"), label, day.Total, day.TicketsCreated, day.Comments, day.StatusChanges, Duration(day.WorkMinutes));
+            : string.Format(culture, L.Translate("profile.activityTooltip"), label, day.Total, day.TicketsCreated, day.Comments, day.StatusChanges, day.WorkLogs, Duration(day.WorkMinutes, culture));
     }
 }

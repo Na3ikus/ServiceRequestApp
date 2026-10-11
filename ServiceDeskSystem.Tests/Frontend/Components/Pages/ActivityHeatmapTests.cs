@@ -29,11 +29,25 @@ public class ActivityHeatmapTests
         new(date, tickets, comments, status, logs, minutes);
 
     [Test]
-    public void First_monday_starts_a_26_week_grid_ending_this_week()
+    public void First_monday_starts_a_52_week_grid_ending_this_week()
     {
-        ActivityHeatmap.FirstMonday(Today).Should().Be(new DateOnly(2026, 4, 20));
-        ActivityHeatmap.FirstMonday(new DateOnly(2026, 10, 12)).Should().Be(new DateOnly(2026, 4, 20));
-        ActivityHeatmap.FirstMonday(new DateOnly(2026, 10, 18)).Should().Be(new DateOnly(2026, 4, 20));
+        ActivityHeatmap.FirstMonday(Today).Should().Be(new DateOnly(2025, 10, 20));
+        ActivityHeatmap.FirstMonday(new DateOnly(2026, 10, 12)).Should().Be(new DateOnly(2025, 10, 20));
+        ActivityHeatmap.FirstMonday(new DateOnly(2026, 10, 18)).Should().Be(new DateOnly(2025, 10, 20));
+    }
+
+    [Test]
+    public void First_week_has_no_month_label_when_its_month_ends_next_week()
+    {
+        // First Monday is 27 Oct 2025: "Oct" there would touch "Nov" one column later.
+        var cut = _host.Context.RenderComponent<ActivityHeatmap>(p => p
+            .Add(x => x.Days, [])
+            .Add(x => x.Today, new DateOnly(2026, 10, 19)));
+
+        var months = cut.FindAll("[data-month]").Select(m => m.TextContent).ToList();
+        months.Should().HaveCount(52);
+        months[0].Should().BeEmpty();
+        months[1].Should().Be("Nov");
     }
 
     [TestCase(0, 8, 0)]
@@ -50,8 +64,8 @@ public class ActivityHeatmapTests
     {
         var cut = Render();
 
-        // 25 full weeks + Mon..Wed of the current one.
-        cut.FindAll("[data-cell]").Should().HaveCount((25 * 7) + 3);
+        // 51 full weeks + Mon..Wed of the current one.
+        cut.FindAll("[data-cell]").Should().HaveCount((51 * 7) + 3);
     }
 
     [Test]
@@ -68,17 +82,19 @@ public class ActivityHeatmapTests
     public void Busiest_day_is_level_four_with_breakdown_tooltip()
     {
         _host.Localization.Setup(l => l.Translate("profile.activityTooltip"))
-            .Returns("{0} · {1} actions — tickets {2}, comments {3}, status {4}, time {5}");
-        _host.Localization.Setup(l => l.Translate("profile.activitySummary")).Returns("{0} actions in 6 months");
+            .Returns("{0} · {1} actions — tickets {2}, comments {3}, status {4}, work logs {5} ({6})");
+        _host.Localization.Setup(l => l.Translate("profile.activityHours")).Returns("{0}h");
+        _host.Localization.Setup(l => l.Translate("profile.activityMinutes")).Returns("{0}m");
+        _host.Localization.Setup(l => l.Translate("profile.activitySummary")).Returns("{0} actions in the last year");
 
         var cut = Render(Day(Today.AddDays(-2), 2, 3, 1, 1, 90), Day(Today, 1));
 
         var cells = cut.FindAll("[data-cell]").ToList();
         var busy = cells[^3];
         busy.GetAttribute("data-level").Should().Be("4");
-        busy.GetAttribute("title").Should().Be("12 Oct · 7 actions — tickets 2, comments 3, status 1, time 1h 30m");
+        busy.GetAttribute("title").Should().Be("12 Oct · 7 actions — tickets 2, comments 3, status 1, work logs 1 (1h 30m)");
         cells[^1].GetAttribute("data-level").Should().Be("1");
-        cut.Find("[data-heatmap]").GetAttribute("aria-label").Should().Be("8 actions in 6 months");
+        cut.Find("[data-heatmap]").GetAttribute("aria-label").Should().Be("8 actions in the last year");
         cells.Should().AllSatisfy(c => c.GetAttribute("aria-hidden").Should().Be("true"));
     }
 
