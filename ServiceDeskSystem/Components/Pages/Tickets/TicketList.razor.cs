@@ -131,6 +131,7 @@ public partial class TicketList : BaseComponent
         if (success)
         {
             ticket.Status = args.NewStatus;
+            this.ApplyFilters();
             await this.InvokeAsync(this.StateHasChanged).ConfigureAwait(false);
         }
     }

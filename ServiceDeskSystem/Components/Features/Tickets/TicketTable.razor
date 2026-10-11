@@ -4,9 +4,10 @@
 @{
     var rows = Sorted();
 }
-<div class="hidden md:block overflow-x-auto rounded-lg border border-line">
-    <table class="w-full border-collapse text-left">
-        <thead class="sticky top-0 z-10 bg-surface">
+@* lg+: no overflow wrapper, so the sticky header follows the page scroll. data-term opts out of legacy app.css table rules. *@
+<div class="hidden md:block overflow-x-auto lg:overflow-visible rounded-lg border border-line">
+    <table data-term class="w-full border-collapse text-left">
+        <thead class="sticky top-0 z-10 bg-surface [&_th:first-child]:rounded-tl-lg [&_th:last-child]:rounded-tr-lg">
             <tr class="border-b border-line font-mono text-13 text-muted">
                 @Header(TicketSort.Id, "#", "w-16")
                 @Header(TicketSort.Title, Heading("table.title"), null)

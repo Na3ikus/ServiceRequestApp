@@ -5687,6 +5687,10 @@ input:-webkit-autofill:active {
     flex-direction: column;
   }
 
+  .lg\:overflow-visible {
+    overflow: visible;
+  }
+
   .lg\:border-r {
     border-right-width: 1px;
   }
@@ -5718,4 +5722,12 @@ input:-webkit-autofill:active {
 .\[\&\.active\]\:text-fg.active {
   --tw-text-opacity: 1;
   color: rgb(var(--fg) / var(--tw-text-opacity, 1));
+}
+
+.\[\&_th\:first-child\]\:rounded-tl-lg th:first-child {
+  border-top-left-radius: 0.5rem;
+}
+
+.\[\&_th\:last-child\]\:rounded-tr-lg th:last-child {
+  border-top-right-radius: 0.5rem;
 }

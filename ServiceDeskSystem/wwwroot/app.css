@@ -753,7 +753,7 @@ body {
 }
 
 /* Table cells text handling for stability */
-table td, table th {
+table:not([data-term]) td, table:not([data-term]) th {
     white-space: nowrap;
 }
 
@@ -931,12 +931,12 @@ h3[tabindex] {
 }
 
 /* Table headers */
-.dark thead th {
+.dark table:not([data-term]) thead th {
     color: rgb(229 231 235) !important; /* gray-200 */
 }
 
 /* Table body text */
-.dark tbody td {
+.dark table:not([data-term]) tbody td {
     color: rgb(229 231 235) !important; /* gray-200 */
 }
 
@@ -1071,12 +1071,12 @@ h3[tabindex] {
 }
 
 /* Table headers */
-.dark thead th {
+.dark table:not([data-term]) thead th {
     color: rgb(229 231 235) !important; /* gray-200 */
 }
 
 /* Table body text */
-.dark tbody td {
+.dark table:not([data-term]) tbody td {
     color: rgb(229 231 235) !important; /* gray-200 */
 }
 

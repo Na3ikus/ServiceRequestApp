@@ -30,7 +30,7 @@
                     {
                         @foreach (var ticket in colTickets)
                         {
-                            <KanbanCard Ticket="ticket"
+                            <KanbanCard @key="ticket.Id" Ticket="ticket"
                                         CanDrag="@CanUserDragTicket(ticket)" />
                         }
                     }

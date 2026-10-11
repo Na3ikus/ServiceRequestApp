@@ -62,6 +62,7 @@
 @code {
     private ElementReference cardElement;
     private TicketStatus? _lastInitializedStatus = null;
+    private int _lastInitializedId;
     private bool _lastCanDrag = false;
 
     [Parameter, EditorRequired]
@@ -75,8 +76,10 @@
         // Re-initialize draggable whenever CanDrag is true and the status or drag permission changed.
         // This is critical: after a card moves to a new column Blazor re-renders it with new Ticket.Status,
         // but firstRender is false, so without this check the JS listener would still report the old sourceStatus.
-        if (CanDrag && (firstRender || Ticket.Status != _lastInitializedStatus || CanDrag != _lastCanDrag))
+        // The ticket id is checked too: if a card component is ever reused for another ticket, the JS listener must not keep the old id.
+        if (CanDrag && (firstRender || Ticket.Id != _lastInitializedId || Ticket.Status != _lastInitializedStatus || CanDrag != _lastCanDrag))
         {
+            _lastInitializedId = Ticket.Id;
             _lastInitializedStatus = Ticket.Status;
             _lastCanDrag = CanDrag;
             await JSRuntime.InvokeVoidAsync("kanban.initDraggable", cardElement, Ticket.Id, Ticket.Status.ToString());
