@@ -164,6 +164,23 @@
         @apply outline outline-2 outline-fg outline-offset-2;
     }
 
+    /* Secondary action next to btn-accent in toolbars and table rows (admin). */
+    .btn-outline {
+        @apply h-8 rounded-md border border-line px-3 text-13 text-fg;
+    }
+
+    .btn-outline:hover {
+        @apply border-muted;
+    }
+
+    .btn-outline:disabled {
+        @apply opacity-50 cursor-not-allowed;
+    }
+
+    .btn-outline:focus-visible {
+        @apply outline outline-2 outline-fg outline-offset-2;
+    }
+
     .btn-ghost {
         @apply h-8 rounded-md border border-line px-2 text-muted;
     }

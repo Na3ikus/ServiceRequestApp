@@ -1,0 +1,101 @@
+@inherits BaseComponent
+
+@* rm <kind> "<name>"? — the service runs only after "y". N is focused, so a stray Enter keeps the record. *@
+<tr data-delete-prompt @onkeydown="OnKeyDownAsync">
+    <td colspan="@Columns" class="border-b border-danger/50 bg-danger/[.06] px-3 py-2.5">
+        <div role="group" aria-label="@($"rm {Kind} \"{Name}\"")" class="flex flex-wrap items-center gap-x-2.5 gap-y-2 font-mono text-13">
+            <span><span class="text-danger">rm</span> @Kind <b class="font-medium text-fg">"@Name"</b>?</span>
+            <span data-delete-note class="text-muted">@(string.IsNullOrEmpty(Detail) ? Heading("admin.deleteNote") : $"{Detail} · {Heading("admin.deleteNote")}")</span>
+            <span class="ml-auto inline-flex gap-1.5">
+                <button type="button" data-action="confirm" class="btn-danger h-7 px-2.5 font-mono text-13 font-normal"
+                        disabled="@IsDeleting" @onclick="ConfirmAsync">y, @Heading("common.delete")</button>
+                <button type="button" data-action="keep" class="btn-outline h-7 font-mono" @ref="keepButton"
+                        @onclick="CancelAsync">N</button>
+            </span>
+        </div>
+    </td>
+</tr>
+
+@code {
+    private ElementReference keepButton;
+
+    /// <summary>
+    /// Gets or sets the number of table columns the row spans.
+    /// </summary>
+    [Parameter]
+    public int Columns { get; set; } = 1;
+
+    /// <summary>
+    /// Gets or sets the record kind in English (<c>product</c>, <c>user</c>…).
+    /// </summary>
+    [Parameter]
+    public string Kind { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets the record name.
+    /// </summary>
+    [Parameter]
+    public string Name { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets an optional translated detail shown before "this cannot be undone".
+    /// </summary>
+    [Parameter]
+    public string? Detail { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether the delete is running.
+    /// </summary>
+    [Parameter]
+    public bool IsDeleting { get; set; }
+
+    /// <summary>
+    /// Gets or sets the callback run on "y".
+    /// </summary>
+    [Parameter]
+    public EventCallback OnConfirm { get; set; }
+
+    /// <summary>
+    /// Gets or sets the callback run on "N" or Esc.
+    /// </summary>
+    [Parameter]
+    public EventCallback OnCancel { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+        {
+            return;
+        }
+
+        try
+        {
+            await keepButton.FocusAsync();
+        }
+        catch (InvalidOperationException)
+        {
+            // Not attached to a browser yet (prerendering).
+        }
+        catch (Microsoft.JSInterop.JSException)
+        {
+            // The prompt was closed before focusing.
+        }
+    }
+
+    private async Task ConfirmAsync()
+    {
+        if (!IsDeleting)
+        {
+            await OnConfirm.InvokeAsync();
+        }
+    }
+
+    private Task CancelAsync() => OnCancel.InvokeAsync();
+
+    private Task OnKeyDownAsync(KeyboardEventArgs e) => e.Key switch
+    {
+        "y" or "Y" => ConfirmAsync(),
+        "n" or "N" or "Escape" => CancelAsync(),
+        _ => Task.CompletedTask,
+    };
+}
