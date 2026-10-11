@@ -12,33 +12,33 @@
         if (itemDay != day)
         {
             day = itemDay;
-            <li data-day class="pb-1 pt-3 font-mono text-13 text-muted first:pt-0">@local.ToString("dd MMM yyyy", UiCulture)</li>
+            <li @key="@($"d{itemDay.DayNumber}")" data-day class="pb-1 pt-3 font-mono text-13 text-muted first:pt-0">@local.ToString("dd MMM yyyy", UiCulture)</li>
         }
 
         switch (item)
         {
             case TicketCreatedActivity created:
-                <li data-system-row class="@SystemRowClass">
+                <li @key="@("created")" data-system-row class="@SystemRowClass">
                     <span>@local.ToString("HH:mm", UiCulture)</span>
-                    <span>@Actor(created.AuthorLogin)created · @GetTicketTypeText(created.Type).ToLower(UiCulture) · priority @GetPriorityText(created.Priority).ToLower(UiCulture)</span>
+                    <span>@Actor(created.AuthorLogin)created · @GetTicketTypeText(created.Type).ToLower(UiCulture)</span>
                 </li>
                 break;
 
             case TicketStatusActivity status:
-                <li data-system-row class="@SystemRowClass">
+                <li @key="@($"s{status.Id}")" data-system-row class="@SystemRowClass">
                     <span>@local.ToString("HH:mm", UiCulture)</span>
                     <span>@Actor(status.ActorLogin)status @GetStatusText(status.From).ToLower(UiCulture) → <span class="text-fg">@GetStatusText(status.To).ToLower(UiCulture)</span></span>
                 </li>
                 break;
 
             case TicketCommentActivity { Comment: var comment }:
-                <li data-comment="@comment.Id" class="grid grid-cols-[3.25rem_minmax(0,1fr)] gap-3 py-1.5">
+                <li @key="@($"c{comment.Id}")" data-comment="@comment.Id" class="grid grid-cols-[3.25rem_minmax(0,1fr)] gap-3 py-1.5">
                     <span class="pt-3 font-mono text-13 text-muted">@local.ToString("HH:mm", UiCulture)</span>
                     <div class="@(comment.IsInternal ? "rounded-lg border border-dashed border-line bg-surface px-3.5 py-3" : "rounded-lg border border-line px-3.5 py-3")">
                         <div class="mb-1.5 flex flex-wrap items-center gap-2">
                             <Avatar Name="@comment.Author?.Login" Size="AvatarSize.Sm" />
                             <span class="text-14 font-medium text-fg">@comment.Author?.Login</span>
-                            <span class="font-mono text-13 text-muted">@local.ToString("dd MMM yyyy, HH:mm", UiCulture)</span>
+                            <span class="font-mono text-13 text-muted">@local.ToString("dd MMM yyyy", UiCulture)</span>
                             @if (comment.IsInternal)
                             {
                                 <Tag Tone="Tone.Muted">[internal]</Tag>
@@ -66,7 +66,7 @@
                             <div class="mt-2 flex justify-end gap-2">
                                 <button type="button" class="btn-ghost h-8 px-3 text-13" @onclick="CancelEdit">@Heading("common.cancel")</button>
                                 <button type="button" data-save-comment class="btn-accent h-8 px-3 text-13"
-                                        disabled="@string.IsNullOrWhiteSpace(editingMessage)" @onclick="SaveEditAsync">@Heading("details.commentSave")</button>
+                                        disabled="@(savingEdit || string.IsNullOrWhiteSpace(editingMessage))" @onclick="SaveEditAsync">@Heading("details.commentSave")</button>
                             </div>
                         }
                         else
@@ -81,7 +81,7 @@
 </ol>
 
 <div data-composer class="mt-4 overflow-hidden rounded-lg border border-line">
-    <RichTextEditor @bind-Value="newMessage" Borderless="true" Placeholder="@L.Translate("details.writeComment")" />
+    <RichTextEditor @bind-Value="newMessage" Borderless="true" LabelledBy="ticket-activity-heading" Placeholder="@L.Translate("details.writeComment")" />
     <div class="flex flex-wrap items-center justify-between gap-2 border-t border-line px-2.5 py-2">
         @if (IsStaff)
         {

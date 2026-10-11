@@ -80,6 +80,8 @@ public class CreateTicketPageTests
         cut.Find("form").Submit();
 
         cut.Find("[data-error=type]").TextContent.Should().Be("create.typeRequired");
+        cut.Find("[data-field=type] [role=radiogroup]").GetAttribute("aria-invalid").Should().Be("true");
+        cut.Find("[data-field=type] [role=radiogroup]").GetAttribute("aria-describedby").Should().Be(cut.Find("[data-error=type]").Id);
         _tickets.Verify(t => t.CreateTicketAsync(It.IsAny<Ticket>()), Times.Never);
 
         PickType(cut, "Support");

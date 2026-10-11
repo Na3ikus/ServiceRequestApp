@@ -61,12 +61,12 @@
         }
 
         <div class="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_300px] lg:gap-10">
-            <div class="lg:col-start-2 lg:row-start-1">
+            <div class="lg:sticky lg:top-6 lg:z-10 lg:col-start-2 lg:row-start-1">
                 <TicketPropertiesPanel Ticket="Ticket"
                                        CanEdit="IsAdminOrDeveloper"
                                        AllTags="AllTags"
-                                       OnSavePriority="SavePriorityAsync"
-                                       OnSaveDates="SaveDatesAsync"
+                                       SavePriority="SavePriorityAsync"
+                                       SaveDates="SaveDatesAsync"
                                        OnAddTag="AssignTagToTicketAsync"
                                        OnRemoveTag="RemoveTagFromTicketAsync" />
             </div>
@@ -124,14 +124,14 @@
                 <AttachmentsSection TicketId="Ticket.Id" CanDeleteAny="IsAdminOrDeveloper" CurrentUserId="CurrentUserId" />
 
                 <section data-section="activity" class="border-t border-line py-6">
-                    <h2 class="mb-3 font-mono text-13 text-muted"># @Heading("details.activity")</h2>
+                    <h2 id="ticket-activity-heading" class="mb-3 font-mono text-13 text-muted"># @Heading("details.activity")</h2>
                     <TicketActivity Ticket="Ticket"
                                     History="History"
                                     IsStaff="IsAdminOrDeveloper"
                                     IsAdmin="IsAdmin"
                                     CurrentUserId="CurrentUserId"
-                                    OnAddComment="AddCommentAsync"
-                                    OnEditComment="SaveCommentEditAsync"
+                                    AddComment="AddCommentAsync"
+                                    EditComment="SaveCommentEditAsync"
                                     OnDeleteComment="DeleteCommentAsync" />
                 </section>
             </div>

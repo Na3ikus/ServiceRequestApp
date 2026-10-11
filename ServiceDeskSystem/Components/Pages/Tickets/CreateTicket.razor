@@ -10,10 +10,12 @@
     <div class="grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_280px]">
         <form data-create-form class="min-w-0 space-y-5" novalidate @onsubmit="HandleSubmitAsync">
             <div data-field="type">
-                <p id="create-type-label" class="mb-1.5 text-13 text-muted">@Heading("create.ticketType") <span class="text-danger">*</span></p>
+                <p class="mb-1.5 text-13 text-muted" aria-hidden="true">@Heading("create.ticketType") <span class="text-danger">*</span></p>
                 <div class="max-w-full overflow-x-auto">
                     <SegmentedControl Label="@L.Translate("create.ticketType")" Options="TypeOptions"
-                                      Value="@(Model.TicketType?.ToString() ?? string.Empty)" ValueChanged="SelectType" />
+                                      Value="@(Model.TicketType?.ToString() ?? string.Empty)" ValueChanged="SelectType"
+                                      Invalid="@(Invalid(TicketCreateModel.TypeField) is not null)"
+                                      DescribedBy="@DescribedBy(TicketCreateModel.TypeField)" />
                 </div>
                 @if (Model.TicketType is { } type)
                 {
@@ -25,14 +27,14 @@
             <div data-field="title">
                 <label for="create-title" class="mb-1.5 block text-13 text-muted">@Heading("create.ticketTitle") <span class="text-danger">*</span></label>
                 <input id="create-title" class="input-field" placeholder="@L.Translate("create.titlePlaceholder")"
-                       aria-invalid="@Invalid(TicketCreateModel.TitleField)"
+                       aria-invalid="@Invalid(TicketCreateModel.TitleField)" aria-describedby="@DescribedBy(TicketCreateModel.TitleField)"
                        @bind="Model.Title" @bind:event="oninput" />
                 @ErrorFor(TicketCreateModel.TitleField)
             </div>
 
             <div data-field="description">
-                <p class="mb-1.5 text-13 text-muted">@Heading("create.description") <span class="text-danger">*</span></p>
-                <RichTextEditor @bind-Value="Model.Description" Placeholder="@L.Translate("create.descriptionPlaceholder")" />
+                <p id="create-description-label" class="mb-1.5 text-13 text-muted">@Heading("create.description") <span class="text-danger">*</span></p>
+                <RichTextEditor @bind-Value="Model.Description" LabelledBy="create-description-label" Placeholder="@L.Translate("create.descriptionPlaceholder")" />
                 @ErrorFor(TicketCreateModel.DescriptionField)
             </div>
 
@@ -44,6 +46,7 @@
                         <div data-field="product">
                             <label for="create-product" class="mb-1.5 block text-13 text-muted">@Heading("create.product") <span class="text-danger">*</span></label>
                             <select id="create-product" class="input-field" aria-invalid="@Invalid(TicketCreateModel.ProductField)"
+                                    aria-describedby="@DescribedBy(TicketCreateModel.ProductField)"
                                     @bind="Model.ProductId">
                                 <option value="">@L.Translate("create.selectProduct")</option>
                                 @foreach (var product in Products)
@@ -91,8 +94,8 @@
                     <h2 class="font-mono text-13 text-muted"># @Heading("create.bugDetails")</h2>
 
                     <div>
-                        <p class="mb-1.5 text-13 text-muted">@Heading("create.stepsToReproduce") <span>(@L.Translate("create.optional"))</span></p>
-                        <RichTextEditor @bind-Value="Model.StepsToReproduce" Placeholder="@L.Translate("create.stepsPlaceholder")" />
+                        <p id="create-steps-label" class="mb-1.5 text-13 text-muted">@Heading("create.stepsToReproduce") <span>(@L.Translate("create.optional"))</span></p>
+                        <RichTextEditor @bind-Value="Model.StepsToReproduce" LabelledBy="create-steps-label" Placeholder="@L.Translate("create.stepsPlaceholder")" />
                     </div>
 
                     <div class="grid grid-cols-1 gap-5 md:grid-cols-2">

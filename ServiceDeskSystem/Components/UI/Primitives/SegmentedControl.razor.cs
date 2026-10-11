@@ -23,6 +23,18 @@ public partial class SegmentedControl : ComponentBase
     [Parameter]
     public EventCallback<string> ValueChanged { get; set; }
 
+    /// <summary>
+    /// Gets or sets the id of an element describing the group (e.g. a validation message).
+    /// </summary>
+    [Parameter]
+    public string? DescribedBy { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether the group is marked <c>aria-invalid</c>.
+    /// </summary>
+    [Parameter]
+    public bool Invalid { get; set; }
+
     private int SelectedIndex
     {
         get

@@ -155,5 +155,6 @@
   "create.versionPlaceholder": "z. B. 1.0.4, 2.1.0-beta",
   "create.tip1": "Eine Anfrage – ein Problem.",
   "create.tip2": "Screenshots und Dateien fügen Sie nach dem Erstellen als Anhänge hinzu.",
-  "create.tip3": "Die Priorität legt das Team fest."
+  "create.tip3": "Die Priorität legt das Team fest.",
+  "details.saveFailed": "Die Änderungen konnten nicht gespeichert werden. Bitte erneut versuchen."
 }

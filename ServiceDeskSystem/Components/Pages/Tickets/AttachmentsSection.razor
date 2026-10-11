@@ -64,7 +64,8 @@
 @if (lightboxAttachment != null)
 {
     <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4 sm:p-8" role="dialog" aria-modal="true"
-         aria-label="@lightboxAttachment.FileName" @onclick="CloseLightbox">
+         aria-label="@lightboxAttachment.FileName" tabindex="-1" @ref="lightbox"
+         @onclick="CloseLightbox" @onkeydown="OnLightboxKeyDown">
         <button type="button" class="absolute right-4 top-4 font-mono text-20 text-white/70 hover:text-white"
                 aria-label="@L.Translate("common.close")" @onclick="CloseLightbox">×</button>
         <figure class="flex max-h-full flex-col items-center gap-3" @onclick:stopPropagation="true">
@@ -82,6 +83,8 @@
     private int uploadProgress;
     private string? errorMessage;
     private Attachment? lightboxAttachment;
+    private ElementReference lightbox;
+    private bool focusLightbox;
 
     [Parameter, EditorRequired] public int TicketId { get; set; }
 
@@ -167,7 +170,36 @@
         }
     }
 
-    private void ShowLightbox(Attachment file) => lightboxAttachment = file;
+    private void ShowLightbox(Attachment file)
+    {
+        lightboxAttachment = file;
+        focusLightbox = true;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        // Focus the dialog so Esc reaches it right away.
+        if (focusLightbox && lightboxAttachment is not null)
+        {
+            focusLightbox = false;
+            try
+            {
+                await lightbox.FocusAsync();
+            }
+            catch (JSException)
+            {
+                // Focus is best effort.
+            }
+        }
+    }
+
+    private void OnLightboxKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Escape")
+        {
+            CloseLightbox();
+        }
+    }
 
     private void CloseLightbox() => lightboxAttachment = null;
 

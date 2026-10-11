@@ -31,6 +31,7 @@ public partial class TicketActivity : BaseComponent
     private string visibility = PublicVisibility;
     private bool sending;
     private int? editingId;
+    private bool savingEdit;
     private string editingMessage = string.Empty;
 
     [Parameter]
@@ -52,11 +53,17 @@ public partial class TicketActivity : BaseComponent
     [Parameter]
     public int CurrentUserId { get; set; }
 
+    /// <summary>
+    /// Gets or sets the post of a new comment; returns <c>false</c> when it failed (the draft is kept).
+    /// </summary>
     [Parameter]
-    public EventCallback<NewTicketComment> OnAddComment { get; set; }
+    public Func<NewTicketComment, Task<bool>>? AddComment { get; set; }
 
+    /// <summary>
+    /// Gets or sets the save of an edited comment; returns <c>false</c> when it failed (the editor stays open).
+    /// </summary>
     [Parameter]
-    public EventCallback<TicketCommentEdit> OnEditComment { get; set; }
+    public Func<TicketCommentEdit, Task<bool>>? EditComment { get; set; }
 
     [Parameter]
     public EventCallback<int> OnDeleteComment { get; set; }
@@ -95,7 +102,7 @@ public partial class TicketActivity : BaseComponent
 
     private async Task SendAsync()
     {
-        if (string.IsNullOrWhiteSpace(this.newMessage) || this.sending)
+        if (string.IsNullOrWhiteSpace(this.newMessage) || this.sending || this.AddComment is null)
         {
             return;
         }
@@ -103,9 +110,11 @@ public partial class TicketActivity : BaseComponent
         this.sending = true;
         try
         {
-            await this.OnAddComment.InvokeAsync(new NewTicketComment(this.newMessage, this.IsStaff && this.visibility == InternalVisibility));
-            this.newMessage = string.Empty;
-            this.visibility = PublicVisibility;
+            if (await this.AddComment(new NewTicketComment(this.newMessage, this.IsStaff && this.visibility == InternalVisibility)))
+            {
+                this.newMessage = string.Empty;
+                this.visibility = PublicVisibility;
+            }
         }
         finally
         {
@@ -127,12 +136,22 @@ public partial class TicketActivity : BaseComponent
 
     private async Task SaveEditAsync()
     {
-        if (this.editingId is not { } id || string.IsNullOrWhiteSpace(this.editingMessage))
+        if (this.editingId is not { } id || string.IsNullOrWhiteSpace(this.editingMessage) || this.savingEdit || this.EditComment is null)
         {
             return;
         }
 
-        await this.OnEditComment.InvokeAsync(new TicketCommentEdit(id, this.editingMessage.Trim()));
-        this.CancelEdit();
+        this.savingEdit = true;
+        try
+        {
+            if (await this.EditComment(new TicketCommentEdit(id, this.editingMessage.Trim())))
+            {
+                this.CancelEdit();
+            }
+        }
+        finally
+        {
+            this.savingEdit = false;
+        }
     }
 }

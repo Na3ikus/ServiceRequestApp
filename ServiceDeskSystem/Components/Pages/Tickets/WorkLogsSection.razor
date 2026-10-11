@@ -34,7 +34,7 @@
                     @if (log.UserId == CurrentUserId || IsAdmin)
                     {
                         <button type="button" class="btn-ghost h-6 px-1.5 font-mono text-13 hover:text-danger"
-                                title="@L.Translate("common.delete")" aria-label="@L.Translate("common.delete")"
+                                title="@L.Translate("common.delete")" aria-label="@DeleteLabel(log)"
                                 @onclick="() => DeleteLogAsync(log.Id)">×</button>
                     }
                 </li>
@@ -44,7 +44,7 @@
 
     <div data-worklog-form class="mt-3 flex flex-wrap gap-2">
         <input type="date" class="input-field w-40 font-mono text-13 [color-scheme:light] dark:[color-scheme:dark]"
-               aria-label="@L.Translate("details.workDate")" @bind="newLogDate" />
+               aria-label="@L.Translate("details.workDate")" @bind="newLogDate" @bind:after="MarkDateTouched" />
         <input type="number" min="1" class="input-field w-28 font-mono text-13"
                aria-label="@L.Translate("details.timeSpentMinutes")" placeholder="@L.Translate("details.timeSpentMinutes")"
                @bind="newLogMinutes" />
@@ -69,6 +69,7 @@
 
     private int newLogMinutes = 60;
     private DateTime newLogDate;
+    private bool dateTouched;
     private string newLogDescription = string.Empty;
 
     [Parameter, EditorRequired] public int TicketId { get; set; }
@@ -85,6 +86,25 @@
         await LoadLogsAsync();
     }
 
+    protected override void OnTimeZoneChanged(object? sender, EventArgs e)
+    {
+        // The browser reports its zone after the first render: "today" may be another day there.
+        _ = InvokeAsync(() =>
+        {
+            if (!dateTouched)
+            {
+                newLogDate = UserZone.Today.ToDateTime(TimeOnly.MinValue);
+            }
+
+            StateHasChanged();
+        });
+    }
+
+    private void MarkDateTouched() => dateTouched = true;
+
+    private string DeleteLabel(WorkLog log) =>
+        $"{L.Translate("common.delete")}: {ToLocal(log.DateLogged).ToString("dd MMM yyyy", UiCulture)}, {FormatDuration(log.TimeSpentMinutes)}, {log.Description}";
+
     private async Task LoadLogsAsync()
     {
         var result = await WorkLogService.GetWorkLogsByTicketIdAsync(TicketId);
@@ -93,6 +113,11 @@
 
     private async Task SaveWorkLogAsync()
     {
+        if (isSaving)
+        {
+            return;
+        }
+
         if (newLogMinutes <= 0)
         {
             errorMessage = L.Translate("details.invalidTime");
@@ -109,15 +134,23 @@
         errorMessage = null;
 
         // The picked day starts at local midnight in the user's zone; stored as UTC.
-        var result = await WorkLogService.AddWorkLogAsync(TicketId, CurrentUserId, newLogMinutes, UserZone.ToUtc(newLogDate.Date), newLogDescription.Trim());
-
-        isSaving = false;
+        (bool Success, string? ErrorMessage) result;
+        try
+        {
+            var day = DateOnly.FromDateTime(newLogDate);
+            result = await WorkLogService.AddWorkLogAsync(TicketId, CurrentUserId, newLogMinutes, UserZone.ToUtc(newLogDate.Date), newLogDescription.Trim(), day);
+        }
+        finally
+        {
+            isSaving = false;
+        }
 
         if (result.Success)
         {
             newLogMinutes = 60;
             newLogDescription = string.Empty;
             newLogDate = UserZone.Today.ToDateTime(TimeOnly.MinValue);
+            dateTouched = false;
             await LoadLogsAsync();
         }
         else

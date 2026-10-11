@@ -12,6 +12,7 @@ using ServiceDeskSystem.Application.Services.Tickets;
 using ServiceDeskSystem.Application.Services.WorkLogs;
 using ServiceDeskSystem.Components.Features.Tickets;
 using ServiceDeskSystem.Components.Pages.Tickets;
+using ServiceDeskSystem.Components.UI.Elements;
 using ServiceDeskSystem.Domain.Entities;
 using ServiceDeskSystem.Domain.Enums;
 
@@ -26,6 +27,9 @@ public class TicketDetailsPageTests
     private ComponentTestHost _host;
     private Mock<ITicketService> _tickets;
     private Mock<ITagService> _tags;
+    private Mock<ICommentService> _comments;
+    private Mock<ITicketAssignmentService> _assignment;
+    private Mock<IWorkLogService> _workLogs;
     private Ticket _ticket;
 
     [SetUp]
@@ -76,16 +80,19 @@ public class TicketDetailsPageTests
         ]);
         _tags.Setup(t => t.AssignTagToTicketAsync(42, It.IsAny<int>(), It.IsAny<int?>())).ReturnsAsync(true);
 
-        var workLogs = new Mock<IWorkLogService>();
-        workLogs.Setup(w => w.GetWorkLogsByTicketIdAsync(It.IsAny<int>())).ReturnsAsync([]);
+        _workLogs = new Mock<IWorkLogService>();
+        _workLogs.Setup(w => w.GetWorkLogsByTicketIdAsync(It.IsAny<int>())).ReturnsAsync([]);
+        _comments = new Mock<ICommentService>();
+        _comments.Setup(c => c.AddCommentAsync(It.IsAny<Comment>())).ReturnsAsync((Comment c) => c);
+        _assignment = new Mock<ITicketAssignmentService>();
         var attachments = new Mock<IAttachmentService>();
         attachments.Setup(a => a.GetAttachmentsByTicketIdAsync(It.IsAny<int>())).ReturnsAsync([]);
 
         _host.Context.Services.AddSingleton(_tickets.Object);
         _host.Context.Services.AddSingleton(_tags.Object);
-        _host.Context.Services.AddSingleton(new Mock<ITicketAssignmentService>().Object);
-        _host.Context.Services.AddSingleton(new Mock<ICommentService>().Object);
-        _host.Context.Services.AddSingleton(workLogs.Object);
+        _host.Context.Services.AddSingleton(_assignment.Object);
+        _host.Context.Services.AddSingleton(_comments.Object);
+        _host.Context.Services.AddSingleton(_workLogs.Object);
         _host.Context.Services.AddSingleton(attachments.Object);
     }
 
@@ -301,7 +308,7 @@ public class TicketDetailsPageTests
         var rows = cut.FindAll("[data-system-row]");
         rows.Select(r => r.Children[0].TextContent).Should().Equal("09:12", "09:30", "10:05");
         var text = rows.Select(r => r.Children[1].TextContent).ToList();
-        text[0].Should().Be("@olena created · tickettype.bug · priority priority.medium");
+        text[0].Should().Be("@olena created · tickettype.bug", because: "the original priority is not stored");
         text[1].Should().Be("status status.new → status.open", because: "backfilled rows have no actor");
         text[2].Should().Be("@nazar status status.open → status.inprogress");
         cut.FindAll("[data-comment]").Select(c => c.GetAttribute("data-comment")).Should().Equal("1", "2");
@@ -367,5 +374,189 @@ public class TicketDetailsPageTests
         cut.Markup.Should().Contain("details.notFound");
         cut.Find("p.font-mono button").Click();
         _host.Context.Services.GetRequiredService<FakeNavigationManager>().Uri.Should().EndWith("/my-tickets");
+    }
+
+    private static void Type(IRenderedComponent<TicketDetails> cut, IRenderedComponent<RichTextEditor> editor, string html) =>
+        cut.InvokeAsync(() => editor.Instance.UpdateContent(html)).GetAwaiter().GetResult();
+
+    private static IRenderedComponent<RichTextEditor> Composer(IRenderedComponent<TicketDetails> cut) =>
+        cut.FindComponents<RichTextEditor>().Single(e => e.Instance.Borderless);
+
+    private static Ticket CopyOf(Ticket t) => new ()
+    {
+        Id = t.Id,
+        Title = t.Title,
+        Description = t.Description,
+        Type = t.Type,
+        Priority = t.Priority,
+        Status = t.Status,
+        IsPriorityAssessed = t.IsPriorityAssessed,
+        CreatedAt = t.CreatedAt,
+        StartDate = t.StartDate,
+        DueDate = t.DueDate,
+        AuthorId = t.AuthorId,
+        Author = t.Author,
+        DeveloperId = t.DeveloperId,
+        Developer = t.Developer,
+        Comments = t.Comments.ToList(),
+        Tags = t.Tags.ToList(),
+    };
+
+    [Test]
+    public void Refresh_keeps_every_unsaved_edit()
+    {
+        SignIn(UserRole.Developer, DeveloperId);
+        var cut = Render();
+
+        cut.Find("[data-edit=priority]").Change("High");
+        cut.Find("[data-edit=due]").Change("2026-10-20T09:15");
+        Type(cut, Composer(cut), "<p>draft reply</p>");
+        cut.Find("[data-comment='2'] [data-edit-comment]").Click();
+        Type(cut, cut.FindComponents<RichTextEditor>().Single(e => !e.Instance.Borderless), "<p>edited secret</p>");
+        cut.Find("[data-edit-note]").Click();
+        cut.Find("[data-section=analytical-note] textarea").Change("half-written note");
+
+        _ticket = CopyOf(_ticket);
+        cut.InvokeAsync(() => cut.Instance.RefreshAsync()).GetAwaiter().GetResult();
+
+        _tickets.Verify(t => t.GetTicketByIdAsync(42), Times.AtLeast(2));
+        cut.Find("[data-edit=priority]").GetAttribute("value").Should().Be("High");
+        cut.Find("[data-edit=due]").GetAttribute("value").Should().Be("2026-10-20T09:15");
+        cut.FindAll("[data-save-dates]").Should().ContainSingle();
+        Composer(cut).Instance.Value.Should().Be("<p>draft reply</p>");
+        cut.FindComponents<RichTextEditor>().Single(e => !e.Instance.Borderless).Instance.Value.Should().Be("<p>edited secret</p>");
+        cut.Find("[data-section=analytical-note] textarea").GetAttribute("value").Should().Be("half-written note");
+    }
+
+    [Test]
+    public void Saving_one_date_sends_the_freshly_stored_value_of_the_other()
+    {
+        SignIn(UserRole.Developer, DeveloperId);
+        _ticket.StartDate = new DateTime(2026, 10, 10, 5, 0, 37);
+        var cut = Render();
+
+        // Someone else moved the start (with seconds) after the page loaded.
+        var fresh = CopyOf(_ticket);
+        fresh.StartDate = new DateTime(2026, 10, 11, 4, 30, 59);
+        _ticket = fresh;
+
+        cut.Find("[data-edit=due]").Change("2026-10-14T18:30");
+        cut.Find("[data-save-dates]").Click();
+
+        _tickets.Verify(t => t.UpdateTicketDatesAsync(42, new DateTime(2026, 10, 11, 4, 30, 59), new DateTime(2026, 10, 14, 15, 30, 0), DeveloperId), Times.Once);
+    }
+
+    [Test]
+    public void Failed_saves_keep_the_edits_and_say_so()
+    {
+        SignIn(UserRole.Developer, DeveloperId);
+        _tickets.Setup(t => t.UpdateTicketPriorityAsync(42, It.IsAny<TicketPriority>())).ReturnsAsync(false);
+        _tickets.Setup(t => t.UpdateTicketDatesAsync(42, It.IsAny<DateTime?>(), It.IsAny<DateTime?>(), It.IsAny<int?>())).ReturnsAsync(false);
+        var cut = Render();
+
+        cut.Find("[data-edit=priority]").Change("High");
+        cut.Find("[data-priority-save] button").Click();
+        cut.Find("[data-edit=due]").Change("2026-10-14T18:30");
+        cut.Find("[data-save-dates]").Click();
+
+        cut.Find("[data-edit=priority]").GetAttribute("value").Should().Be("High");
+        cut.FindAll("[data-priority-save]").Should().ContainSingle();
+        cut.Find("[data-edit=due]").GetAttribute("value").Should().Be("2026-10-14T18:30");
+        cut.FindAll("[data-save-dates]").Should().ContainSingle();
+        _host.ToastService.Verify(t => t.ShowToastAsync("details.saveFailed", ServiceDeskSystem.Application.Services.Toasts.Models.ToastType.Error), Times.Exactly(2));
+    }
+
+    [Test]
+    public void A_failed_comment_edit_keeps_the_editor_open()
+    {
+        SignIn(UserRole.Developer, DeveloperId);
+        _comments.Setup(c => c.UpdateCommentAsync(2, It.IsAny<string>(), DeveloperId, false)).ReturnsAsync((Comment?)null);
+        var cut = Render();
+
+        cut.Find("[data-comment='2'] [data-edit-comment]").Click();
+        Type(cut, cut.FindComponents<RichTextEditor>().Single(e => !e.Instance.Borderless), "<p>new text</p>");
+        cut.Find("[data-save-comment]").Click();
+
+        _comments.Verify(c => c.UpdateCommentAsync(2, "<p>new text</p>", DeveloperId, false), Times.Once);
+        cut.FindAll("[data-save-comment]").Should().ContainSingle();
+    }
+
+    [Test]
+    public void Users_cannot_post_internal_comments()
+    {
+        SignIn(UserRole.User, AuthorId);
+        var cut = Render();
+
+        Type(cut, Composer(cut), "<p>any news?</p>");
+        cut.Find("[data-send]").Click();
+
+        _comments.Verify(c => c.AddCommentAsync(It.Is<Comment>(m => m.Message == "<p>any news?</p>" && !m.IsInternal && m.AuthorId == AuthorId && m.TicketId == 42)), Times.Once);
+        Composer(cut).Instance.Value.Should().BeEmpty();
+    }
+
+    [Test]
+    public void Staff_can_post_internal_comments()
+    {
+        SignIn(UserRole.Developer, DeveloperId);
+        var cut = Render();
+
+        Type(cut, Composer(cut), "<p>root cause found</p>");
+        cut.FindAll("[data-composer] button[role=radio]").Last().Click();
+        cut.Find("[data-send]").Click();
+
+        _comments.Verify(c => c.AddCommentAsync(It.Is<Comment>(m => m.IsInternal)), Times.Once);
+    }
+
+    [Test]
+    public void Take_and_release_call_the_assignment_service()
+    {
+        _ticket.DeveloperId = null;
+        _ticket.Developer = null;
+        _assignment.Setup(a => a.AssignDeveloperAsync(42, DeveloperId)).ReturnsAsync(true);
+        SignIn(UserRole.Developer, DeveloperId);
+        var cut = Render();
+
+        cut.Find("[data-action=take]").Click();
+
+        _assignment.Verify(a => a.AssignDeveloperAsync(42, DeveloperId), Times.Once);
+
+        _ticket = CopyOf(_ticket);
+        _ticket.DeveloperId = DeveloperId;
+        _ticket.Developer = new User { Id = DeveloperId, Login = "nazar" };
+        _assignment.Setup(a => a.UnassignDeveloperAsync(42)).ReturnsAsync(true);
+        cut.InvokeAsync(() => cut.Instance.RefreshAsync()).GetAwaiter().GetResult();
+
+        cut.Find("[data-action=release]").Click();
+
+        _assignment.Verify(a => a.UnassignDeveloperAsync(42), Times.Once);
+    }
+
+    [Test]
+    public void Work_log_day_is_saved_as_utc_of_local_midnight()
+    {
+        SignIn(UserRole.Developer, DeveloperId);
+        _workLogs.Setup(w => w.AddWorkLogAsync(42, DeveloperId, 30, It.IsAny<DateTime>(), "fixed mapper", It.IsAny<DateOnly?>()))
+            .ReturnsAsync((true, (string?)null));
+        var cut = Render();
+
+        cut.Find("[data-worklog-form] input[type=date]").Change("2026-10-12");
+        cut.Find("[data-worklog-form] input[type=number]").Change("30");
+        cut.Find("[data-worklog-form] input[type=text]").Change("fixed mapper");
+        cut.Find("[data-add-worklog]").Click();
+
+        _workLogs.Verify(w => w.AddWorkLogAsync(42, DeveloperId, 30, new DateTime(2026, 10, 11, 21, 0, 0, DateTimeKind.Utc), "fixed mapper", new DateOnly(2026, 10, 12)), Times.Once);
+    }
+
+    [Test]
+    public void Day_separator_follows_the_local_date()
+    {
+        // 21:30 UTC on 10 Oct is 00:30 on 11 Oct in Kyiv.
+        _ticket.Comments.Add(new Comment { Id = 3, Message = "<p>late</p>", AuthorId = AuthorId, Author = new User { Login = "olena" }, CreatedAt = new DateTime(2026, 10, 10, 21, 30, 0) });
+        SignIn(UserRole.User, AuthorId);
+
+        var cut = Render();
+
+        cut.FindAll("[data-day]").Select(d => d.TextContent).Should().Equal("10 Oct 2026", "11 Oct 2026");
+        cut.Find("[data-comment='3'] span").TextContent.Should().Be("00:30");
     }
 }

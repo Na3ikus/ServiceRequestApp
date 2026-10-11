@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.Logging;
 using ServiceDeskSystem.Application.Services.Auth;
 using ServiceDeskSystem.Application.Services.Comments;
 using ServiceDeskSystem.Application.Services.Tags;
@@ -20,7 +21,7 @@ namespace ServiceDeskSystem.Components.Pages.Tickets;
 public partial class TicketDetails : BaseComponent
 {
     private readonly TimeSpan refreshInterval = TimeSpan.FromSeconds(30);
-    private Timer? refreshTimer;
+    private readonly CancellationTokenSource refreshCancellation = new ();
     private bool isRefreshing;
     private bool authRestored;
 
@@ -41,6 +42,9 @@ public partial class TicketDetails : BaseComponent
 
     [Inject]
     protected ITagService TagService { get; set; } = null!;
+
+    [Inject]
+    protected ILogger<TicketDetails> Logger { get; set; } = null!;
 
     protected Ticket? Ticket { get; set; }
 
@@ -102,6 +106,32 @@ public partial class TicketDetails : BaseComponent
         new (this.Id.ToString(System.Globalization.CultureInfo.InvariantCulture)),
     ];
 
+    /// <summary>
+    /// Reloads the ticket like the 30 s auto-refresh: unsaved edits in the panel, the composer, a
+    /// comment being edited and the analytical note are kept. Errors are logged, not thrown.
+    /// </summary>
+    public async Task RefreshAsync()
+    {
+        if (this.disposed || this.isRefreshing || this.Ticket is null)
+        {
+            return;
+        }
+
+        this.isRefreshing = true;
+        try
+        {
+            await this.LoadTicketAsync();
+        }
+        catch (Exception ex)
+        {
+            LogRefreshFailed(this.Logger, ex, this.Id);
+        }
+        finally
+        {
+            this.isRefreshing = false;
+        }
+    }
+
     protected override async Task OnInitializedAsync()
     {
         this.AuthService.AuthStateChanged += this.OnAuthStateChanged;
@@ -130,7 +160,8 @@ public partial class TicketDetails : BaseComponent
         if (disposing)
         {
             this.AuthService.AuthStateChanged -= this.OnAuthStateChanged;
-            this.refreshTimer?.Dispose();
+            this.refreshCancellation.Cancel();
+            this.refreshCancellation.Dispose();
         }
 
         base.Dispose(disposing);
@@ -138,46 +169,74 @@ public partial class TicketDetails : BaseComponent
 
     protected void GoToList() => this.Navigation.NavigateTo(this.ListHref);
 
-    protected async Task SavePriorityAsync(TicketPriority priority)
+    /// <summary>
+    /// Saves the priority picked in the panel; <c>false</c> keeps the panel's edit.
+    /// </summary>
+    protected async Task<bool> SavePriorityAsync(TicketPriority priority)
     {
         if (this.Ticket is null || !this.IsAdminOrDeveloper)
         {
-            return;
+            return false;
         }
 
         var success = await this.TicketService.UpdateTicketPriorityAsync(this.Ticket.Id, priority);
-        if (success)
+        if (!success)
         {
-            await this.LoadTicketAsync();
-            await this.ToastService.ShowToastAsync(this.L.Translate("details.priorityUpdated"), ToastType.Success);
+            await this.ToastService.ShowToastAsync(this.L.Translate("details.saveFailed"), ToastType.Error);
+            return false;
         }
+
+        await this.LoadTicketAsync();
+        await this.ToastService.ShowToastAsync(this.L.Translate("details.priorityUpdated"), ToastType.Success);
+        return true;
     }
 
-    protected async Task SaveDatesAsync(TicketDatesChange change)
+    /// <summary>
+    /// Saves the dates changed in the panel; a field the user did not touch keeps its freshly
+    /// loaded stored value (it may have changed since the page loaded). <c>false</c> keeps the edits.
+    /// </summary>
+    protected async Task<bool> SaveDatesAsync(TicketDatesChange change)
     {
         ArgumentNullException.ThrowIfNull(change);
 
         if (this.Ticket is null || !this.IsAdminOrDeveloper)
         {
-            return;
+            return false;
         }
 
-        var success = await this.TicketService.UpdateTicketDatesAsync(this.Ticket.Id, change.StartUtc, change.DueUtc, this.CurrentUserId);
-        if (success)
+        var stored = await this.TicketService.GetTicketByIdAsync(this.Ticket.Id);
+        if (stored is null)
         {
-            this.Ticket.StartDate = change.StartUtc;
-            this.Ticket.DueDate = change.DueUtc;
-            await this.ToastService.ShowToastAsync(this.L.Translate("details.datesUpdated"), ToastType.Success);
+            await this.ToastService.ShowToastAsync(this.L.Translate("details.saveFailed"), ToastType.Error);
+            return false;
         }
+
+        var start = change.StartChanged ? change.StartUtc : stored.StartDate;
+        var due = change.DueChanged ? change.DueUtc : stored.DueDate;
+
+        var success = await this.TicketService.UpdateTicketDatesAsync(this.Ticket.Id, start, due, this.CurrentUserId);
+        if (!success)
+        {
+            await this.ToastService.ShowToastAsync(this.L.Translate("details.saveFailed"), ToastType.Error);
+            return false;
+        }
+
+        this.Ticket.StartDate = start;
+        this.Ticket.DueDate = due;
+        await this.ToastService.ShowToastAsync(this.L.Translate("details.datesUpdated"), ToastType.Success);
+        return true;
     }
 
-    protected async Task AddCommentAsync(NewTicketComment comment)
+    /// <summary>
+    /// Posts a comment from the composer; <c>false</c> keeps the draft.
+    /// </summary>
+    protected async Task<bool> AddCommentAsync(NewTicketComment comment)
     {
         ArgumentNullException.ThrowIfNull(comment);
 
         if (string.IsNullOrWhiteSpace(comment.Message) || this.Ticket is null)
         {
-            return;
+            return false;
         }
 
         await this.CommentService.AddCommentAsync(new Comment
@@ -189,25 +248,32 @@ public partial class TicketDetails : BaseComponent
         });
 
         await this.LoadTicketAsync();
+        return true;
     }
 
-    protected async Task SaveCommentEditAsync(TicketCommentEdit edit)
+    /// <summary>
+    /// Saves an edited comment; <c>false</c> keeps the editor open with the text.
+    /// </summary>
+    protected async Task<bool> SaveCommentEditAsync(TicketCommentEdit edit)
     {
         ArgumentNullException.ThrowIfNull(edit);
 
         var comment = this.Ticket?.Comments.FirstOrDefault(c => c.Id == edit.CommentId);
         if (comment is null || comment.AuthorId != this.CurrentUserId || string.IsNullOrWhiteSpace(edit.Message))
         {
-            return;
+            return false;
         }
 
         var updated = await this.CommentService.UpdateCommentAsync(edit.CommentId, edit.Message, this.CurrentUserId, this.IsAdmin);
-        if (updated is not null)
+        if (updated is null)
         {
-            comment.Message = updated.Message;
+            await this.ToastService.ShowToastAsync(this.L.Translate("details.saveFailed"), ToastType.Error);
+            return false;
         }
 
+        comment.Message = updated.Message;
         await this.LoadTicketAsync();
+        return true;
     }
 
     protected async Task DeleteCommentAsync(int commentId)
@@ -229,7 +295,7 @@ public partial class TicketDetails : BaseComponent
 
     protected async Task UpdateStatusAsync(TicketStatus newStatus)
     {
-        if (this.Ticket is null || !this.CanManageTicketStatus)
+        if (this.IsBusy || this.Ticket is null || !this.CanManageTicketStatus)
         {
             return;
         }
@@ -266,7 +332,7 @@ public partial class TicketDetails : BaseComponent
 
     protected async Task DeleteTicketAsync()
     {
-        if (this.Ticket is null || !this.CanManageTicket)
+        if (this.IsDeleting || this.Ticket is null || !this.CanManageTicket)
         {
             return;
         }
@@ -292,7 +358,7 @@ public partial class TicketDetails : BaseComponent
 
     protected async Task AssignToMeAsync()
     {
-        if (this.Ticket is null)
+        if (this.IsBusy || this.Ticket is null)
         {
             return;
         }
@@ -326,7 +392,7 @@ public partial class TicketDetails : BaseComponent
 
     protected async Task UnassignAsync()
     {
-        if (this.Ticket is null)
+        if (this.IsBusy || this.Ticket is null)
         {
             return;
         }
@@ -412,6 +478,9 @@ public partial class TicketDetails : BaseComponent
         }
     }
 
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Refreshing ticket {TicketId} failed")]
+    private static partial void LogRefreshFailed(ILogger logger, Exception exception, int ticketId);
+
     private async Task LoadTicketAsync(bool isInitialLoad = false)
     {
         var fetchedTicket = await this.TicketService.GetTicketByIdAsync(this.Id);
@@ -440,26 +509,29 @@ public partial class TicketDetails : BaseComponent
         this.StateHasChanged();
     }
 
-    private void StartAutoRefresh()
-    {
-        this.refreshTimer = new Timer(async _ => await this.RefreshAsync(), null, this.refreshInterval, this.refreshInterval);
-    }
+    private void StartAutoRefresh() => _ = this.RunAutoRefreshAsync(this.refreshCancellation.Token);
 
-    private async Task RefreshAsync()
+    private async Task RunAutoRefreshAsync(CancellationToken cancellationToken)
     {
-        if (this.isRefreshing || this.Ticket is null)
-        {
-            return;
-        }
-
-        this.isRefreshing = true;
+        using var timer = new PeriodicTimer(this.refreshInterval);
         try
         {
-            await this.InvokeAsync(() => this.LoadTicketAsync());
+            while (await timer.WaitForNextTickAsync(cancellationToken))
+            {
+                try
+                {
+                    await this.InvokeAsync(this.RefreshAsync);
+                }
+                catch (Exception ex) when (ex is not OperationCanceledException)
+                {
+                    // The circuit may be gone; the loop ends when Dispose cancels the token.
+                    LogRefreshFailed(this.Logger, ex, this.Id);
+                }
+            }
         }
-        finally
+        catch (OperationCanceledException)
         {
-            this.isRefreshing = false;
+            // Disposed.
         }
     }
 

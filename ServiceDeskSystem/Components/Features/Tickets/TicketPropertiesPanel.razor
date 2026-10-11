@@ -1,7 +1,7 @@
 @using ServiceDeskSystem.Domain.Enums
 @inherits ServiceDeskSystem.Components.UI.Base.BaseComponent
 
-<aside data-properties-panel class="rounded-lg border border-line bg-surface lg:sticky lg:top-6">
+<aside data-properties-panel class="rounded-lg border border-line bg-surface">
     <dl>
         <div class="@RowClass">
             <dt class="@LabelClass">@Heading("table.status")</dt>
@@ -38,7 +38,7 @@
                         <span>@L.Translate("create.confirmCritical")</span>
                     </label>
                 }
-                <button type="button" class="btn-accent w-full" disabled="@(editPriority == TicketPriority.Critical && !criticalConfirmed)"
+                <button type="button" class="btn-accent w-full" disabled="@(isSaving || (editPriority == TicketPriority.Critical && !criticalConfirmed))"
                         @onclick="SavePriorityAsync">
                     @Heading("details.savePriority")
                 </button>
@@ -111,7 +111,7 @@
         @if (DatesChanged)
         {
             <div class="border-b border-dashed border-line px-3.5 py-2.5">
-                <button type="button" data-save-dates class="btn-accent w-full" @onclick="SaveDatesAsync">@Heading("details.saveDates")</button>
+                <button type="button" data-save-dates class="btn-accent w-full" disabled="@isSaving" @onclick="SaveDatesAsync">@Heading("details.saveDates")</button>
             </div>
         }
 
@@ -153,7 +153,7 @@
                 @if (CanEdit && AvailableTags.Count > 0)
                 {
                     <div class="relative" @onkeydown="OnTagMenuKeyDown">
-                        <button type="button" data-add-tag aria-haspopup="listbox" aria-expanded="@(tagMenuOpen ? "true" : "false")"
+                        <button type="button" data-add-tag aria-expanded="@(tagMenuOpen ? "true" : "false")" aria-controls="panel-tag-menu"
                                 class="rounded-md border border-dashed border-line px-[7px] py-px font-mono text-13 text-muted hover:text-fg"
                                 @onclick="ToggleTagMenu">
                             + @Heading("details.tagShort")
@@ -161,11 +161,11 @@
                         @if (tagMenuOpen)
                         {
                             <div class="fixed inset-0 z-10" aria-hidden="true" @onclick="CloseTagMenu"></div>
-                            <ul data-tag-menu role="listbox" aria-label="@L.Translate("details.addTag")"
+                            <ul id="panel-tag-menu" data-tag-menu aria-label="@L.Translate("details.addTag")"
                                 class="absolute right-0 z-20 mt-1 max-h-60 w-48 overflow-auto rounded-md border border-line bg-canvas py-1">
                                 @foreach (var tag in AvailableTags)
                                 {
-                                    <li role="option" aria-selected="false">
+                                    <li>
                                         <button type="button" data-tag-option="@tag.Id"
                                                 class="flex w-full items-center gap-2 px-3 py-1.5 text-left text-13 text-fg hover:bg-surface"
                                                 @onclick="() => AddTagAsync(tag.Id)">

@@ -27,6 +27,12 @@
     [Parameter]
     public bool Borderless { get; set; }
 
+    /// <summary>
+    /// Gets or sets the id of the visible label; set as <c>aria-labelledby</c> on the editable area.
+    /// </summary>
+    [Parameter]
+    public string? LabelledBy { get; set; }
+
     private string WrapperClass => Borderless
         ? "quill-wrapper overflow-hidden"
         : "quill-wrapper overflow-hidden rounded-md border border-line transition-colors focus-within:border-fg";
@@ -37,7 +43,7 @@
         {
             dotNetRef = DotNetObjectReference.Create(this);
             lastSetValue = Value;
-            await JS.InvokeVoidAsync("window.quillInterop.init", elementId, dotNetRef, Value, Placeholder);
+            await JS.InvokeVoidAsync("window.quillInterop.init", elementId, dotNetRef, Value, Placeholder, LabelledBy);
             isInitialized = true;
         }
         else if (isInitialized && Value != lastSetValue)

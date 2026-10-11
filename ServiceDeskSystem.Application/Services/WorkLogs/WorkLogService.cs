@@ -15,7 +15,7 @@ public class WorkLogService : IWorkLogService
         this._auditService = auditService;
     }
 
-    public async Task<(bool Success, string? ErrorMessage)> AddWorkLogAsync(int ticketId, int userId, int timeSpentMinutes, DateTime dateLogged, string description)
+    public async Task<(bool Success, string? ErrorMessage)> AddWorkLogAsync(int ticketId, int userId, int timeSpentMinutes, DateTime dateLogged, string description, DateOnly? localDay = null)
     {
         if (timeSpentMinutes <= 0)
         {
@@ -42,7 +42,7 @@ public class WorkLogService : IWorkLogService
         await repo.WorkLogs.CreateAsync(workLog).ConfigureAwait(false);
         await repo.UnitOfWork.SaveChangesAsync().ConfigureAwait(false);
 
-        await this._auditService.LogActionSafeAsync("WORK_LOG_ADDED", "Ticket", ticketId.ToString(), $"Added work log: {timeSpentMinutes} min on {dateLogged.ToShortDateString()}", userId).ConfigureAwait(false);
+        await this._auditService.LogActionSafeAsync("WORK_LOG_ADDED", "Ticket", ticketId.ToString(), $"Added work log: {timeSpentMinutes} min on {(localDay ?? DateOnly.FromDateTime(dateLogged)).ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture)}", userId).ConfigureAwait(false);
 
         return (true, null);
     }

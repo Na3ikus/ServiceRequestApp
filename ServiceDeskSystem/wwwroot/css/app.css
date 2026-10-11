@@ -775,6 +775,10 @@ table th,
   pointer-events: none;
 }
 
+.visible {
+  visibility: visible;
+}
+
 .invisible {
   visibility: hidden;
 }
@@ -4313,6 +4317,10 @@ input:-webkit-autofill:active {
 
   .lg\:top-6 {
     top: 1.5rem;
+  }
+
+  .lg\:z-10 {
+    z-index: 10;
   }
 
   .lg\:col-span-1 {

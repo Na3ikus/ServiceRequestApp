@@ -155,5 +155,6 @@
   "create.versionPlaceholder": "e.g. 1.0.4, 2.1.0-beta",
   "create.tip1": "One request, one problem.",
   "create.tip2": "Add screenshots and files as attachments once the ticket is created.",
-  "create.tip3": "The team will assess the priority."
+  "create.tip3": "The team will assess the priority.",
+  "details.saveFailed": "Could not save the changes. Try again."
 }

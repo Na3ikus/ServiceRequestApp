@@ -7,10 +7,11 @@ using ServiceDeskSystem.Domain.Enums;
 namespace ServiceDeskSystem.Components.Features.Tickets;
 
 /// <summary>
-/// New start / due values picked in the properties panel, already converted to UTC.
+/// Start / due values picked in the properties panel, already converted to UTC. Only the fields
+/// flagged as changed carry a new value; the page keeps the stored value of the others.
 /// </summary>
 #pragma warning disable SA1313 // Positional record parameters become PascalCase public properties.
-public sealed record TicketDatesChange(DateTime? StartUtc, DateTime? DueUtc);
+public sealed record TicketDatesChange(DateTime? StartUtc, bool StartChanged, DateTime? DueUtc, bool DueChanged);
 #pragma warning restore SA1313
 
 /// <summary>
@@ -31,6 +32,7 @@ public partial class TicketPropertiesPanel : BaseComponent
     private bool startDirty;
     private bool dueDirty;
     private bool tagMenuOpen;
+    private bool isSaving;
 
     [Parameter]
     [EditorRequired]
@@ -45,11 +47,17 @@ public partial class TicketPropertiesPanel : BaseComponent
     [Parameter]
     public IReadOnlyList<Tag> AllTags { get; set; } = [];
 
+    /// <summary>
+    /// Gets or sets the save of a new priority; returns <c>false</c> when it failed (the edit is kept).
+    /// </summary>
     [Parameter]
-    public EventCallback<TicketPriority> OnSavePriority { get; set; }
+    public Func<TicketPriority, Task<bool>>? SavePriority { get; set; }
 
+    /// <summary>
+    /// Gets or sets the save of new dates; returns <c>false</c> when it failed (the edits are kept).
+    /// </summary>
     [Parameter]
-    public EventCallback<TicketDatesChange> OnSaveDates { get; set; }
+    public Func<TicketDatesChange, Task<bool>>? SaveDates { get; set; }
 
     [Parameter]
     public EventCallback<int> OnAddTag { get; set; }
@@ -115,27 +123,54 @@ public partial class TicketPropertiesPanel : BaseComponent
 
     private async Task SavePriorityAsync()
     {
-        if (this.editPriority == TicketPriority.Critical && !this.criticalConfirmed)
+        if (this.isSaving || this.SavePriority is null || (this.editPriority == TicketPriority.Critical && !this.criticalConfirmed))
         {
             return;
         }
 
-        await this.OnSavePriority.InvokeAsync(this.editPriority);
-        this.priorityDirty = false;
-        this.criticalConfirmed = false;
-        this.SyncFromTicket();
+        this.isSaving = true;
+        try
+        {
+            if (await this.SavePriority(this.editPriority))
+            {
+                this.priorityDirty = false;
+                this.criticalConfirmed = false;
+                this.SyncFromTicket();
+            }
+        }
+        finally
+        {
+            this.isSaving = false;
+        }
     }
 
     private async Task SaveDatesAsync()
     {
-        // An untouched field keeps its stored value exactly (the input drops seconds).
-        var start = this.startDirty ? TicketDates.ToStorage(this.startEdit, this.UserZone) : this.Ticket.StartDate;
-        var due = this.dueDirty ? TicketDates.ToStorage(this.dueEdit, this.UserZone) : this.Ticket.DueDate;
+        if (this.isSaving || this.SaveDates is null)
+        {
+            return;
+        }
 
-        await this.OnSaveDates.InvokeAsync(new TicketDatesChange(start, due));
-        this.startDirty = false;
-        this.dueDirty = false;
-        this.SyncFromTicket();
+        var change = new TicketDatesChange(
+            TicketDates.ToStorage(this.startEdit, this.UserZone),
+            this.startDirty,
+            TicketDates.ToStorage(this.dueEdit, this.UserZone),
+            this.dueDirty);
+
+        this.isSaving = true;
+        try
+        {
+            if (await this.SaveDates(change))
+            {
+                this.startDirty = false;
+                this.dueDirty = false;
+                this.SyncFromTicket();
+            }
+        }
+        finally
+        {
+            this.isSaving = false;
+        }
     }
 
     private void ToggleTagMenu() => this.tagMenuOpen = !this.tagMenuOpen;

@@ -47,11 +47,11 @@ public class TicketActivityFeedTests
     }
 
     [Test]
-    public void Created_event_carries_author_type_and_priority()
+    public void Created_event_carries_author_and_type()
     {
         var created = TicketActivityFeed.Build(NewTicket(), [], includeInternal: false)[0];
 
-        created.Should().Be(new TicketCreatedActivity(Created, "olena", TicketType.Bug, TicketPriority.Medium));
+        created.Should().Be(new TicketCreatedActivity(Created, "olena", TicketType.Bug));
     }
 
     [Test]
@@ -67,7 +67,7 @@ public class TicketActivityFeedTests
     {
         var statuses = TicketActivityFeed.Build(NewTicket(), History, includeInternal: true).OfType<TicketStatusActivity>().ToList();
 
-        statuses[0].Should().Be(new TicketStatusActivity(Created.AddMinutes(53), null, TicketStatus.Open, TicketStatus.InProgress));
+        statuses[0].Should().Be(new TicketStatusActivity(Created.AddMinutes(53), 4, null, TicketStatus.Open, TicketStatus.InProgress));
         statuses[1].ActorLogin.Should().Be("nazar");
     }
 

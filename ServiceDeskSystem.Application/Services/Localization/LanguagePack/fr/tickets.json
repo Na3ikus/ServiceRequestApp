@@ -155,5 +155,6 @@
   "create.versionPlaceholder": "ex. 1.0.4, 2.1.0-beta",
   "create.tip1": "Une demande, un problème.",
   "create.tip2": "Ajoutez captures et fichiers en pièces jointes une fois le ticket créé.",
-  "create.tip3": "L'équipe évaluera la priorité."
+  "create.tip3": "L'équipe évaluera la priorité.",
+  "details.saveFailed": "Impossible d'enregistrer les modifications. Réessayez."
 }

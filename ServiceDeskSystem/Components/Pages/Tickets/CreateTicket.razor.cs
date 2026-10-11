@@ -59,6 +59,11 @@ public partial class CreateTicket
 
     protected async Task HandleSubmitAsync()
     {
+        if (this.IsSubmitting)
+        {
+            return;
+        }
+
         this.CriticalConfirmationError = null;
         this.Errors = this.Model.Validate();
         if (this.Errors.Count > 0 || this.Model.TicketType is not { } type)
@@ -134,17 +139,25 @@ public partial class CreateTicket
 
     protected string? Invalid(string field) => this.Errors.ContainsKey(field) ? "true" : null;
 
+    /// <summary>
+    /// Id of the field's validation message while it is shown (for <c>aria-describedby</c>).
+    /// </summary>
+    protected string? DescribedBy(string field) => this.Errors.ContainsKey(field) ? ErrorId(field) : null;
+
     protected RenderFragment? ErrorFor(string field) => this.Errors.TryGetValue(field, out var key)
         ? builder =>
         {
             builder.OpenElement(0, "p");
-            builder.AddAttribute(1, "role", "alert");
-            builder.AddAttribute(2, "data-error", field);
-            builder.AddAttribute(3, "class", "mt-1.5 text-13 text-danger");
-            builder.AddContent(4, this.L.Translate(key));
+            builder.AddAttribute(1, "id", ErrorId(field));
+            builder.AddAttribute(2, "role", "alert");
+            builder.AddAttribute(3, "data-error", field);
+            builder.AddAttribute(4, "class", "mt-1.5 text-13 text-danger");
+            builder.AddContent(5, this.L.Translate(key));
             builder.CloseElement();
         }
         : null;
+
+    private static string ErrorId(string field) => $"create-error-{field}";
 
     private void ClearError(string field)
     {

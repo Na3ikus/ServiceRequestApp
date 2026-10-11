@@ -12,15 +12,17 @@ namespace ServiceDeskSystem.Components.Features.Tickets;
 public abstract record TicketActivityEvent(DateTime At);
 
 /// <summary>
-/// The ticket was created (<c>@author created · type · priority</c>).
+/// The ticket was created (<c>@author created · type</c>). The priority is left out: only the
+/// current value is stored, not the one the ticket was created with.
 /// </summary>
-public sealed record TicketCreatedActivity(DateTime At, string? AuthorLogin, TicketType Type, TicketPriority Priority)
+public sealed record TicketCreatedActivity(DateTime At, string? AuthorLogin, TicketType Type)
     : TicketActivityEvent(At);
 
 /// <summary>
 /// The status changed; <see cref="ActorLogin"/> is <c>null</c> for rows backfilled from the audit log.
+/// <see cref="Id"/> is the history row id.
 /// </summary>
-public sealed record TicketStatusActivity(DateTime At, string? ActorLogin, TicketStatus From, TicketStatus To)
+public sealed record TicketStatusActivity(DateTime At, int Id, string? ActorLogin, TicketStatus From, TicketStatus To)
     : TicketActivityEvent(At);
 
 /// <summary>
@@ -46,13 +48,13 @@ public static class TicketActivityFeed
 
         var events = new List<TicketActivityEvent>
         {
-            new TicketCreatedActivity(ticket.CreatedAt, ticket.Author?.Login, ticket.Type, ticket.Priority),
+            new TicketCreatedActivity(ticket.CreatedAt, ticket.Author?.Login, ticket.Type),
         };
 
         events.AddRange(history
             .OrderBy(h => h.ChangedAt)
             .ThenBy(h => h.Id)
-            .Select(h => new TicketStatusActivity(h.ChangedAt, h.ChangedByUser?.Login, h.OldStatus, h.NewStatus)));
+            .Select(h => new TicketStatusActivity(h.ChangedAt, h.Id, h.ChangedByUser?.Login, h.OldStatus, h.NewStatus)));
 
         events.AddRange((ticket.Comments ?? [])
             .Where(c => includeInternal || !c.IsInternal)
