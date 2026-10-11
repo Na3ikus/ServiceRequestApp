@@ -72,11 +72,11 @@ public class CalendarTests
     {
         // 23:30 UTC on 31 Oct is already 1 Nov in Kyiv.
         var kyiv = TimeZoneInfo.FindSystemTimeZoneById("Europe/Kyiv");
-        var events = CalendarEvents.ForMonth(
-            [Ticket(1, new DateTime(2026, 10, 31, 23, 30, 0, DateTimeKind.Utc))], 2026, 10,
-            utc => TimeZoneInfo.ConvertTimeFromUtc(utc, kyiv), NowUtc);
+        Ticket[] tickets = [Ticket(1, new DateTime(2026, 10, 31, 23, 30, 0, DateTimeKind.Utc))];
+        DateTime ToKyiv(DateTime utc) => TimeZoneInfo.ConvertTimeFromUtc(utc, kyiv);
 
-        events.Should().BeEmpty();
+        CalendarEvents.ForMonth(tickets, 2026, 10, ToKyiv, NowUtc).Should().BeEmpty();
+        CalendarEvents.ForMonth(tickets, 2026, 11, ToKyiv, NowUtc).Keys.Should().Equal(new DateOnly(2026, 11, 1));
     }
 
     [Test]
@@ -91,7 +91,7 @@ public class CalendarTests
     }
 
     [Test]
-    public void Busy_day_shows_three_chips_and_a_more_button_that_opens_the_day()
+    public void Busy_day_shows_three_chips_and_more_links_to_the_day_in_the_month_list()
     {
         var today = _host.TimeZone.Today;
         var at = new DateTime(today.Year, today.Month, today.Day, 10, 0, 0, DateTimeKind.Utc);
@@ -102,10 +102,23 @@ public class CalendarTests
 
         cell.QuerySelectorAll("[data-chip]").Length.Should().Be(3);
         cut.Find("[data-more]").TextContent.Trim().Should().Be("+2");
+        cut.Find("[data-more]").GetAttribute("href").Should().Be($"calendar#day-{today:yyyy-MM-dd}");
 
-        cut.Find("[data-more]").Click();
+        cut.Find($"[data-agenda] #day-{today:yyyy-MM-dd}").QuerySelectorAll("li").Length.Should().Be(5);
+    }
 
-        cut.Find("[data-day-panel]").QuerySelectorAll("li").Length.Should().Be(5);
+    [Test]
+    public void Month_list_is_always_rendered_with_kind_labels()
+    {
+        var today = _host.TimeZone.Today;
+        var at = new DateTime(today.Year, today.Month, today.Day, 10, 0, 0, DateTimeKind.Utc);
+        _tickets.Setup(t => t.GetAllTicketsAsync()).ReturnsAsync([Ticket(9, at.AddDays(-40), at.AddDays(1))]);
+
+        var cut = _host.Context.RenderComponent<CalendarPage>();
+
+        var agenda = cut.Find("[data-agenda]");
+        agenda.GetAttribute("class").Should().NotContain("md:hidden");
+        agenda.TextContent.Should().Contain("#9").And.Contain("calendar.deadline");
     }
 
     [Test]

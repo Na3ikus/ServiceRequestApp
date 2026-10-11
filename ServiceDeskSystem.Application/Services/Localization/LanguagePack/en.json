@@ -283,5 +283,6 @@
   "calendar.previousMonth": "Previous month",
   "calendar.nextMonth": "Next month",
   "calendar.noEvents": "No start dates or deadlines this month",
-  "calendar.overdue": "Overdue"
+  "calendar.overdue": "Overdue",
+  "calendar.thisMonth": "This month"
 }

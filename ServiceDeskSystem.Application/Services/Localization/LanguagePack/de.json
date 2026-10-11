@@ -237,5 +237,6 @@
   "calendar.previousMonth": "Vorheriger Monat",
   "calendar.nextMonth": "Nächster Monat",
   "calendar.noEvents": "Keine Starttermine oder Fristen in diesem Monat",
-  "calendar.overdue": "Überfällig"
+  "calendar.overdue": "Überfällig",
+  "calendar.thisMonth": "Diesen Monat"
 }

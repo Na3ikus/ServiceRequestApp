@@ -971,9 +971,9 @@ h3[tabindex] {
 }
 
 /* Headers and titles */
-.dark h1,
-.dark h2,
-.dark h3 {
+.dark h1:not([class*="text-"]),
+.dark h2:not([class*="text-"]),
+.dark h3:not([class*="text-"]) {
     color: rgb(255 255 255) !important; /* white */
 }
 
@@ -1111,9 +1111,9 @@ h3[tabindex] {
 }
 
 /* Headers and titles */
-.dark h1,
-.dark h2,
-.dark h3 {
+.dark h1:not([class*="text-"]),
+.dark h2:not([class*="text-"]),
+.dark h3:not([class*="text-"]) {
     color: rgb(255 255 255) !important; /* white */
 }
 

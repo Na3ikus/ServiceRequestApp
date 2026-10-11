@@ -1673,6 +1673,10 @@ table th,
   resize: vertical;
 }
 
+.scroll-mt-4 {
+  scroll-margin-top: 1rem;
+}
+
 .grid-cols-1 {
   grid-template-columns: repeat(1, minmax(0, 1fr));
 }
@@ -5526,8 +5530,16 @@ input:-webkit-autofill:active {
     grid-column: span 3 / span 3;
   }
 
+  .md\:mt-8 {
+    margin-top: 2rem;
+  }
+
   .md\:block {
     display: block;
+  }
+
+  .md\:grid {
+    display: grid;
   }
 
   .md\:hidden {

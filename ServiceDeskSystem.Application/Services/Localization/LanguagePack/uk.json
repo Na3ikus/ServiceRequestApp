@@ -285,5 +285,6 @@
   "calendar.previousMonth": "Попередній місяць",
   "calendar.nextMonth": "Наступний місяць",
   "calendar.noEvents": "У цьому місяці немає стартів і дедлайнів",
-  "calendar.overdue": "Прострочено"
+  "calendar.overdue": "Прострочено",
+  "calendar.thisMonth": "Цього місяця"
 }

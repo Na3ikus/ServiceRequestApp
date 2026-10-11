@@ -19,7 +19,7 @@
 
     @if (isLoading)
     {
-        <div class="grid grid-cols-7 gap-px overflow-hidden rounded-lg border border-line bg-line" aria-busy="true">
+        <div class="hidden grid-cols-7 gap-px overflow-hidden rounded-lg border border-line bg-line md:grid" aria-busy="true">
             @for (var i = 0; i < 35; i++)
             {
                 <div class="h-28 bg-surface"></div>
@@ -65,31 +65,21 @@
                                 }
                                 @if (dayEvents.Count > ChipsPerDay)
                                 {
-                                    <button type="button" data-more class="font-mono text-12 text-muted hover:text-fg"
-                                            aria-expanded="@(selectedDay == day ? "true" : "false")" @onclick="() => ToggleDay(day)">
+                                    <a data-more href="@($"calendar#{DayAnchor(day)}")" class="block font-mono text-12 text-muted hover:text-fg"
+                                       aria-label="@($"+{dayEvents.Count - ChipsPerDay} · {day.ToString("d MMMM", UiCulture)}")">
                                         +@(dayEvents.Count - ChipsPerDay)
-                                    </button>
+                                    </a>
                                 }
                             </div>
                         }
                     </div>
                 }
             </div>
-
-            @if (selectedDay is { } open && events.TryGetValue(open, out var openEvents))
-            {
-                <div data-day-panel class="mt-4">
-                    @DayList(open, openEvents)
-                </div>
-            }
-            @if (events.Count == 0)
-            {
-                <EmptyState Message="@L.Translate("calendar.noEvents")" />
-            }
         </div>
 
-        @* Agenda (below md): only days that have events *@
-        <div data-agenda class="md:hidden">
+        @* The month's days with events, under the grid (and instead of it on phones). *@
+        <section data-agenda class="md:mt-8" aria-labelledby="calendar-month-list">
+            <h2 id="calendar-month-list" class="mb-3 hidden font-mono text-13 text-muted md:block"># @Heading("calendar.thisMonth")</h2>
             @if (events.Count == 0)
             {
                 <EmptyState Message="@L.Translate("calendar.noEvents")" />
@@ -98,10 +88,10 @@
             {
                 @foreach (var (day, dayEvents) in events.OrderBy(kv => kv.Key))
                 {
-                    <div class="mb-5">@DayList(day, dayEvents)</div>
+                    <div id="@DayAnchor(day)" class="mb-5 scroll-mt-4">@DayList(day, dayEvents)</div>
                 }
             }
-        </div>
+        </section>
     }
 </div>
 
@@ -115,7 +105,7 @@
 
     private RenderFragment DayList(DateOnly day, IReadOnlyList<CalendarEvent> dayEvents) => __builder =>
     {
-        <h2 class="mb-1 font-mono text-13 @(day == Today ? "text-fg" : "text-muted")"># @day.ToString("d MMMM, ddd", UiCulture).ToLower(UiCulture)</h2>
+        <h3 class="mb-1 font-mono text-13 @(day == Today ? "text-fg" : "text-muted")"># @day.ToString("d MMMM, ddd", UiCulture).ToLower(UiCulture)</h3>
         <ul class="border-t border-dashed border-line">
             @foreach (var e in dayEvents)
             {

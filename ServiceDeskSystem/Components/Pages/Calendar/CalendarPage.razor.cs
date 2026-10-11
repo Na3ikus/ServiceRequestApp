@@ -16,7 +16,6 @@ public partial class CalendarPage : BaseComponent
     private static readonly IReadOnlyList<PathSegment> Segments = [new ("calendar")];
 
     private DateOnly month;
-    private DateOnly? selectedDay;
     private List<Ticket> tickets = [];
     private bool isLoading = true;
 
@@ -60,6 +59,8 @@ public partial class CalendarPage : BaseComponent
     /// </summary>
     private static DateOnly GridStart(DateOnly first) => first.AddDays(-(((int)first.DayOfWeek + 6) % 7));
 
+    private static string DayAnchor(DateOnly day) => $"day-{day:yyyy-MM-dd}";
+
     private static string Marker(CalendarEventKind kind) => kind == CalendarEventKind.Start ? "→" : "!";
 
     private static string KindText(CalendarEventKind kind) => kind switch
@@ -84,16 +85,12 @@ public partial class CalendarPage : BaseComponent
     private void ShowMonth(int delta)
     {
         this.month = this.month.AddMonths(delta);
-        this.selectedDay = null;
     }
 
     private void ShowToday()
     {
         this.month = FirstOfMonth(this.Today);
-        this.selectedDay = null;
     }
-
-    private void ToggleDay(DateOnly day) => this.selectedDay = this.selectedDay == day ? null : day;
 
     private string KindLabel(CalendarEventKind kind) => this.L.Translate(kind switch
     {

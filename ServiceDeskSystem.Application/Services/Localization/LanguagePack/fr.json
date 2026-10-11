@@ -237,5 +237,6 @@
   "calendar.previousMonth": "Mois précédent",
   "calendar.nextMonth": "Mois suivant",
   "calendar.noEvents": "Aucun début ni échéance ce mois-ci",
-  "calendar.overdue": "En retard"
+  "calendar.overdue": "En retard",
+  "calendar.thisMonth": "Ce mois-ci"
 }
