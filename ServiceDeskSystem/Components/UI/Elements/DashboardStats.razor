@@ -1,139 +1,24 @@
 @inherits ServiceDeskSystem.Components.UI.Base.BaseComponent
 
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-    <div
-        class="stat-card-animated flex flex-col h-full bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700/50 shadow-lg dark:shadow-gray-900/50 overflow-hidden hover:shadow-2xl hover:shadow-blue-500/20 dark:hover:shadow-blue-500/10 transition-all duration-300 hover:-translate-y-1">
-        <div class="flex-1 p-6">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-base font-semibold text-gray-700 dark:text-gray-100 tracking-wide leading-6" style="min-height: 3rem;">
-                        @L.Translate("dashboard.totalTickets")</p>
-                    <p class="mt-2 text-3xl font-bold text-gray-900 dark:text-white">@displayTotalTickets</p>
-                </div>
-                <div class="p-4 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl shadow-lg shadow-blue-500/30">
-                    <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2">
-                        </path>
-                    </svg>
-                </div>
-            </div>
-            @if (displayTotalTickets > 0)
-            {
-                <div class="stat-progress-track">
-                    <div class="stat-progress-bar bg-gradient-to-r from-blue-500 to-blue-600" style="width: 100%"></div>
-                </div>
-                <p class="text-xs text-gray-400 dark:text-gray-500 mt-1.5 font-medium">100%</p>
-            }
-        </div>
-        <div class="h-1.5 shrink-0 bg-gradient-to-r from-blue-500 to-blue-600"></div>
-    </div>
-
-    <div
-        class="stat-card-animated flex flex-col h-full bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700/50 shadow-lg dark:shadow-gray-900/50 overflow-hidden hover:shadow-2xl hover:shadow-amber-500/20 dark:hover:shadow-amber-500/10 transition-all duration-300 hover:-translate-y-1">
-        <div class="flex-1 p-6">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-base font-semibold text-gray-700 dark:text-gray-100 tracking-wide leading-6" style="min-height: 3rem;">
-                        @L.Translate("dashboard.openTickets")</p>
-                    <p class="mt-2 text-3xl font-bold text-gray-900 dark:text-white">@displayOpenTickets</p>
-                </div>
-                <div
-                    class="p-4 bg-gradient-to-br from-amber-500 to-orange-500 rounded-2xl shadow-lg shadow-amber-500/30">
-                    <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                </div>
-            </div>
-            @if (displayTotalTickets > 0)
-            {
-                <div class="stat-progress-track">
-                    <div class="stat-progress-bar bg-gradient-to-r from-amber-500 to-orange-500" style="width: @(GetPercentage(displayOpenTickets, displayTotalTickets))%"></div>
-                </div>
-                <p class="text-xs text-gray-400 dark:text-gray-500 mt-1.5 font-medium">@(GetPercentage(displayOpenTickets, displayTotalTickets))% @L.Translate("dashboard.totalTickets").ToLower()</p>
-            }
-        </div>
-        <div class="h-1.5 shrink-0 bg-gradient-to-r from-amber-500 to-orange-500"></div>
-    </div>
-
-    <div
-        class="stat-card-animated flex flex-col h-full bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700/50 shadow-lg dark:shadow-gray-900/50 overflow-hidden hover:shadow-2xl hover:shadow-red-500/20 dark:hover:shadow-red-500/10 transition-all duration-300 hover:-translate-y-1">
-        <div class="flex-1 p-6">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-base font-semibold text-gray-700 dark:text-gray-100 tracking-wide leading-6" style="min-height: 3rem;">
-                        @{
-                            var title = L.Translate("dashboard.criticalPriority");
-                            var lastSpaceIndex = title.LastIndexOf(' ');
-                        }
-                        @if (lastSpaceIndex >= 0)
-                        {
-                            @title.Substring(0, lastSpaceIndex)@(" ")
-                            <span style="white-space: nowrap;">
-                                @title.Substring(lastSpaceIndex + 1)
-                                @if (displayCriticalTickets > 0)
-                                {
-                                    <span class="w-2 h-2 rounded-full bg-red-500 critical-pulse" style="display: inline-block; margin-left: 0.375rem; vertical-align: middle; margin-bottom: 0.125rem;"></span>
-                                }
-                            </span>
-                        }
-                        else
-                        {
-                            @title
-                            @if (displayCriticalTickets > 0)
-                            {
-                                <span class="w-2 h-2 rounded-full bg-red-500 critical-pulse" style="display: inline-block; margin-left: 0.375rem; vertical-align: middle; margin-bottom: 0.125rem;"></span>
-                            }
-                        }
-                    </p>
-                    <p class="mt-2 text-3xl font-bold text-gray-900 dark:text-white">@displayCriticalTickets</p>
-                </div>
-                <div class="p-4 bg-gradient-to-br from-red-500 to-rose-600 rounded-2xl shadow-lg shadow-red-500/30">
-                    <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
-                        </path>
-                    </svg>
-                </div>
-            </div>
-            @if (displayTotalTickets > 0)
-            {
-                <div class="stat-progress-track">
-                    <div class="stat-progress-bar bg-gradient-to-r from-red-500 to-rose-600" style="width: @(GetPercentage(displayCriticalTickets, displayTotalTickets))%"></div>
-                </div>
-                <p class="text-xs text-gray-400 dark:text-gray-500 mt-1.5 font-medium">@(GetPercentage(displayCriticalTickets, displayTotalTickets))% @L.Translate("dashboard.totalTickets").ToLower()</p>
-            }
-        </div>
-        <div class="h-1.5 shrink-0 bg-gradient-to-r from-red-500 to-rose-600"></div>
-    </div>
-
-    <div
-        class="stat-card-animated flex flex-col h-full bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700/50 shadow-lg dark:shadow-gray-900/50 overflow-hidden hover:shadow-2xl hover:shadow-emerald-500/20 dark:hover:shadow-emerald-500/10 transition-all duration-300 hover:-translate-y-1">
-        <div class="flex-1 p-6">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-base font-semibold text-gray-700 dark:text-gray-100 tracking-wide leading-6" style="min-height: 3rem;">
-                        @L.Translate("dashboard.myTickets")</p>
-                    <p class="mt-2 text-3xl font-bold text-gray-900 dark:text-white">@displayMyTickets</p>
-                </div>
-                <div
-                    class="p-4 bg-gradient-to-br from-emerald-500 to-green-600 rounded-2xl shadow-lg shadow-emerald-500/30">
-                    <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                    </svg>
-                </div>
-            </div>
-            @if (displayTotalTickets > 0)
-            {
-                <div class="stat-progress-track">
-                    <div class="stat-progress-bar bg-gradient-to-r from-emerald-500 to-green-600" style="width: @(GetPercentage(displayMyTickets, displayTotalTickets))%"></div>
-                </div>
-                <p class="text-xs text-gray-400 dark:text-gray-500 mt-1.5 font-medium">@(GetPercentage(displayMyTickets, displayTotalTickets))% @L.Translate("dashboard.totalTickets").ToLower()</p>
-            }
-        </div>
-        <div class="h-1.5 shrink-0 bg-gradient-to-r from-emerald-500 to-green-600"></div>
-    </div>
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-px overflow-hidden rounded-lg border border-line bg-line">
+    @Figure("dashboard.totalTickets", displayTotalTickets, null, false)
+    @Figure("dashboard.openTickets", displayOpenTickets, displayTotalTickets, false)
+    @Figure("dashboard.criticalPriority", displayCriticalTickets, displayTotalTickets, true)
+    @Figure("dashboard.myTickets", displayMyTickets, displayTotalTickets, false)
 </div>
 
+@code {
+    private RenderFragment Figure(string labelKey, int value, int? total, bool critical) => __builder =>
+    {
+        var share = GetPercentage(value, total ?? value);
+        var alarm = critical && value > 0;
+        <div data-stat class="bg-canvas px-4 py-4">
+            <p class="font-mono text-13 text-muted"># @Heading(labelKey)</p>
+            <p class="mt-2 font-mono text-40 leading-none tabular-nums @(alarm ? "text-danger" : "text-fg")">@value</p>
+            <div class="mt-3 h-0.5 bg-line" aria-hidden="true">
+                <div class="h-full @(critical ? "bg-danger" : "bg-fg")" style="width: @(share)%"></div>
+            </div>
+            <p class="mt-1.5 font-mono text-12 text-muted">@string.Format(UiCulture, L.Translate("dashboard.ofTotal"), share)</p>
+        </div>
+    };
+}

@@ -1,0 +1,62 @@
+@inherits ServiceDeskSystem.Components.UI.Base.BaseComponent
+
+@if (Tickets is null)
+{
+    <div class="space-y-2" aria-busy="true">
+        @for (var i = 0; i < 3; i++)
+        {
+            <div class="h-12 rounded-md bg-surface"></div>
+        }
+    </div>
+}
+else if (Tickets.Count == 0)
+{
+    <EmptyState Message="@EmptyMessage" />
+}
+else
+{
+    <ul class="border-t border-dashed border-line">
+        @foreach (var ticket in Tickets)
+        {
+            <li class="border-b border-dashed border-line">
+                <a href="@($"/ticket/{ticket.Id}")" data-ticket-row class="flex flex-wrap items-center gap-x-3 gap-y-1.5 px-2 py-2.5 hover:bg-surface">
+                    <span class="w-12 shrink-0 font-mono text-13 text-muted">#@ticket.Id</span>
+                    <span class="min-w-0 flex-1 basis-48 truncate text-15 text-fg">@ticket.Title</span>
+                    <span class="flex flex-wrap items-center gap-2">
+                        <TypeTag Type="ticket.Type" />
+                        <StatusTag Status="ticket.Status" />
+                        <PriorityTag Priority="ticket.Priority" />
+                        @foreach (var tag in ticket.Tags.Take(3))
+                        {
+                            <span class="inline-flex items-center gap-1.5 text-13 text-muted">
+                                <span class="h-2 w-2 rounded-full" style="background-color: @tag.Color" aria-hidden="true"></span>@tag.Name
+                            </span>
+                        }
+                        @if (ShowTriage && !ticket.IsPriorityAssessed)
+                        {
+                            <span data-triage class="font-mono text-13 text-danger" title="@L.Translate("tickets.triageRequired")">[triage]</span>
+                        }
+                    </span>
+                    <span class="ml-auto shrink-0 font-mono text-13 text-muted">@ticket.CreatedAt.ToLocalTime().ToString("dd MMM yyyy, HH:mm", UiCulture)</span>
+                </a>
+            </li>
+        }
+    </ul>
+}
+
+@code {
+    /// <summary>
+    /// Gets or sets the tickets to list; <c>null</c> shows the loading skeleton.
+    /// </summary>
+    [Parameter]
+    public IReadOnlyList<Ticket>? Tickets { get; set; }
+
+    [Parameter]
+    public string EmptyMessage { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets a value indicating whether unassessed tickets get a <c>[triage]</c> mark (admin/developer).
+    /// </summary>
+    [Parameter]
+    public bool ShowTriage { get; set; }
+}

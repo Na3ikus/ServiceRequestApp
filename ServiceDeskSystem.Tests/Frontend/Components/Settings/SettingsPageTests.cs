@@ -72,12 +72,12 @@ public class SettingsPageTests
         var cut = Render();
 
         var headings = cut.FindAll("h2").Select(h => h.TextContent.Trim()).ToList();
-        foreach (var section in new[] { "# appearance", "# layout", "# locale", "# tickets", "# notifications", "# keyboard" })
+        foreach (var section in new[] { "appearance", "layout", "locale", "tickets", "notifications", "keyboard" })
         {
-            headings.Should().Contain(section);
+            headings.Should().Contain($"# settings.section.{section}");
         }
 
-        headings.Should().Contain(h => h.StartsWith("# system", StringComparison.Ordinal));
+        headings.Should().Contain(h => h.StartsWith("# settings.section.system", StringComparison.Ordinal));
     }
 
     [Test]
@@ -88,7 +88,7 @@ public class SettingsPageTests
         var cut = Render();
 
         cut.FindAll("h2").Select(h => h.TextContent.Trim())
-            .Should().NotContain(h => h.StartsWith("# system", StringComparison.Ordinal));
+            .Should().NotContain(h => h.StartsWith("# settings.section.system", StringComparison.Ordinal));
         _email.Verify(e => e.CheckConnectionAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 

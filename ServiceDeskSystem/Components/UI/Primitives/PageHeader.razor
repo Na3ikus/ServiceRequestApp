@@ -1,6 +1,6 @@
 <div class="flex flex-wrap items-baseline justify-between gap-4 mb-4">
     <div>
-        <h1 class="font-mono text-20 font-medium text-fg"><span class="text-muted">~/</span>@RenderSegments()</h1>
+        <h1 class="font-mono text-20 font-medium text-fg"><span class="text-muted">@(Segments.Count == 0 ? "~" : "~/")</span>@RenderSegments()</h1>
         @if (!string.IsNullOrEmpty(Subtitle))
         {
             <p class="text-13 text-muted mt-1">@Subtitle</p>

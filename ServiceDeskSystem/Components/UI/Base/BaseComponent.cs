@@ -1,3 +1,4 @@
+using System.Globalization;
 using Microsoft.AspNetCore.Components;
 using ServiceDeskSystem.Domain.Enums;
 
@@ -24,6 +25,25 @@ public abstract class BaseComponent : ComponentBase, IDisposable
 
     protected bool IsAdminOrDeveloper => this.AuthService.CurrentUser?.Role is UserRole.Admin or UserRole.Developer;
 
+    /// <summary>
+    /// Gets the culture of the selected UI language (dates, month and day names).
+    /// </summary>
+    protected CultureInfo UiCulture
+    {
+        get
+        {
+            var lang = this.L.SupportedLanguages.FirstOrDefault(l => string.Equals(l.Code, this.L.CurrentLanguage, StringComparison.OrdinalIgnoreCase));
+            try
+            {
+                return CultureInfo.GetCultureInfo(lang?.CultureName ?? this.L.CurrentLanguage);
+            }
+            catch (CultureNotFoundException)
+            {
+                return CultureInfo.InvariantCulture;
+            }
+        }
+    }
+
     public void Dispose()
     {
         this.Dispose(true);
@@ -31,6 +51,11 @@ public abstract class BaseComponent : ComponentBase, IDisposable
     }
 
     protected void ViewTicket(int id) => this.Navigation.NavigateTo($"/ticket/{id}");
+
+    /// <summary>
+    /// Section heading text: translated and lowercased in the UI culture (<c># overview</c>).
+    /// </summary>
+    protected string Heading(string key) => this.L.Translate(key).ToLower(this.UiCulture);
 
     protected override void OnInitialized()
     {
