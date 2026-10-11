@@ -1,800 +1,153 @@
 @page "/ticket/{Id:int}"
-@using ServiceDeskSystem.Components.Features
-@using ServiceDeskSystem.Domain.Entities
 @using ServiceDeskSystem.Domain.Enums
 @inherits BaseComponent
 @rendermode InteractiveServer
 
 <!-- Created by Nazar "N1h3" Hutsol -->
 <div class="max-w-6xl mx-auto p-4 sm:p-6">
-    @if (Ticket is null)
+    @if (!IsLoaded)
     {
-        <div class="animate-pulse space-y-6">
-            <!-- Header Skeleton -->
-            <div class="bg-white dark:bg-gray-800/80 rounded-2xl p-6 sm:p-8 shadow-sm">
-                <div class="flex items-start justify-between mb-4">
-                    <div class="h-8 bg-gray-200 dark:bg-gray-700 rounded w-2/3"></div>
-                    <div class="h-6 bg-gray-200 dark:bg-gray-700 rounded-full w-24"></div>
+        <PageHeader Segments="Segments" />
+        <div class="space-y-3" aria-busy="true">
+            <div class="h-5 w-48 rounded-md bg-surface"></div>
+            <div class="h-8 w-2/3 rounded-md bg-surface"></div>
+            <div class="grid gap-10 pt-4 lg:grid-cols-[minmax(0,1fr)_300px]">
+                <div class="space-y-3">
+                    <div class="h-24 rounded-md bg-surface"></div>
+                    <div class="h-16 rounded-md bg-surface"></div>
+                    <div class="h-16 rounded-md bg-surface"></div>
                 </div>
-                <div class="flex gap-4 mb-4">
-                    <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24"></div>
-                    <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
-                    <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <!-- Main Content Skeleton -->
-                <div class="lg:col-span-2 space-y-6">
-
-                <!-- Comments Skeleton -->
-                <div class="bg-white dark:bg-gray-800/80 rounded-lg p-6">
-                    <div class="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/4 mb-6"></div>
-                    <div class="space-y-4">
-                        <div class="border-l-4 border-gray-200 dark:border-gray-700 pl-4 space-y-2">
-                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
-                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
-                        </div>
-                        <div class="border-l-4 border-gray-200 dark:border-gray-700 pl-4 space-y-2">
-                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
-                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Sidebar Skeleton -->
-            <div class="space-y-6">
-                <div class="bg-white dark:bg-gray-800/80 rounded-lg p-6">
-                    <div class="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/3 mb-4"></div>
-                    <div class="space-y-4">
-                        <div>
-                            <div class="h-3 bg-gray-200 dark:bg-gray-700 rounded w-16 mb-1"></div>
-                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24"></div>
-                        </div>
-                        <div>
-                            <div class="h-3 bg-gray-200 dark:bg-gray-700 rounded w-16 mb-1"></div>
-                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-20"></div>
-                        </div>
-                        <div>
-                            <div class="h-3 bg-gray-200 dark:bg-gray-700 rounded w-16 mb-1"></div>
-                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24"></div>
-                        </div>
-                    </div>
-                </div>
+                <div class="h-80 rounded-lg bg-surface"></div>
             </div>
         </div>
-        </div>
+    }
+    else if (Ticket is null)
+    {
+        <PageHeader Segments="Segments" />
+        <EmptyState Message="@string.Format(UiCulture, L.Translate("details.notFound"), Id)"
+                    ActionText="@Heading(ListTitleKey)" OnAction="GoToList" />
     }
     else
     {
-        <div class="space-y-6">
-            @if (!Ticket.IsPriorityAssessed && IsAdminOrDeveloper)
-            {
-                <div class="bg-amber-50 dark:bg-amber-950/20 border border-amber-300 dark:border-amber-900/50 rounded-2xl p-4 sm:p-5 flex items-start gap-3 shadow-md animate-pulse">
-                    <span class="text-xl sm:text-2xl shrink-0">⚠️</span>
-                    <div>
-                        <h4 class="font-bold text-amber-900 dark:text-amber-300 text-sm sm:text-base">@L.Translate("tickets.triageBannerTitle")</h4>
-                        <p class="text-amber-800 dark:text-amber-400 text-xs sm:text-sm mt-1">@L.Translate("tickets.triageBannerDesc")</p>
-                    </div>
-                </div>
-            }
+        <PageHeader Segments="Segments">
+            <Actions>
+                <TicketStatusActions Status="Ticket.Status"
+                                     CanManageStatus="CanManageTicketStatus"
+                                     ShowTake="ShowTakeButton"
+                                     ShowRelease="ShowReleaseButton"
+                                     CanDelete="CanManageTicket"
+                                     Busy="IsBusy"
+                                     OnTransition="UpdateStatusAsync"
+                                     OnTake="AssignToMeAsync"
+                                     OnRelease="UnassignAsync"
+                                     OnDelete="OpenDeleteConfirm" />
+            </Actions>
+        </PageHeader>
 
-            <!-- Ticket Premium Header -->
-            <div class="page-hero ticket-header-surface relative overflow-hidden bg-white dark:bg-gradient-to-br dark:from-gray-900 dark:via-gray-800 dark:to-slate-900 rounded-2xl p-6 sm:p-8 shadow-md dark:shadow-xl border border-gray-200 dark:border-gray-700/50">
-                <!-- Decorative background blur -->
-                <div class="page-hero-decor absolute top-0 right-0 -m-8 w-40 h-40 bg-blue-400/20 dark:bg-blue-500/30 rounded-full filter blur-3xl animate-pulse"></div>
-                <div class="page-hero-decor absolute bottom-0 left-0 -m-8 w-40 h-40 bg-purple-400/20 dark:bg-purple-500/30 rounded-full filter blur-3xl animate-pulse" style="animation-delay: 2s;"></div>
-                
-                <div class="relative z-10">
-                    <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-6">
-                        <div class="flex-1">
-                            <div class="flex flex-wrap items-center gap-3 mb-3">
-                                <span class="px-2.5 py-1 rounded-md bg-gray-100 dark:bg-black/40 backdrop-blur-md border border-gray-200 dark:border-white/10 text-gray-700 dark:text-blue-100 font-mono text-sm shadow-sm flex items-center gap-1.5 font-semibold">
-                                    <svg class="w-3.5 h-3.5 text-blue-500 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"></path></svg>
-                                    @Ticket.Id
-                                </span>
-                                <TypeTag Type="Ticket.Type" />
-                                <StatusTag Status="Ticket.Status" />
-                                <span class="hidden sm:inline-flex">
-                                    <PriorityTag Priority="Ticket.Priority" />
-                                </span>
-                                @if (Ticket.Tags != null)
-                                {
-                                    @foreach (var tag in Ticket.Tags)
-                                    {
-                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold text-white shadow-xs"
-                                              style="background-color: @tag.Color;">
-                                            @tag.Name
-                                        </span>
-                                    }
-                                }
-                            </div>
-                            <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white break-words leading-tight tracking-tight drop-shadow-sm dark:drop-shadow-md">@Ticket.Title</h1>
-                        </div>
-                        
-                        @if (CanManageTicket)
-                        {
-                            <button @onclick="DeleteTicketAsync" class="flex items-center justify-center gap-2 px-4 py-2.5 bg-red-50 dark:bg-red-500/10 hover:bg-red-100 dark:hover:bg-red-500/20 text-red-600 dark:text-red-100 border border-red-200 dark:border-red-500/30 rounded-xl transition-all shadow-sm backdrop-blur-md whitespace-nowrap group" type="button">
-                                <svg class="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                </svg>
-                                <span class="font-medium text-sm">@L.Translate("details.deleteTicket")</span>
-                            </button>
-                        }
-                    </div>
-                    
-                    <div class="flex flex-wrap items-center gap-4 text-sm text-gray-600 dark:text-blue-100/90 bg-gray-50 dark:bg-black/20 p-3 rounded-xl border border-gray-100 dark:border-white/5 backdrop-blur-sm inline-flex shadow-sm dark:shadow-inner">
-                        <div class="flex items-center gap-2">
-                            <Avatar Name="@Ticket.Author?.Login" Size="AvatarSize.Sm" />
-                            <span class="font-medium text-gray-800 dark:text-white">@Ticket.Author?.Login</span>
-                        </div>
-                        <div class="w-1.5 h-1.5 rounded-full bg-gray-300 dark:bg-blue-400/50"></div>
-                        <span class="flex items-center gap-1.5">
-                            <svg class="w-4 h-4 text-gray-400 dark:text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                            </svg>
-                            @Ticket.CreatedAt.ToString("MMM dd, yyyy HH:mm")
-                        </span>
-                        <div class="w-1.5 h-1.5 rounded-full bg-gray-300 dark:bg-blue-400/50 sm:hidden"></div>
-                        <span class="sm:hidden">
-                            <PriorityTag Priority="Ticket.Priority" />
-                        </span>
-                    </div>
-                </div>
+        <div class="mb-2 flex flex-wrap items-center gap-2">
+            <span class="font-mono text-13 text-muted">#@Ticket.Id</span>
+            <TypeTag Type="Ticket.Type" />
+            <StatusTag Status="Ticket.Status" />
+            <PriorityTag Priority="Ticket.Priority" />
+        </div>
+        <h2 data-ticket-title class="mb-5 break-words text-24 font-semibold leading-tight text-fg">@Ticket.Title</h2>
+
+        @if (!Ticket.IsPriorityAssessed && IsAdminOrDeveloper)
+        {
+            <div data-triage-notice class="mb-6 border-l-2 border-accent bg-surface px-4 py-3">
+                <p class="text-15 text-fg">@L.Translate("tickets.triageBannerTitle")</p>
+                <p class="mt-0.5 text-13 text-muted">@L.Translate("tickets.triageBannerDesc")</p>
+            </div>
+        }
+
+        <div class="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_300px] lg:gap-10">
+            <div class="lg:col-start-2 lg:row-start-1">
+                <TicketPropertiesPanel Ticket="Ticket"
+                                       CanEdit="IsAdminOrDeveloper"
+                                       AllTags="AllTags"
+                                       OnSavePriority="SavePriorityAsync"
+                                       OnSaveDates="SaveDatesAsync"
+                                       OnAddTag="AssignTagToTicketAsync"
+                                       OnRemoveTag="RemoveTagFromTicketAsync" />
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <!-- Main Content -->
-                <div class="lg:col-span-2 space-y-6">
-                    <!-- Description & Steps -->
-                <div class="ticket-surface ticket-surface--lift bg-white dark:bg-gray-800/80 backdrop-blur-md rounded-2xl shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden">
-                    <div class="p-6 sm:p-8">
-                        <div class="flex items-center gap-2 mb-4">
-                            <div class="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                                <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"></path>
-                                </svg>
-                            </div>
-                            <h3 class="text-lg font-bold text-gray-800 dark:text-gray-100">@L.Translate("details.description")</h3>
-                        </div>
-                        <div class="prose prose-sm sm:prose-base dark:prose-invert max-w-none text-gray-600 dark:text-gray-300 leading-relaxed bg-slate-50 dark:bg-slate-900/30 p-5 rounded-xl border border-slate-100 dark:border-slate-700/50 ql-editor px-0 py-0">
-                            @QuillSanitizer.Sanitize(Ticket.Description)
-                        </div>
-                    </div>
+            <div class="min-w-0 lg:col-start-1 lg:row-start-1">
+                <section data-section="description" class="pb-6">
+                    <h2 class="mb-3 font-mono text-13 text-muted"># @Heading("details.description")</h2>
+                    <div class="ql-editor px-0 py-0 text-15 leading-relaxed text-fg">@QuillSanitizer.Sanitize(Ticket.Description)</div>
+                </section>
 
-                    @if (!string.IsNullOrWhiteSpace(Ticket.StepsToReproduce))
-                    {
-                        <div class="border-t border-gray-100 dark:border-gray-700/50 p-6 sm:p-8 bg-slate-50/50 dark:bg-slate-800/30">
-                            <div class="flex items-center gap-2 mb-4">
-                                <div class="p-2 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-                                    <svg class="w-5 h-5 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
-                                    </svg>
-                                </div>
-                                <h3 class="text-lg font-bold text-gray-800 dark:text-gray-100">@L.Translate("details.stepsToReproduce")</h3>
-                            </div>
-                            <div class="text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-900 shadow-inner rounded-xl p-5 text-sm font-mono border border-gray-200 dark:border-gray-700 leading-relaxed overflow-x-auto ql-editor px-0 py-0">
-                                @QuillSanitizer.Sanitize(Ticket.StepsToReproduce)
-                            </div>
-                        </div>
-                    }
-                </div>
+                @if (!string.IsNullOrWhiteSpace(Ticket.StepsToReproduce))
+                {
+                    <section data-section="steps" class="border-t border-line py-6">
+                        <h2 class="mb-3 font-mono text-13 text-muted"># @Heading("details.stepsToReproduce")</h2>
+                        <div class="ql-editor px-0 py-0 text-15 leading-relaxed text-fg">@QuillSanitizer.Sanitize(Ticket.StepsToReproduce)</div>
+                    </section>
+                }
 
-                <!-- Analytical Note Section (Visible ONLY to Dev / Admin) -->
                 @if (IsAdminOrDeveloper)
                 {
-                    <div class="ticket-surface bg-white dark:bg-gray-800/90 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700/80 p-6 sm:p-7 relative overflow-hidden">
-                        <div class="flex items-center justify-between gap-4 mb-4 pb-3 border-b border-gray-100 dark:border-gray-700/60">
-                            <div class="flex items-center gap-3">
-                                <div class="p-2.5 bg-blue-50 dark:bg-blue-900/30 rounded-xl text-blue-600 dark:text-blue-400 shrink-0">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                    </svg>
-                                </div>
-                                <div>
-                                    <h3 class="text-lg font-bold text-gray-900 dark:text-white">
-                                        @L.Translate("details.analyticalNote")
-                                    </h3>
-                                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">@L.Translate("details.analyticalNoteDesc")</p>
-                                </div>
-                            </div>
+                    <section data-section="analytical-note" class="border-t border-line py-6">
+                        <div class="mb-3 flex items-baseline justify-between gap-4">
+                            <h2 class="font-mono text-13 text-muted"># @Heading("details.analyticalNote")</h2>
                             @if (!IsEditingAnalyticalNote)
                             {
-                                <button @onclick="BeginEditAnalyticalNote" type="button"
-                                        class="px-3.5 py-1.5 bg-gray-100 dark:bg-gray-700/80 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-600 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer">
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                                    <span>@L.Translate("common.edit")</span>
-                                </button>
+                                <button type="button" data-edit-note class="btn-ghost font-mono text-13" @onclick="BeginEditAnalyticalNote">@Heading("common.edit")</button>
                             }
                         </div>
 
                         @if (IsEditingAnalyticalNote)
                         {
-                            <div class="space-y-3">
-                                <textarea @bind="AnalyticalNoteEdit" rows="4"
-                                          placeholder="@L.Translate("details.analyticalNotePlaceholder")"
-                                          class="w-full p-4 border border-gray-300 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all resize-y font-sans leading-relaxed"></textarea>
-                                <div class="flex items-center justify-end gap-2">
-                                    <button @onclick="CancelEditAnalyticalNote" type="button"
-                                            class="px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-xl text-xs font-semibold transition-colors cursor-pointer">
-                                        @L.Translate("common.cancel")
-                                    </button>
-                                    <button @onclick="SaveAnalyticalNoteAsync" disabled="@IsSavingAnalyticalNote" type="button"
-                                            class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold shadow-sm transition-all flex items-center gap-1.5 disabled:opacity-50 cursor-pointer">
-                                        @if (IsSavingAnalyticalNote)
-                                        {
-                                            <svg class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
-                                            <span>@L.Translate("common.saving")</span>
-                                        }
-                                        else
-                                        {
-                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                                            <span>@L.Translate("details.saveAnalyticalNote")</span>
-                                        }
-                                    </button>
-                                </div>
+                            <textarea @bind="AnalyticalNoteEdit" rows="4" aria-label="@L.Translate("details.analyticalNote")"
+                                      placeholder="@L.Translate("details.analyticalNotePlaceholder")"
+                                      class="input-field h-auto resize-y py-2"></textarea>
+                            <div class="mt-2 flex justify-end gap-2">
+                                <button type="button" class="btn-ghost h-9 px-3 text-15" @onclick="CancelEditAnalyticalNote">@Heading("common.cancel")</button>
+                                <button type="button" data-save-note class="btn-accent" disabled="@IsSavingAnalyticalNote" @onclick="SaveAnalyticalNoteAsync">
+                                    @Heading(IsSavingAnalyticalNote ? "common.saving" : "common.save")
+                                </button>
                             </div>
+                        }
+                        else if (!string.IsNullOrWhiteSpace(Ticket.AnalyticalNote))
+                        {
+                            <p class="whitespace-pre-wrap rounded-lg border border-line bg-surface px-3.5 py-3 text-14 text-fg">@Ticket.AnalyticalNote</p>
                         }
                         else
                         {
-                            @if (!string.IsNullOrWhiteSpace(Ticket.AnalyticalNote))
-                            {
-                                <div class="text-sm text-gray-800 dark:text-gray-100 whitespace-pre-wrap leading-relaxed bg-gray-50 dark:bg-gray-900/60 p-4 rounded-xl border border-gray-200/80 dark:border-gray-700/70">
-                                    @Ticket.AnalyticalNote
-                                </div>
-                            }
-                            else
-                            {
-                                <div class="text-xs text-gray-400 dark:text-gray-500 italic py-2">
-                                    @L.Translate("details.noAnalyticalNote")
-                                </div>
-                            }
+                            <p class="font-mono text-13 text-muted">&gt; @L.Translate("details.noAnalyticalNote")</p>
                         }
-                    </div>
+                    </section>
+
+                    <WorkLogsSection TicketId="Ticket.Id" IsAdmin="IsAdmin" CurrentUserId="CurrentUserId" />
                 }
 
-                <!-- Work Logs Section -->
-                <ServiceDeskSystem.Components.Pages.Tickets.WorkLogsSection
-                    TicketId="@Ticket.Id"
-                    IsAdminOrDeveloper="@IsAdminOrDeveloper"
-                    IsAdmin="@IsAdmin"
-                    CurrentUserId="@CurrentUserId" />
+                <AttachmentsSection TicketId="Ticket.Id" CanDeleteAny="IsAdminOrDeveloper" CurrentUserId="CurrentUserId" />
 
-                <!-- Attachments Section -->
-                <ServiceDeskSystem.Components.Pages.Tickets.AttachmentsSection
-                    TicketId="@Ticket.Id"
-                    IsAdminOrDeveloper="@IsAdminOrDeveloper"
-                    CurrentUserId="@CurrentUserId" />
-
-                <!-- Comments Section -->
-                <div class="ticket-surface ticket-surface--lift bg-white dark:bg-gray-800/80 backdrop-blur-md rounded-2xl shadow-md border border-gray-200 dark:border-gray-700 p-6 sm:p-8 mt-6">
-                    <div class="flex items-center gap-3 mb-6 pb-4 border-b border-gray-100 dark:border-gray-700/50">
-                        <div class="p-2 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg">
-                            <svg class="w-5 h-5 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
-                            </svg>
-                        </div>
-                        <h2 class="text-xl font-bold text-gray-800 dark:text-white">
-                            @L.Translate("details.comments")
-                            <span class="ml-2 inline-flex items-center justify-center bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-sm py-0.5 px-2.5 rounded-full font-medium">@(Ticket.Comments?.Count ?? 0)</span>
-                        </h2>
-                    </div>
-
-                    @if (Ticket.Comments is not null && Ticket.Comments.Any(c => !c.IsInternal || IsAdminOrDeveloper))
-                    {
-                        <div class="relative pl-6 mb-6">
-                            <!-- Timeline vertical line -->
-                            <div class="absolute left-[9px] top-2 bottom-2 w-0.5 bg-gradient-to-b from-blue-400 via-blue-300 to-transparent dark:from-blue-500 dark:via-blue-700 dark:to-transparent"></div>
-
-                            @foreach (var comment in Ticket.Comments.Where(c => !c.IsInternal || IsAdminOrDeveloper).OrderBy(c => c.CreatedAt))
-                            {
-                                <div class="relative mb-5 last:mb-0">
-                                    <!-- Timeline dot -->
-                                    <div class="absolute -left-6 top-1 w-[18px] h-[18px] rounded-full border-2 @(comment.IsInternal ? "border-amber-500 dark:border-amber-400" : "border-blue-400 dark:border-blue-500") bg-white dark:bg-gray-800 flex items-center justify-center">
-                                        <div class="w-2 h-2 rounded-full @(comment.IsInternal ? "bg-amber-500 dark:bg-amber-400" : "bg-blue-400 dark:bg-blue-500")"></div>
-                                    </div>
-
-                                    <div class="comment-surface @(comment.IsInternal ? "bg-amber-50/70 dark:bg-amber-950/20 border-amber-300 dark:border-amber-700/50 shadow-sm shadow-amber-500/5" : "bg-gray-50 dark:bg-gray-700/40 border-gray-100 dark:border-gray-700/50") rounded-xl p-3 sm:p-4 border transition-colors hover:border-blue-200 dark:hover:border-blue-800/50">
-                                        <div class="flex flex-wrap items-center gap-2 mb-2">
-                                            <Avatar Name="@comment.Author?.Login" Size="AvatarSize.Sm" />
-                                            <span class="font-medium text-sm text-gray-800 dark:text-white">@comment.Author?.Login</span>
-                                            <span class="text-xs text-gray-400 dark:text-gray-500">@comment.CreatedAt.ToString("MMM dd, yyyy HH:mm")</span>
-
-                                            @if (comment.IsInternal)
-                                            {
-                                                <Tag Tone="Tone.Muted">@L.Translate("details.internalNote")</Tag>
-                                            }
-
-                                            @if (CanEditComment(comment) || CanDeleteComment(comment))
-                                            {
-                                                <div class="ml-auto flex items-center gap-1">
-                                                    @if (CanEditComment(comment))
-                                                    {
-                                                        @if (EditingCommentId == comment.Id)
-                                                        {
-                                                            <button class="px-2 py-0.5 text-xs rounded bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 hover:bg-green-200 dark:hover:bg-green-900/50 transition-colors" @onclick="() => SaveCommentEditAsync(comment.Id)">@L.Translate("details.commentSave")</button>
-                                                            <button class="px-2 py-0.5 text-xs rounded bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-500 transition-colors" @onclick="CancelEdit">@L.Translate("details.commentCancel")</button>
-                                                        }
-                                                        else
-                                                        {
-                                                            <button class="p-1 rounded text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors" @onclick="() => BeginEdit(comment)" title="@L.Translate("details.commentEdit")">
-                                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                                                            </button>
-                                                        }
-                                                    }
-                                                    @if (CanDeleteComment(comment))
-                                                    {
-                                                        <button class="p-1 rounded text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors" @onclick="() => DeleteCommentAsync(comment.Id)" @onclick:stopPropagation="true" title="@L.Translate("details.commentDelete")">
-                                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                                                        </button>
-                                                    }
-                                                </div>
-                                            }
-                                        </div>
-
-                                        @if (EditingCommentId == comment.Id)
-                                        {
-                                            <div class="mb-2">
-                                                <ServiceDeskSystem.Components.UI.Elements.RichTextEditor @bind-Value="EditingCommentMessage" Placeholder="@L.Translate("details.writeComment")" />
-                                            </div>
-                                        }
-                                        else
-                                        {
-                                            <div class="text-sm text-gray-600 dark:text-gray-300 ql-editor px-0 py-0">
-                                                @QuillSanitizer.Sanitize(comment.Message)
-                                            </div>
-                                        }
-                                    </div>
-                                </div>
-                            }
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="text-center py-8 mb-4">
-                            <svg class="w-12 h-12 mx-auto text-gray-300 dark:text-gray-600 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
-                            </svg>
-                            <p class="text-gray-400 dark:text-gray-500 text-sm">@L.Translate("details.noComments")</p>
-                        </div>
-                    }
-
-                    <!-- Add Comment Form -->
-                    <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
-                        <div class="mb-2">
-                            <ServiceDeskSystem.Components.UI.Elements.RichTextEditor @bind-Value="NewCommentMessage" Placeholder="@L.Translate("details.writeComment")" />
-                        </div>
-                        <div class="flex flex-wrap items-center justify-between gap-3 mt-3">
-                            @if (IsAdminOrDeveloper)
-                            {
-                                <button type="button" @onclick="@(() => IsInternalComment = !IsInternalComment)"
-                                        class="px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all border cursor-pointer @(IsInternalComment ? "bg-amber-500/20 border-amber-500/40 text-amber-700 dark:text-amber-300 shadow-2xs" : "bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700")">
-                                    @if (IsInternalComment)
-                                    {
-                                        <svg class="w-4 h-4 text-amber-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-                                        <span>🔒 @L.Translate("details.makeInternalNote")</span>
-                                    }
-                                    else
-                                    {
-                                        <svg class="w-4 h-4 text-blue-500 dark:text-blue-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
-                                        <span class="text-gray-800 dark:text-gray-200">💬 @L.Translate("details.publicComment")</span>
-                                    }
-                                </button>
-                            }
-                            else
-                            {
-                                <div></div>
-                            }
-                            <button @onclick="AddCommentAsync" 
-                                    disabled="@(string.IsNullOrWhiteSpace(NewCommentMessage) || IsSubmitting)"
-                                    class="px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white text-sm font-medium rounded-lg hover:from-blue-700 hover:to-blue-800 disabled:from-gray-400 disabled:to-gray-400 disabled:cursor-not-allowed transition-all shadow-sm flex items-center gap-2">
-                                @if (IsSubmitting)
-                                {
-                                    <svg class="animate-spin h-4 w-4" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                                    <span>@L.Translate("details.sendingComment")</span>
-                                }
-                                else
-                                {
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
-                                    </svg>
-                                    <span>@L.Translate("details.sendComment")</span>
-                                }
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Sidebar -->
-            <div class="space-y-6">
-                <!-- Properties Card -->
-                <div class="ticket-surface ticket-surface--lift bg-white dark:bg-gray-800/80 backdrop-blur-md rounded-2xl shadow-md border border-gray-200 dark:border-gray-700 p-6 sm:p-8 relative overflow-hidden group">
-                    <div class="page-hero-decor absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 dark:bg-indigo-500/10 rounded-full blur-2xl group-hover:bg-indigo-500/10 dark:group-hover:bg-indigo-500/20 transition-colors pointer-events-none"></div>
-                    
-                    <h3 class="text-lg font-bold text-gray-800 dark:text-gray-100 mb-5 flex items-center gap-2 relative z-10">
-                        <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        @L.Translate("details.details")
-                    </h3>
-                    
-                    <div class="space-y-4 relative z-10">
-                        <div class="flex items-center justify-between gap-4 p-2.5 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
-                            <span class="text-sm font-medium text-gray-500 dark:text-gray-400">@L.Translate("details.type")</span>
-                            <TypeTag Type="Ticket.Type" />
-                        </div>
-
-                        <div class="flex items-center justify-between gap-4 p-2.5 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
-                            <span class="text-sm font-medium text-gray-500 dark:text-gray-400">@L.Translate("table.product")</span>
-                            <span class="text-sm font-medium text-gray-800 dark:text-gray-200 text-right max-w-[190px] break-words whitespace-normal leading-5">@(Ticket.Product?.Name ?? L.Translate("table.noProduct"))</span>
-                        </div>
-                        
-                        <div class="flex flex-col gap-2 p-2.5 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
-                            <div class="flex items-center justify-between gap-4 w-full">
-                                <span class="text-sm font-medium text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
-                                    @L.Translate("table.priority")
-                                    @if (!Ticket.IsPriorityAssessed && IsAdminOrDeveloper)
-                                    {
-                                        <span class="inline-flex h-2.5 w-2.5 rounded-full bg-amber-500 border border-amber-300 dark:border-amber-700 animate-pulse" title="Triage Required"></span>
-                                    }
-                                </span>
-                                @if (IsAdminOrDeveloper)
-                                {
-                                    <div class="relative min-w-[125px]">
-                                        <select @bind="EditPriority" @bind:after="OnPriorityChanged"
-                                                class="w-full px-2 py-1.5 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all hover:border-gray-400 dark:hover:border-gray-500 shadow-sm outline-none cursor-pointer">
-                                            @foreach (var priority in Enum.GetValues<TicketPriority>())
-                                            {
-                                                <option value="@priority">@GetPriorityText(priority)</option>
-                                            }
-                                        </select>
-                                    </div>
-                                }
-                                else
-                                {
-                                    <PriorityTag Priority="Ticket.Priority" />
-                                }
-                            </div>
-                            @if (IsAdminOrDeveloper && (EditPriority != Ticket.Priority || !Ticket.IsPriorityAssessed))
-                            {
-                                @if (EditPriority == TicketPriority.Critical)
-                                {
-                                    <div class="mt-2.5 p-2.5 rounded-lg bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800/60 space-y-1.5 animate-in fade-in duration-150">
-                                        <label class="flex items-center gap-2 text-xs font-semibold text-red-800 dark:text-red-300 cursor-pointer hover:text-red-950 dark:hover:text-red-100 transition-colors">
-                                            <input type="checkbox" @bind="IsCriticalPriorityConfirmed" class="w-3.5 h-3.5 text-red-600 rounded border-red-300 dark:border-red-700 focus:ring-red-500 dark:bg-slate-900 cursor-pointer" />
-                                            <span>@L.Translate("create.confirmCritical")</span>
-                                        </label>
-                                    </div>
-                                }
-                                <button @onclick="SavePriorityAsync" disabled="@(EditPriority == TicketPriority.Critical && !IsCriticalPriorityConfirmed)" class="w-full mt-2 px-3 py-1.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg text-xs font-semibold shadow-sm transition-all flex justify-center items-center gap-1.5">
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                                    @L.Translate("details.savePriority")
-                                </button>
-                            }
-                        </div>
-                        
-                        <div class="flex items-center justify-between gap-4 p-2.5 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
-                            <span class="text-sm font-medium text-gray-500 dark:text-gray-400">@L.Translate("details.ticketId")</span>
-                            <span class="inline-flex items-center text-sm font-mono font-semibold text-gray-800 dark:text-gray-200 bg-gray-100 dark:bg-gray-700/50 px-2.5 py-0.5 rounded-md shadow-inner text-right leading-5">#@Ticket.Id</span>
-                        </div>
-                        
-                        <div class="flex items-center justify-between gap-4 p-2.5 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
-                            <span class="text-sm font-medium text-gray-500 dark:text-gray-400">@L.Translate("details.assignedTo")</span>
-                            <div class="text-right">
-                                @if (Ticket.Developer is not null)
-                                {
-                                    <span class="inline-flex items-center gap-1.5 text-sm font-medium text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 px-2.5 py-1 rounded-md leading-5">
-                                        <div class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
-                                        @Ticket.Developer.Login
-                                    </span>
-                                }
-                                else
-                                {
-                                    <span class="text-sm text-gray-400 dark:text-gray-500 italic px-2">@L.Translate("table.unassigned")</span>
-                                }
-                            </div>
-                        </div>
-
-                        <div class="border-t border-gray-100 dark:border-gray-700/30 mt-2 pt-4">
-                            <div class="space-y-3">
-                                <div>
-                                    <span class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1 flex items-center gap-1">
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                                        @L.Translate("details.startDate")
-                                    </span>
-                                    @if (IsAdminOrDeveloper)
-                                    {
-                                        <div class="relative">
-                                            <input type="datetime-local" @bind="EditStartDate" @bind:event="onchange" 
-                                                   class="w-full pl-3 pr-2 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all hover:border-gray-400 dark:hover:border-gray-500 shadow-sm outline-none [color-scheme:light] dark:[color-scheme:dark]" />
-                                        </div>
-                                    }
-                                    else
-                                    {
-                                        <span class="text-sm text-gray-800 dark:text-gray-200 font-medium px-1">@(Ticket.StartDate?.ToString("yyyy-MM-dd HH:mm") ?? Ticket.CreatedAt.ToString("yyyy-MM-dd HH:mm"))</span>
-                                    }
-                                </div>
-                                <div>
-                                    <span class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5 flex items-center gap-1">
-                                        <svg class="w-3.5 h-3.5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                        @L.Translate("details.dueDate")
-                                    </span>
-                                    @if (IsAdminOrDeveloper)
-                                    {
-                                        <div class="relative">
-                                            <input type="datetime-local" @bind="EditDueDate" @bind:event="onchange" 
-                                                   class="w-full pl-3 pr-2 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all hover:border-gray-400 dark:hover:border-gray-500 shadow-sm outline-none [color-scheme:light] dark:[color-scheme:dark]" />
-                                        </div>
-                                    }
-                                    else
-                                    {
-                                        <span class="text-sm text-gray-800 dark:text-gray-200 font-medium px-1">@(Ticket.DueDate?.ToString("yyyy-MM-dd HH:mm") ?? "—")</span>
-                                    }
-                                </div>
-                                @if (IsAdminOrDeveloper && (EditStartDate != Ticket.StartDate || EditDueDate != Ticket.DueDate))
-                                {
-                                    <button @onclick="SaveDatesAsync" class="w-full mt-3 px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-lg text-sm font-semibold shadow-md transition-all flex justify-center items-center gap-2">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                                        @L.Translate("details.saveDates")
-                                    </button>
-                                }
-                            </div>
-                        </div>
-
-                        @if (!string.IsNullOrWhiteSpace(Ticket.Environment))
-                        {
-                            <div class="flex items-center justify-between gap-4 p-2.5 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors border-t border-gray-100 dark:border-gray-700/30 mt-2 pt-4">
-                                <span class="text-sm font-medium text-gray-500 dark:text-gray-400">@L.Translate("details.environment")</span>
-                                <span class="text-sm text-gray-800 dark:text-gray-200 text-right inline-flex items-center justify-end gap-1.5 max-w-[190px] leading-5">
-                                    <svg class="w-3.5 h-3.5 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-                                    </svg>
-                                    <span class="break-words whitespace-normal" title="@Ticket.Environment">@Ticket.Environment</span>
-                                </span>
-                            </div>
-                        }
-                        @if (!string.IsNullOrWhiteSpace(Ticket.AffectedVersion))
-                        {
-                            <div class="flex items-center justify-between gap-4 p-2.5 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
-                                <span class="text-sm font-medium text-gray-500 dark:text-gray-400">@L.Translate("details.affectedVersion")</span>
-                                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300 text-xs font-semibold shadow-sm text-right leading-5">
-                                    <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
-                                    </svg>
-                                    <span class="break-words whitespace-normal max-w-[160px]" title="@Ticket.AffectedVersion">@Ticket.AffectedVersion</span>
-                                </span>
-                            </div>
-                        }
-
-                        <!-- Tags in Details Card -->
-                        <div class="border-t border-gray-100 dark:border-gray-700/30 mt-2 pt-4">
-                            <div class="flex items-center justify-between mb-2">
-                                <span class="text-xs font-medium text-gray-500 dark:text-gray-400 flex items-center gap-1">
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
-                                    </svg>
-                                    @L.Translate("tags.title")
-                                </span>
-                            </div>
-
-                            <div class="flex flex-wrap gap-2 items-center">
-                                @if (Ticket.Tags == null || Ticket.Tags.Count == 0)
-                                {
-                                    <span class="text-xs text-gray-400 dark:text-gray-500 italic">@L.Translate("details.noTags")</span>
-                                }
-                                else
-                                {
-                                    @foreach (var tag in Ticket.Tags)
-                                    {
-                                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold text-white shadow-2xs transition-transform hover:scale-[1.02]"
-                                              style="background-color: @tag.Color;">
-                                            <span>@tag.Name</span>
-                                            @if (IsAdminOrDeveloper)
-                                            {
-                                                <button type="button" @onclick="@(() => RemoveTagFromTicketAsync(tag.Id))" 
-                                                        class="ml-0.5 hover:bg-black/25 active:bg-black/40 rounded-md p-0.5 transition-colors leading-none flex items-center justify-center cursor-pointer" 
-                                                        title="@L.Translate("common.delete")">
-                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                                                </button>
-                                            }
-                                        </span>
-                                    }
-                                }
-                            </div>
-
-                            @if (IsAdminOrDeveloper)
-                            {
-                                var unassignedTags = AllTags.Where(at => Ticket.Tags == null || !Ticket.Tags.Any(t => t.Id == at.Id)).ToList();
-                                @if (unassignedTags.Count > 0)
-                                {
-                                    <div class="mt-4 pt-3 border-t border-gray-100 dark:border-gray-700/50">
-                                        <div class="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 flex items-center gap-1">
-                                            <svg class="w-3 h-3 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-                                            @L.Translate("details.addTag")
-                                        </div>
-                                        <div class="flex flex-wrap gap-2">
-                                            @foreach (var tag in unassignedTags)
-                                            {
-                                                <button type="button" 
-                                                        @onclick="@(async () => { SelectedTagIdToAdd = tag.Id; await AssignTagToTicketAsync(); })"
-                                                        class="inline-flex items-center gap-1 px-3 py-1 rounded-lg text-xs font-semibold text-white shadow-2xs hover:scale-105 hover:shadow-md active:scale-95 transition-all duration-200 cursor-pointer"
-                                                        style="background-color: @tag.Color;">
-                                                    <svg class="w-3 h-3 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                                                    <span>@tag.Name</span>
-                                                </button>
-                                            }
-                                        </div>
-                                    </div>
-                                }
-                            }
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Assign/Unassign Actions -->
-                <AssignmentActions 
-                    Ticket="@Ticket"
-                    CurrentUserId="@CurrentUserId"
-                    IsAdminOrDeveloper="@IsAdminOrDeveloper"
-                    IsAdmin="@IsAdmin"
-                    OnTakeTicket="@AssignToMeAsync"
-                    OnReleaseTicket="@UnassignAsync" />
-
-                <!-- Actions -->
-                @if (CanManageTicketStatus)
-                {
-                    <div class="ticket-surface ticket-surface--lift bg-white dark:bg-gray-800/80 backdrop-blur-md rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700/50 p-6 relative overflow-hidden group">
-                        <div class="page-hero-decor absolute -bottom-10 -right-10 w-40 h-40 bg-orange-500/5 dark:bg-orange-500/10 rounded-full blur-3xl group-hover:bg-orange-500/10 dark:group-hover:bg-orange-500/20 transition-colors pointer-events-none"></div>
-                        
-                        <h3 class="text-lg font-bold text-gray-800 dark:text-gray-100 mb-5 flex items-center gap-2 relative z-10">
-                            <svg class="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                            @L.Translate("details.actions")
-                        </h3>
-                        <div class="space-y-3 relative z-10 flex flex-col">
-                            @if (Ticket.Status == TicketStatus.New || Ticket.Status == TicketStatus.Open)
-                            {
-                                <button @onclick="@(() => UpdateStatusAsync(TicketStatus.InProgress))" 
-                                    class="w-full text-left px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 flex items-center gap-3 transition-colors border-l-2 border-transparent hover:border-blue-500">
-                                    <div class="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center">
-                                        <svg class="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
-                                        </svg>
-                                    </div>
-                                    <span class="font-medium text-slate-700 dark:text-slate-200">@L.Translate("statusAction.startProgress")</span>
-                                </button>
-                            }
-
-                            @if (Ticket.Status == TicketStatus.InProgress)
-                            {
-                                <button @onclick="@(() => UpdateStatusAsync(TicketStatus.Testing))" 
-                                    class="w-full text-left px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 flex items-center gap-3 transition-colors border-l-2 border-transparent hover:border-yellow-500">
-                                    <div class="w-8 h-8 rounded-full bg-yellow-100 dark:bg-yellow-900/50 flex items-center justify-center">
-                                        <svg class="w-4 h-4 text-yellow-600 dark:text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                    </div>
-                                    <span class="font-medium text-slate-700 dark:text-slate-200">@L.Translate("statusAction.submitTesting")</span>
-                                </button>
-                                <button @onclick="@(() => UpdateStatusAsync(TicketStatus.CodeReview))" 
-                                    class="w-full text-left px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 flex items-center gap-3 transition-colors border-l-2 border-transparent hover:border-indigo-500">
-                                    <div class="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center">
-                                        <svg class="w-4 h-4 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
-                                    </div>
-                                    <span class="font-medium text-slate-700 dark:text-slate-200">@L.Translate("statusAction.submitCodeReview")</span>
-                                </button>
-                                <button @onclick="@(() => UpdateStatusAsync(TicketStatus.Resolved))" 
-                                    class="w-full text-left px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 flex items-center gap-3 transition-colors border-l-2 border-transparent hover:border-emerald-500">
-                                    <div class="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-900/50 flex items-center justify-center">
-                                        <svg class="w-4 h-4 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                                    </div>
-                                    <span class="font-medium text-slate-700 dark:text-slate-200">@L.Translate("statusAction.markResolved")</span>
-                                </button>
-                            }
-
-                            @if (Ticket.Status == TicketStatus.Testing)
-                            {
-                                <button @onclick="@(() => UpdateStatusAsync(TicketStatus.CodeReview))" 
-                                    class="w-full text-left px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 flex items-center gap-3 transition-colors border-l-2 border-transparent hover:border-indigo-500">
-                                    <div class="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center">
-                                        <svg class="w-4 h-4 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
-                                    </div>
-                                    <span class="font-medium text-slate-700 dark:text-slate-200">@L.Translate("statusAction.submitCodeReview")</span>
-                                </button>
-                                <button @onclick="@(() => UpdateStatusAsync(TicketStatus.Done))" 
-                                    class="w-full text-left px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 flex items-center gap-3 transition-colors border-l-2 border-transparent hover:border-emerald-500">
-                                    <div class="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-900/50 flex items-center justify-center">
-                                        <svg class="w-4 h-4 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                                    </div>
-                                    <span class="font-medium text-slate-700 dark:text-slate-200">@L.Translate("statusAction.markDone")</span>
-                                </button>
-                                <button @onclick="@(() => UpdateStatusAsync(TicketStatus.InProgress))" 
-                                    class="w-full text-left px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 flex items-center gap-3 transition-colors border-l-2 border-transparent hover:border-red-500">
-                                    <div class="w-8 h-8 rounded-full bg-red-100 dark:bg-red-900/50 flex items-center justify-center">
-                                        <svg class="w-4 h-4 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                                    </div>
-                                    <span class="font-medium text-slate-700 dark:text-slate-200">@L.Translate("statusAction.rejectTesting")</span>
-                                </button>
-                            }
-
-                            @if (Ticket.Status == TicketStatus.CodeReview)
-                            {
-                                <button @onclick="@(() => UpdateStatusAsync(TicketStatus.Done))" 
-                                    class="w-full text-left px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 flex items-center gap-3 transition-colors border-l-2 border-transparent hover:border-emerald-500">
-                                    <div class="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-900/50 flex items-center justify-center">
-                                        <svg class="w-4 h-4 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                                    </div>
-                                    <span class="font-medium text-slate-700 dark:text-slate-200">@L.Translate("statusAction.approveCode")</span>
-                                </button>
-                                <button @onclick="@(() => UpdateStatusAsync(TicketStatus.InProgress))" 
-                                    class="w-full text-left px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 flex items-center gap-3 transition-colors border-l-2 border-transparent hover:border-red-500">
-                                    <div class="w-8 h-8 rounded-full bg-red-100 dark:bg-red-900/50 flex items-center justify-center">
-                                        <svg class="w-4 h-4 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                                    </div>
-                                    <span class="font-medium text-slate-700 dark:text-slate-200">@L.Translate("statusAction.rejectCode")</span>
-                                </button>
-                            }
-                            
-                            @if (Ticket.Status == TicketStatus.Resolved)
-                            {
-                                <button @onclick="@(() => UpdateStatusAsync(TicketStatus.Closed))" 
-                                    class="w-full text-left px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 flex items-center gap-3 transition-colors border-l-2 border-transparent hover:border-gray-500">
-                                    <div class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
-                                        <svg class="w-4 h-4 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                                    </div>
-                                    <span class="font-medium text-slate-700 dark:text-slate-200">@L.Translate("statusAction.closeTicket")</span>
-                                </button>
-                                <button @onclick="@(() => UpdateStatusAsync(TicketStatus.InProgress))" 
-                                    class="w-full text-left px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 flex items-center gap-3 transition-colors border-l-2 border-transparent hover:border-red-500">
-                                    <div class="w-8 h-8 rounded-full bg-red-100 dark:bg-red-900/50 flex items-center justify-center">
-                                        <svg class="w-4 h-4 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                                    </div>
-                                    <span class="font-medium text-slate-700 dark:text-slate-200">@L.Translate("statusAction.reopenTicket")</span>
-                                </button>
-                            }
-
-                            @if (Ticket.Status == TicketStatus.Done)
-                            {
-                                <button @onclick="@(() => UpdateStatusAsync(TicketStatus.Closed))" 
-                                    class="w-full text-left px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 flex items-center gap-3 transition-colors border-l-2 border-transparent hover:border-gray-500">
-                                    <div class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
-                                        <svg class="w-4 h-4 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                                    </div>
-                                    <span class="font-medium text-slate-700 dark:text-slate-200">@L.Translate("statusAction.closeTicket")</span>
-                                </button>
-                            }
-
-                            @if (Ticket.Status != TicketStatus.Closed && Ticket.Status != TicketStatus.Done && Ticket.Status != TicketStatus.Resolved)
-                            {
-                                <button @onclick="@(() => UpdateStatusAsync(TicketStatus.Closed))" 
-                                    class="w-full text-left px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 flex items-center gap-3 transition-colors border-l-2 border-transparent hover:border-gray-500">
-                                    <div class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
-                                        <svg class="w-4 h-4 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                                    </div>
-                                    <span class="font-medium text-slate-700 dark:text-slate-200">@L.Translate("statusAction.closeDirectly")</span>
-                                </button>
-                            }
-
-                            @if (Ticket.Status == TicketStatus.Closed)
-                            {
-                                <button @onclick="@(() => UpdateStatusAsync(TicketStatus.Open))" 
-                                    class="w-full text-left px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 flex items-center gap-3 transition-colors border-l-2 border-transparent hover:border-blue-500">
-                                    <div class="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center">
-                                        <svg class="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-                                    </div>
-                                    <span class="font-medium text-slate-700 dark:text-slate-200">@L.Translate("statusAction.reopenTicket")</span>
-                                </button>
-                            }
-                        </div>
-                    </div>
-                }
-
-                <!-- Navigation -->
-                <div class="ticket-surface bg-white dark:bg-gray-800/80 backdrop-blur-sm rounded-lg shadow-md border border-transparent dark:border-gray-700/50 p-6">
-                    <button @onclick="GoBack" 
-                            class="ui-btn ui-btn--block ui-btn--neutral">
-                        @L.Translate("details.backToTickets")
-                    </button>
-                </div>
+                <section data-section="activity" class="border-t border-line py-6">
+                    <h2 class="mb-3 font-mono text-13 text-muted"># @Heading("details.activity")</h2>
+                    <TicketActivity Ticket="Ticket"
+                                    History="History"
+                                    IsStaff="IsAdminOrDeveloper"
+                                    IsAdmin="IsAdmin"
+                                    CurrentUserId="CurrentUserId"
+                                    OnAddComment="AddCommentAsync"
+                                    OnEditComment="SaveCommentEditAsync"
+                                    OnDeleteComment="DeleteCommentAsync" />
+                </section>
             </div>
         </div>
-        </div>
+
+        <Modal IsOpen="IsDeleteConfirmOpen"
+               Title="@string.Format(UiCulture, L.Translate("details.deleteTitle"), Ticket.Id)"
+               Danger="true"
+               IsSaving="IsDeleting"
+               ErrorMessage="@DeleteError"
+               CancelText="@L.Translate("common.cancel")"
+               SaveText="@L.Translate("details.deleteTicket")"
+               SavingText="@L.Translate("details.deleting")"
+               OnClose="CloseDeleteConfirm"
+               OnSave="DeleteTicketAsync">
+            <p class="text-15 text-fg">@L.Translate("details.deleteText")</p>
+        </Modal>
     }
 </div>

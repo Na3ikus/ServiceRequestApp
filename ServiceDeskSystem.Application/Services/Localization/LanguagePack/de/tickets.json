@@ -130,5 +130,19 @@
   "statusAction.closeDirectly": "Direkt schließen",
   "dashboard.ofTotal": "{0}% von allen",
   "table.type": "Typ",
-  "tickets.nothingFound": "Nichts passt zu den Filtern"
+  "tickets.nothingFound": "Nichts passt zu den Filtern",
+  "common.download": "Herunterladen",
+  "details.activity": "Aktivität",
+  "details.addShort": "Hinzufügen",
+  "details.commentVisibility": "Sichtbarkeit des Kommentars",
+  "details.deleteFailed": "Das Ticket konnte nicht gelöscht werden.",
+  "details.deleteText": "Das Ticket wird mit Kommentaren, Arbeitsprotokoll und Anhängen gelöscht. Dies kann nicht rückgängig gemacht werden.",
+  "details.deleteTitle": "Ticket #{0} löschen?",
+  "details.deleting": "Wird gelöscht...",
+  "details.fileShort": "Datei",
+  "details.fileTooLarge": "Die Datei ist größer als 10 MB",
+  "details.notFound": "Ticket #{0} wurde nicht gefunden oder gelöscht",
+  "details.tagShort": "Tag",
+  "details.visibilityInternal": "Intern",
+  "details.visibilityPublic": "Öffentlich"
 }

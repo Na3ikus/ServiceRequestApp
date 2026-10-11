@@ -130,5 +130,19 @@
   "statusAction.closeDirectly": "Cerrar directamente",
   "dashboard.ofTotal": "{0}% del total",
   "table.type": "Tipo",
-  "tickets.nothingFound": "Nada coincide con los filtros"
+  "tickets.nothingFound": "Nada coincide con los filtros",
+  "common.download": "Descargar",
+  "details.activity": "Actividad",
+  "details.addShort": "Añadir",
+  "details.commentVisibility": "Visibilidad del comentario",
+  "details.deleteFailed": "No se pudo eliminar el ticket.",
+  "details.deleteText": "Se eliminará el ticket con sus comentarios, registro de trabajo y adjuntos. Esta acción no se puede deshacer.",
+  "details.deleteTitle": "¿Eliminar el ticket #{0}?",
+  "details.deleting": "Eliminando...",
+  "details.fileShort": "Archivo",
+  "details.fileTooLarge": "El archivo supera los 10 MB",
+  "details.notFound": "El ticket #{0} no existe o fue eliminado",
+  "details.tagShort": "Etiqueta",
+  "details.visibilityInternal": "Interno",
+  "details.visibilityPublic": "Público"
 }

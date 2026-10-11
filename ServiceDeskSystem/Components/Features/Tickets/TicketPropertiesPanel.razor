@@ -1,0 +1,183 @@
+@using ServiceDeskSystem.Domain.Enums
+@inherits ServiceDeskSystem.Components.UI.Base.BaseComponent
+
+<aside data-properties-panel class="rounded-lg border border-line bg-surface lg:sticky lg:top-6">
+    <dl>
+        <div class="@RowClass">
+            <dt class="@LabelClass">@Heading("table.status")</dt>
+            <dd class="@ValueClass"><StatusTag Status="Ticket.Status" /></dd>
+        </div>
+
+        <div class="@RowClass">
+            <dt class="@LabelClass"><label for="panel-priority">@Heading("table.priority")</label></dt>
+            <dd class="@ValueClass">
+                @if (CanEdit)
+                {
+                    <select id="panel-priority" data-edit="priority" class="input-field h-8 px-2 text-13"
+                            @bind="editPriority" @bind:after="OnPriorityChanged">
+                        @foreach (var priority in Enum.GetValues<TicketPriority>())
+                        {
+                            <option value="@priority">@GetPriorityText(priority)</option>
+                        }
+                    </select>
+                }
+                else
+                {
+                    <PriorityTag Priority="Ticket.Priority" />
+                }
+            </dd>
+        </div>
+
+        @if (ShowPrioritySave)
+        {
+            <div data-priority-save class="space-y-2 border-b border-dashed border-line px-3.5 py-2.5">
+                @if (editPriority == TicketPriority.Critical)
+                {
+                    <label class="flex cursor-pointer items-start gap-2 rounded-md border border-danger px-3 py-2 text-13 text-danger">
+                        <input type="checkbox" data-confirm-critical class="mt-1" @bind="criticalConfirmed" />
+                        <span>@L.Translate("create.confirmCritical")</span>
+                    </label>
+                }
+                <button type="button" class="btn-accent w-full" disabled="@(editPriority == TicketPriority.Critical && !criticalConfirmed)"
+                        @onclick="SavePriorityAsync">
+                    @Heading("details.savePriority")
+                </button>
+            </div>
+        }
+
+        <div class="@RowClass">
+            <dt class="@LabelClass">@Heading("table.assignee")</dt>
+            <dd data-assignee class="@ValueClass">
+                @if (Ticket.Developer is not null)
+                {
+                    <Avatar Name="@Ticket.Developer.Login" Size="AvatarSize.Sm" /><span class="truncate">@Ticket.Developer.Login</span>
+                }
+                else
+                {
+                    <span class="text-muted">@Heading("table.unassigned")</span>
+                }
+            </dd>
+        </div>
+
+        <div class="@RowClass">
+            <dt class="@LabelClass">@Heading("table.author")</dt>
+            <dd class="@ValueClass">
+                <Avatar Name="@Ticket.Author?.Login" Size="AvatarSize.Sm" /><span class="truncate">@Ticket.Author?.Login</span>
+            </dd>
+        </div>
+
+        <div class="@RowClass">
+            <dt class="@LabelClass">@Heading("table.product")</dt>
+            <dd class="@ValueClass break-words">@(Ticket.Product?.Name ?? L.Translate("table.noProduct"))</dd>
+        </div>
+
+        <div class="@RowClass">
+            <dt class="@LabelClass">@Heading("table.created")</dt>
+            <dd data-created class="@ValueClass font-mono text-13">@Format(Ticket.CreatedAt)</dd>
+        </div>
+
+        <div class="@RowClass">
+            <dt class="@LabelClass"><label for="panel-start">@Heading("details.startDate")</label></dt>
+            <dd class="@ValueClass">
+                @if (CanEdit)
+                {
+                    <input id="panel-start" type="datetime-local" data-edit="start"
+                           class="input-field h-8 px-2 font-mono text-13 [color-scheme:light] dark:[color-scheme:dark]"
+                           @bind="startEdit" @bind:format="yyyy-MM-ddTHH:mm" @bind:after="MarkStartDirty" />
+                }
+                else
+                {
+                    <span data-start class="font-mono text-13">@Format(Ticket.StartDate ?? Ticket.CreatedAt)</span>
+                }
+            </dd>
+        </div>
+
+        <div class="@RowClass">
+            <dt class="@LabelClass"><label for="panel-due">@Heading("details.dueDate")</label></dt>
+            <dd class="@ValueClass">
+                @if (CanEdit)
+                {
+                    <input id="panel-due" type="datetime-local" data-edit="due"
+                           class="input-field h-8 px-2 font-mono text-13 [color-scheme:light] dark:[color-scheme:dark]"
+                           @bind="dueEdit" @bind:format="yyyy-MM-ddTHH:mm" @bind:after="MarkDueDirty" />
+                }
+                else
+                {
+                    <span data-due class="font-mono text-13">@(Ticket.DueDate is { } due ? Format(due) : "—")</span>
+                }
+            </dd>
+        </div>
+
+        @if (DatesChanged)
+        {
+            <div class="border-b border-dashed border-line px-3.5 py-2.5">
+                <button type="button" data-save-dates class="btn-accent w-full" @onclick="SaveDatesAsync">@Heading("details.saveDates")</button>
+            </div>
+        }
+
+        @if (!string.IsNullOrWhiteSpace(Ticket.Environment))
+        {
+            <div class="@RowClass">
+                <dt class="@LabelClass">@Heading("details.environment")</dt>
+                <dd class="@ValueClass break-words">@Ticket.Environment</dd>
+            </div>
+        }
+
+        @if (!string.IsNullOrWhiteSpace(Ticket.AffectedVersion))
+        {
+            <div class="@RowClass">
+                <dt class="@LabelClass">@Heading("details.affectedVersion")</dt>
+                <dd class="@ValueClass break-all font-mono text-13">@Ticket.AffectedVersion</dd>
+            </div>
+        }
+
+        <div class="@RowClass border-b-0">
+            <dt class="@LabelClass">@Heading("details.tags")</dt>
+            <dd class="@ValueClass">
+                @foreach (var tag in Ticket.Tags)
+                {
+                    <span data-tag class="inline-flex items-center gap-1.5 text-13">
+                        <span class="h-2 w-2 shrink-0 rounded-full" style="background-color: @tag.Color" aria-hidden="true"></span>@tag.Name
+                        @if (CanEdit)
+                        {
+                            <button type="button" data-remove-tag="@tag.Id" class="text-muted hover:text-danger"
+                                    title="@L.Translate("common.delete")" aria-label="@RemoveTagLabel(tag)"
+                                    @onclick="() => OnRemoveTag.InvokeAsync(tag.Id)">×</button>
+                        }
+                    </span>
+                }
+                @if (Ticket.Tags.Count == 0 && !CanEdit)
+                {
+                    <span class="text-13 text-muted">@L.Translate("details.noTags")</span>
+                }
+                @if (CanEdit && AvailableTags.Count > 0)
+                {
+                    <div class="relative" @onkeydown="OnTagMenuKeyDown">
+                        <button type="button" data-add-tag aria-haspopup="listbox" aria-expanded="@(tagMenuOpen ? "true" : "false")"
+                                class="rounded-md border border-dashed border-line px-[7px] py-px font-mono text-13 text-muted hover:text-fg"
+                                @onclick="ToggleTagMenu">
+                            + @Heading("details.tagShort")
+                        </button>
+                        @if (tagMenuOpen)
+                        {
+                            <div class="fixed inset-0 z-10" aria-hidden="true" @onclick="CloseTagMenu"></div>
+                            <ul data-tag-menu role="listbox" aria-label="@L.Translate("details.addTag")"
+                                class="absolute right-0 z-20 mt-1 max-h-60 w-48 overflow-auto rounded-md border border-line bg-canvas py-1">
+                                @foreach (var tag in AvailableTags)
+                                {
+                                    <li role="option" aria-selected="false">
+                                        <button type="button" data-tag-option="@tag.Id"
+                                                class="flex w-full items-center gap-2 px-3 py-1.5 text-left text-13 text-fg hover:bg-surface"
+                                                @onclick="() => AddTagAsync(tag.Id)">
+                                            <span class="h-2 w-2 shrink-0 rounded-full" style="background-color: @tag.Color" aria-hidden="true"></span>@tag.Name
+                                        </button>
+                                    </li>
+                                }
+                            </ul>
+                        }
+                    </div>
+                }
+            </dd>
+        </div>
+    </dl>
+</aside>

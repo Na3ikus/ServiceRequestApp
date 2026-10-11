@@ -130,5 +130,19 @@
   "statusAction.closeDirectly": "Close Directly",
   "dashboard.ofTotal": "{0}% of all",
   "table.type": "Type",
-  "tickets.nothingFound": "Nothing matches the filters"
+  "tickets.nothingFound": "Nothing matches the filters",
+  "common.download": "Download",
+  "details.activity": "Activity",
+  "details.addShort": "Add",
+  "details.commentVisibility": "Comment visibility",
+  "details.deleteFailed": "Could not delete the ticket.",
+  "details.deleteText": "The ticket will be deleted with its comments, work log and attachments. This cannot be undone.",
+  "details.deleteTitle": "Delete ticket #{0}?",
+  "details.deleting": "Deleting...",
+  "details.fileShort": "File",
+  "details.fileTooLarge": "The file is larger than 10 MB",
+  "details.notFound": "Ticket #{0} was not found or has been deleted",
+  "details.tagShort": "Tag",
+  "details.visibilityInternal": "Internal",
+  "details.visibilityPublic": "Public"
 }

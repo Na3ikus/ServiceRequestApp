@@ -130,5 +130,19 @@
   "statusAction.closeDirectly": "Примусово закрити",
   "dashboard.ofTotal": "{0}% від усіх",
   "table.type": "Тип",
-  "tickets.nothingFound": "Нічого не знайдено за фільтрами"
+  "tickets.nothingFound": "Нічого не знайдено за фільтрами",
+  "common.download": "Завантажити",
+  "details.activity": "Активність",
+  "details.addShort": "Додати",
+  "details.commentVisibility": "Видимість коментаря",
+  "details.deleteFailed": "Не вдалося видалити заявку.",
+  "details.deleteText": "Заявку буде видалено разом із коментарями, журналом робіт і вкладеннями. Цю дію не можна скасувати.",
+  "details.deleteTitle": "Видалити заявку #{0}?",
+  "details.deleting": "Видалення...",
+  "details.fileShort": "Файл",
+  "details.fileTooLarge": "Файл більший за 10 МБ",
+  "details.notFound": "Заявку #{0} не знайдено або її видалено",
+  "details.tagShort": "Тег",
+  "details.visibilityInternal": "Внутрішній",
+  "details.visibilityPublic": "Публічний"
 }

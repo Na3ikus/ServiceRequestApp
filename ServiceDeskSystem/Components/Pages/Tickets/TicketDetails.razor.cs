@@ -5,14 +5,17 @@ using ServiceDeskSystem.Application.Services.Tags;
 using ServiceDeskSystem.Application.Services.Tickets;
 using ServiceDeskSystem.Application.Services.Toasts;
 using ServiceDeskSystem.Application.Services.Toasts.Models;
+using ServiceDeskSystem.Components.Features.Tickets;
 using ServiceDeskSystem.Components.UI.Base;
 using ServiceDeskSystem.Domain.Entities;
 using ServiceDeskSystem.Domain.Enums;
+using PathSegment = ServiceDeskSystem.Components.UI.Primitives.PathSegment;
 
 namespace ServiceDeskSystem.Components.Pages.Tickets;
 
 /// <summary>
-/// Ticket details page component.
+/// Ticket details page: loads the ticket and wires the header actions, the properties panel
+/// and the activity feed to the services.
 /// </summary>
 public partial class TicketDetails : BaseComponent
 {
@@ -41,33 +44,25 @@ public partial class TicketDetails : BaseComponent
 
     protected Ticket? Ticket { get; set; }
 
-    protected string NewCommentMessage { get; set; } = string.Empty;
+    protected bool IsLoaded { get; set; }
 
-    protected bool IsInternalComment { get; set; }
+    protected IReadOnlyList<TicketStatusHistory> History { get; set; } = [];
 
-    protected bool IsSubmitting { get; set; }
-
-    protected int? EditingCommentId { get; set; }
-
-    protected string EditingCommentMessage { get; set; } = string.Empty;
-
-    protected DateTime? EditStartDate { get; set; }
-
-    protected DateTime? EditDueDate { get; set; }
-
-    protected TicketPriority EditPriority { get; set; }
-
-    protected bool IsCriticalPriorityConfirmed { get; set; }
-
-    protected IList<Tag> AllTags { get; set; } = [];
-
-    protected int SelectedTagIdToAdd { get; set; }
+    protected IReadOnlyList<Tag> AllTags { get; set; } = [];
 
     protected string AnalyticalNoteEdit { get; set; } = string.Empty;
 
     protected bool IsEditingAnalyticalNote { get; set; }
 
     protected bool IsSavingAnalyticalNote { get; set; }
+
+    protected bool IsBusy { get; set; }
+
+    protected bool IsDeleteConfirmOpen { get; set; }
+
+    protected bool IsDeleting { get; set; }
+
+    protected string? DeleteError { get; set; }
 
     protected int CurrentUserId => this.AuthService.CurrentUser?.Id ?? 0;
 
@@ -83,6 +78,29 @@ public partial class TicketDetails : BaseComponent
     /// </summary>
     protected bool CanManageTicketStatus => this.AuthService.IsAuthenticated &&
         this.Ticket?.DeveloperId == this.CurrentUserId;
+
+    /// <summary>
+    /// Gets a value indicating whether "take" is offered: the ticket is free and the user is an admin or developer.
+    /// </summary>
+    protected bool ShowTakeButton => this.Ticket?.DeveloperId is null && this.IsAdminOrDeveloper;
+
+    /// <summary>
+    /// Gets a value indicating whether "release" is offered: the ticket is assigned to the current user (admins release only their own).
+    /// </summary>
+    protected bool ShowReleaseButton => this.Ticket?.DeveloperId is not null && this.Ticket.DeveloperId == this.CurrentUserId;
+
+    /// <summary>
+    /// Gets the role's ticket list: <c>/my-tickets</c> for users, <c>/tickets</c> for staff.
+    /// </summary>
+    protected string ListHref => this.IsAdminOrDeveloper ? "/tickets" : "/my-tickets";
+
+    protected string ListTitleKey => this.IsAdminOrDeveloper ? "nav.allTickets" : "nav.myTickets";
+
+    protected IReadOnlyList<PathSegment> Segments =>
+    [
+        new ("tickets", this.ListHref),
+        new (this.Id.ToString(System.Globalization.CultureInfo.InvariantCulture)),
+    ];
 
     protected override async Task OnInitializedAsync()
     {
@@ -118,162 +136,95 @@ public partial class TicketDetails : BaseComponent
         base.Dispose(disposing);
     }
 
-    protected bool CanDeleteComment(Comment comment)
-    {
-        ArgumentNullException.ThrowIfNull(comment);
-        return comment.AuthorId == this.CurrentUserId || this.IsAdmin;
-    }
+    protected void GoToList() => this.Navigation.NavigateTo(this.ListHref);
 
-    /// <summary>
-    /// Only author can edit comment. Admin cannot edit other users' comments.
-    /// </summary>
-    protected bool CanEditComment(Comment comment)
-    {
-        ArgumentNullException.ThrowIfNull(comment);
-        return comment.AuthorId == this.CurrentUserId;
-    }
-
-    protected void OnPriorityChanged()
-    {
-        this.IsCriticalPriorityConfirmed = false;
-    }
-
-    protected async Task OnPriorityChangedAsync(ChangeEventArgs e)
-    {
-        ArgumentNullException.ThrowIfNull(e);
-
-        if (Enum.TryParse<TicketPriority>(e.Value?.ToString(), out var priority))
-        {
-            this.EditPriority = priority;
-            this.IsCriticalPriorityConfirmed = false;
-        }
-
-        await Task.CompletedTask;
-    }
-
-    protected async Task SavePriorityAsync()
+    protected async Task SavePriorityAsync(TicketPriority priority)
     {
         if (this.Ticket is null || !this.IsAdminOrDeveloper)
         {
             return;
         }
 
-        if (this.EditPriority == TicketPriority.Critical && !this.IsCriticalPriorityConfirmed)
-        {
-            await this.ToastService.ShowToastAsync(this.L.Translate("create.criticalRequired") ?? "Please confirm critical priority.", ToastType.Error);
-            return;
-        }
-
-        var success = await this.TicketService.UpdateTicketPriorityAsync(this.Ticket.Id, this.EditPriority);
+        var success = await this.TicketService.UpdateTicketPriorityAsync(this.Ticket.Id, priority);
         if (success)
         {
-            this.Ticket.Priority = this.EditPriority;
-            this.Ticket.IsPriorityAssessed = true;
-            await this.LoadTicketAsync(isInitialLoad: true);
-            await this.ToastService.ShowToastAsync(this.L.Translate("details.priorityUpdated") ?? "Priority updated successfully.", ToastType.Success);
+            await this.LoadTicketAsync();
+            await this.ToastService.ShowToastAsync(this.L.Translate("details.priorityUpdated"), ToastType.Success);
         }
     }
 
-    protected async Task SaveDatesAsync()
+    protected async Task SaveDatesAsync(TicketDatesChange change)
     {
+        ArgumentNullException.ThrowIfNull(change);
+
         if (this.Ticket is null || !this.IsAdminOrDeveloper)
         {
             return;
         }
 
-        var success = await this.TicketService.UpdateTicketDatesAsync(this.Ticket.Id, this.EditStartDate, this.EditDueDate, this.CurrentUserId);
+        var success = await this.TicketService.UpdateTicketDatesAsync(this.Ticket.Id, change.StartUtc, change.DueUtc, this.CurrentUserId);
         if (success)
         {
-            this.Ticket.StartDate = this.EditStartDate;
-            this.Ticket.DueDate = this.EditDueDate;
-            await this.ToastService.ShowToastAsync(this.L.Translate("details.datesUpdated") ?? "Dates updated successfully.", ToastType.Success);
+            this.Ticket.StartDate = change.StartUtc;
+            this.Ticket.DueDate = change.DueUtc;
+            await this.ToastService.ShowToastAsync(this.L.Translate("details.datesUpdated"), ToastType.Success);
         }
     }
 
-    protected async Task AddCommentAsync()
+    protected async Task AddCommentAsync(NewTicketComment comment)
     {
-        if (string.IsNullOrWhiteSpace(this.NewCommentMessage) || this.Ticket is null)
+        ArgumentNullException.ThrowIfNull(comment);
+
+        if (string.IsNullOrWhiteSpace(comment.Message) || this.Ticket is null)
         {
             return;
         }
 
-        this.IsSubmitting = true;
-
-        var comment = new Comment
+        await this.CommentService.AddCommentAsync(new Comment
         {
-            Message = this.NewCommentMessage,
+            Message = comment.Message,
             TicketId = this.Ticket.Id,
             AuthorId = this.CurrentUserId,
-            IsInternal = this.IsAdminOrDeveloper && this.IsInternalComment,
-        };
+            IsInternal = this.IsAdminOrDeveloper && comment.IsInternal,
+        });
 
-        var addedComment = await this.CommentService.AddCommentAsync(comment);
-        this.Ticket.Comments.Add(addedComment);
-
-        this.NewCommentMessage = string.Empty;
-        this.IsInternalComment = false;
-        this.IsSubmitting = false;
-
-        await this.RefreshCommentsAsync();
+        await this.LoadTicketAsync();
     }
 
-    protected void BeginEdit(Comment comment)
+    protected async Task SaveCommentEditAsync(TicketCommentEdit edit)
     {
-        ArgumentNullException.ThrowIfNull(comment);
+        ArgumentNullException.ThrowIfNull(edit);
 
-        this.EditingCommentId = comment.Id;
-        this.EditingCommentMessage = comment.Message;
-    }
-
-    protected void CancelEdit()
-    {
-        this.EditingCommentId = null;
-        this.EditingCommentMessage = string.Empty;
-    }
-
-    protected async Task SaveCommentEditAsync(int commentId)
-    {
-        if (this.EditingCommentId != commentId || string.IsNullOrWhiteSpace(this.EditingCommentMessage))
+        var comment = this.Ticket?.Comments.FirstOrDefault(c => c.Id == edit.CommentId);
+        if (comment is null || comment.AuthorId != this.CurrentUserId || string.IsNullOrWhiteSpace(edit.Message))
         {
             return;
         }
 
-        var comment = this.Ticket?.Comments?.FirstOrDefault(c => c.Id == commentId);
-
-        if (comment is null || comment.AuthorId != this.CurrentUserId)
+        var updated = await this.CommentService.UpdateCommentAsync(edit.CommentId, edit.Message, this.CurrentUserId, this.IsAdmin);
+        if (updated is not null)
         {
-            return;
+            comment.Message = updated.Message;
         }
 
-        var updated = await this.CommentService.UpdateCommentAsync(commentId, this.EditingCommentMessage.Trim(), this.CurrentUserId, this.IsAdmin);
-        if (updated is not null && this.Ticket?.Comments is not null)
-        {
-            var existing = this.Ticket.Comments.FirstOrDefault(c => c.Id == commentId);
-            if (existing is not null)
-            {
-                existing.Message = updated.Message;
-            }
-        }
-
-        this.CancelEdit();
-        await this.RefreshCommentsAsync();
+        await this.LoadTicketAsync();
     }
 
     protected async Task DeleteCommentAsync(int commentId)
     {
-        var comment = this.Ticket?.Comments?.FirstOrDefault(c => c.Id == commentId);
-        if (comment is null || !this.CanDeleteComment(comment))
+        var comment = this.Ticket?.Comments.FirstOrDefault(c => c.Id == commentId);
+        if (comment is null || !(comment.AuthorId == this.CurrentUserId || this.IsAdmin))
         {
             return;
         }
 
         var success = await this.CommentService.DeleteCommentAsync(commentId);
-        if (success && this.Ticket?.Comments is not null)
+        if (success)
         {
-            this.Ticket.Comments.Remove(comment);
+            this.Ticket!.Comments.Remove(comment);
         }
 
-        await this.RefreshCommentsAsync();
+        await this.LoadTicketAsync();
     }
 
     protected async Task UpdateStatusAsync(TicketStatus newStatus)
@@ -283,11 +234,33 @@ public partial class TicketDetails : BaseComponent
             return;
         }
 
-        var success = await this.TicketService.UpdateTicketStatusAsync(this.Ticket.Id, newStatus, this.AuthService.CurrentUser?.Id);
-        if (success)
+        this.IsBusy = true;
+        try
         {
-            this.Ticket.Status = newStatus;
-            await this.InvokeAsync(this.StateHasChanged);
+            var success = await this.TicketService.UpdateTicketStatusAsync(this.Ticket.Id, newStatus, this.AuthService.CurrentUser?.Id);
+            if (success)
+            {
+                this.Ticket.Status = newStatus;
+                await this.LoadTicketAsync();
+            }
+        }
+        finally
+        {
+            this.IsBusy = false;
+        }
+    }
+
+    protected void OpenDeleteConfirm()
+    {
+        this.DeleteError = null;
+        this.IsDeleteConfirmOpen = true;
+    }
+
+    protected void CloseDeleteConfirm()
+    {
+        if (!this.IsDeleting)
+        {
+            this.IsDeleteConfirmOpen = false;
         }
     }
 
@@ -298,16 +271,23 @@ public partial class TicketDetails : BaseComponent
             return;
         }
 
-        var success = await this.TicketService.DeleteTicketAsync(this.Ticket.Id);
-        if (success)
+        this.IsDeleting = true;
+        try
         {
-            this.Navigation.NavigateTo("/");
-        }
-    }
+            var success = await this.TicketService.DeleteTicketAsync(this.Ticket.Id);
+            if (success)
+            {
+                this.IsDeleteConfirmOpen = false;
+                this.Navigation.NavigateTo(this.ListHref);
+                return;
+            }
 
-    protected void GoBack()
-    {
-        this.Navigation.NavigateTo("/");
+            this.DeleteError = this.L.Translate("details.deleteFailed");
+        }
+        finally
+        {
+            this.IsDeleting = false;
+        }
     }
 
     protected async Task AssignToMeAsync()
@@ -330,11 +310,17 @@ public partial class TicketDetails : BaseComponent
             return;
         }
 
-        var success = await this.TicketAssignmentService.AssignDeveloperAsync(this.Ticket.Id, this.CurrentUserId);
-        if (success)
+        this.IsBusy = true;
+        try
         {
-            await this.LoadTicketAsync();
-            await this.InvokeAsync(this.StateHasChanged);
+            if (await this.TicketAssignmentService.AssignDeveloperAsync(this.Ticket.Id, this.CurrentUserId))
+            {
+                await this.LoadTicketAsync();
+            }
+        }
+        finally
+        {
+            this.IsBusy = false;
         }
     }
 
@@ -345,25 +331,30 @@ public partial class TicketDetails : BaseComponent
             return;
         }
 
-        var success = await this.TicketAssignmentService.UnassignDeveloperAsync(this.Ticket.Id);
-        if (success)
+        this.IsBusy = true;
+        try
         {
-            await this.LoadTicketAsync();
-            await this.InvokeAsync(this.StateHasChanged);
+            if (await this.TicketAssignmentService.UnassignDeveloperAsync(this.Ticket.Id))
+            {
+                await this.LoadTicketAsync();
+            }
+        }
+        finally
+        {
+            this.IsBusy = false;
         }
     }
 
-    protected async Task AssignTagToTicketAsync()
+    protected async Task AssignTagToTicketAsync(int tagId)
     {
-        if (this.Ticket is null || this.SelectedTagIdToAdd <= 0)
+        if (this.Ticket is null || tagId <= 0)
         {
             return;
         }
 
-        var success = await this.TagService.AssignTagToTicketAsync(this.Ticket.Id, this.SelectedTagIdToAdd, this.CurrentUserId);
+        var success = await this.TagService.AssignTagToTicketAsync(this.Ticket.Id, tagId, this.CurrentUserId);
         if (success)
         {
-            this.SelectedTagIdToAdd = 0;
             await this.LoadTicketAsync();
             await this.ToastService.ShowToastAsync(this.L.Translate("tags.assigned"), ToastType.Success);
         }
@@ -406,10 +397,11 @@ public partial class TicketDetails : BaseComponent
         this.IsSavingAnalyticalNote = true;
         try
         {
-            var success = await this.TicketService.UpdateAnalyticalNoteAsync(this.Ticket.Id, this.AnalyticalNoteEdit.Trim(), this.CurrentUserId);
+            var note = this.AnalyticalNoteEdit.Trim();
+            var success = await this.TicketService.UpdateAnalyticalNoteAsync(this.Ticket.Id, note, this.CurrentUserId);
             if (success)
             {
-                this.Ticket.AnalyticalNote = this.AnalyticalNoteEdit.Trim();
+                this.Ticket.AnalyticalNote = note;
                 this.IsEditingAnalyticalNote = false;
                 await this.ToastService.ShowToastAsync(this.L.Translate("details.analyticalNoteSaved"), ToastType.Success);
             }
@@ -425,47 +417,37 @@ public partial class TicketDetails : BaseComponent
         var fetchedTicket = await this.TicketService.GetTicketByIdAsync(this.Id);
         if (fetchedTicket is not null)
         {
-            var oldTicketPriority = this.Ticket?.Priority;
-            var oldTicketStartDate = this.Ticket?.StartDate;
-            var oldTicketDueDate = this.Ticket?.DueDate;
-
             this.Ticket = fetchedTicket;
+            this.History = await this.TicketService.GetStatusHistoryAsync(this.Id);
 
-            // Only overwrite edit form controls during initial load or if user hasn't modified them
-            if (isInitialLoad || this.EditPriority == oldTicketPriority)
-            {
-                this.EditPriority = fetchedTicket.Priority;
-            }
-
-            if (isInitialLoad || this.EditStartDate == oldTicketStartDate)
-            {
-                this.EditStartDate = fetchedTicket.StartDate;
-            }
-
-            if (isInitialLoad || this.EditDueDate == oldTicketDueDate)
-            {
-                this.EditDueDate = fetchedTicket.DueDate;
-            }
-
+            // Keep an analytical note that is being edited; the panel keeps its own unsaved edits.
             if (isInitialLoad || !this.IsEditingAnalyticalNote)
             {
                 this.AnalyticalNoteEdit = fetchedTicket.AnalyticalNote ?? string.Empty;
             }
 
-            this.AllTags = (await this.TagService.GetAllTagsAsync()).ToList();
+            if (isInitialLoad || this.AllTags.Count == 0)
+            {
+                this.AllTags = (await this.TagService.GetAllTagsAsync()).ToList();
+            }
+        }
+        else if (isInitialLoad)
+        {
+            this.Ticket = null;
         }
 
+        this.IsLoaded = true;
         this.StateHasChanged();
     }
 
     private void StartAutoRefresh()
     {
-        this.refreshTimer = new Timer(async _ => await this.RefreshCommentsAsync(), null, this.refreshInterval, this.refreshInterval);
+        this.refreshTimer = new Timer(async _ => await this.RefreshAsync(), null, this.refreshInterval, this.refreshInterval);
     }
 
-    private async Task RefreshCommentsAsync()
+    private async Task RefreshAsync()
     {
-        if (this.isRefreshing)
+        if (this.isRefreshing || this.Ticket is null)
         {
             return;
         }
@@ -473,11 +455,7 @@ public partial class TicketDetails : BaseComponent
         this.isRefreshing = true;
         try
         {
-            await this.InvokeAsync(async () =>
-            {
-                await this.LoadTicketAsync();
-                this.StateHasChanged();
-            });
+            await this.InvokeAsync(() => this.LoadTicketAsync());
         }
         finally
         {
