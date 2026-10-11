@@ -1,6 +1,9 @@
 <div class="flex flex-wrap items-baseline justify-between gap-4 mb-4">
     <div>
-        <h1 class="font-mono text-20 font-medium text-fg"><span class="text-muted">@(Segments.Count == 0 ? "~" : "~/")</span>@RenderSegments()</h1>
+        <h1 class="font-mono text-20 font-medium text-fg"><span class="text-muted">@(Segments.Count == 0 ? "~" : "~/")</span>@RenderSegments()@if (Segments.Count == 0 && !string.IsNullOrEmpty(HomeLabel))
+            {
+                <span class="sr-only">@HomeLabel</span>
+            }</h1>
         @if (!string.IsNullOrEmpty(Subtitle))
         {
             <p class="text-13 text-muted mt-1">@Subtitle</p>
@@ -21,6 +24,12 @@
 
     [Parameter]
     public RenderFragment? Actions { get; set; }
+
+    /// <summary>
+    /// Gets or sets the screen-reader name of the home path (<c>~</c> alone).
+    /// </summary>
+    [Parameter]
+    public string? HomeLabel { get; set; }
 
     private RenderFragment RenderSegments() => builder =>
     {

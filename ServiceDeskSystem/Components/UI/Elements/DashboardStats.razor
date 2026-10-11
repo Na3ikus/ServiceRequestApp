@@ -1,17 +1,16 @@
 @inherits ServiceDeskSystem.Components.UI.Base.BaseComponent
 
 <div class="grid grid-cols-2 lg:grid-cols-4 gap-px overflow-hidden rounded-lg border border-line bg-line">
-    @Figure("dashboard.totalTickets", displayTotalTickets, null, false)
-    @Figure("dashboard.openTickets", displayOpenTickets, displayTotalTickets, false)
-    @Figure("dashboard.criticalPriority", displayCriticalTickets, displayTotalTickets, true)
-    @Figure("dashboard.myTickets", displayMyTickets, displayTotalTickets, false)
+    @Figure("dashboard.totalTickets", displayTotalTickets, null, false, false)
+    @Figure("dashboard.openTickets", displayOpenTickets, displayTotalTickets, false, false)
+    @Figure("dashboard.criticalPriority", displayCriticalTickets, displayTotalTickets, true, criticalTickets > 0)
+    @Figure("dashboard.myTickets", displayMyTickets, displayTotalTickets, false, false)
 </div>
 
 @code {
-    private RenderFragment Figure(string labelKey, int value, int? total, bool critical) => __builder =>
+    private RenderFragment Figure(string labelKey, int value, int? total, bool critical, bool alarm) => __builder =>
     {
         var share = GetPercentage(value, total ?? value);
-        var alarm = critical && value > 0;
         <div data-stat class="bg-canvas px-4 py-4">
             <p class="font-mono text-13 text-muted"># @Heading(labelKey)</p>
             <p class="mt-2 font-mono text-40 leading-none tabular-nums @(alarm ? "text-danger" : "text-fg")">@value</p>

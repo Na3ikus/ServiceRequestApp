@@ -8,10 +8,10 @@
 <div class="max-w-7xl mx-auto p-4 sm:p-6">
     @if (currentUser != null)
     {
-        <PageHeader>
+        <PageHeader HomeLabel="@L.Translate("nav.home")">
             <Actions>
                 <a href="create-ticket" class="btn-accent inline-flex items-center">@Heading("nav.newTicket")</a>
-                <a href="@TicketsLink" class="btn-ghost inline-flex h-9 items-center px-3">@Heading(currentUser.Role == UserRole.User ? "nav.myTickets" : "nav.allTickets")</a>
+                <a href="@TicketsLink" class="btn-ghost inline-flex h-9 items-center px-3 text-15">@Heading(currentUser.Role == UserRole.User ? "nav.myTickets" : "nav.allTickets")</a>
             </Actions>
         </PageHeader>
 

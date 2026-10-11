@@ -50,7 +50,8 @@ public class HomePageTests
     {
         var cut = _host.Context.RenderComponent<HomePage>();
 
-        cut.Find("h1").TextContent.Should().Be("~");
+        cut.Find("h1").TextContent.Should().StartWith("~").And.Contain("nav.home");
+        cut.Find("h1 .sr-only").TextContent.Should().Be("nav.home");
         cut.Find("h2").TextContent.Should().Contain("home.welcomeBack admin");
         cut.Find("h2 .cursor-blink").TextContent.Should().Be("_");
         cut.Markup.Should().NotContain("page-hero").And.NotContain("gradient");
@@ -65,6 +66,19 @@ public class HomePageTests
         cut.Find("[data-triage-notice] a").GetAttribute("href").Should().Be("tickets");
         cut.FindAll("[data-ticket-row]").Should().HaveCount(2);
         cut.FindAll("[data-triage]").Should().ContainSingle();
+    }
+
+    [Test]
+    public void Developer_sees_assigned_tickets_and_triage_notice()
+    {
+        SignIn(UserRole.Developer);
+        _tickets.Setup(t => t.GetDeveloperTicketsAsync(7)).ReturnsAsync([Ticket(9)]);
+
+        var cut = _host.Context.RenderComponent<HomePage>();
+
+        cut.Find("[data-ticket-row]").GetAttribute("href").Should().Be("/ticket/9");
+        cut.FindAll("[data-triage-notice]").Should().ContainSingle();
+        cut.FindAll("a[href='/tickets']").Should().HaveCount(2);
     }
 
     [Test]
