@@ -1,0 +1,122 @@
+@inherits ServiceDeskSystem.Components.UI.Base.BaseComponent
+@using ServiceDeskSystem.Application.Services.Profile.Models
+
+@if (Days is null)
+{
+    <div class="h-[8.25rem] rounded-md bg-surface" aria-busy="true"></div>
+}
+else
+{
+    var culture = UiCulture;
+    var byDate = Days.ToDictionary(d => d.Date);
+    var busiest = Days.Count == 0 ? 0 : Days.Max(d => d.Total);
+    var first = FirstMonday(Today);
+    var summary = string.Format(culture, L.Translate("profile.activitySummary"), Days.Sum(d => d.Total));
+
+    <div class="overflow-x-auto">
+        <div class="inline-flex gap-[3px]">
+            <div class="mt-[18px] mr-1 grid grid-rows-7 gap-[3px] font-mono text-12 leading-3 text-muted" aria-hidden="true">
+                @for (var row = 0; row < 7; row++)
+                {
+                    <span class="h-3">@(row % 2 == 0 && row < 6 ? DayLabel(row, culture) : null)</span>
+                }
+            </div>
+            <div>
+                <div class="flex h-[15px] gap-[3px] font-mono text-12 leading-3 text-muted" aria-hidden="true">
+                    @for (var week = 0; week < Weeks; week++)
+                    {
+                        var monday = first.AddDays(week * 7);
+                        var showMonth = week == 0 || monday.Month != monday.AddDays(-7).Month;
+                        <span data-month class="w-3 overflow-visible whitespace-nowrap">@(showMonth ? monday.ToString("MMM", culture) : null)</span>
+                    }
+                </div>
+                <div data-heatmap role="img" aria-label="@summary" class="mt-[3px] grid grid-flow-col grid-rows-7 gap-[3px]">
+                    @for (var i = 0; i < Weeks * 7; i++)
+                    {
+                        var date = first.AddDays(i);
+                        if (date > Today)
+                        {
+                            <span class="h-3 w-3" aria-hidden="true"></span>
+                            continue;
+                        }
+
+                        byDate.TryGetValue(date, out var day);
+                        var level = Level(day?.Total ?? 0, busiest);
+                        <span data-cell data-level="@level" aria-hidden="true" title="@Tooltip(date, day, culture)"
+                              class="h-3 w-3 rounded-sm @LevelClass(level)"></span>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-2 flex flex-wrap items-center justify-between gap-3 font-mono text-12 text-muted">
+        <span data-summary>@summary</span>
+        <span class="flex items-center gap-[3px]" aria-hidden="true">
+            <span class="mr-1">@L.Translate("profile.activityLess")</span>
+            @for (var level = 0; level <= 4; level++)
+            {
+                <span class="h-3 w-3 rounded-sm @LevelClass(level)"></span>
+            }
+            <span class="ml-1">@L.Translate("profile.activityMore")</span>
+        </span>
+    </div>
+}
+
+@code {
+    private const int Weeks = 26;
+
+    /// <summary>
+    /// Gets or sets the active days (from <c>IUserActivityService</c>); <c>null</c> shows a skeleton.
+    /// </summary>
+    [Parameter]
+    public IReadOnlyList<DailyActivityDto>? Days { get; set; }
+
+    /// <summary>
+    /// Gets or sets the last day of the map (local date).
+    /// </summary>
+    [Parameter]
+    public DateOnly Today { get; set; } = DateOnly.FromDateTime(DateTime.Now);
+
+    /// <summary>
+    /// First day of the map: the Monday that starts a 26-week grid whose last column holds <paramref name="today"/>.
+    /// </summary>
+    public static DateOnly FirstMonday(DateOnly today)
+    {
+        var sinceMonday = ((int)today.DayOfWeek + 6) % 7;
+        return today.AddDays(-sinceMonday - ((Weeks - 1) * 7));
+    }
+
+    /// <summary>
+    /// Level 0 for no activity, otherwise 1–4 relative to the busiest day.
+    /// </summary>
+    public static int Level(int total, int busiest) =>
+        total <= 0 || busiest <= 0 ? 0 : Math.Clamp((int)Math.Ceiling(total * 4.0 / busiest), 1, 4);
+
+    private static string LevelClass(int level) => level switch
+    {
+        0 => "bg-line",
+        1 => "bg-accent/25",
+        2 => "bg-accent/50",
+        3 => "bg-accent/75",
+        _ => "bg-accent",
+    };
+
+    private static string DayLabel(int row, System.Globalization.CultureInfo culture) =>
+        culture.DateTimeFormat.GetAbbreviatedDayName((DayOfWeek)((row + 1) % 7));
+
+    private static string Duration(int minutes) => minutes switch
+    {
+        < 60 => $"{minutes}m",
+        _ when minutes % 60 == 0 => $"{minutes / 60}h",
+        _ => $"{minutes / 60}h {minutes % 60}m",
+    };
+
+    private string Tooltip(DateOnly date, DailyActivityDto? day, System.Globalization.CultureInfo culture)
+    {
+        var label = date.ToString("d MMM", culture);
+        return day is null || day.Total == 0
+            ? string.Format(culture, L.Translate("profile.activityNone"), label)
+            : string.Format(culture, L.Translate("profile.activityTooltip"), label, day.Total, day.TicketsCreated, day.Comments, day.StatusChanges, Duration(day.WorkMinutes));
+    }
+}
