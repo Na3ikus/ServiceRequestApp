@@ -711,6 +711,7 @@ h1:focus {
 
 .btn-accent {
   height: 2.25rem;
+  white-space: nowrap;
   border-radius: 0.375rem;
   --tw-bg-opacity: 1;
   background-color: rgb(var(--accent) / var(--tw-bg-opacity, 1));
@@ -740,6 +741,7 @@ h1:focus {
 
 .btn-danger {
   height: 2.25rem;
+  white-space: nowrap;
   border-radius: 0.375rem;
   border-width: 1px;
   --tw-border-opacity: 1;
@@ -772,6 +774,7 @@ h1:focus {
 
 .btn-outline {
   height: 2rem;
+  white-space: nowrap;
   border-radius: 0.375rem;
   border-width: 1px;
   --tw-border-opacity: 1;
@@ -802,6 +805,7 @@ h1:focus {
 
 .btn-ghost {
   height: 2rem;
+  white-space: nowrap;
   border-radius: 0.375rem;
   border-width: 1px;
   --tw-border-opacity: 1;
@@ -1424,11 +1428,6 @@ h1:focus {
   width: auto;
 }
 
-.w-fit {
-  width: -moz-fit-content;
-  width: fit-content;
-}
-
 .w-full {
   width: 100%;
 }
@@ -1451,10 +1450,6 @@ h1:focus {
 
 .min-w-48 {
   min-width: 12rem;
-}
-
-.min-w-7 {
-  min-width: 1.75rem;
 }
 
 .min-w-\[300px\] {
@@ -1757,10 +1752,6 @@ h1:focus {
 
 .justify-between {
   justify-content: space-between;
-}
-
-.gap-0\.5 {
-  gap: 0.125rem;
 }
 
 .gap-1 {
@@ -2426,10 +2417,6 @@ h1:focus {
   text-transform: lowercase;
 }
 
-.italic {
-  font-style: italic;
-}
-
 .tabular-nums {
   --tw-numeric-spacing: tabular-nums;
   font-variant-numeric: var(--tw-ordinal) var(--tw-slashed-zero) var(--tw-numeric-figure) var(--tw-numeric-spacing) var(--tw-numeric-fraction);
@@ -3005,6 +2992,12 @@ html:not(.dark) .light\:text-on-accent {
 
 html:not(.dark) .light\:hover\:bg-accent\/7:hover {
   background-color: rgb(var(--accent) / 0.07);
+}
+
+@supports (height:100dvh) {
+  .supports-\[height\:100dvh\]\:h-dvh {
+    height: 100dvh;
+  }
 }
 
 .dark\:border-accent:is(.dark *) {

@@ -150,7 +150,7 @@
     }
 
     .btn-accent {
-        @apply h-9 rounded-md bg-accent px-4 text-on-accent font-medium text-15;
+        @apply h-9 whitespace-nowrap rounded-md bg-accent px-4 text-on-accent font-medium text-15;
     }
 
     .btn-accent:hover {
@@ -166,7 +166,7 @@
     }
 
     .btn-danger {
-        @apply h-9 rounded-md border border-danger px-4 text-danger font-medium text-15;
+        @apply h-9 whitespace-nowrap rounded-md border border-danger px-4 text-danger font-medium text-15;
     }
 
     .btn-danger:hover {
@@ -183,7 +183,7 @@
 
     /* Secondary action next to btn-accent in toolbars and table rows (admin). */
     .btn-outline {
-        @apply h-8 rounded-md border border-line px-3 text-13 text-fg;
+        @apply h-8 whitespace-nowrap rounded-md border border-line px-3 text-13 text-fg;
     }
 
     .btn-outline:hover {
@@ -199,7 +199,7 @@
     }
 
     .btn-ghost {
-        @apply h-8 rounded-md border border-line px-2 text-muted;
+        @apply h-8 whitespace-nowrap rounded-md border border-line px-2 text-muted;
     }
 
     .btn-ghost:hover {

@@ -4,7 +4,7 @@
 <div class="@(Theme.IsDarkMode ? "dark" : "")">
     @if (!authRestored)
     {
-        <div class="relative z-10 flex h-screen items-center justify-center bg-canvas">
+        <div class="relative z-10 flex h-screen supports-[height:100dvh]:h-dvh items-center justify-center bg-canvas">
             <div class="font-mono text-13 text-muted">@L.Translate("common.loading").ToLower(System.Globalization.CultureInfo.CurrentCulture)</div>
         </div>
     }
@@ -15,7 +15,7 @@
     }
     else
     {
-        <div class="relative z-10 flex h-screen overflow-hidden bg-canvas pb-[env(safe-area-inset-bottom)]">
+        <div class="relative z-10 flex h-screen supports-[height:100dvh]:h-dvh overflow-hidden bg-canvas pb-[env(safe-area-inset-bottom)]">
             @if (isSidebarOpen)
             {
                 <div class="fixed inset-0 z-40 bg-canvas/80 lg:hidden"

@@ -4,7 +4,6 @@ using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using ServiceDeskSystem.Components.Pages;
-using ServiceDeskSystem.Components.UI.Elements;
 
 namespace ServiceDeskSystem.Tests.Frontend.Components.Pages;
 
@@ -42,20 +41,5 @@ public class StatusPagesTests
         cut.Find("[data-status-message]").TextContent.Should().Be("errors.accessDenied");
         cut.Find("a[data-status-home]").GetAttribute("href").Should().Be("/");
         cut.FindAll("svg").Should().BeEmpty();
-    }
-
-    [Test]
-    public void Markdown_toolbar_uses_labelled_glyph_buttons()
-    {
-        var cut = _host.Context.RenderComponent<MarkdownToolbar>();
-
-        var buttons = cut.FindAll("button");
-        buttons.Select(b => b.GetAttribute("aria-label")).Should().Equal(
-            "markdown.bold", "markdown.italic", "markdown.code", "markdown.quote", "markdown.link");
-        cut.FindAll("svg").Should().BeEmpty();
-
-        cut.Find("button").Click();
-
-        _host.Context.JSInterop.VerifyInvoke("window.markdownEditor.insertFormatting");
     }
 }
