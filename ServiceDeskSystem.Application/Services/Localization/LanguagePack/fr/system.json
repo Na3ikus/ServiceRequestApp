@@ -81,5 +81,8 @@
   "markdown.code": "Code en ligne",
   "markdown.quote": "Citation",
   "markdown.link": "Insérer un lien",
-  "home.overview": "Aperçu"
+  "home.overview": "Aperçu",
+  "errors.notFound": "introuvable",
+  "errors.accessDenied": "permission refusée",
+  "errors.unexpected": "une erreur est survenue ; rechargez la page ou réessayez plus tard"
 }

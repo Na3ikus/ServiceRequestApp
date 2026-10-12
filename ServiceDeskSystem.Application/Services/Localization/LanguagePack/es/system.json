@@ -81,5 +81,8 @@
   "markdown.code": "Código en línea",
   "markdown.quote": "Bloque de cita",
   "markdown.link": "Insertar enlace",
-  "home.overview": "Resumen"
+  "home.overview": "Resumen",
+  "errors.notFound": "no encontrado",
+  "errors.accessDenied": "permiso denegado",
+  "errors.unexpected": "algo salió mal; recarga la página o inténtalo más tarde"
 }

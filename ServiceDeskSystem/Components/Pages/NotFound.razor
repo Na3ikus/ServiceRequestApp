@@ -1,6 +1,21 @@
 @page "/not-found"
 @layout MainLayout
+@inherits BaseComponent
 
 <!-- Created by Nazar "N1h3" Hutsol -->
-<h3>Not Found</h3>
-<p>Sorry, the content you are looking for does not exist.</p>
+<PageTitle>404</PageTitle>
+
+<StatusScreen Code="404" Message="@($"~/{RequestedPath}: {L.Translate("errors.notFound")}")" />
+
+@code {
+    // The Router renders this page for unknown URLs, so the address bar holds the missing path.
+    private string RequestedPath
+    {
+        get
+        {
+            var path = Navigation.ToBaseRelativePath(Navigation.Uri);
+            var end = path.IndexOfAny(['?', '#']);
+            return end < 0 ? path : path[..end];
+        }
+    }
+}

@@ -79,6 +79,23 @@ public class HelperUsageTests
     }
 
     [Test]
+    public void Components_use_tokens_not_the_legacy_palette()
+    {
+        var componentsRoot = Path.Combine(FindRepoRoot(), "ServiceDeskSystem", "Components");
+        var legacy = new System.Text.RegularExpressions.Regex(
+            @"\b(gray|slate|blue|indigo|purple|red|green|yellow)-\d{2,3}\b|bg-gradient|rounded-2xl|shadow-(lg|xl|2xl)\b");
+
+        var violations = Directory.EnumerateFiles(componentsRoot, "*.razor", SearchOption.AllDirectories)
+            .Concat(Directory.EnumerateFiles(componentsRoot, "*.cs", SearchOption.AllDirectories))
+            .Concat(Directory.EnumerateFiles(componentsRoot, "*.css", SearchOption.AllDirectories))
+            .Where(IsNotExcluded)
+            .SelectMany(file => legacy.Matches(File.ReadAllText(file)).Select(m => $"{file}: {m.Value}"))
+            .ToList();
+
+        violations.Should().BeEmpty(because: string.Join(Environment.NewLine, violations));
+    }
+
+    [Test]
     public void Text_sizes_use_rem_tokens_not_pixels()
     {
         // text-[13px] ignores the interface-scale setting; use text-12/13/15/20/40 (rem) instead.

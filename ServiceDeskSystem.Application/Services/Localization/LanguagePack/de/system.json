@@ -81,5 +81,8 @@
   "markdown.code": "Inline-Code",
   "markdown.quote": "Zitatblock",
   "markdown.link": "Link einfügen",
-  "home.overview": "Übersicht"
+  "home.overview": "Übersicht",
+  "errors.notFound": "nicht gefunden",
+  "errors.accessDenied": "zugriff verweigert",
+  "errors.unexpected": "etwas ist schiefgelaufen; lade die Seite neu oder versuche es später erneut"
 }

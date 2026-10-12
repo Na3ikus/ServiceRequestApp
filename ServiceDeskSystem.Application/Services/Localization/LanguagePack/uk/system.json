@@ -79,5 +79,8 @@
   "markdown.code": "Код",
   "markdown.quote": "Цитата",
   "markdown.link": "Вставити посилання",
-  "home.overview": "Огляд"
+  "home.overview": "Огляд",
+  "errors.notFound": "не знайдено",
+  "errors.accessDenied": "доступ заборонено",
+  "errors.unexpected": "щось пішло не так; перезавантажте сторінку або спробуйте пізніше"
 }
