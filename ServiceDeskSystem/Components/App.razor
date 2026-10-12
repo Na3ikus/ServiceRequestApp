@@ -7,18 +7,16 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1" />
     <base href="/" />
+    <script src="js/prefs.js"></script>
     <ResourcePreloader />
     <link rel="stylesheet" href="@Assets["css/app.css"]" />
-    <link rel="stylesheet" href="@Assets["app.css"]" />
-    <link rel="stylesheet" href="@Assets["css/ticket-status.css"]" />
     <link rel="stylesheet" href="@Assets["ServiceDeskSystem.styles.css"]" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&family=Nunito:wght@300;400;600;700&family=Fira+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
     <ImportMap />
-    <link rel="icon" type="image/png" sizes="32x32" href="favicon.png" />
-    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
-    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="@Assets["favicon.png"]" />
+    <link rel="apple-touch-icon" sizes="180x180" href="@Assets["apple-touch-icon.png"]" />
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <script src="js/theme.js"></script>
     <script src="js/sidebar.js"></script>
@@ -28,9 +26,9 @@
     <script src="js/attachments.js"></script>
     <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
     <script src="js/quillInterop.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="js/chartInterop.js"></script>
     <script src="js/commandPalette.js"></script>
+    <script src="js/focusTrap.js"></script>
+    <script src="js/typewriter.js"></script>
     <HeadOutlet @rendermode="InteractiveServer" />
 </head>
 

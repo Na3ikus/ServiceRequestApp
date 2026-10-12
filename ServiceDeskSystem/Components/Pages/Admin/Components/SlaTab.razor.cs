@@ -9,8 +9,13 @@ using ServiceDeskSystem.Domain.Enums;
 
 namespace ServiceDeskSystem.Components.Pages.Admin.Components;
 
+/// <summary>
+/// Admin SLA section: policies with the active switch in the row, a two-row inline edit and a delete prompt.
+/// </summary>
 public partial class SlaTab : BaseComponent
 {
+    private ElementReference firstField;
+
     [Parameter]
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1002:Do not expose generic lists", Justification = "Blazor parameter")]
     public IList<SlaPolicy>? Policies { get; set; }
@@ -32,31 +37,13 @@ public partial class SlaTab : BaseComponent
 
     protected int SelectedProductId { get; set; }
 
-    protected bool ShowModal { get; set; }
+    protected RowState Row { get; } = new ();
 
-    protected string ModalTitle { get; set; } = string.Empty;
-
-    protected bool IsEditing { get; set; }
-
-    protected bool IsSaving { get; set; }
+    protected TableSort Sort { get; } = new ("priority", descending: true);
 
     protected bool IsRecalculating { get; set; }
 
-    protected string? ErrorMessage { get; set; }
-
     protected string SearchQuery { get; set; } = string.Empty;
-
-    protected string SortColumn { get; set; } = "priority";
-
-    protected bool SortAscending { get; set; }
-
-    protected static string GetPriorityClass(TicketPriority priority) => priority switch
-    {
-        TicketPriority.Critical => "is-critical",
-        TicketPriority.High => "is-high",
-        TicketPriority.Medium => "is-medium",
-        _ => "is-low",
-    };
 
     protected IList<SlaPolicy>? GetFilteredPolicies()
     {
@@ -72,42 +59,16 @@ public partial class SlaTab : BaseComponent
             return null;
         }
 
-        var ordered = this.SortColumn == "name"
-            ? query.OrderBy(p => p.Name, StringComparer.OrdinalIgnoreCase)
-            : query.OrderBy(p => (int)p.Priority);
-
-        if (!this.SortAscending)
-        {
-            ordered = this.SortColumn == "name"
-                ? query.OrderByDescending(p => p.Name, StringComparer.OrdinalIgnoreCase)
-                : query.OrderByDescending(p => (int)p.Priority);
-        }
+        var ordered = this.Sort.Column == "name"
+            ? this.Sort.Apply(query, p => p.Name, StringComparer.OrdinalIgnoreCase)
+            : this.Sort.Apply(query, p => (int)p.Priority);
 
         return ordered.ThenBy(p => p.ProductId ?? 0).ToList();
     }
 
-    protected void SetSort(string column)
-    {
-        if (this.SortColumn == column)
-        {
-            this.SortAscending = !this.SortAscending;
-        }
-        else
-        {
-            this.SortColumn = column;
-            this.SortAscending = true;
-        }
-    }
+    protected void SortBy(string column) => this.Sort.Toggle(column);
 
-    protected string GetSortArrow(string column)
-    {
-        if (this.SortColumn != column)
-        {
-            return "↕";
-        }
-
-        return this.SortAscending ? "↑" : "↓";
-    }
+    protected void ClearSearch() => this.SearchQuery = string.Empty;
 
     protected void ShowAddPolicy()
     {
@@ -120,7 +81,7 @@ public partial class SlaTab : BaseComponent
             IsActive = true,
         };
         this.SelectedProductId = 0;
-        this.OpenModal(this.L.Translate("sla.addPolicy"), isEdit: false);
+        this.Row.Add();
     }
 
     protected void EditPolicy(SlaPolicy policy)
@@ -141,7 +102,7 @@ public partial class SlaTab : BaseComponent
             IsActive = policy.IsActive,
         };
         this.SelectedProductId = policy.ProductId ?? 0;
-        this.OpenModal(this.L.Translate("sla.editPolicy"), isEdit: true);
+        this.Row.Edit(policy.Id);
     }
 
     protected async Task ToggleActiveAsync(SlaPolicy policy)
@@ -163,9 +124,11 @@ public partial class SlaTab : BaseComponent
     {
         ArgumentNullException.ThrowIfNull(policy);
 
+        this.Row.Begin();
         try
         {
             var success = await this.SlaPolicyService.DeletePolicyAsync(policy.Id, this.AuthService.CurrentUser?.Id);
+            this.Row.Close();
             if (success)
             {
                 await this.ToastService.ShowToastAsync(this.L.Translate("sla.deleted"), ToastType.Success);
@@ -174,6 +137,7 @@ public partial class SlaTab : BaseComponent
         }
         catch (InvalidOperationException ex)
         {
+            this.Row.Close();
             await this.ToastService.ShowToastAsync(ex.Message, ToastType.Error);
         }
     }
@@ -202,54 +166,36 @@ public partial class SlaTab : BaseComponent
         }
     }
 
-    protected void CloseModal()
+    protected async Task SaveAsync()
     {
-        this.ShowModal = false;
-        this.ErrorMessage = null;
-    }
-
-    protected async Task SaveModalAsync()
-    {
-        this.IsSaving = true;
-        this.ErrorMessage = null;
+        var isNew = this.Row.IsAdding;
+        this.Row.Begin();
 
         try
         {
             this.EditingPolicy.ProductId = this.SelectedProductId == 0 ? null : this.SelectedProductId;
 
-            if (this.IsEditing)
-            {
-                await this.SlaPolicyService.UpdatePolicyAsync(this.EditingPolicy, this.AuthService.CurrentUser?.Id);
-                await this.ToastService.ShowToastAsync(this.L.Translate("sla.updated"), ToastType.Success);
-            }
-            else
+            if (isNew)
             {
                 await this.SlaPolicyService.CreatePolicyAsync(this.EditingPolicy, this.AuthService.CurrentUser?.Id);
                 await this.ToastService.ShowToastAsync(this.L.Translate("sla.created"), ToastType.Success);
             }
+            else
+            {
+                await this.SlaPolicyService.UpdatePolicyAsync(this.EditingPolicy, this.AuthService.CurrentUser?.Id);
+                await this.ToastService.ShowToastAsync(this.L.Translate("sla.updated"), ToastType.Success);
+            }
 
+            this.Row.Close();
             await this.OnPoliciesChanged.InvokeAsync();
-            this.CloseModal();
         }
         catch (ArgumentException ex)
         {
-            this.ErrorMessage = ex.Message;
+            this.Row.Fail(ex.Message);
         }
         catch (InvalidOperationException ex)
         {
-            this.ErrorMessage = ex.Message;
+            this.Row.Fail(ex.Message);
         }
-        finally
-        {
-            this.IsSaving = false;
-        }
-    }
-
-    private void OpenModal(string title, bool isEdit)
-    {
-        this.ModalTitle = title;
-        this.IsEditing = isEdit;
-        this.ErrorMessage = null;
-        this.ShowModal = true;
     }
 }

@@ -1,3 +1,11 @@
+# Stage 0: Compile Tailwind CSS
+FROM node:22-alpine AS css
+WORKDIR /src/ServiceDeskSystem
+COPY ["ServiceDeskSystem/package.json", "ServiceDeskSystem/package-lock.json", "./"]
+RUN npm ci
+COPY ServiceDeskSystem/ ./
+RUN npm run build:css
+
 # Stage 1: Build
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG BUILD_CONFIGURATION=Release
@@ -12,13 +20,14 @@ RUN dotnet restore "./ServiceDeskSystem/ServiceDeskSystem.csproj"
 
 # Copy source and build
 COPY . .
+COPY --from=css /src/ServiceDeskSystem/wwwroot/css/app.css ./ServiceDeskSystem/wwwroot/css/app.css
 WORKDIR "/src/ServiceDeskSystem"
-RUN dotnet build "./ServiceDeskSystem.csproj" -c $BUILD_CONFIGURATION -o /app/build
+RUN dotnet build "./ServiceDeskSystem.csproj" -c $BUILD_CONFIGURATION -o /app/build -p:SkipTailwindBuild=true
 
 # Stage 2: Publish
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./ServiceDeskSystem.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "./ServiceDeskSystem.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false -p:SkipTailwindBuild=true
 
 # Stage 3: Runtime
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final

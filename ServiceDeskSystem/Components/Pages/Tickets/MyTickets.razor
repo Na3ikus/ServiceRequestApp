@@ -1,83 +1,49 @@
 @page "/my-tickets"
 
-@using ServiceDeskSystem.Components.Features
 @inherits BaseComponent
 @rendermode InteractiveServer
 
 <!-- Created by Nazar "N1h3" Hutsol -->
 <div class="max-w-7xl mx-auto p-4 sm:p-6">
-    <!-- Header Hero -->
-    <div class="page-hero relative overflow-hidden bg-gradient-to-br from-indigo-600 via-blue-700 to-indigo-800 rounded-3xl shadow-lg p-6 sm:p-8 mb-8 border border-white/10 dark:border-gray-800 group">
-        <!-- Background Decoration -->
-        <div class="page-hero-decor absolute top-0 right-0 -mr-10 -mt-10 w-48 h-48 rounded-full bg-white/10 blur-2xl pointer-events-none group-hover:scale-110 transition-transform duration-700"></div>
-        <div class="page-hero-decor absolute bottom-0 left-0 -ml-10 -mb-10 w-64 h-64 rounded-full bg-blue-500/20 blur-2xl pointer-events-none group-hover:scale-110 transition-transform duration-700"></div>
-        
-        <div class="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
-            <div class="text-white">
-                <h1 class="text-2xl sm:text-3xl font-extrabold mb-1 tracking-tight flex items-center gap-3">
-                    <span class="p-2 bg-white/10 rounded-lg backdrop-blur-sm inline-flex">
-                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
-                        </svg>
-                    </span>
-                    @L.Translate("nav.myTickets")
-                </h1>
-                <p class="text-indigo-100 text-sm sm:text-base">
-                    @L.Translate("myTickets.subtitle")
-                </p>
-            </div>
-            
-            <a href="create-ticket"
-                class="px-5 py-2.5 bg-white text-indigo-700 hover:bg-indigo-50 rounded-xl font-bold font-inter shadow-lg hover:shadow-xl transition-all flex items-center gap-2 transform hover:-translate-y-0.5 text-sm sm:text-base shrink-0 w-fit">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                </svg>
-                <span class="hidden sm:inline">@L.Translate("nav.newTicket")</span>
-            </a>
-        </div>
-    </div>
+    <PageHeader Segments="Segments" Subtitle="@L.Translate("myTickets.subtitle")">
+        <Actions>
+            <a href="create-ticket" class="btn-accent inline-flex items-center">@Heading("nav.newTicket")</a>
+        </Actions>
+    </PageHeader>
 
-@if (Tickets is null)
-{
-    <div class="animate-pulse space-y-4">
-        @for (int i = 0; i < 4; i++)
-        {
-            <div class="bg-white dark:bg-gray-800/80 rounded-xl p-4">
-                <div class="flex items-start justify-between gap-3 mb-3">
-                    <div class="flex-1 space-y-2">
-                        <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
-                        <div class="h-3 bg-gray-200 dark:bg-gray-700 rounded w-12"></div>
-                    </div>
-                    <div class="h-6 bg-gray-200 dark:bg-gray-700 rounded-full w-20"></div>
-                </div>
-                <div class="flex gap-2">
-                    <div class="h-5 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
-                    <div class="h-5 bg-gray-200 dark:bg-gray-700 rounded w-20"></div>
-                </div>
-            </div>
-        }
-    </div>
-}
-else if (!Tickets.Any())
-{
-    <div class="bg-white dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-lg p-8 sm:p-12 text-center border border-transparent dark:border-gray-700/50">
-        <div class="w-20 h-20 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-6">
-            <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-            </svg>
+    @if (Tickets is null)
+    {
+        <div class="space-y-2" aria-busy="true">
+            @for (var i = 0; i < 6; i++)
+            {
+                <div class="h-11 rounded-md bg-surface"></div>
+            }
         </div>
-        <h3 class="text-xl font-semibold text-gray-700 dark:text-white mb-2">@L.Translate("myTickets.noTickets")</h3>
-        <p class="text-gray-500 dark:text-gray-400 mb-6">@L.Translate("myTickets.createFirst")</p>
-        <a href="create-ticket" class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-            </svg>
-            @L.Translate("tickets.createTicket")
-        </a>
-    </div>
-}
+    }
+    else if (Tickets.Count == 0)
+    {
+        <EmptyState Message="@L.Translate("myTickets.noTickets")" ActionText="@Heading("nav.newTicket")"
+                    OnAction="@(() => Navigation.NavigateTo("/create-ticket"))" />
+    }
     else
     {
-        <TicketTable Tickets="Tickets" OnTicketClick="ViewTicket" ShowAuthor="false" />
+        var shown = TicketFilter.Apply(Tickets, Filter);
+        <TicketFilters Value="Filter" ValueChanged="f => Filter = f" Shown="shown.Count" Total="Tickets.Count" />
+
+        @if (shown.Count == 0)
+        {
+            <EmptyState Message="@L.Translate("tickets.nothingFound")" ActionText="@Heading("search.clearFilters")"
+                        OnAction="@(() => Filter = new TicketFilterState())" />
+        }
+        else
+        {
+            <TicketTable Tickets="shown" OnTicketClick="ViewTicket" ShowAuthor="false" />
+        }
     }
 </div>
+
+@code {
+    private static readonly IReadOnlyList<PathSegment> Segments = [new ("my-tickets")];
+
+    private TicketFilterState Filter { get; set; } = new ();
+}

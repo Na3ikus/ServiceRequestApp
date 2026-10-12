@@ -1,0 +1,33 @@
+<button type="button"
+        role="switch"
+        aria-checked="@(Value ? "true" : "false")"
+        aria-label="@Label"
+        disabled="@Disabled"
+        class="relative inline-flex h-5 w-9 shrink-0 items-center rounded-full border transition-colors focus-visible:outline focus-visible:outline-1 focus-visible:outline-accent-ink focus-visible:outline-offset-2 disabled:opacity-50 disabled:cursor-not-allowed @(Value ? "bg-accent border-accent" : "bg-surface border-line")"
+        @onclick="ToggleAsync">
+    <span class="inline-block h-3.5 w-3.5 rounded-full transition-transform @(Value ? "translate-x-[18px] bg-on-accent" : "translate-x-[2px] bg-muted")"></span>
+</button>
+
+@code {
+    [Parameter]
+    public string Label { get; set; } = string.Empty;
+
+    [Parameter]
+    public bool Value { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> ValueChanged { get; set; }
+
+    [Parameter]
+    public bool Disabled { get; set; }
+
+    private async Task ToggleAsync()
+    {
+        if (Disabled)
+        {
+            return;
+        }
+
+        await ValueChanged.InvokeAsync(!Value);
+    }
+}

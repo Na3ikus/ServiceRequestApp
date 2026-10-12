@@ -1,0 +1,42 @@
+@* A sortable column header: the arrow shows on the active column, aria-sort sits on the th (as in TicketTable). *@
+<th class="font-normal @Class" aria-sort="@(Active ? (Sort.Descending ? "descending" : "ascending") : "none")">
+    <button type="button" data-sort="@Column" class="inline-flex items-center gap-1 hover:text-fg @(Active ? "text-fg" : null)"
+            @onclick="() => OnSort.InvokeAsync(Column)">
+        @Text<span aria-hidden="true" class="w-3">@(Active ? (Sort.Descending ? "↓" : "↑") : null)</span>
+    </button>
+</th>
+
+@code {
+    /// <summary>
+    /// Gets or sets the header text.
+    /// </summary>
+    [Parameter]
+    public string Text { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets the column key passed to <see cref="OnSort"/>.
+    /// </summary>
+    [Parameter]
+    public string Column { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets the table's sort state.
+    /// </summary>
+    [Parameter]
+    [EditorRequired]
+    public TableSort Sort { get; set; } = null!;
+
+    /// <summary>
+    /// Gets or sets the callback run with <see cref="Column"/> when the header is clicked.
+    /// </summary>
+    [Parameter]
+    public EventCallback<string> OnSort { get; set; }
+
+    /// <summary>
+    /// Gets or sets extra classes for the th (width, alignment).
+    /// </summary>
+    [Parameter]
+    public string? Class { get; set; }
+
+    private bool Active => this.Sort.Column == this.Column;
+}

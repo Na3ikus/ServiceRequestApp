@@ -1,622 +1,290 @@
 @page "/statistics"
-@using ServiceDeskSystem.Domain.Entities
-@using Microsoft.JSInterop
+@using System.Globalization
+@using ServiceDeskSystem.Application.Services.Tickets.Models
+@using ServiceDeskSystem.Components.Pages.Admin.Components
+@using ServiceDeskSystem.Domain.Enums
 @inherits ServiceDeskSystem.Components.UI.Base.BaseComponent
 @rendermode InteractiveServer
 
 <!-- Created by Nazar "N1h3" Hutsol -->
-<div class="max-w-7xl mx-auto p-4 sm:p-6 space-y-6">
-
-    @if (!HasAccess)
+<div class="max-w-7xl mx-auto p-4 sm:p-6">
+    @if (HasAccess)
     {
-        <div class="bg-red-100 dark:bg-red-900/50 border border-red-400 dark:border-red-600 text-red-700 dark:text-red-300 px-6 py-4 rounded-2xl shadow-sm">
-            <div class="flex items-center gap-3">
-                <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                </svg>
-                <span class="font-medium">@L.Translate("stats.accessDenied")</span>
-            </div>
-        </div>
-    }
-    else if (IsLoading)
-    {
-        <div class="animate-pulse space-y-6">
-            <!-- Header skeleton -->
-            <div class="flex justify-between items-center">
-                <div class="space-y-2">
-                    <div class="h-8 bg-gray-200 dark:bg-gray-700 rounded-lg w-56"></div>
-                    <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-72"></div>
-                </div>
-                <div class="h-10 bg-gray-200 dark:bg-gray-700 rounded-xl w-60"></div>
-            </div>
+        <PageHeader Segments="Segments" Subtitle="@L.Translate("stats.subtitle")">
+            <Actions>
+                <SegmentedControl Label="@L.Translate("stats.period")" Options="PeriodOptions" Value="@Days.ToString(CultureInfo.InvariantCulture)"
+                                  ValueChanged="SelectPeriodAsync" />
+            </Actions>
+        </PageHeader>
 
-            <!-- Stats cards skeleton -->
-            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                @for (int i = 0; i < 4; i++)
-                {
-                    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-md p-5 border border-gray-100 dark:border-gray-700/50">
-                        <div class="flex items-center justify-between">
-                            <div class="space-y-2">
-                                <div class="h-3 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
-                                <div class="h-8 bg-gray-200 dark:bg-gray-700 rounded w-12"></div>
-                            </div>
-                            <div class="h-12 w-12 bg-gray-200 dark:bg-gray-700 rounded-xl"></div>
-                        </div>
-                    </div>
-                }
-            </div>
-
-            <!-- Charts skeleton -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                @for (int i = 0; i < 2; i++)
-                {
-                    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-md p-6 border border-gray-100 dark:border-gray-700/50">
-                        <div class="h-5 bg-gray-200 dark:bg-gray-700 rounded w-36 mb-5"></div>
-                        <div class="w-full h-64 bg-gray-200 dark:bg-gray-700 rounded-xl"></div>
-                    </div>
-                }
-            </div>
-        </div>
-    }
-    else
-    {
-        <!-- Page Header & Mode Selector -->
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div>
-                <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">
-                    @L.Translate("stats.title")
-                </h1>
-                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                    @L.Translate("stats.subtitle")
-                </p>
-            </div>
-
-            <!-- Tab Switcher -->
-            <div class="inline-flex p-1.5 bg-gray-200/90 dark:bg-gray-900 rounded-2xl border border-gray-300 dark:border-gray-700/80 shadow-xs">
-                <button type="button"
-                    @onclick="() => SwitchTab(AnalyticsTab.Overview)"
-                    class="px-4 py-2 text-sm font-bold rounded-xl transition-all duration-200 flex items-center gap-2 cursor-pointer @(CurrentTab == AnalyticsTab.Overview ? "bg-white dark:bg-gray-800 text-blue-600 dark:text-white shadow-sm border border-gray-200 dark:border-gray-700" : "text-gray-700 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white")">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"/>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"/>
-                    </svg>
-                    <span>@L.Translate("stats.overview")</span>
+        <nav data-stats-tabs aria-label="@L.Translate("stats.sections")"
+             class="mb-6 flex gap-1 overflow-x-auto overflow-y-hidden border-b border-line font-mono text-14">
+            @foreach (var tab in Tabs)
+            {
+                var active = tab == ActiveTab;
+                <button type="button" data-tab="@tab" aria-current="@(active ? "true" : null)"
+                        class="relative shrink-0 whitespace-nowrap px-3 py-2 hover:text-fg @(active ? "text-fg" : "text-muted")"
+                        @onclick="() => SelectTab(tab)">
+                    <span>@tab</span>
+                    @if (active)
+                    {
+                        <span aria-hidden="true" class="absolute inset-x-2 bottom-0 h-0.5 bg-accent"></span>
+                    }
                 </button>
-                <button type="button"
-                    @onclick="() => SwitchTab(AnalyticsTab.Extended)"
-                    class="px-4 py-2 text-sm font-bold rounded-xl transition-all duration-200 flex items-center gap-2 cursor-pointer @(CurrentTab == AnalyticsTab.Extended ? "bg-white dark:bg-gray-800 text-blue-600 dark:text-white shadow-sm border border-gray-200 dark:border-gray-700" : "text-gray-700 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white")">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
-                    </svg>
-                    <span>@L.Translate("analytics.title")</span>
-                    <span class="px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-blue-600 text-white rounded-md shadow-2xs">PRO</span>
-                </button>
-                <button type="button"
-                    @onclick="() => SwitchTab(AnalyticsTab.Efficiency)"
-                    class="px-4 py-2 text-sm font-bold rounded-xl transition-all duration-200 flex items-center gap-2 cursor-pointer @(CurrentTab == AnalyticsTab.Efficiency ? "bg-white dark:bg-gray-800 text-blue-600 dark:text-white shadow-sm border border-gray-200 dark:border-gray-700" : "text-gray-700 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white")">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
-                    </svg>
-                    <span>@L.Translate("stats.efficiency")</span>
-                </button>
-            </div>
-        </div>
+            }
+        </nav>
 
-        @if (CurrentTab == AnalyticsTab.Overview)
+        @if (Report is not { } report)
         {
-            <!-- Overview Summary KPI Cards -->
-            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                <!-- Total -->
-                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden hover:shadow-xl hover:shadow-blue-500/20 transition-all duration-300 hover:-translate-y-1">
-                    <div class="p-5">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">
-                                    @L.Translate("stats.total")
-                                </p>
-                                <p class="text-3xl font-bold text-gray-900 dark:text-white" id="totalCount">@TotalTickets</p>
-                            </div>
-                            <div class="p-3 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg shadow-blue-500/30">
-                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                                </svg>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="h-1 bg-gradient-to-r from-blue-500 to-blue-600"></div>
-                </div>
-
-                <!-- Open -->
-                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden hover:shadow-xl hover:shadow-amber-500/20 transition-all duration-300 hover:-translate-y-1">
-                    <div class="p-5">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">
-                                    @L.Translate("stats.open")
-                                </p>
-                                <p class="text-3xl font-bold text-gray-900 dark:text-white" id="openCount">@OpenTickets</p>
-                            </div>
-                            <div class="p-3 bg-gradient-to-br from-amber-500 to-orange-500 rounded-xl shadow-lg shadow-amber-500/30">
-                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="h-1 bg-gradient-to-r from-amber-500 to-orange-500"></div>
-                </div>
-
-                <!-- Critical -->
-                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden hover:shadow-xl hover:shadow-red-500/20 transition-all duration-300 hover:-translate-y-1">
-                    <div class="p-5">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">
-                                    @L.Translate("stats.critical")
-                                </p>
-                                <p class="text-3xl font-bold text-gray-900 dark:text-white" id="criticalCount">@CriticalTickets</p>
-                            </div>
-                            <div class="p-3 bg-gradient-to-br from-red-500 to-rose-600 rounded-xl shadow-lg shadow-red-500/30">
-                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                                </svg>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="h-1 bg-gradient-to-r from-red-500 to-rose-600"></div>
-                </div>
-
-                <!-- Resolved -->
-                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden hover:shadow-xl hover:shadow-emerald-500/20 transition-all duration-300 hover:-translate-y-1">
-                    <div class="p-5">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">
-                                    @L.Translate("stats.resolved")
-                                </p>
-                                <p class="text-3xl font-bold text-gray-900 dark:text-white" id="resolvedCount">@ResolvedTickets</p>
-                            </div>
-                            <div class="p-3 bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl shadow-lg shadow-emerald-500/30">
-                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="h-1 bg-gradient-to-r from-emerald-500 to-green-600"></div>
-                </div>
-            </div>
-
-            <!-- Overview Charts Row -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- By Status -->
-                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border border-gray-100 dark:border-gray-700/50">
-                    <h2 class="text-base font-bold text-gray-800 dark:text-white mb-5 flex items-center gap-2">
-                        <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
-                        @L.Translate("stats.byStatus")
-                    </h2>
-                    <div class="relative w-full h-64">
-                        <canvas id="statusChart"></canvas>
-                    </div>
-                </div>
-
-                <!-- By Priority -->
-                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border border-gray-100 dark:border-gray-700/50">
-                    <h2 class="text-base font-bold text-gray-800 dark:text-white mb-5 flex items-center gap-2">
-                        <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
-                        @L.Translate("stats.byPriority")
-                    </h2>
-                    <div class="relative w-full h-64">
-                        <canvas id="priorityChart"></canvas>
-                    </div>
-                </div>
-
-                <!-- By Type -->
-                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border border-gray-100 dark:border-gray-700/50 md:col-span-2 lg:col-span-1">
-                    <h2 class="text-base font-bold text-gray-800 dark:text-white mb-5 flex items-center gap-2">
-                        <span class="w-2.5 h-2.5 rounded-full bg-purple-500"></span>
-                        @L.Translate("stats.byType")
-                    </h2>
-                    <div class="relative w-full h-64">
-                        <canvas id="typeChart"></canvas>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Top Developers Leaderboard -->
-            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border border-gray-100 dark:border-gray-700/50">
-                <h2 class="text-base font-bold text-gray-800 dark:text-white mb-5 flex items-center gap-2">
-                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-                    @L.Translate("stats.topDevs")
-                </h2>
-                @if (TopDevs.Count == 0)
+            @if (IsLoading)
+            {
+                <p data-loading class="px-3.5 py-7 font-mono text-13 text-muted">@Heading("common.loading")</p>
+            }
+            else
+            {
+                <p data-load-failed class="px-3.5 py-7 font-mono text-13 text-muted">@Heading("stats.loadFailed")</p>
+            }
+        }
+        else
+        {
+            @* The previous report stays on screen while a new period loads. *@
+            <div data-report aria-busy="@(IsLoading ? "true" : "false")">
+                @if (ActiveTab == "team")
                 {
-                    <p class="text-sm text-gray-400 dark:text-gray-500 italic">@L.Translate("stats.noData")</p>
+                    @Team(report)
                 }
                 else
                 {
-                    var maxCount = TopDevs.Max(d => d.Count);
-                    <div class="space-y-4">
-                        @foreach (var (i, dev) in TopDevs.Select((d, i) => (i, d)))
-                        {
-                            var pct = Pct(dev.Count, maxCount);
-                            var medal = i switch { 0 => "🥇", 1 => "🥈", 2 => "🥉", _ => $"#{i + 1}" };
-                            <div class="flex items-center gap-4">
-                                <span class="text-lg w-8 flex-shrink-0 text-center">@medal</span>
-                                <div class="flex-1">
-                                    <div class="flex justify-between items-center mb-1">
-                                        <span class="text-sm font-semibold text-gray-800 dark:text-gray-200">@dev.Login</span>
-                                        <span class="text-sm font-bold text-emerald-600 dark:text-emerald-400">
-                                            @dev.Count @L.Translate("stats.tickets")
-                                        </span>
-                                    </div>
-                                    <div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2.5 overflow-hidden">
-                                        <div class="h-2.5 rounded-full bg-gradient-to-r from-emerald-500 to-green-500 transition-all duration-700"
-                                            style="width: @(pct)%"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        }
-                    </div>
-                }
-            </div>
-        }
-        else if (CurrentTab == AnalyticsTab.Extended)
-        {
-            <!-- Extended Analytics Section -->
-            <div class="space-y-6">
-                <!-- Time Range Filter & Controls -->
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700/50 gap-3">
-                    <div class="flex items-center gap-2">
-                        <span class="text-sm font-semibold text-gray-700 dark:text-gray-300">@L.Translate("analytics.analysisPeriod")</span>
-                        <div class="inline-flex rounded-xl bg-gray-800/80 dark:bg-gray-900 p-1 border border-gray-700/60 dark:border-gray-700">
-                            <button type="button"
-                                @onclick="() => SetDaysFilter(7)"
-                                class="px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer @(SelectedDays == 7 ? "bg-blue-600 text-white shadow-xs" : "text-gray-300 dark:text-gray-300 hover:text-white")">
-                                @L.Translate("analytics.days7")
-                            </button>
-                            <button type="button"
-                                @onclick="() => SetDaysFilter(30)"
-                                class="px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer @(SelectedDays == 30 ? "bg-blue-600 text-white shadow-xs" : "text-gray-300 dark:text-gray-300 hover:text-white")">
-                                @L.Translate("analytics.days30")
-                            </button>
-                            <button type="button"
-                                @onclick="() => SetDaysFilter(90)"
-                                class="px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer @(SelectedDays == 90 ? "bg-blue-600 text-white shadow-xs" : "text-gray-300 dark:text-gray-300 hover:text-white")">
-                                @L.Translate("analytics.days90")
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-2">
-                        <span class="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                        @L.Translate("analytics.dataUpdated") @DateTime.Now.ToString("HH:mm:ss")
-                    </div>
-                </div>
-
-                @if (ExtendedData is not null)
-                {
-                    <!-- Advanced KPI Cards -->
-                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                        <!-- Avg Resolution Time -->
-                        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-5 border-l-4 border-indigo-500 transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5">
-                            <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">
-                                @L.Translate("analytics.avgResolutionTime")
-                            </p>
-                            <div class="flex items-baseline gap-2">
-                                <p class="text-2xl sm:text-3xl font-extrabold text-indigo-600 dark:text-indigo-400">
-                                    @ExtendedData.Kpis.AvgResolutionHours
-                                    <span class="text-sm font-medium text-gray-500 dark:text-gray-400">@L.Translate("analytics.hoursUnit")</span>
-                                </p>
-                            </div>
-                            <p class="text-xs text-gray-400 dark:text-gray-500 mt-2">
-                                ≈ @(Math.Round(ExtendedData.Kpis.AvgResolutionHours / 24.0, 1)) @L.Translate("analytics.daysFromCreation")
-                            </p>
-                        </div>
-
-                        <!-- Resolution Rate -->
-                        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-5 border-l-4 border-emerald-500 transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5">
-                            <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">
-                                @L.Translate("analytics.resolutionRate")
-                            </p>
-                            <div class="flex items-baseline gap-2">
-                                <p class="text-2xl sm:text-3xl font-extrabold text-emerald-600 dark:text-emerald-400">
-                                    @ExtendedData.Kpis.ResolutionRatePercent%
-                                </p>
-                            </div>
-                            <p class="text-xs text-gray-400 dark:text-gray-500 mt-2">
-                                @ExtendedData.Kpis.ResolvedTickets / @ExtendedData.Kpis.TotalTickets @L.Translate("analytics.resolvedOutOf")
-                            </p>
-                        </div>
-
-                        <!-- Active Developers -->
-                        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-5 border-l-4 border-blue-500 transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5">
-                            <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">
-                                @L.Translate("analytics.activeDevs")
-                            </p>
-                            <div class="flex items-baseline gap-2">
-                                <p class="text-2xl sm:text-3xl font-extrabold text-blue-600 dark:text-blue-400">
-                                    @ExtendedData.Kpis.ActiveDevelopersCount
-                                </p>
-                                <span class="text-xs text-gray-400">@L.Translate("analytics.developersUnit")</span>
-                            </div>
-                            <p class="text-xs text-gray-400 dark:text-gray-500 mt-2">
-                                @L.Translate("analytics.haveActiveTasks")
-                            </p>
-                        </div>
-
-                        <!-- Open Backlog -->
-                        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-5 border-l-4 border-amber-500 transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5">
-                            <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">
-                                @L.Translate("analytics.currentBacklog")
-                            </p>
-                            <div class="flex items-baseline gap-2">
-                                <p class="text-2xl sm:text-3xl font-extrabold text-amber-500">
-                                    @ExtendedData.Kpis.OpenTickets
-                                </p>
-                                <span class="text-xs text-gray-400">@L.Translate("analytics.activeTicketsUnit")</span>
-                            </div>
-                            <p class="text-xs text-gray-400 dark:text-gray-500 mt-2">
-                                @L.Translate("analytics.needHandling")
-                            </p>
-                        </div>
-                    </div>
-
-                    <!-- Type Distribution Cards (Extended Breakdown) -->
-                    @if (ExtendedData.TypeDistributions.Count > 0)
-                    {
-                        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border border-gray-100 dark:border-gray-700/50">
-                            <h2 class="text-base font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
-                                <span class="w-2.5 h-2.5 rounded-full bg-purple-500"></span>
-                                @L.Translate("analytics.typeDistribution")
-                            </h2>
-                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                                @foreach (var item in ExtendedData.TypeDistributions)
-                                {
-                                    var badgeClass = GetTicketTypeBadgeClass(item.Type);
-                                    var typeName = GetTicketTypeText(item.Type);
-                                    <div class="p-4 rounded-xl bg-gray-50/80 dark:bg-gray-900/50 border border-gray-200/60 dark:border-gray-700/50 flex flex-col justify-between">
-                                        <div class="flex items-center justify-between mb-2">
-                                            <span class="px-2 py-0.5 rounded-md text-xs font-bold @badgeClass">@typeName</span>
-                                            <span class="text-xs font-bold text-gray-500 dark:text-gray-400">@item.Percentage%</span>
-                                        </div>
-                                        <div>
-                                            <p class="text-2xl font-extrabold text-gray-900 dark:text-white">@item.TicketCount</p>
-                                            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5 mt-2 overflow-hidden">
-                                                <div class="h-1.5 rounded-full bg-blue-500" style="width: @(item.Percentage)%"></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                }
-                            </div>
-                        </div>
-                    }
-
-                    <!-- Row 1: Trends Chart & Tag Distribution -->
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        <!-- Trends Chart (2 cols) -->
-                        <div class="lg:col-span-2 bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border border-gray-100 dark:border-gray-700/50">
-                            <div class="flex justify-between items-center mb-4">
-                                <h2 class="text-base font-bold text-gray-800 dark:text-white flex items-center gap-2">
-                                    <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
-                                    @L.Translate("analytics.trendsTitle")
-                                </h2>
-                                <span class="text-xs text-gray-400">@L.Translate("analytics.dynamicsFor") @SelectedDays @L.Translate("analytics.daysUnit")</span>
-                            </div>
-                            <div class="relative w-full h-72">
-                                <canvas id="trendChart"></canvas>
-                            </div>
-                        </div>
-
-                        <!-- Tags Distribution (1 col) -->
-                        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border border-gray-100 dark:border-gray-700/50">
-                            <h2 class="text-base font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
-                                <span class="w-2.5 h-2.5 rounded-full bg-purple-500"></span>
-                                @L.Translate("analytics.tagDistribution")
-                            </h2>
-                            @if (ExtendedData.TagDistributions.Count == 0)
-                            {
-                                <div class="flex flex-col items-center justify-center h-64 text-center">
-                                    <svg class="w-12 h-12 text-gray-300 dark:text-gray-600 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
-                                    </svg>
-                                    <p class="text-sm text-gray-400 dark:text-gray-500">@L.Translate("analytics.noTagsAssigned")</p>
-                                </div>
-                            }
-                            else
-                            {
-                                <div class="relative w-full h-72">
-                                    <canvas id="tagsChart"></canvas>
-                                </div>
-                            }
-                        </div>
-                    </div>
-
-                    <!-- Row 2: Developer Workload & Product SLA -->
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <!-- Developer Workload Bar Chart -->
-                        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border border-gray-100 dark:border-gray-700/50">
-                            <h2 class="text-base font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
-                                <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
-                                @L.Translate("analytics.devWorkloadTitle")
-                            </h2>
-                            <div class="relative w-full h-72">
-                                <canvas id="workloadChart"></canvas>
-                            </div>
-                        </div>
-
-                        <!-- Product SLA Resolution Time -->
-                        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border border-gray-100 dark:border-gray-700/50">
-                            <h2 class="text-base font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
-                                <span class="w-2.5 h-2.5 rounded-full bg-indigo-500"></span>
-                                @L.Translate("analytics.productPerformanceTitle")
-                            </h2>
-                            <div class="relative w-full h-72">
-                                <canvas id="productChart"></canvas>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Developer Efficiency & Product Stats Detailed Table -->
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <!-- Dev Table -->
-                        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border border-gray-100 dark:border-gray-700/50">
-                            <h3 class="text-sm font-bold text-gray-800 dark:text-white uppercase tracking-wider mb-4">
-                                @L.Translate("analytics.devStatsTitle")
-                            </h3>
-                            <div class="overflow-x-auto">
-                            <div class="w-full text-left text-sm text-gray-700 dark:text-gray-200 min-w-[600px]">
-                                <div class="grid grid-cols-12 text-xs uppercase bg-gray-50 dark:bg-gray-800/80 text-gray-500 dark:text-gray-400 font-semibold border-b border-gray-200 dark:border-gray-700/60 rounded-t-lg">
-                                    <div class="px-4 py-3 col-span-4">@L.Translate("analytics.developerTh")</div>
-                                    <div class="px-3 py-3 col-span-2 text-center">@L.Translate("analytics.inProgressTh")</div>
-                                    <div class="px-3 py-3 col-span-2 text-center">@L.Translate("analytics.activeTh")</div>
-                                    <div class="px-3 py-3 col-span-2 text-center">@L.Translate("analytics.resolvedTh")</div>
-                                    <div class="px-4 py-3 col-span-2 text-right">@L.Translate("analytics.workloadTh")</div>
-                                </div>
-                                <div class="divide-y divide-gray-100 dark:divide-gray-700/40">
-                                    @foreach (var dev in ExtendedData.DeveloperWorkloads)
-                                    {
-                                        <div class="grid grid-cols-12 hover:bg-gray-50 dark:hover:bg-gray-700/40 transition-colors items-center">
-                                            <div class="px-4 py-3 col-span-4 font-semibold text-gray-900 dark:text-white truncate" title="@dev.Login">
-                                                @dev.Login
-                                            </div>
-                                            <div class="px-3 py-3 col-span-2 text-center">
-                                                <span class="px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300">
-                                                    @dev.InProgressCount
-                                                </span>
-                                            </div>
-                                            <div class="px-3 py-3 col-span-2 text-center font-medium text-gray-900 dark:text-gray-200">@dev.AssignedCount</div>
-                                            <div class="px-3 py-3 col-span-2 text-center text-emerald-600 dark:text-emerald-400 font-semibold">@dev.ResolvedCount</div>
-                                            <div class="px-4 py-3 col-span-2 text-right">
-                                                <span class="font-mono text-xs font-bold text-gray-800 dark:text-gray-200">
-                                                    @dev.WorkloadScore pts
-                                                </span>
-                                            </div>
-                                        </div>
-                                    }
-                                </div>
-                            </div>
-                            </div>
-                        </div>
-
-                        <!-- Product Table -->
-                        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border border-gray-100 dark:border-gray-700/50">
-                            <h3 class="text-sm font-bold text-gray-800 dark:text-white uppercase tracking-wider mb-4">
-                                @L.Translate("analytics.productStatsTitle")
-                            </h3>
-                            <div class="overflow-x-auto">
-                            <div class="w-full text-left text-sm text-gray-700 dark:text-gray-200 min-w-[500px]">
-                                <div class="grid grid-cols-12 text-xs uppercase bg-gray-50 dark:bg-gray-800/80 text-gray-500 dark:text-gray-400 font-semibold border-b border-gray-200 dark:border-gray-700/60 rounded-t-lg">
-                                    <div class="px-4 py-3 col-span-6">@L.Translate("analytics.productTh")</div>
-                                    <div class="px-3 py-3 col-span-2 text-center">@L.Translate("analytics.totalTh")</div>
-                                    <div class="px-3 py-3 col-span-2 text-center">@L.Translate("analytics.resolvedTh")</div>
-                                    <div class="px-4 py-3 col-span-2 text-right">@L.Translate("analytics.avgTimeTh")</div>
-                                </div>
-                                <div class="divide-y divide-gray-100 dark:divide-gray-700/40">
-                                    @foreach (var prod in ExtendedData.ProductPerformances)
-                                    {
-                                        <div class="grid grid-cols-12 hover:bg-gray-50 dark:hover:bg-gray-700/40 transition-colors items-center">
-                                            <div class="px-4 py-3 col-span-6 font-semibold text-gray-900 dark:text-white truncate" title="@prod.ProductName">
-                                                @prod.ProductName
-                                            </div>
-                                            <div class="px-3 py-3 col-span-2 text-center font-medium text-gray-900 dark:text-gray-200">@prod.TotalTickets</div>
-                                            <div class="px-3 py-3 col-span-2 text-center text-emerald-600 dark:text-emerald-400 font-semibold">@prod.ResolvedTickets</div>
-                                            <div class="px-4 py-3 col-span-2 text-right font-mono font-bold text-indigo-600 dark:text-indigo-400">
-                                                @prod.AvgResolutionHours @L.Translate("analytics.hoursUnit")
-                                            </div>
-                                        </div>
-                                    }
-                                </div>
-                            </div>
-                            </div>
-                        </div>
-                    </div>
-                }
-            </div>
-        }
-        else if (CurrentTab == AnalyticsTab.Efficiency)
-        {
-            <!-- Employee Efficiency Section -->
-            <div class="space-y-6">
-                <!-- Time Range Filter & Controls -->
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700/50 gap-3">
-                    <div class="flex items-center gap-2">
-                        <span class="text-sm font-semibold text-gray-700 dark:text-gray-300">@L.Translate("analytics.analysisPeriod")</span>
-                        <div class="inline-flex rounded-xl bg-gray-800/80 dark:bg-gray-900 p-1 border border-gray-700/60 dark:border-gray-700">
-                            <button type="button"
-                                @onclick="() => SetDaysFilter(7)"
-                                class="px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer @(SelectedDays == 7 ? "bg-blue-600 text-white shadow-xs" : "text-gray-300 dark:text-gray-300 hover:text-white")">
-                                @L.Translate("analytics.days7")
-                            </button>
-                            <button type="button"
-                                @onclick="() => SetDaysFilter(30)"
-                                class="px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer @(SelectedDays == 30 ? "bg-blue-600 text-white shadow-xs" : "text-gray-300 dark:text-gray-300 hover:text-white")">
-                                @L.Translate("analytics.days30")
-                            </button>
-                            <button type="button"
-                                @onclick="() => SetDaysFilter(90)"
-                                class="px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer @(SelectedDays == 90 ? "bg-blue-600 text-white shadow-xs" : "text-gray-300 dark:text-gray-300 hover:text-white")">
-                                @L.Translate("analytics.days90")
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-2">
-                        <span class="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                        @L.Translate("analytics.dataUpdated") @DateTime.Now.ToString("HH:mm:ss")
-                    </div>
-                </div>
-
-                @if (EfficiencyData is not null)
-                {
-                    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border border-gray-100 dark:border-gray-700/50">
-                        <h2 class="text-base font-bold text-gray-800 dark:text-white mb-5 flex items-center gap-2">
-                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-                            @L.Translate("stats.efficiency")
-                        </h2>
-                        <div class="overflow-x-auto">
-                            <div class="w-full text-left text-sm text-gray-700 dark:text-gray-200 min-w-[700px]">
-                                <div class="grid grid-cols-12 text-xs uppercase bg-gray-50 dark:bg-gray-800/80 text-gray-500 dark:text-gray-400 font-semibold border-b border-gray-200 dark:border-gray-700/60 rounded-t-lg">
-                                    <div class="px-4 py-3 col-span-4">@L.Translate("analytics.developerTh")</div>
-                                    <div class="px-3 py-3 col-span-2 text-center">@L.Translate("stats.ticketsClosed")</div>
-                                    <div class="px-3 py-3 col-span-2 text-center">@L.Translate("stats.totalTime")</div>
-                                    <div class="px-3 py-3 col-span-2 text-center">@L.Translate("stats.ticketsAssigned")</div>
-                                    <div class="px-4 py-3 col-span-2 text-right">@L.Translate("stats.closureRate")</div>
-                                </div>
-                                <div class="divide-y divide-gray-100 dark:divide-gray-700/40">
-                                    @foreach (var emp in EfficiencyData.OrderByDescending(e => e.ClosureRatePercentage))
-                                    {
-                                        <div class="grid grid-cols-12 hover:bg-gray-50 dark:hover:bg-gray-700/40 transition-colors items-center">
-                                            <div class="px-4 py-3 col-span-4 font-semibold text-gray-900 dark:text-white truncate" title="@emp.DeveloperName">
-                                                @emp.DeveloperName
-                                            </div>
-                                            <div class="px-3 py-3 col-span-2 text-center">
-                                                <span class="px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 dark:bg-emerald-900/40 text-emerald-800 dark:text-emerald-300">
-                                                    @emp.TicketsClosed
-                                                </span>
-                                            </div>
-                                            <div class="px-3 py-3 col-span-2 text-center font-medium text-gray-900 dark:text-gray-200">
-                                                @(emp.TotalTimeSpentMinutes / 60) год @(emp.TotalTimeSpentMinutes % 60) хв
-                                            </div>
-                                            <div class="px-3 py-3 col-span-2 text-center text-blue-600 dark:text-blue-400 font-semibold">@emp.TicketsAssigned</div>
-                                            <div class="px-4 py-3 col-span-2 text-right">
-                                                <span class="font-mono text-xs font-bold text-gray-800 dark:text-gray-200">
-                                                    @Math.Round(emp.ClosureRatePercentage, 1)%
-                                                </span>
-                                            </div>
-                                        </div>
-                                    }
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    @Overview(report)
                 }
             </div>
         }
     }
 </div>
+
+@code {
+    private RenderFragment Figure(string key, string label, string value, bool danger = false, string? unit = null) => __builder =>
+    {
+        <div data-figure="@key">
+            <p class="font-mono text-24 font-medium leading-tight tabular-nums @(danger ? "text-danger" : "text-fg")">@value@if (unit is not null)
+                {
+                    <span class="text-15 font-normal text-muted">@unit</span>
+                }</p>
+            <p class="mt-1 font-mono text-13 text-muted"># @label</p>
+        </div>
+    };
+
+    private RenderFragment SectionHeading(string text, string? note = null) => __builder =>
+    {
+        <h2 class="mb-3 font-mono text-13 font-normal text-muted"># @text@if (note is not null)
+            {
+                <text> · @note</text>
+            }</h2>
+    };
+
+    private RenderFragment Overview(StatisticsReportDto report) => __builder =>
+    {
+        var period = report.Period;
+        var critical = report.Snapshot.CriticalOpen;
+        <div data-figures class="mb-8 flex flex-wrap gap-x-12 gap-y-4">
+            @Figure("open", Heading("stats.open"), Number(report.Snapshot.Open))
+            @Figure("critical", Heading("stats.criticalOpen"), Number(critical), danger: critical > 0)
+            @Figure("created", WithPeriod("stats.created"), Number(period.Created))
+            @Figure("resolved", WithPeriod("stats.resolved"), Number(period.Resolved))
+            @Figure("resolution", WithPeriod("stats.avgResolution"), FormatDuration(period.AverageResolution))
+            @if (period.ResolvedPercent is int percent)
+            {
+                @Figure("ratio", WithPeriod("stats.resolvedPerCreated"), Number(percent), unit: "%")
+            }
+            else
+            {
+                @Figure("ratio", WithPeriod("stats.resolvedPerCreated"), "—")
+            }
+        </div>
+
+        <section data-section="trend" class="mb-9">
+            <div class="flex flex-wrap items-baseline gap-x-3">
+                @SectionHeading(WithPeriod("stats.trend"))
+                <div aria-hidden="true" class="ml-auto flex gap-4 font-mono text-12 text-muted">
+                    <span class="inline-flex items-center gap-1.5"><span class="inline-block h-2.5 w-2.5 rounded-sm bg-accent/35"></span>@Heading("stats.created")</span>
+                    <span class="inline-flex items-center gap-1.5"><span class="inline-block h-2.5 w-2.5 rounded-sm bg-accent"></span>@Heading("stats.resolved")</span>
+                </div>
+            </div>
+            @Trend(report)
+        </section>
+
+        <section data-section="distributions" class="mb-9 grid grid-cols-1 gap-8 lg:grid-cols-3">
+            <div data-dist="status">
+                @SectionHeading(Heading("stats.byStatus"), Heading("stats.now"))
+                @Distribution(StatusOrder.Select(s => new DistributionRow(
+                    s.ToString(), GetStatusText(s), report.Snapshot.ByStatus.GetValueOrDefault(s), IsDone(s) ? BarTone.Muted : BarTone.Accent)))
+            </div>
+            <div>
+                <div data-dist="priority">
+                    @SectionHeading(Heading("stats.byPriority"), Heading("stats.openOnly"))
+                    @Distribution(PriorityOrder.Select(p => new DistributionRow(
+                        p.ToString(), GetPriorityText(p), report.Snapshot.ByPriority.GetValueOrDefault(p), p == TicketPriority.Critical ? BarTone.Danger : BarTone.Accent)))
+                </div>
+                <div data-dist="type" class="mt-6">
+                    @SectionHeading(Heading("stats.byType"), Heading("stats.openOnly"))
+                    @Distribution(TypeRows(report.Snapshot))
+                </div>
+            </div>
+            <div data-dist="tags">
+                @SectionHeading(Heading("stats.tags"), Heading("stats.openOnly"))
+                @Distribution(report.Snapshot.Tags.Take(TopTags).Select(t => new DistributionRow(t.TagId.ToString(CultureInfo.InvariantCulture), t.Name, t.Count, BarTone.Accent)))
+            </div>
+        </section>
+
+        <section data-section="products">
+            @SectionHeading(WithPeriod("stats.products"))
+            @Products(report)
+        </section>
+    };
+
+    private RenderFragment Trend(StatisticsReportDto report) => __builder =>
+    {
+        var max = Math.Max(1, report.Trend.Max(d => Math.Max(d.Created, d.Resolved)));
+        <div data-trend role="img" aria-label="@TrendSummary(report)"
+             class="flex h-40 items-end border-b border-line @(report.Trend.Count > 30 ? "gap-px" : "gap-[3px]")">
+            @foreach (var day in report.Trend)
+            {
+                <div data-day="@day.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)" title="@DayTitle(day)" class="group flex h-full flex-1 items-end gap-px">
+                    <i data-bar="created" class="block min-h-px flex-1 rounded-t-sm bg-accent/35 group-hover:outline group-hover:outline-1 group-hover:outline-fg/40" style="height: @Percent(day.Created, max)%"></i>
+                    <i data-bar="resolved" class="block min-h-px flex-1 rounded-t-sm bg-accent group-hover:outline group-hover:outline-1 group-hover:outline-fg/40" style="height: @Percent(day.Resolved, max)%"></i>
+                </div>
+            }
+        </div>
+        <div data-axis aria-hidden="true" class="mt-1.5 flex justify-between font-mono text-12 text-muted">
+            @foreach (var label in AxisLabels(report))
+            {
+                <span>@label</span>
+            }
+        </div>
+    };
+
+    private RenderFragment Distribution(IEnumerable<DistributionRow> source) => __builder =>
+    {
+        var rows = source.ToList();
+        if (rows.Count == 0)
+        {
+            <p data-no-data class="font-mono text-13 text-muted">@L.Translate("stats.noData")</p>
+            return;
+        }
+
+        var max = Math.Max(1, rows.Max(r => r.Value));
+        <div class="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1.5 font-mono text-13">
+            @foreach (var row in rows)
+            {
+                <span data-label="@row.Key" class="@LabelClass(row.Tone)">@row.Label</span>
+                <span aria-hidden="true" class="h-2 overflow-hidden rounded-sm bg-line">
+                    <span data-bar="@row.Key" class="block h-full rounded-sm @BarClass(row.Tone)" style="width: @Percent(row.Value, max)%"></span>
+                </span>
+                <span data-value="@row.Key" class="text-right tabular-nums @(row.Tone == BarTone.Muted ? "text-muted" : null)">@Number(row.Value)@if (row.Share is int share)
+                    {
+                        <span class="ml-1.5 text-muted">@share%</span>
+                    }</span>
+            }
+        </div>
+    };
+
+    private RenderFragment Products(StatisticsReportDto report) => __builder =>
+    {
+        if (report.Products.Count == 0)
+        {
+            <p data-no-data class="font-mono text-13 text-muted">@L.Translate("stats.noData")</p>
+            return;
+        }
+
+        var slowest = report.Products.Max(p => p.AverageResolution ?? TimeSpan.Zero);
+        <div class="overflow-x-auto">
+            <table data-table="products" class="w-full min-w-[640px] whitespace-nowrap border-collapse text-left text-14">
+                <thead>
+                    <tr class="border-b border-line font-mono text-13 text-muted">
+                        <SortHeader Text="@Heading("stats.product")" Column="name" Sort="productSort" OnSort="SortProducts" />
+                        <SortHeader Text="@Heading("stats.open")" Column="open" Sort="productSort" OnSort="SortProducts" Class="w-28 text-right" />
+                        <SortHeader Text="@Heading("stats.created")" Column="created" Sort="productSort" OnSort="SortProducts" Class="w-28 text-right" />
+                        <SortHeader Text="@Heading("stats.resolved")" Column="resolved" Sort="productSort" OnSort="SortProducts" Class="w-28 text-right" />
+                        <SortHeader Text="@Heading("stats.avgResolution")" Column="avg" Sort="productSort" OnSort="SortProducts" Class="w-64" />
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var product in SortedProducts(report))
+                    {
+                        <tr @key="product.ProductId" data-row="@product.ProductId" class="border-b border-dashed border-line hover:bg-surface">
+                            <td class="truncate text-fg" title="@product.Name">@product.Name</td>
+                            <td class="text-right font-mono text-13 tabular-nums">@Number(product.Open)</td>
+                            <td class="text-right font-mono text-13 tabular-nums">@Number(product.Created)</td>
+                            <td class="text-right font-mono text-13 tabular-nums">@Number(product.Resolved)</td>
+                            <td class="whitespace-nowrap font-mono text-13 tabular-nums">
+                                @MiniBar(product.AverageResolution is { } avg && slowest > TimeSpan.Zero ? avg.Ticks * 100.0 / slowest.Ticks : 0)@FormatDuration(product.AverageResolution)
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    };
+
+    private RenderFragment MiniBar(double percent) => __builder =>
+    {
+        <span aria-hidden="true" class="mr-2 inline-block h-1.5 w-20 overflow-hidden rounded-sm bg-line align-middle">
+            <span data-mini class="block h-full bg-accent" style="width: @percent.ToString("0.#", CultureInfo.InvariantCulture)%"></span>
+        </span>
+    };
+
+    private RenderFragment Team(StatisticsReportDto report) => __builder =>
+    {
+        var team = report.Team;
+        <div data-figures class="mb-8 flex flex-wrap gap-x-12 gap-y-4">
+            @Figure("with-active", Heading("stats.withActive"), Number(team.Count(r => r.Active > 0)))
+            @Figure("closed", WithPeriod("stats.closed"), Number(team.Sum(r => r.ClosedInPeriod)))
+            @Figure("logged", WithPeriod("stats.logged"), FormatHours(team.Sum(r => r.MinutesInPeriod)))
+        </div>
+
+        @if (team.Count == 0)
+        {
+            <p data-no-data class="font-mono text-13 text-muted">@L.Translate("stats.noData")</p>
+            return;
+        }
+
+        var maxWorkload = Math.Max(1, team.Max(r => r.Workload));
+        <div class="overflow-x-auto">
+            <table data-table="team" class="w-full min-w-[820px] whitespace-nowrap border-collapse text-left text-14">
+                <thead>
+                    <tr class="border-b border-line font-mono text-13 text-muted">
+                        <SortHeader Text="@Heading("stats.developer")" Column="name" Sort="teamSort" OnSort="SortTeam" />
+                        <SortHeader Text="@Heading("stats.inProgress")" Column="inprogress" Sort="teamSort" OnSort="SortTeam" Class="w-28 text-right" />
+                        <SortHeader Text="@Heading("stats.active")" Column="active" Sort="teamSort" OnSort="SortTeam" Class="w-24 text-right" />
+                        <SortHeader Text="@WithPeriod("stats.closed")" Column="closed" Sort="teamSort" OnSort="SortTeam" Class="w-32 text-right" />
+                        <SortHeader Text="@WithPeriod("stats.time")" Column="time" Sort="teamSort" OnSort="SortTeam" Class="w-28 text-right" />
+                        <SortHeader Text="@Heading("stats.avgPerTicket")" Column="avg" Sort="teamSort" OnSort="SortTeam" Class="w-32 text-right" />
+                        <SortHeader Text="@Heading("stats.workload")" Column="workload" Sort="teamSort" OnSort="SortTeam" Class="w-40" />
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var row in SortedTeam(report))
+                    {
+                        var cell = row.IsIdle ? "text-muted" : null;
+                        <tr @key="row.UserId" data-row="@row.UserId" data-idle="@(row.IsIdle ? "true" : null)" class="border-b border-dashed border-line hover:bg-surface">
+                            <td>
+                                <span class="flex min-w-0 items-center gap-2.5">
+                                    <Avatar Name="@row.DisplayName" Size="AvatarSize.Sm" />
+                                    <span class="truncate @(row.IsIdle ? "text-muted" : "text-fg")">@row.DisplayName</span>
+                                    <span class="shrink-0 font-mono text-13 text-muted">@@@row.Login</span>
+                                </span>
+                            </td>
+                            <td class="text-right font-mono text-13 tabular-nums @cell">@Number(row.InProgress)</td>
+                            <td class="text-right font-mono text-13 tabular-nums @cell">@Number(row.Active)</td>
+                            <td class="text-right font-mono text-13 tabular-nums @cell">@Number(row.ClosedInPeriod)</td>
+                            <td class="text-right font-mono text-13 tabular-nums @cell">@(row.MinutesInPeriod > 0 ? FormatDuration(TimeSpan.FromMinutes(row.MinutesInPeriod), withDays: false) : "—")</td>
+                            <td class="text-right font-mono text-13 tabular-nums @cell">@(row.AverageMinutesPerTicket is double avg ? FormatDuration(TimeSpan.FromMinutes(avg), withDays: false) : "—")</td>
+                            <td class="whitespace-nowrap font-mono text-13 tabular-nums @cell">@MiniBar(row.Workload * 100.0 / maxWorkload)@Number(row.Workload)</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <p data-workload-note class="mt-2.5 font-mono text-12 text-muted">@L.Translate("stats.workloadNote")</p>
+    };
+}

@@ -15,7 +15,6 @@ public partial class MainLayout
         }
 
         this.isNotificationsOpen = false;
-        this.StopNotificationPulse();
         await this.UnregisterNotificationOutsideClickAsync();
         await this.InvokeAsync(this.StateHasChanged);
     }
@@ -23,7 +22,6 @@ public partial class MainLayout
     private async Task ToggleNotificationsAsync()
     {
         this.isNotificationsOpen = !this.isNotificationsOpen;
-        this.StopNotificationPulse();
 
         if (this.isNotificationsOpen)
         {
@@ -163,11 +161,10 @@ public partial class MainLayout
 
             if (this.UnreadNotificationsCount > previousUnread)
             {
-                this.StartNotificationPulse();
-                await this.PlayNotificationSoundAsync();
+                var newest = this.notifications.FirstOrDefault();
+                await this.NotifyNewAsync(newest);
 
                 // Show visual toast notification for the newest received notification
-                var newest = this.notifications.FirstOrDefault();
                 if (newest != null)
                 {
                     await this.ToastService.ShowToastAsync(newest.Message, ToastType.Info);
@@ -229,57 +226,15 @@ public partial class MainLayout
         }
     }
 
-    private void StartNotificationPulse()
+    private async Task NotifyNewAsync(UserNotificationDto? newest)
     {
-        this.StopNotificationPulse(clearState: false);
-        this.hasNewNotificationPulse = true;
+        var title = newest != null ? $"ServiceDesk #{newest.TicketId}" : "ServiceDesk";
+        var body = newest?.Message ?? string.Empty;
 
-        this.notificationPulseCts = new CancellationTokenSource();
-        var token = this.notificationPulseCts.Token;
-
-        _ = Task.Run(async () =>
-        {
-            try
-            {
-                await Task.Delay(NotificationPulseDuration, token);
-            }
-            catch (OperationCanceledException)
-            {
-                return;
-            }
-
-            try
-            {
-                await this.InvokeAsync(() =>
-                {
-                    this.hasNewNotificationPulse = false;
-                    this.StateHasChanged();
-                });
-            }
-            catch
-            {
-                // Ignore UI updates during disposal.
-            }
-        });
-    }
-
-    private void StopNotificationPulse(bool clearState = true)
-    {
-        this.notificationPulseCts?.Cancel();
-        this.notificationPulseCts?.Dispose();
-        this.notificationPulseCts = null;
-
-        if (clearState)
-        {
-            this.hasNewNotificationPulse = false;
-        }
-    }
-
-    private async Task PlayNotificationSoundAsync()
-    {
         try
         {
-            await this.JS.InvokeVoidAsync("notificationManager.playNewNotificationSound");
+            // Sound and desktop notification are gated by user preferences in prefs.js.
+            await this.JS.InvokeVoidAsync("notificationManager.notifyNew", title, body);
         }
         catch
         {

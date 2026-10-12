@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using ServiceDeskSystem.Application.Services.Auth;
 using ServiceDeskSystem.Application.Services.Localization;
+using ServiceDeskSystem.Application.Services.Preferences;
 using ServiceDeskSystem.Application.Services.Sla;
 using ServiceDeskSystem.Application.Services.Theme;
 using ServiceDeskSystem.Application.Services.Toasts;
@@ -40,11 +41,17 @@ public sealed class ComponentTestHost : IDisposable
         this.SlaPolicyService = new Mock<ISlaPolicyService>();
         this.ToastService = new Mock<IToastService>();
 
+        this.Preferences = new Mock<IPreferencesService>();
+        this.Preferences.SetupGet(p => p.Current).Returns(UserPreferences.Defaults);
+        this.Preferences.Setup(p => p.LoadAsync()).ReturnsAsync(UserPreferences.Defaults);
+
+        this.Context.Services.AddSingleton(this.Preferences.Object);
         this.Context.Services.AddSingleton(this.Localization.Object);
         this.Context.Services.AddSingleton(this.Theme.Object);
         this.Context.Services.AddSingleton(this.Auth.Object);
         this.Context.Services.AddSingleton(this.SlaPolicyService.Object);
         this.Context.Services.AddSingleton(this.ToastService.Object);
+        this.Context.Services.AddSingleton<ServiceDeskSystem.Application.Services.Time.IUserTimeZone>(this.TimeZone);
     }
 
     public BunitContext Context { get; }
@@ -58,6 +65,10 @@ public sealed class ComponentTestHost : IDisposable
     public Mock<ISlaPolicyService> SlaPolicyService { get; }
 
     public Mock<IToastService> ToastService { get; }
+
+    public Mock<IPreferencesService> Preferences { get; }
+
+    public ServiceDeskSystem.Application.Services.Time.UserTimeZone TimeZone { get; } = new ();
 
     public void Dispose()
     {

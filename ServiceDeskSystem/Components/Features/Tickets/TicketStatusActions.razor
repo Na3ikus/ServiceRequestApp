@@ -1,0 +1,86 @@
+@using ServiceDeskSystem.Domain.Enums
+@inherits ServiceDeskSystem.Components.UI.Base.BaseComponent
+
+@* Header actions of the ticket page: status steps (assignee only), take / release and delete. *@
+<div data-ticket-actions class="flex flex-wrap items-center gap-2">
+    @if (CanManageStatus)
+    {
+        @foreach (var transition in TicketTransitions.For(Status))
+        {
+            <button type="button" data-transition="@transition.Target" class="@ButtonClass(transition.Kind)"
+                    disabled="@Busy" @onclick="() => OnTransition.InvokeAsync(transition.Target)">
+                @Heading(transition.Key)
+            </button>
+        }
+
+        @if (ShowTake || ShowRelease || CanDelete)
+        {
+            <span class="mx-1 hidden h-6 w-px bg-line sm:block" aria-hidden="true"></span>
+        }
+    }
+
+    @if (ShowTake)
+    {
+        <button type="button" data-action="take" class="@NormalClass" disabled="@Busy" @onclick="OnTake">@Heading("details.takeTicket")</button>
+    }
+
+    @if (ShowRelease)
+    {
+        <button type="button" data-action="release" class="@GhostClass" disabled="@Busy" @onclick="OnRelease">@Heading("details.releaseTicket")</button>
+    }
+
+    @if (CanDelete)
+    {
+        <button type="button" data-action="delete" class="@DangerClass" @onclick="OnDelete">@Heading("details.deleteTicket")</button>
+    }
+</div>
+
+@code {
+    private const string GhostClass = "btn-ghost inline-flex h-9 items-center px-3 text-15 disabled:opacity-50";
+    private const string NormalClass = GhostClass + " text-fg";
+    private const string DangerClass = GhostClass + " border-transparent text-danger hover:text-danger hover:bg-danger/10";
+
+    [Parameter]
+    public TicketStatus Status { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether the status steps are shown (only the assignee).
+    /// </summary>
+    [Parameter]
+    public bool CanManageStatus { get; set; }
+
+    [Parameter]
+    public bool ShowTake { get; set; }
+
+    [Parameter]
+    public bool ShowRelease { get; set; }
+
+    [Parameter]
+    public bool CanDelete { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether a status or assignment change is running.
+    /// </summary>
+    [Parameter]
+    public bool Busy { get; set; }
+
+    [Parameter]
+    public EventCallback<TicketStatus> OnTransition { get; set; }
+
+    [Parameter]
+    public EventCallback OnTake { get; set; }
+
+    [Parameter]
+    public EventCallback OnRelease { get; set; }
+
+    [Parameter]
+    public EventCallback OnDelete { get; set; }
+
+    private static string ButtonClass(TicketTransitionKind kind) => kind switch
+    {
+        TicketTransitionKind.Primary => "btn-accent",
+        TicketTransitionKind.Normal => NormalClass,
+        TicketTransitionKind.Danger => DangerClass,
+        _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, null),
+    };
+}

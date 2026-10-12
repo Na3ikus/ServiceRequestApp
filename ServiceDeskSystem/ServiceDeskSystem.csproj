@@ -41,6 +41,21 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<TailwindInput Include="Styles\**\*.css;tailwind.config.js;Components\**\*.razor;Components\**\*.cs" />
+	</ItemGroup>
+
+	<Target Name="BuildTailwindCss" BeforeTargets="BeforeBuild" Condition="'$(SkipTailwindBuild)' != 'true'" Inputs="@(TailwindInput)" Outputs="wwwroot\css\app.css">
+		<Exec Command="npm --version" ContinueOnError="true" StandardOutputImportance="low">
+			<Output TaskParameter="ExitCode" PropertyName="_NpmExitCode" />
+		</Exec>
+		<Error Condition="'$(_NpmExitCode)' != '0'" Text="Node.js/npm is required to build CSS. Install Node 22+ or build with -p:SkipTailwindBuild=true." />
+		<Exec Command="npm ci" Condition="!Exists('node_modules')" />
+		<Exec Command="npm run build:css" />
+		<!-- Tailwind skips writing unchanged output; touch it so incremental builds see it as up to date. -->
+		<Touch Files="wwwroot\css\app.css" />
+	</Target>
+
+	<ItemGroup>
 	  <ProjectReference Include="..\ServiceDeskSystem.Domain\ServiceDeskSystem.Domain.csproj" />
 	  <ProjectReference Include="..\ServiceDeskSystem.Application\ServiceDeskSystem.Application.csproj" />
 	  <ProjectReference Include="..\ServiceDeskSystem.Infrastructure\ServiceDeskSystem.Infrastructure.csproj" />

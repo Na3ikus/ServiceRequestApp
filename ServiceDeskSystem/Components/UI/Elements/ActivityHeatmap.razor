@@ -1,0 +1,129 @@
+@inherits ServiceDeskSystem.Components.UI.Base.BaseComponent
+@using ServiceDeskSystem.Application.Services.Profile.Models
+
+@if (Days is null)
+{
+    <div class="h-48 rounded-md bg-surface" aria-busy="true"></div>
+}
+else
+{
+    var culture = UiCulture;
+    var byDate = Days.ToDictionary(d => d.Date);
+    var busiest = Days.Count == 0 ? 0 : Days.Max(d => d.Total);
+    var first = FirstMonday(Today);
+    var summary = string.Format(culture, L.Translate("profile.activitySummary"), Days.Sum(d => d.Total));
+
+    @* Fills the content width; narrow screens scroll and start at the latest weeks (rtl scroller, ltr grid).
+       Cells are rounded to whole pixels: fractional 1fr columns put them on half pixels and they look misaligned.
+       The first declaration is the fallback for browsers without round(). *@
+    <div class="overflow-x-auto [container-type:inline-size] [direction:rtl]">
+        <div data-heatmap role="img" aria-label="@summary"
+             class="grid gap-[3px] font-mono text-12 leading-none text-muted [direction:ltr]"
+             style="grid-template-columns: 2.5rem repeat(@Weeks, minmax(10px, 1fr)); grid-template-columns: 2.5rem repeat(@Weeks, max(10px, round(down, (100cqw - 2.5rem - @(Weeks * 3)px) / @Weeks, 1px)))">
+            @for (var week = 0; week < Weeks; week++)
+            {
+                var monday = first.AddDays(week * 7);
+                // Week 0 only gets a label when its month lasts past it, so two labels never touch.
+                var showMonth = week == 0 ? first.AddDays(7).Month == first.Month : monday.Month != monday.AddDays(-7).Month;
+                <span data-month class="pb-1 whitespace-nowrap" style="grid-column: @(week + 2); grid-row: 1">@(showMonth ? monday.ToString("MMM", culture) : null)</span>
+            }
+            @for (var row = 0; row < 7; row += 2)
+            {
+                if (row < 6)
+                {
+                    <span class="self-center pr-1.5" style="grid-column: 1; grid-row: @(row + 2)">@DayLabel(row, culture)</span>
+                }
+            }
+            @for (var i = 0; i < Weeks * 7; i++)
+            {
+                var date = first.AddDays(i);
+                if (date > Today)
+                {
+                    break;
+                }
+
+                byDate.TryGetValue(date, out var day);
+                var level = Level(day?.Total ?? 0, busiest);
+                <span data-cell data-level="@level" aria-hidden="true" title="@Tooltip(date, day, culture)"
+                      class="aspect-square rounded-sm @LevelClass(level)"
+                      style="grid-column: @((i / 7) + 2); grid-row: @((i % 7) + 2)"></span>
+            }
+        </div>
+    </div>
+
+    <div class="mt-2 flex flex-wrap items-center justify-between gap-3 font-mono text-12 text-muted">
+        <span data-summary>@summary</span>
+        <span class="flex items-center gap-[3px]" aria-hidden="true">
+            <span class="mr-1">@L.Translate("profile.activityLess")</span>
+            @for (var level = 0; level <= 4; level++)
+            {
+                <span class="h-3 w-3 rounded-sm @LevelClass(level)"></span>
+            }
+            <span class="ml-1">@L.Translate("profile.activityMore")</span>
+        </span>
+    </div>
+}
+
+@code {
+    private const int Weeks = 52;
+
+    /// <summary>
+    /// Gets or sets the active days (from <c>IUserActivityService</c>); <c>null</c> shows a skeleton.
+    /// </summary>
+    [Parameter]
+    public IReadOnlyList<DailyActivityDto>? Days { get; set; }
+
+    /// <summary>
+    /// Gets or sets the last day of the map (a date in the user's time zone).
+    /// </summary>
+    [Parameter]
+    [EditorRequired]
+    public DateOnly Today { get; set; }
+
+    /// <summary>
+    /// First day of the map: the Monday that starts a 52-week grid whose last column holds <paramref name="today"/>.
+    /// </summary>
+    public static DateOnly FirstMonday(DateOnly today)
+    {
+        var sinceMonday = ((int)today.DayOfWeek + 6) % 7;
+        return today.AddDays(-sinceMonday - ((Weeks - 1) * 7));
+    }
+
+    /// <summary>
+    /// Level 0 for no activity, otherwise 1–4 relative to the busiest day.
+    /// </summary>
+    public static int Level(int total, int busiest) =>
+        total <= 0 || busiest <= 0 ? 0 : Math.Clamp((int)Math.Ceiling(total * 4.0 / busiest), 1, 4);
+
+    private static string LevelClass(int level) => level switch
+    {
+        0 => "bg-line",
+        1 => "bg-accent/25",
+        2 => "bg-accent/50",
+        3 => "bg-accent/75",
+        _ => "bg-accent",
+    };
+
+    private static string DayLabel(int row, System.Globalization.CultureInfo culture) =>
+        culture.DateTimeFormat.GetAbbreviatedDayName((DayOfWeek)((row + 1) % 7));
+
+    private string Duration(int minutes, System.Globalization.CultureInfo culture)
+    {
+        var hours = string.Format(culture, L.Translate("profile.activityHours"), minutes / 60);
+        var rest = string.Format(culture, L.Translate("profile.activityMinutes"), minutes % 60);
+        return minutes switch
+        {
+            < 60 => rest,
+            _ when minutes % 60 == 0 => hours,
+            _ => $"{hours} {rest}",
+        };
+    }
+
+    private string Tooltip(DateOnly date, DailyActivityDto? day, System.Globalization.CultureInfo culture)
+    {
+        var label = date.ToString("d MMM", culture);
+        return day is null || day.Total == 0
+            ? string.Format(culture, L.Translate("profile.activityNone"), label)
+            : string.Format(culture, L.Translate("profile.activityTooltip"), label, day.Total, day.TicketsCreated, day.Comments, day.StatusChanges, day.WorkLogs, Duration(day.WorkMinutes, culture));
+    }
+}

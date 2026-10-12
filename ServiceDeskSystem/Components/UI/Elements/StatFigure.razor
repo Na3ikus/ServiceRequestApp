@@ -1,0 +1,46 @@
+@inherits ServiceDeskSystem.Components.UI.Base.BaseComponent
+
+@* One dashboard figure: "# label", big mono number, 2px share bar and "N% of all". Place inside a gap-px bg-line grid. *@
+<div data-stat class="bg-canvas px-4 py-4">
+    <p class="font-mono text-13 text-muted"># @Label</p>
+    <p class="mt-2 font-mono text-40 leading-none tabular-nums @(Alarm ? "text-danger" : "text-fg")">@Value</p>
+    <div class="mt-3 h-0.5 bg-line" aria-hidden="true">
+        <div class="h-full @(Danger ? "bg-danger" : "bg-fg")" style="width: @(Share)%"></div>
+    </div>
+    <p class="mt-1.5 font-mono text-12 text-muted">@string.Format(UiCulture, L.Translate("dashboard.ofTotal"), Share)</p>
+</div>
+
+@code {
+    [Parameter]
+    public string Label { get; set; } = string.Empty;
+
+    [Parameter]
+    public int Value { get; set; }
+
+    /// <summary>
+    /// Gets or sets the total the share bar is relative to; <c>null</c> means the figure is the total itself.
+    /// </summary>
+    [Parameter]
+    public int? Total { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether the bar uses the danger colour.
+    /// </summary>
+    [Parameter]
+    public bool Danger { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether the number itself is shown in danger.
+    /// </summary>
+    [Parameter]
+    public bool Alarm { get; set; }
+
+    private int Share
+    {
+        get
+        {
+            var total = this.Total ?? this.Value;
+            return total > 0 ? (int)Math.Round((double)this.Value / total * 100) : 0;
+        }
+    }
+}

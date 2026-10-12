@@ -32,6 +32,7 @@ public static class DependencyInjection
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly()));
         services.AddScoped<ServiceDeskSystem.Application.Common.IDomainEventDispatcher, ServiceDeskSystem.Application.Common.MediatRDomainEventDispatcher>();
 
+        services.TryAddSingleton(TimeProvider.System);
         services.AddScoped<ITicketService, TicketService>();
         services.AddScoped<ITicketAssignmentService, TicketService>();
         services.AddScoped<ITicketStatisticsService, TicketService>();
@@ -41,6 +42,7 @@ public static class DependencyInjection
         services.AddScoped<IAdminService, AdminService>();
         services.AddScoped<IAuditService, AuditService>();
         services.AddScoped<IProfileService, ProfileService>();
+        services.AddScoped<IUserActivityService, UserActivityService>();
         services.AddScoped<INotificationService, NotificationService>();
         services.AddScoped<ITagService, TagService>();
         services.AddScoped<ServiceDeskSystem.Application.Services.Sla.ISlaPolicyService, ServiceDeskSystem.Application.Services.Sla.SlaPolicyService>();
@@ -56,7 +58,9 @@ public static class DependencyInjection
     {
         services.AddScoped<ILocalizationService, LocalizationService>();
         services.AddScoped<IThemeService, ThemeService>();
+        services.AddScoped<ServiceDeskSystem.Application.Services.Preferences.IPreferencesService, ServiceDeskSystem.Application.Services.Preferences.PreferencesService>();
         services.AddScoped<IToastService, ToastService>();
+        services.AddScoped<ServiceDeskSystem.Application.Services.Time.IUserTimeZone, ServiceDeskSystem.Application.Services.Time.UserTimeZone>();
 
         return services;
     }

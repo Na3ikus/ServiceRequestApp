@@ -1,25 +1,44 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+using System.Globalization;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.JSInterop;
 using ServiceDeskSystem.Application.Services.Audit;
+using ServiceDeskSystem.Application.Services.Toasts;
+using ServiceDeskSystem.Application.Services.Toasts.Models;
 using ServiceDeskSystem.Components.UI.Base;
 using ServiceDeskSystem.Domain.Entities;
 using ServiceDeskSystem.Domain.Enums;
+using PathSegment = ServiceDeskSystem.Components.UI.Primitives.PathSegment;
 
 namespace ServiceDeskSystem.Components.Pages.Admin;
 
 /// <summary>
-/// Audit logs page for tracking user actions and system changes with advanced analytics, filters, inspector, visual diff, severity levels and SignalR live feed.
+/// Audit log stream: events grouped by day in the user's zone, details and diff in place, live updates.
 /// </summary>
 public partial class AuditLogs : BaseComponent
 {
+    private const int PageSize = 50;
+
+    private static readonly IReadOnlyList<PathSegment> Segments = [new ("audit-logs")];
+
+    // Level and period labels stay English, like the section names (Stage 3 decision 5).
+    private static readonly IReadOnlyList<(string Value, string Text)> SeverityOptions =
+    [
+        ("ALL", "all"),
+        ("Critical", "crit"),
+        ("Warning", "warn"),
+        ("Info", "info"),
+    ];
+
+    private static readonly IReadOnlyList<(string Value, string Text)> PeriodOptions =
+    [
+        ("TODAY", "today"),
+        ("WEEK", "7d"),
+        ("MONTH", "30d"),
+        ("ALL", "all"),
+    ];
+
     private List<AuditLog>? logs;
     private string searchTerm = string.Empty;
     private string selectedEntity = "ALL";
@@ -27,23 +46,30 @@ public partial class AuditLogs : BaseComponent
     private string selectedSeverity = "ALL";
     private string selectedTimeRange = "ALL";
     private string selectedUserIdString = "ALL";
+    private int visibleCount = PageSize;
+    private int? openLogId;
     private bool showClearConfirm;
+    private bool isClearing;
     private bool isAutoRefreshPaused;
     private bool isRefreshing;
-    private CancellationTokenSource? cts;
-
-    // SignalR Live connection
-    private HubConnection? hubConnection;
-    private bool isRealtimeConnected;
     private int pendingNewEventsCount;
+    private CancellationTokenSource? cts;
+    private HubConnection? hubConnection;
 
-    // Pagination
-    private int currentPage = 1;
-    private int pageSize = 25;
+    /// <summary>
+    /// State of the updates hub shown in the header.
+    /// </summary>
+    protected enum LiveState
+    {
+        /// <summary>Starting or reconnecting.</summary>
+        Connecting,
 
-    // Details Modal
-    private AuditLog? selectedLog;
-    private bool showDetailsModal;
+        /// <summary>Connected; new events arrive live.</summary>
+        Live,
+
+        /// <summary>The first start failed or reconnecting gave up; only the 20 s refresh runs.</summary>
+        Offline,
+    }
 
     [Inject]
     protected IAuditService AuditService { get; set; } = null!;
@@ -52,24 +78,71 @@ public partial class AuditLogs : BaseComponent
     protected IJSRuntime JS { get; set; } = null!;
 
     [Inject]
-    protected NavigationManager NavigationManager { get; set; } = null!;
+    protected IToastService ToastService { get; set; } = null!;
 
-    // Metrics
+    protected bool IsAdmin => this.AuthService.CurrentUser?.Role == UserRole.Admin;
+
+    protected LiveState Live { get; set; } = LiveState.Connecting;
+
+    protected string SearchTerm
+    {
+        get => this.searchTerm;
+        set => this.SetFilter(ref this.searchTerm, value);
+    }
+
+    protected string SelectedEntity
+    {
+        get => this.selectedEntity;
+        set => this.SetFilter(ref this.selectedEntity, value);
+    }
+
+    protected string SelectedCategory
+    {
+        get => this.selectedCategory;
+        set => this.SetFilter(ref this.selectedCategory, value);
+    }
+
+    protected string SelectedSeverity
+    {
+        get => this.selectedSeverity;
+        set => this.SetFilter(ref this.selectedSeverity, value);
+    }
+
+    protected string SelectedTimeRange
+    {
+        get => this.selectedTimeRange;
+        set => this.SetFilter(ref this.selectedTimeRange, value);
+    }
+
+    protected string SelectedUserIdString
+    {
+        get => this.selectedUserIdString;
+        set => this.SetFilter(ref this.selectedUserIdString, value);
+    }
+
     protected int TotalLogsCount => this.logs?.Count ?? 0;
 
-    protected int TodayLogsCount => this.logs?.Count(l => l.Timestamp >= DateTime.UtcNow.Date) ?? 0;
-
-    protected int CreatesCount => this.logs?.Count(l => GetActionCategory(l.Action) == "CREATE") ?? 0;
-
-    protected int UpdatesCount => this.logs?.Count(l => GetActionCategory(l.Action) == "UPDATE") ?? 0;
-
-    protected int DeletesCount => this.logs?.Count(l => GetActionCategory(l.Action) == "DELETE") ?? 0;
+    protected int TodayLogsCount
+    {
+        get
+        {
+            var today = this.UserZone.Today;
+            return this.logs?.Count(l => this.LocalDate(l) == today) ?? 0;
+        }
+    }
 
     protected int CriticalCount => this.logs?.Count(l => GetLogSeverity(l) == "Critical") ?? 0;
 
     protected int WarningCount => this.logs?.Count(l => GetLogSeverity(l) == "Warning") ?? 0;
 
     protected int UniqueUsersCount => this.logs?.Select(l => l.UserId ?? 0).Where(id => id > 0).Distinct().Count() ?? 0;
+
+    /// <summary>
+    /// Gets a value indicating whether the list is held still while the reader works with it (paused, an event open,
+    /// filters set or more than one page shown): new events then only count towards the "new events" bar.
+    /// </summary>
+    protected bool IsHeld =>
+        this.isAutoRefreshPaused || this.openLogId is not null || this.HasActiveFilters || this.visibleCount > PageSize;
 
     protected bool HasActiveFilters =>
         !string.IsNullOrWhiteSpace(this.searchTerm) ||
@@ -79,7 +152,6 @@ public partial class AuditLogs : BaseComponent
         this.selectedTimeRange != "ALL" ||
         this.selectedUserIdString != "ALL";
 
-    // Available filters
     protected IEnumerable<string> AvailableEntities =>
         this.logs?.Select(l => l.EntityName).Where(e => !string.IsNullOrWhiteSpace(e)).Distinct().OrderBy(e => e)
         ?? Enumerable.Empty<string>();
@@ -102,7 +174,6 @@ public partial class AuditLogs : BaseComponent
 
             var query = this.logs.AsEnumerable();
 
-            // Text search
             if (!string.IsNullOrWhiteSpace(this.searchTerm))
             {
                 var term = this.searchTerm.Trim();
@@ -114,57 +185,42 @@ public partial class AuditLogs : BaseComponent
                     (l.Changes?.Contains(term, StringComparison.OrdinalIgnoreCase) ?? false));
             }
 
-            // Entity filter
             if (!string.IsNullOrEmpty(this.selectedEntity) && this.selectedEntity != "ALL")
             {
                 query = query.Where(l => string.Equals(l.EntityName, this.selectedEntity, StringComparison.OrdinalIgnoreCase));
             }
 
-            // Action Category filter
             if (!string.IsNullOrEmpty(this.selectedCategory) && this.selectedCategory != "ALL")
             {
                 query = query.Where(l => GetActionCategory(l.Action) == this.selectedCategory);
             }
 
-            // Severity filter
             if (!string.IsNullOrEmpty(this.selectedSeverity) && this.selectedSeverity != "ALL")
             {
                 query = query.Where(l => string.Equals(GetLogSeverity(l), this.selectedSeverity, StringComparison.OrdinalIgnoreCase));
             }
 
-            // User filter
             if (int.TryParse(this.selectedUserIdString, out var userId) && userId > 0)
             {
                 query = query.Where(l => l.UserId == userId);
             }
 
-            // Time range filter
-            if (this.selectedTimeRange != "ALL")
+            // Periods are whole days in the user's zone: today, today and the 6 days before, or 29 days before.
+            var today = this.UserZone.Today;
+            DateOnly? since = this.selectedTimeRange switch
             {
-                var now = DateTime.UtcNow;
-                query = this.selectedTimeRange switch
-                {
-                    "TODAY" => query.Where(l => l.Timestamp >= now.Date),
-                    "WEEK" => query.Where(l => l.Timestamp >= now.AddDays(-7)),
-                    "MONTH" => query.Where(l => l.Timestamp >= now.AddDays(-30)),
-                    _ => query,
-                };
+                "TODAY" => today,
+                "WEEK" => today.AddDays(-6),
+                "MONTH" => today.AddDays(-29),
+                _ => null,
+            };
+
+            if (since is DateOnly from)
+            {
+                query = query.Where(l => this.LocalDate(l) >= from);
             }
 
             return query;
-        }
-    }
-
-    protected int FilteredCount => this.FilteredLogs.Count();
-
-    protected int TotalPages => Math.Max(1, (int)Math.Ceiling(this.FilteredCount / (double)this.pageSize));
-
-    protected IEnumerable<AuditLog> PagedLogs
-    {
-        get
-        {
-            var validPage = Math.Clamp(this.currentPage, 1, this.TotalPages);
-            return this.FilteredLogs.Skip((validPage - 1) * this.pageSize).Take(this.pageSize);
         }
     }
 
@@ -199,16 +255,6 @@ public partial class AuditLogs : BaseComponent
         return "Info";
     }
 
-    public static string GetSeverityBadgeClass(string severity)
-    {
-        return severity switch
-        {
-            "Critical" => "bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300 border border-rose-300 dark:border-rose-800/80",
-            "Warning" => "bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-300 dark:border-amber-800/80",
-            _ => "bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300 border border-blue-200 dark:border-blue-800/60",
-        };
-    }
-
     protected static AuditChangePayload? GetParsedPayload(AuditLog? log)
     {
         return AuditChangePayload.TryParse(log?.Changes);
@@ -216,6 +262,8 @@ public partial class AuditLogs : BaseComponent
 
     protected static string GetLogDisplaySummary(AuditLog log)
     {
+        ArgumentNullException.ThrowIfNull(log);
+
         var payload = GetParsedPayload(log);
         if (!string.IsNullOrWhiteSpace(payload?.Summary))
         {
@@ -266,39 +314,63 @@ public partial class AuditLogs : BaseComponent
         return "OTHER";
     }
 
-    protected static string GetActionClass(string? action)
+    /// <summary>
+    /// Level column: <c>CRIT</c> in danger, <c>WARN</c> in fg (there is no warning token), <c>info</c> muted.
+    /// </summary>
+    protected static (string Text, string Class) GetLevel(AuditLog log) => GetLogSeverity(log) switch
     {
-        if (string.IsNullOrWhiteSpace(action))
+        "Critical" => ("CRIT", "text-danger"),
+        "Warning" => ("WARN", "text-fg"),
+        _ => ("info", "text-muted"),
+    };
+
+    protected static string GetUserLabel(AuditLog log)
+    {
+        ArgumentNullException.ThrowIfNull(log);
+        return $"@{log.User?.Login ?? "system"}";
+    }
+
+    protected static string GetEntityLabel(AuditLog log)
+    {
+        ArgumentNullException.ThrowIfNull(log);
+        return string.IsNullOrWhiteSpace(log.EntityId) ? log.EntityName : $"{log.EntityName}#{log.EntityId}";
+    }
+
+    protected static bool CanNavigateToEntity(AuditLog? log)
+    {
+        return log != null &&
+               string.Equals(log.EntityName, "Ticket", StringComparison.OrdinalIgnoreCase) &&
+               int.TryParse(log.EntityId, out _);
+    }
+
+    /// <summary>
+    /// Day heading: <c>today · 11 Oct</c>, <c>yesterday · 10 Oct</c>, then <c>9 Oct 2026</c>.
+    /// </summary>
+    protected string GetDayHeading(DateOnly day)
+    {
+        var today = this.UserZone.Today;
+        if (day == today)
         {
-            return "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600";
+            return $"{this.Heading("audit.today")} · {day.ToString("d MMM", this.UiCulture)}";
         }
 
-        var act = action.ToUpperInvariant();
-        if (act == "BRUTE_FORCE_BLOCKED")
+        if (day == today.AddDays(-1))
         {
-            return "bg-rose-600 text-white font-black border border-rose-700 animate-pulse";
+            return $"{this.Heading("audit.yesterday")} · {day.ToString("d MMM", this.UiCulture)}";
         }
 
-        if (act == "LOGIN_FAILED")
-        {
-            return "bg-amber-100 text-amber-900 dark:bg-amber-900/50 dark:text-amber-200 border border-amber-300 dark:border-amber-800";
-        }
+        return day.ToString("d MMM yyyy", this.UiCulture);
+    }
 
-        var category = GetActionCategory(action);
-        return category switch
-        {
-            "CREATE" => "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60",
-            "UPDATE" => "bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300 border border-blue-200 dark:border-blue-800/60",
-            "DELETE" => "bg-rose-100 text-rose-800 dark:bg-rose-900/40 dark:text-rose-300 border border-rose-200 dark:border-rose-800/60",
-            "AUTH" => "bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-300 border border-purple-200 dark:border-purple-800/60",
-            "ASSOCIATION" => "bg-indigo-100 text-indigo-800 dark:bg-indigo-900/40 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/60",
-            _ => "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600",
-        };
+    protected DateOnly LocalDate(AuditLog log)
+    {
+        ArgumentNullException.ThrowIfNull(log);
+        return DateOnly.FromDateTime(this.ToLocal(log.Timestamp));
     }
 
     protected override async Task OnInitializedAsync()
     {
-        if (this.AuthService.CurrentUser?.Role == UserRole.Admin)
+        if (this.IsAdmin)
         {
             await this.LoadLogsAsync();
             await this.StartHubAsync();
@@ -318,6 +390,16 @@ public partial class AuditLogs : BaseComponent
         base.Dispose(disposing);
     }
 
+    protected void ToggleLog(int id)
+    {
+        this.openLogId = this.openLogId == id ? null : id;
+    }
+
+    protected void ShowMore()
+    {
+        this.visibleCount += PageSize;
+    }
+
     protected void RequestClearLogs()
     {
         this.showClearConfirm = true;
@@ -325,16 +407,39 @@ public partial class AuditLogs : BaseComponent
 
     protected void CancelClearLogs()
     {
-        this.showClearConfirm = false;
+        // A running clear is not cancelled: the prompt stays until it finishes.
+        if (!this.isClearing)
+        {
+            this.showClearConfirm = false;
+        }
     }
 
     protected async Task ConfirmClearLogsAsync()
     {
-        this.showClearConfirm = false;
-        await this.AuditService.ClearAllLogsAsync();
-        await this.LoadLogsAsync();
+        if (this.isClearing)
+        {
+            return;
+        }
+
+        this.isClearing = true;
+        try
+        {
+            await this.AuditService.ClearAllLogsAsync();
+        }
+        catch (Exception ex)
+        {
+            await this.ToastService.ShowToastAsync($"{this.L.Translate("audit.clearFailed")}: {ex.Message}", ToastType.Error);
+            return;
+        }
+        finally
+        {
+            this.isClearing = false;
+            this.showClearConfirm = false;
+        }
+
+        this.openLogId = null;
         this.ResetFilters();
-        this.StateHasChanged();
+        await this.LoadLogsAsync();
     }
 
     protected void ResetFilters()
@@ -345,24 +450,7 @@ public partial class AuditLogs : BaseComponent
         this.selectedSeverity = "ALL";
         this.selectedTimeRange = "ALL";
         this.selectedUserIdString = "ALL";
-        this.currentPage = 1;
-    }
-
-    protected void SetPage(int page)
-    {
-        if (page >= 1 && page <= this.TotalPages)
-        {
-            this.currentPage = page;
-        }
-    }
-
-    protected void OnPageSizeChanged(ChangeEventArgs e)
-    {
-        if (int.TryParse(e.Value?.ToString(), out var newSize) && newSize > 0)
-        {
-            this.pageSize = newSize;
-            this.currentPage = 1;
-        }
+        this.visibleCount = PageSize;
     }
 
     protected void ToggleAutoRefresh()
@@ -373,7 +461,6 @@ public partial class AuditLogs : BaseComponent
     protected async Task RefreshNowAsync()
     {
         this.isRefreshing = true;
-        this.pendingNewEventsCount = 0;
         try
         {
             await this.LoadLogsAsync();
@@ -382,43 +469,12 @@ public partial class AuditLogs : BaseComponent
         {
             this.isRefreshing = false;
         }
-
-        this.StateHasChanged();
     }
 
     protected async Task ApplyPendingEventsAsync()
     {
-        this.pendingNewEventsCount = 0;
-        this.currentPage = 1;
+        this.visibleCount = PageSize;
         await this.LoadLogsAsync();
-        this.StateHasChanged();
-    }
-
-    protected void OpenInspector(AuditLog log)
-    {
-        this.selectedLog = log;
-        this.showDetailsModal = true;
-    }
-
-    protected void CloseInspector()
-    {
-        this.showDetailsModal = false;
-        this.selectedLog = null;
-    }
-
-    protected bool CanNavigateToEntity(AuditLog? log)
-    {
-        return log != null &&
-               string.Equals(log.EntityName, "Ticket", StringComparison.OrdinalIgnoreCase) &&
-               int.TryParse(log.EntityId, out _);
-    }
-
-    protected void NavigateToEntity(AuditLog log)
-    {
-        if (this.CanNavigateToEntity(log))
-        {
-            this.NavigationManager.NavigateTo($"/tickets/{log.EntityId}");
-        }
     }
 
     protected async Task ExportToCsvAsync()
@@ -430,13 +486,12 @@ public partial class AuditLogs : BaseComponent
         }
 
         var sb = new StringBuilder();
-        sb.AppendLine("Id,TimestampUtc,TimestampLocal,Severity,User,Action,EntityName,EntityId,IpAddress,Changes");
+        sb.AppendLine("Id,TimestampUtc,Severity,User,Action,EntityName,EntityId,IpAddress,Changes");
 
         foreach (var log in logsToExport)
         {
             var id = log.Id;
-            var tsUtc = EscapeCsv(log.Timestamp.ToString("yyyy-MM-dd HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture));
-            var tsLocal = EscapeCsv(log.Timestamp.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture));
+            var tsUtc = EscapeCsv(log.Timestamp.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture));
             var severity = EscapeCsv(GetLogSeverity(log));
             var user = EscapeCsv(log.User?.Login ?? "System");
             var action = EscapeCsv(log.Action);
@@ -446,7 +501,7 @@ public partial class AuditLogs : BaseComponent
             var ip = EscapeCsv(payload?.IpAddress ?? string.Empty);
             var changes = EscapeCsv(payload?.Summary ?? log.Changes ?? string.Empty);
 
-            sb.AppendLine(System.Globalization.CultureInfo.InvariantCulture, $"{id},{tsUtc},{tsLocal},{severity},{user},{action},{entityName},{entityId},{ip},{changes}");
+            sb.AppendLine(CultureInfo.InvariantCulture, $"{id},{tsUtc},{severity},{user},{action},{entityName},{entityId},{ip},{changes}");
         }
 
         var preamble = Encoding.UTF8.GetPreamble();
@@ -454,9 +509,67 @@ public partial class AuditLogs : BaseComponent
 
         using var stream = new MemoryStream(bytes);
         using var streamRef = new DotNetStreamReference(stream);
-        var fileName = $"audit-logs-{DateTime.Now:yyyyMMdd-HHmmss}.csv";
+        var fileName = $"audit-logs-{this.ToLocal(DateTime.UtcNow):yyyyMMdd-HHmmss}.csv";
         await this.JS.InvokeVoidAsync("downloadFileFromStream", fileName, streamRef);
     }
+
+    /// <summary>
+    /// Connects to the updates hub; <see cref="OnAuditLogsChangedAsync"/> runs for every new event.
+    /// </summary>
+    protected virtual async Task StartHubAsync()
+    {
+        try
+        {
+            this.hubConnection = new HubConnectionBuilder()
+                .WithUrl(this.Navigation.ToAbsoluteUri("/hubs/updates"))
+                .WithAutomaticReconnect()
+                .Build();
+
+            this.hubConnection.On("AuditLogsChanged", this.OnAuditLogsChangedAsync);
+            this.hubConnection.Reconnecting += _ => this.SetLiveAsync(LiveState.Connecting);
+            this.hubConnection.Reconnected += _ => this.SetLiveAsync(LiveState.Live);
+            this.hubConnection.Closed += _ => this.SetLiveAsync(LiveState.Offline);
+
+            await this.hubConnection.StartAsync();
+            this.Live = LiveState.Live;
+        }
+        catch
+        {
+            // Automatic reconnect does not retry a failed first start; the 20 s refresh still runs.
+            this.Live = LiveState.Offline;
+        }
+    }
+
+    /// <summary>
+    /// Reloads the list, or counts the event for the "new events" bar while the list is held (<see cref="IsHeld"/>).
+    /// </summary>
+    protected Task OnAuditLogsChangedAsync() => this.InvokeAsync(async () =>
+    {
+        if (this.IsHeld)
+        {
+            this.pendingNewEventsCount++;
+        }
+        else
+        {
+            await this.LoadLogsAsync();
+        }
+
+        this.StateHasChanged();
+    });
+
+    /// <summary>
+    /// Fallback refresh every 20 s, skipped while the list is held (<see cref="IsHeld"/>).
+    /// </summary>
+    protected Task OnAutoRefreshTickAsync() => this.InvokeAsync(async () =>
+    {
+        if (this.IsHeld)
+        {
+            return;
+        }
+
+        await this.LoadLogsAsync();
+        this.StateHasChanged();
+    });
 
     private static string EscapeCsv(string text)
     {
@@ -469,55 +582,31 @@ public partial class AuditLogs : BaseComponent
         return $"\"{escaped}\"";
     }
 
+    private void SetFilter(ref string field, string value)
+    {
+        if (field != value)
+        {
+            field = value;
+            this.visibleCount = PageSize;
+            this.openLogId = null;
+        }
+    }
+
+    private Task SetLiveAsync(LiveState state)
+    {
+        this.Live = state;
+        return this.InvokeAsync(this.StateHasChanged);
+    }
+
+    // Everything is listed after a load, so held events are no longer pending. An open event that is gone
+    // (cleared, out of the 500, filtered out or past the shown page) is closed, so it does not hold the list.
     private async Task LoadLogsAsync()
     {
         this.logs = await this.AuditService.GetLatestLogsAsync(500);
-    }
-
-    private async Task StartHubAsync()
-    {
-        try
+        this.pendingNewEventsCount = 0;
+        if (this.openLogId is int id && !this.FilteredLogs.Take(this.visibleCount).Any(l => l.Id == id))
         {
-            this.hubConnection = new HubConnectionBuilder()
-                .WithUrl(this.NavigationManager.ToAbsoluteUri("/hubs/updates"))
-                .WithAutomaticReconnect()
-                .Build();
-
-            this.hubConnection.On("AuditLogsChanged", async () =>
-            {
-                if (this.isAutoRefreshPaused || this.showDetailsModal || this.HasActiveFilters || this.currentPage > 1)
-                {
-                    this.pendingNewEventsCount++;
-                    await this.InvokeAsync(this.StateHasChanged);
-                }
-                else
-                {
-                    await this.InvokeAsync(async () =>
-                    {
-                        await this.LoadLogsAsync();
-                        this.StateHasChanged();
-                    });
-                }
-            });
-
-            this.hubConnection.Reconnected += _ =>
-            {
-                this.isRealtimeConnected = true;
-                return this.InvokeAsync(this.StateHasChanged);
-            };
-
-            this.hubConnection.Closed += _ =>
-            {
-                this.isRealtimeConnected = false;
-                return this.InvokeAsync(this.StateHasChanged);
-            };
-
-            await this.hubConnection.StartAsync().ConfigureAwait(false);
-            this.isRealtimeConnected = true;
-        }
-        catch
-        {
-            this.isRealtimeConnected = false;
+            this.openLogId = null;
         }
     }
 
@@ -527,8 +616,8 @@ public partial class AuditLogs : BaseComponent
         {
             try
             {
-                await this.hubConnection.StopAsync().ConfigureAwait(false);
-                await this.hubConnection.DisposeAsync().ConfigureAwait(false);
+                await this.hubConnection.StopAsync();
+                await this.hubConnection.DisposeAsync();
             }
             catch
             {
@@ -537,7 +626,6 @@ public partial class AuditLogs : BaseComponent
             finally
             {
                 this.hubConnection = null;
-                this.isRealtimeConnected = false;
             }
         }
     }
@@ -557,17 +645,7 @@ public partial class AuditLogs : BaseComponent
             {
                 if (await timer.WaitForNextTickAsync(token))
                 {
-                    if (this.isAutoRefreshPaused || this.showDetailsModal)
-                    {
-                        continue;
-                    }
-
-                    // Passive fallback refresh
-                    await this.InvokeAsync(async () =>
-                    {
-                        await this.LoadLogsAsync();
-                        this.StateHasChanged();
-                    });
+                    await this.OnAutoRefreshTickAsync();
                 }
             }
             catch (OperationCanceledException)

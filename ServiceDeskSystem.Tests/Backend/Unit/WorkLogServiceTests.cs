@@ -72,6 +72,22 @@ public class WorkLogServiceTests
     }
 
     [Test]
+    public async Task AddWorkLogAsync_AuditsThePickedLocalDayNotTheUtcDate()
+    {
+        // Arrange: 12 Oct, local midnight in Kyiv is 21:00 UTC on 11 Oct.
+        _mockTicketRepo.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(new Ticket { Id = 1 });
+        _mockUserRepo.Setup(r => r.GetByIdAsync(2)).ReturnsAsync(new User { Id = 2 });
+        var utc = new DateTime(2026, 10, 11, 21, 0, 0, DateTimeKind.Utc);
+
+        // Act
+        await _workLogService.AddWorkLogAsync(1, 2, 30, utc, "desc", new DateOnly(2026, 10, 12));
+
+        // Assert
+        _mockWorkLogRepo.Verify(r => r.CreateAsync(It.Is<WorkLog>(w => w.DateLogged == utc)), Times.Once);
+        _mockAuditService.Verify(a => a.LogActionAsync("WORK_LOG_ADDED", "Ticket", "1", "Added work log: 30 min on 2026-10-12", 2), Times.Once);
+    }
+
+    [Test]
     public async Task AddWorkLogAsync_ShouldFail_WhenTimeIsZeroOrNegative()
     {
         // Arrange
@@ -102,5 +118,15 @@ public class WorkLogServiceTests
         // Assert
         result.Success.Should().BeFalse();
         _mockWorkLogRepo.Verify(r => r.CreateAsync(It.IsAny<WorkLog>()), Times.Never);
+    }
+
+    [Test]
+    public async Task GetTotalTimeSpentForUserAsync_ReturnsRepositorySum()
+    {
+        _mockWorkLogRepo.Setup(r => r.GetTotalTimeSpentForUserAsync(5)).ReturnsAsync(135);
+
+        var total = await _workLogService.GetTotalTimeSpentForUserAsync(5);
+
+        total.Should().Be(135);
     }
 }

@@ -1,0 +1,19 @@
+<div role="radiogroup" aria-label="@Label" aria-describedby="@DescribedBy" aria-invalid="@(Invalid ? "true" : null)"
+     class="inline-flex font-mono text-13 border border-line rounded-md overflow-hidden">
+    @for (var i = 0; i < Options.Count; i++)
+    {
+        var index = i;
+        var option = Options[index];
+        var selected = option.Value == Value;
+        <button type="button"
+                role="radio"
+                aria-checked="@(selected ? "true" : "false")"
+                tabindex="@(IsTabStop(index) ? "0" : "-1")"
+                class="@ButtonClass(selected, index)"
+                @ref="buttons[index]"
+                @onclick="() => SelectAsync(index)"
+                @onkeydown="e => OnKeyDownAsync(e, index)">
+            @option.Text
+        </button>
+    }
+</div>

@@ -30,6 +30,8 @@ public interface IRepositoryFacade : IAsyncDisposable
 
     ISlaPolicyRepository SlaPolicies { get; }
 
+    ITicketStatusHistoryRepository TicketStatusHistory { get; }
+
     IUnitOfWork UnitOfWork { get; }
 }
 

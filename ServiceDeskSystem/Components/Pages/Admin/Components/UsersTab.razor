@@ -2,145 +2,99 @@
 @using ServiceDeskSystem.Domain.Enums
 
 @{
-    var filteredUsers = GetFilteredUsers();
+    var rows = GetFilteredUsers();
 }
 
-<div class="atab-card">
-    <!-- Toolbar -->
-    <div class="atab-toolbar">
-        <div class="atab-toolbar-left">
-            <h2 class="atab-title">@L.Translate("admin.users")</h2>
-            @if (filteredUsers is not null)
-            {
-                <span class="atab-count-badge">@filteredUsers.Count</span>
-            }
-        </div>
-        <div class="atab-toolbar-right">
-            <div class="atab-search-wrap">
-                <svg class="atab-search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0" />
-                </svg>
-                <input type="search"
-                       class="atab-search-input"
-                       placeholder="@(L.Translate("search.label"))..."
-                       @bind="SearchQuery"
-                       @bind:event="oninput" />
-            </div>
-        </div>
-    </div>
+<AdminToolbar @bind-Value="SearchQuery">
+    <Actions>
+        <span data-register-note class="font-mono text-13 text-muted">@Heading("admin.usersRegisterNote")</span>
+    </Actions>
+</AdminToolbar>
 
-    @if (Users is null)
+@if (rows is null)
+{
+    <p data-loading class="px-3.5 py-7 font-mono text-13 text-muted">@Heading("common.loading")</p>
+}
+else if (rows.Count == 0)
+{
+    @if (string.IsNullOrWhiteSpace(SearchQuery))
     {
-        <div class="atab-loading">
-            <svg class="atab-spinner" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-            </svg>
-            <span>@L.Translate("common.loading")</span>
-        </div>
-    }
-    else if (filteredUsers is not null && filteredUsers.Count == 0)
-    {
-        <div class="atab-empty">
-            <div class="atab-empty-icon">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-            </div>
-            <p class="atab-empty-title">@(string.IsNullOrWhiteSpace(SearchQuery) ? L.Translate("admin.noUsers") : L.Translate("admin.noSearchResults"))</p>
-            @if (!string.IsNullOrWhiteSpace(SearchQuery))
-            {
-                <button class="atab-empty-clear" @onclick="@(() => SearchQuery = string.Empty)">
-                    @L.Translate("admin.clearSearch")
-                </button>
-            }
-        </div>
+        <EmptyState Message="@L.Translate("admin.noUsers")" />
     }
     else
     {
-        <div class="atab-table-wrap">
-            <table class="atab-table w-full min-w-[600px] table-fixed">
-                <thead>
-                    <tr>
-                        <th class="atab-th w-5/12">@L.Translate("admin.fullName")</th>
-                        <th class="atab-th w-3/12">@L.Translate("admin.role")</th>
-                        <th class="atab-th atab-th-center w-3/12">@L.Translate("admin.status")</th>
-                        <th class="atab-th atab-th-actions w-1/12">@L.Translate("admin.actions")</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var user in filteredUsers!)
-                    {
-                        var initials = GetInitials(user.Person.FirstName, user.Person.LastName);
-                        var avatarClass = GetAvatarClass(user.Role);
-
-                        <tr class="atab-row">
-                            <!-- Avatar + Name + Login -->
-                            <td class="atab-td truncate">
-                                <div class="auser-info">
-                                    <div class="auser-avatar @avatarClass shrink-0">@initials</div>
-                                    <div class="auser-details truncate">
-                                        <span class="auser-name truncate">@($"{user.Person.FirstName} {user.Person.LastName}")</span>
-                                        <span class="auser-login truncate">@@@user.Login</span>
-                                    </div>
-                                </div>
-                            </td>
-
-                            <!-- Role select -->
-                            <td class="atab-td">
-                                <select @bind="user.Role"
-                                        @bind:after="@(() => UpdateUserRole(user.Id, user.Role))"
-                                        disabled="@(!CanEditUserRole(user))"
-                                        class="atab-role-select @(!CanEditUserRole(user) ? "disabled" : "") @GetRoleSelectClass(user.Role) w-full">
-                                    <option value="@UserRole.Admin">@L.Translate("admin.roleAdmin")</option>
-                                    <option value="@UserRole.Developer">@L.Translate("admin.roleDeveloper")</option>
-                                    <option value="@UserRole.User">@L.Translate("admin.roleUser")</option>
-                                </select>
-                            </td>
-
-                            <!-- Status toggle -->
-                            <td class="atab-td atab-td-center">
-                                <button @onclick="@(() => ToggleUserStatus(user.Id))"
-                                        disabled="@(!CanToggleUserStatus(user))"
-                                        class="atab-status-btn @(user.IsActive ? "active" : "inactive") @(!CanToggleUserStatus(user) ? "disabled" : "")">
-                                    <span class="atab-status-dot"></span>
-                                    @(user.IsActive ? L.Translate("admin.active") : L.Translate("admin.inactive"))
-                                </button>
-                            </td>
-
-                            <!-- Actions -->
-                            <td class="atab-td atab-td-actions text-right pr-4">
-                                <div class="flex justify-end gap-2 inline-flex">
-                                    <button @onclick="@(() => DeleteUser(user))"
-                                            class="atab-action-btn delete @(!CanDeleteUser(user) ? "disabled" : "")"
-                                            disabled="@(!CanDeleteUser(user))"
-                                            title="@L.Translate("common.delete")">
-                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                        </svg>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
-
-        <div class="atab-footer">
-            <span class="atab-footer-info">
-                @if (!string.IsNullOrWhiteSpace(SearchQuery))
-                {
-                    @($"{filteredUsers!.Count} / {Users?.Count ?? 0}")
-                }
-                else
-                {
-                    @($"{Users?.Count ?? 0}")
-                }
-            </span>
-        </div>
+        <EmptyState Message="@L.Translate("admin.noSearchResults")" ActionText="@Heading("admin.clearSearch")" OnAction="ClearSearch" />
     }
-</div>
+}
+else
+{
+    <div class="overflow-x-auto">
+        <table data-term class="w-full min-w-[640px] border-collapse text-left text-14">
+            <thead>
+                <tr class="border-b border-line font-mono text-13 text-muted">
+                    <th class="font-normal" aria-sort="ascending">@Heading("admin.user") <span aria-hidden="true">↑</span></th>
+                    <th class="w-64 font-normal">@Heading("admin.role")</th>
+                    <th class="w-24 font-normal">@Heading("admin.active")</th>
+                    <th class="w-16 font-normal"><span class="sr-only">@L.Translate("admin.actions")</span></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var user in rows)
+                {
+                    if (Row.IsDeleting(user.Id))
+                    {
+                        <DeletePrompt @key="@($"delete-{user.Id}")" Columns="4" Kind="user" Name="@user.Login"
+                                      IsDeleting="Row.IsBusy" OnConfirm="() => DeleteUserAsync(user)" OnCancel="Row.Close" />
+                        continue;
+                    }
+
+                    <tr @key="user.Id" data-row="@user.Id" data-inactive="@(!user.IsActive)"
+                        class="border-b border-dashed border-line hover:bg-surface @(user.IsActive ? null : "[&>td]:opacity-60")">
+                        <td>
+                            <div class="flex min-w-0 items-center gap-2.5">
+                                <Avatar Name="@GetDisplayName(user)" Size="AvatarSize.Sm" />
+                                <div class="min-w-0">
+                                    <div class="truncate text-fg">@GetDisplayName(user)</div>
+                                    <div class="truncate font-mono text-13 text-muted">@@@user.Login</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="flex flex-wrap items-center gap-2">
+                                @if (CanEditUserRole(user))
+                                {
+                                    <SegmentedControl Label="@L.Translate("admin.role")" Options="RoleOptions"
+                                                      Value="@user.Role.ToString()" ValueChanged="value => ChangeRoleAsync(user, value)" />
+                                    @if (failedRoleUserId == user.Id)
+                                    {
+                                        <span data-role-error role="status" class="font-mono text-13 text-danger">✗ @Heading("admin.notSaved")</span>
+                                    }
+                                }
+                                else
+                                {
+                                    <RoleTag Role="user.Role" />
+                                }
+                            </div>
+                        </td>
+                        <td>
+                            <ToggleSwitch Label="@L.Translate("admin.active")" Value="user.IsActive" Disabled="@(!CanToggleUserStatus(user))"
+                                          ValueChanged="_ => ToggleUserStatusAsync(user.Id)" />
+                        </td>
+                        <td class="whitespace-nowrap text-right font-mono text-13">
+                            @if (CanDeleteUser(user))
+                            {
+                                <button type="button" data-action="delete" class="text-muted hover:text-danger"
+                                        title="@L.Translate("common.delete")" aria-label="@L.Translate("common.delete")"
+                                        @onclick="() => Row.ConfirmDelete(user.Id)">×</button>
+                            }
+                            else
+                            {
+                                <span class="text-muted" title="@L.Translate("admin.cannotDeleteAdmin")">—</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

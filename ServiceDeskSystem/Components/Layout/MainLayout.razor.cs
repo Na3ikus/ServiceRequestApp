@@ -16,16 +16,13 @@ namespace ServiceDeskSystem.Components.Layout;
 public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDisposable
 {
     private static readonly TimeSpan DatabaseMonitorInterval = TimeSpan.FromSeconds(15);
-    private static readonly TimeSpan NotificationPulseDuration = TimeSpan.FromSeconds(2);
     private readonly List<UserNotificationDto> notifications = [];
 
     private bool authRestored;
-    private bool isLanguageDropdownOpen;
     private bool isNotificationsOpen;
     private bool isSidebarOpen;
     private bool hotkeyRegistered;
     private bool databaseConnectionLost;
-    private bool hasNewNotificationPulse;
     private bool notificationsHubInitialized;
     private bool disposed;
     private int lastKnownUnreadCount;
@@ -33,13 +30,11 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
     private CancellationTokenSource? databaseMonitorCts;
     private Task? databaseMonitorTask;
     private HubConnection? notificationsHubConnection;
-    private CancellationTokenSource? notificationPulseCts;
     private ServiceDeskSystem.Components.Shared.HotkeysModal? hotkeysModal;
 
     internal IReadOnlyList<UserNotificationDto> Notifications => this.notifications;
     internal int UnreadNotificationsCount { get; private set; }
     internal bool IsNotificationsOpen => this.isNotificationsOpen;
-    internal bool HasNewNotificationPulse => this.hasNewNotificationPulse;
 
     [Inject]
     private IAuthService AuthService { get; set; } = null!;
@@ -68,18 +63,20 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
     [Inject]
     private IDbContextFactory<BugTrackerDbContext> DbContextFactory { get; set; } = null!;
 
-    [JSInvokable]
-    public async Task HandleSidebarHotkey()
+    [Inject]
+    private ServiceDeskSystem.Application.Services.Time.IUserTimeZone UserZone { get; set; } = null!;
+
+    /// <summary>
+    /// Gets the signed-in user's full name (avatar initials, top bar), or the login when no name is set.
+    /// </summary>
+    private string? DisplayName
     {
-        var isDesktop = await this.JS.InvokeAsync<bool>("sidebarManager.isDesktop");
-
-        if (isDesktop)
+        get
         {
-            await this.ToggleSidebarCollapseAsync();
-            return;
+            var user = this.AuthService.CurrentUser;
+            var fullName = $"{user?.Person?.FirstName} {user?.Person?.LastName}".Trim();
+            return fullName.Length > 0 ? fullName : user?.Login;
         }
-
-        this.ToggleSidebar();
     }
 
     [JSInvokable]
@@ -102,19 +99,6 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
         this.Navigation.NavigateTo(targetRoute);
     }
 
-    [JSInvokable]
-    public async Task HandleOutsideLanguageClick()
-    {
-        if (!this.isLanguageDropdownOpen)
-        {
-            return;
-        }
-
-        this.isLanguageDropdownOpen = false;
-        await this.UnregisterLanguageOutsideClickAsync();
-        await this.InvokeAsync(this.StateHasChanged);
-    }
-
     public void Dispose()
     {
         this.Dispose(true);
@@ -125,7 +109,6 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
     {
         await this.StopDatabaseMonitorAsync();
         await this.StopNotificationsHubAsync();
-        await this.UnregisterLanguageOutsideClickAsync();
         await this.UnregisterNotificationOutsideClickAsync();
 
         if (!this.disposed && this.hotkeyRegistered)
@@ -165,6 +148,7 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
         }
 
         await this.Theme.InitializeAsync();
+        await this.ReadBrowserTimeZoneAsync();
         await this.AuthService.EnsureRestoredAsync();
 
         this.dotNetRef = DotNetObjectReference.Create(this);
@@ -222,10 +206,6 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
 
             this.notificationsHubConnection = null;
             this.notificationsHubInitialized = false;
-
-            this.notificationPulseCts?.Cancel();
-            this.notificationPulseCts?.Dispose();
-            this.notificationPulseCts = null;
         }
 
         this.disposed = true;
@@ -241,7 +221,7 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
                 this.L.SetLanguage(savedLang);
             }
 
-            await this.JS.InvokeVoidAsync("themeManager.restoreAllVisualSettings");
+            await this.JS.InvokeVoidAsync("prefs.applyAll");
         }
         catch
         {
@@ -253,10 +233,7 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
 
     private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
     {
-        _ = this.UnregisterLanguageOutsideClickAsync();
         _ = this.UnregisterNotificationOutsideClickAsync();
-        this.isLanguageDropdownOpen = false;
-        this.StopNotificationPulse();
         this.isNotificationsOpen = false;
 
         if (!this.isSidebarOpen)
@@ -272,21 +249,13 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
 
     private void CloseSidebar() => this.isSidebarOpen = false;
 
-    private async Task ToggleSidebarCollapseAsync()
-    {
-        await this.Theme.SetSidebarCollapsedAsync(!this.Theme.IsSidebarCollapsed);
-    }
-
     private async Task HandleLogout()
     {
         await this.AuthService.LogoutAsync();
-        await this.UnregisterLanguageOutsideClickAsync();
         await this.UnregisterNotificationOutsideClickAsync();
-        this.isLanguageDropdownOpen = false;
         this.notifications.Clear();
         this.UnreadNotificationsCount = 0;
         this.lastKnownUnreadCount = 0;
-        this.StopNotificationPulse();
         this.isNotificationsOpen = false;
 
         // Remove cached role from localStorage on logout.
@@ -389,71 +358,21 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
         }
     }
 
-    private string GetHeaderDateText()
+    private async Task ReadBrowserTimeZoneAsync()
     {
-        return DateTime.Now.ToString("dddd, MMMM dd, yyyy", this.GetCurrentCultureInfo());
+        try
+        {
+            this.UserZone.Set(await this.JS.InvokeAsync<string?>("prefs.timeZone"));
+        }
+        catch (JSException)
+        {
+            // Older cached prefs.js: keep the server zone.
+        }
     }
 
     private string FormatNotificationTime(DateTime utcDateTime)
     {
-        return utcDateTime.ToLocalTime().ToString("g", this.GetCurrentCultureInfo());
-    }
-
-    private async Task ToggleLanguageDropdownAsync()
-    {
-        this.isLanguageDropdownOpen = !this.isLanguageDropdownOpen;
-
-        if (this.isLanguageDropdownOpen)
-        {
-            await this.RegisterLanguageOutsideClickAsync();
-        }
-        else
-        {
-            await this.UnregisterLanguageOutsideClickAsync();
-        }
-    }
-
-    private async Task SetLanguageAsync(string language)
-    {
-        this.L.SetLanguage(language);
-        this.isLanguageDropdownOpen = false;
-        await this.UnregisterLanguageOutsideClickAsync();
-        try
-        {
-            await this.JS.InvokeVoidAsync("localStorage.setItem", "settings.language", language);
-        }
-        catch
-        {
-        }
-    }
-
-    private async Task RegisterLanguageOutsideClickAsync()
-    {
-        if (this.dotNetRef is null)
-        {
-            return;
-        }
-
-        try
-        {
-            await this.JS.InvokeVoidAsync("notificationManager.registerLanguageOutsideClick", this.dotNetRef);
-        }
-        catch
-        {
-            // Ignore JS interop issues during reconnect/shutdown.
-        }
-    }
-
-    private async Task UnregisterLanguageOutsideClickAsync()
-    {
-        try
-        {
-            await this.JS.InvokeVoidAsync("notificationManager.unregisterLanguageOutsideClick");
-        }
-        catch
-        {
-            // Ignore JS interop issues during reconnect/shutdown.
-        }
+        return this.UserZone.ToLocal(utcDateTime).ToString("g", this.GetCurrentCultureInfo());
     }
 
     private sealed class DatabaseHealthResponse

@@ -65,6 +65,26 @@ namespace ServiceDeskSystem.Infrastructure.Data.Repository
             return topDevs.Select(x => (x.Login ?? "?", x.Count)).ToList();
         }
 
+        public async Task<List<TicketStatisticsRow>> GetStatisticsRowsAsync()
+        {
+            // Projected in SQL: the rich-text columns (description, steps, notes) are never read.
+            return await this.Context.Tickets
+                .AsNoTracking()
+                .Select(t => new TicketStatisticsRow(
+                    t.Id,
+                    t.CreatedAt,
+                    t.Status,
+                    t.Priority,
+                    t.Type,
+                    t.DeveloperId,
+                    t.ProductId,
+                    t.Product != null ? t.Product.Name : null,
+                    t.Tags.Select(tag => new TicketTagRow(tag.Id, tag.Name)).ToList()))
+                .AsSplitQuery()
+                .ToListAsync()
+                .ConfigureAwait(false);
+        }
+
         public async Task<IEnumerable<Ticket>> GetAllWithIncludesAsync()
         {
             return await this.Context.Tickets
@@ -138,6 +158,14 @@ namespace ServiceDeskSystem.Infrastructure.Data.Repository
         public async Task<int> GetCountByStatusAsync(TicketStatus status) => await this.Context.Tickets.CountAsync(t => t.Status == status).ConfigureAwait(false);
         public async Task<int> GetCountByPriorityAsync(TicketPriority priority) => await this.Context.Tickets.CountAsync(t => t.Priority == priority).ConfigureAwait(false);
         public async Task<int> GetCountByAuthorIdAsync(int authorId) => await this.Context.Tickets.CountAsync(t => t.AuthorId == authorId).ConfigureAwait(false);
+
+        public async Task<List<DateTime>> GetCreatedTimesByAuthorAsync(int authorId, DateTime sinceUtc) =>
+            await this.Context.Tickets
+                .Where(t => t.AuthorId == authorId && t.CreatedAt >= sinceUtc)
+                .Select(t => t.CreatedAt)
+                .ToListAsync()
+                .ConfigureAwait(false);
+
         public async Task<int> GetCountByDeveloperIdAsync(int developerId) => await this.Context.Tickets.CountAsync(t => t.DeveloperId == developerId).ConfigureAwait(false);
         public async Task<int> GetDeveloperInProgressCountAsync(int developerId) => await this.Context.Tickets.CountAsync(t => t.DeveloperId == developerId && t.Status == TicketStatus.InProgress).ConfigureAwait(false);
         public async Task<int> GetDeveloperCompletedCountAsync(int developerId) => await this.Context.Tickets.CountAsync(t => t.DeveloperId == developerId && (t.Status == TicketStatus.Resolved || t.Status == TicketStatus.Closed)).ConfigureAwait(false);

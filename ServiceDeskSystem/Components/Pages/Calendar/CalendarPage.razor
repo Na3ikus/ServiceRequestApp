@@ -1,128 +1,123 @@
 @page "/calendar"
-@using ServiceDeskSystem.Components.Features
-@using System.Globalization
 @inherits BaseComponent
 @rendermode InteractiveServer
 
-<div class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
-    <!-- Premium Header -->
-    <div class="page-hero relative overflow-hidden bg-white dark:bg-gradient-to-br dark:from-gray-900 dark:via-gray-800 dark:to-slate-900 rounded-2xl p-6 sm:p-8 shadow-sm border border-gray-200 dark:border-gray-700/50 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
-        <div class="page-hero-decor absolute top-0 right-0 -m-8 w-40 h-40 bg-blue-400/10 dark:bg-blue-500/20 rounded-full filter blur-3xl"></div>
-        <div class="relative z-10">
-            <div class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white tracking-tight flex items-center gap-3">
-                <div class="p-2.5 bg-blue-50 dark:bg-blue-500/20 rounded-xl shadow-sm">
-                    <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                </div>
-                <h1>@L.Translate("nav.calendar")</h1>
+<!-- Created by Nazar "N1h3" Hutsol -->
+<div class="max-w-7xl mx-auto p-4 sm:p-6">
+    <PageHeader Segments="Segments" Subtitle="@L.Translate("details.calendarDesc")">
+        <Actions>
+            <div class="flex items-center gap-1">
+                <button type="button" class="btn-ghost h-9 w-9 px-0 font-mono" aria-label="@L.Translate("calendar.previousMonth")"
+                        @onclick="() => ShowMonth(-1)">‹</button>
+                <span data-month-title class="min-w-36 text-center font-mono text-15 text-fg" aria-live="polite">@MonthTitle</span>
+                <button type="button" class="btn-ghost h-9 w-9 px-0 font-mono" aria-label="@L.Translate("calendar.nextMonth")"
+                        @onclick="() => ShowMonth(1)">›</button>
             </div>
-            <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">@L.Translate("details.calendarDesc")</p>
-        </div>
-        <div class="relative z-10 flex items-center gap-2 bg-gray-50 dark:bg-gray-900/50 p-1.5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-inner">
-            <button @onclick="PreviousMonth" class="p-2.5 hover:bg-white dark:hover:bg-gray-800 rounded-lg hover:shadow-sm transition-all text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
-            </button>
-            <span class="font-bold text-gray-800 dark:text-white px-4 min-w-[140px] text-center text-lg capitalize tracking-wide">
-                @currentMonth.ToString("MMMM yyyy")
-            </span>
-            <button @onclick="NextMonth" class="p-2.5 hover:bg-white dark:hover:bg-gray-800 rounded-lg hover:shadow-sm transition-all text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-            </button>
-        </div>
-    </div>
+            <button type="button" data-today class="btn-ghost h-9 px-3 font-mono text-13" @onclick="ShowToday">@Heading("calendar.today")</button>
+        </Actions>
+    </PageHeader>
 
     @if (isLoading)
     {
-        <div class="grid grid-cols-7 gap-px bg-gray-200 dark:bg-gray-700 rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700">
-            @for (int i = 0; i < 35; i++)
+        <div class="hidden grid-cols-7 gap-px overflow-hidden rounded-lg border border-line bg-line md:grid" aria-busy="true">
+            @for (var i = 0; i < 35; i++)
             {
-                <div class="bg-white dark:bg-gray-800 h-28 sm:h-36 animate-pulse"></div>
+                <div class="h-28 bg-surface"></div>
             }
         </div>
     }
     else
     {
-        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-            <!-- Days of Week Header -->
-            <div class="grid grid-cols-7 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/80">
-                @{
-                    var daysOfWeek = new[] { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" };
-                    foreach (var day in daysOfWeek)
-                    {
-                        <div class="py-4 text-center text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">
-                            @day
-                        </div>
-                    }
+        var events = Events();
+        var first = month;
+        var gridStart = GridStart(first);
+        var weeks = (int)Math.Ceiling((first.DayNumber - gridStart.DayNumber + DateTime.DaysInMonth(first.Year, first.Month)) / 7.0);
+
+        @* Month grid (md and up) *@
+        <div class="hidden md:block">
+            <div class="grid grid-cols-7 gap-px overflow-hidden rounded-lg border border-line bg-line">
+                @foreach (var name in DayNames())
+                {
+                    <div data-day-name class="bg-surface px-2 py-1.5 font-mono text-12 text-muted">@name.ToLower(UiCulture)</div>
                 }
-            </div>
-
-            <!-- Calendar Grid -->
-            <div class="grid grid-cols-7 gap-px bg-gray-200 dark:bg-gray-700">
-                @{
-                    var firstDayOfMonth = new DateTime(currentMonth.Year, currentMonth.Month, 1);
-                    var daysInMonth = DateTime.DaysInMonth(currentMonth.Year, currentMonth.Month);
-                    var startingDayOfWeek = (int)firstDayOfMonth.DayOfWeek;
-                    
-                    // Adjust starting day so Monday is 0
-                    startingDayOfWeek = startingDayOfWeek == 0 ? 6 : startingDayOfWeek - 1;
-
-                    // Empty slots before the first day of the month
-                    for (int i = 0; i < startingDayOfWeek; i++)
-                    {
-                        <div class="bg-gray-50/80 dark:bg-gray-800/80 min-h-[110px] sm:min-h-[140px] p-2 opacity-50"></div>
-                    }
-
-                    // Days of the month
-                    for (int i = 1; i <= daysInMonth; i++)
-                    {
-                        var currentDate = new DateTime(currentMonth.Year, currentMonth.Month, i);
-                        var isToday = currentDate.Date == DateTime.Today;
-                        var dayTickets = GetTicketsForDay(currentDate).ToList();
-
-                        <div class="bg-white dark:bg-gray-800 min-h-[110px] sm:min-h-[140px] p-2 sm:p-3 transition-colors hover:bg-blue-50/30 dark:hover:bg-gray-700/50 group">
-                            <div class="flex justify-between items-start mb-2">
-                                <span class="@(isToday ? "bg-blue-600 text-white w-7 h-7 rounded-full flex items-center justify-center font-bold text-sm shadow-md ring-4 ring-blue-100 dark:ring-blue-900/30" : "text-sm font-medium text-gray-700 dark:text-gray-300 w-7 h-7 flex items-center justify-center group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors")">
-                                    @i
-                                </span>
-                            </div>
-                            <div class="space-y-1.5 overflow-y-auto max-h-[90px] sm:max-h-[110px] no-scrollbar pr-1">
-                                @foreach (var ticket in dayTickets)
+                @for (var i = 0; i < weeks * 7; i++)
+                {
+                    var day = gridStart.AddDays(i);
+                    var inMonth = day.Month == first.Month;
+                    var dayEvents = inMonth && events.TryGetValue(day, out var list) ? list : [];
+                    <div data-day="@day.ToString("yyyy-MM-dd")" class="min-h-28 p-1.5 @(inMonth ? "bg-canvas" : "bg-surface")">
+                        <div class="mb-1 font-mono text-13">
+                            @if (day == Today)
+                            {
+                                <span data-today-mark class="mark">@day.Day</span>
+                            }
+                            else
+                            {
+                                <span class="@(inMonth ? "text-fg" : "text-muted opacity-60")">@day.Day</span>
+                            }
+                        </div>
+                        @if (dayEvents.Count > 0)
+                        {
+                            <div class="space-y-1">
+                                @foreach (var e in dayEvents.Take(ChipsPerDay))
                                 {
-                                    var start = ticket.StartDate ?? ticket.CreatedAt;
-                                    var isStart = start.Date == currentDate.Date;
-                                    var isDue = ticket.DueDate?.Date == currentDate.Date;
-                                    
-                                    // Visual cues: Due/Deadline (Red), Start/Contact (Blue/Indigo)
-                                    var colorClass = isDue 
-                                        ? "bg-red-50 hover:bg-red-100 text-red-700 border-red-200 dark:bg-red-500/10 dark:hover:bg-red-500/20 dark:text-red-300 dark:border-red-500/30 font-semibold" 
-                                        : "bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-500/10 dark:hover:bg-blue-500/20 dark:text-blue-300 dark:border-blue-500/30";
-                                                     
-                                    <a href="/ticket/@ticket.Id" class="block w-full text-left transition-all hover:scale-[1.02]">
-                                        <div class="px-2 py-1.5 text-xs rounded-lg border shadow-sm truncate font-medium flex items-center gap-1.5 @colorClass" title="@(isDue ? $"{L.Translate("calendar.deadline")}: {ticket.Title}" : $"{L.Translate("calendar.contactDate")}: {ticket.Title}")">
-                                            @if(isDue) 
-                                            { 
-                                                <span class="flex-shrink-0 text-[11px]" title="@L.Translate("calendar.deadline")">⏰</span> 
-                                            }
-                                            else 
-                                            { 
-                                                <span class="flex-shrink-0 text-[11px]" title="@L.Translate("calendar.contactDate")">📞</span> 
-                                            }
-                                            <span class="truncate">#@ticket.Id @ticket.Title</span>
-                                        </div>
+                                    @Chip(e)
+                                }
+                                @if (dayEvents.Count > ChipsPerDay)
+                                {
+                                    <a data-more href="@($"calendar#{DayAnchor(day)}")" class="block font-mono text-12 text-muted hover:text-fg"
+                                       aria-label="@($"+{dayEvents.Count - ChipsPerDay} · {day.ToString("d MMMM", UiCulture)}")">
+                                        +@(dayEvents.Count - ChipsPerDay)
                                     </a>
                                 }
                             </div>
-                        </div>
-                    }
-
-                    // Empty slots after the last day
-                    var totalCells = startingDayOfWeek + daysInMonth;
-                    var remainingCells = 42 - totalCells; // 6 rows * 7 columns
-                    for (int i = 0; i < remainingCells; i++)
-                    {
-                        <div class="bg-gray-50/80 dark:bg-gray-800/80 min-h-[110px] sm:min-h-[140px] p-2 opacity-50"></div>
-                    }
+                        }
+                    </div>
                 }
             </div>
         </div>
+
+        @* The month's days with events, under the grid (and instead of it on phones). *@
+        <section data-agenda class="md:mt-8" aria-labelledby="calendar-month-list">
+            <h2 id="calendar-month-list" class="mb-3 hidden font-mono text-13 text-muted md:block"># @Heading("calendar.thisMonth")</h2>
+            @if (events.Count == 0)
+            {
+                <EmptyState Message="@L.Translate("calendar.noEvents")" />
+            }
+            else
+            {
+                @foreach (var (day, dayEvents) in events.OrderBy(kv => kv.Key))
+                {
+                    <div id="@DayAnchor(day)" class="mb-5 scroll-mt-4">@DayList(day, dayEvents)</div>
+                }
+            }
+        </section>
     }
 </div>
+
+@code {
+    private RenderFragment Chip(CalendarEvent e) => __builder =>
+    {
+        <a href="@($"/ticket/{e.Ticket.Id}")" data-chip="@e.Kind"
+           class="block truncate rounded border px-1.5 py-0.5 font-mono text-12 hover:bg-surface @KindClass(e.Kind)"
+           title="@($"{KindLabel(e.Kind)}: #{e.Ticket.Id} {e.Ticket.Title}")">@Marker(e.Kind) #@e.Ticket.Id @e.Ticket.Title</a>
+    };
+
+    private RenderFragment DayList(DateOnly day, IReadOnlyList<CalendarEvent> dayEvents) => __builder =>
+    {
+        <h3 class="mb-1 font-mono text-13 @(day == Today ? "text-fg" : "text-muted")"># @day.ToString("d MMMM, ddd", UiCulture).ToLower(UiCulture)</h3>
+        <ul class="border-t border-dashed border-line">
+            @foreach (var e in dayEvents)
+            {
+                <li class="border-b border-dashed border-line">
+                    <a href="@($"/ticket/{e.Ticket.Id}")" class="flex items-baseline gap-3 px-2 py-2 hover:bg-surface">
+                        <span class="font-mono text-13 @KindText(e.Kind)">@Marker(e.Kind)</span>
+                        <span class="shrink-0 font-mono text-13 text-muted">#@e.Ticket.Id</span>
+                        <span class="min-w-0 flex-1 truncate text-15 text-fg">@e.Ticket.Title</span>
+                        <span class="shrink-0 font-mono text-12 @KindText(e.Kind)">@KindLabel(e.Kind).ToLower(UiCulture)</span>
+                    </a>
+                </li>
+            }
+        </ul>
+    };
+}

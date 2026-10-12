@@ -1,129 +1,88 @@
-@using ServiceDeskSystem.Domain.Entities
-
 @inherits ServiceDeskSystem.Components.UI.Base.BaseComponent
 
 <!-- Created by Nazar "N1h3" Hutsol -->
-<div class="space-y-4">
-    @foreach (var (ticket, index) in Tickets.Select((t, i) => (t, i)))
-    {
-        <div class="block group/card cursor-pointer ticket-row-enter" style="animation-delay: @(index * 40)ms" @onclick="@(() => OnTicketClick.InvokeAsync(ticket.Id))">
-            <div class="flex sm:items-center flex-col sm:flex-row gap-4 p-4 rounded-xl border transition-all duration-300 transform group-hover/card:-translate-y-0.5 shadow-sm hover:shadow-lg
-                        @(!ticket.IsPriorityAssessed && IsAdminOrDeveloper 
-                            ? "border-dashed border-amber-400/80 dark:border-amber-600/60 bg-amber-50/20 dark:bg-amber-950/10 hover:border-amber-500" 
-                            : "border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/80 hover:border-blue-300 dark:hover:border-blue-500/50")">
-                
-                <!-- Icon & Title Section -->
-                <div class="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
-                    <div class="w-10 h-10 rounded-full flex shrink-0 items-center justify-center shadow-sm @GetPriorityColorClass(ticket.Priority)">
-                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path>
-                        </svg>
-                    </div>
-                    
-                    <div class="flex-1 min-w-0">
-                        <div class="flex items-center gap-2 mb-1">
-                            <p class="text-sm font-bold text-gray-900 dark:text-white truncate group-hover/card:text-blue-600 dark:group-hover/card:text-blue-400 transition-colors">
-                                @ticket.Title
-                            </p>
-                        </div>
-                        
-                        <!-- Badges row -->
-                        <div class="flex flex-wrap items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400">
-                            <!-- Type Badge -->
-                            <span class="@GetTicketTypeBadgeClass(ticket.Type) px-2 py-0.5 text-xs font-semibold rounded shadow-xs shrink-0">
-                                @GetTicketTypeText(ticket.Type)
-                            </span>
-
-                            <!-- Status Badge -->
-                            <span class="flex items-center gap-1.5 px-2 py-0.5 text-xs font-semibold rounded bg-gray-50 dark:bg-gray-700 border border-gray-100 dark:border-gray-600 shadow-sm shrink-0">
-                                <span class="w-2 h-2 rounded-full @GetStatusDotColor(ticket.Status)"></span>
-                                @GetStatusText(ticket.Status)
-                            </span>
-                            
-                            @if (!ticket.IsPriorityAssessed && IsAdminOrDeveloper)
-                            {
-                                <span class="flex items-center gap-1 px-2 py-0.5 rounded bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300 font-bold border border-amber-200 dark:border-amber-800 animate-pulse shrink-0">
-                                    ⚠️ @L.Translate("tickets.triageRequired")
-                                </span>
-                            }
-                            
-                            <!-- Product Badge -->
-                            @if (ShowProduct && ticket.Product is not null)
-                            {
-                                <span class="shrink-0 text-gray-400 dark:text-gray-500 hidden sm:inline">&bull;</span>
-                                <span class="px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 truncate max-w-[120px]">
-                                    @ticket.Product.Name
-                                </span>
-                            }
-
-                            <!-- Tags -->
-                            @if (ticket.Tags != null && ticket.Tags.Count > 0)
-                            {
+@{
+    var rows = Sorted();
+}
+@* lg+: no overflow wrapper, so the sticky header follows the page scroll. data-term opts out of legacy app.css table rules. *@
+<div class="hidden md:block overflow-x-auto lg:overflow-visible rounded-lg border border-line">
+    <table data-term class="w-full border-collapse text-left">
+        <thead class="sticky top-0 z-10 bg-surface [&_th:first-child]:rounded-tl-lg [&_th:last-child]:rounded-tr-lg">
+            <tr class="border-b border-line font-mono text-13 text-muted">
+                @Header(TicketSort.Id, "#", "w-16")
+                @Header(TicketSort.Title, Heading("table.title"), null)
+                @Header(TicketSort.Type, Heading("table.type"), "w-28")
+                @Header(TicketSort.Status, Heading("table.status"), "w-32")
+                @Header(TicketSort.Priority, Heading("table.priority"), "w-28")
+                @if (ShowAuthor)
+                {
+                    @Header(TicketSort.Author, Heading("table.author"), "w-32")
+                }
+                @if (ShowAssignee)
+                {
+                    @Header(TicketSort.Assignee, Heading("table.assignee"), "w-32")
+                }
+                @Header(TicketSort.Created, Heading("table.created"), "w-44")
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var ticket in rows)
+            {
+                <tr data-ticket-row class="cursor-pointer border-b border-dashed border-line last:border-b-0 hover:bg-surface"
+                    @onclick="() => OnTicketClick.InvokeAsync(ticket.Id)">
+                    <td class="font-mono text-13 text-muted">#@ticket.Id</td>
+                    <td class="min-w-0">
+                        <a href="@($"/ticket/{ticket.Id}")" class="text-15 text-fg hover:underline" @onclick:stopPropagation="true">@ticket.Title</a>
+                        @if (ticket.Tags.Count > 0 || (IsAdminOrDeveloper && !ticket.IsPriorityAssessed))
+                        {
+                            <div class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
                                 @foreach (var tag in ticket.Tags.Take(3))
                                 {
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold text-white shadow-xs shrink-0"
-                                          style="background-color: @tag.Color;">
-                                        @tag.Name
+                                    <span class="inline-flex items-center gap-1.5 text-13 text-muted">
+                                        <span class="h-2 w-2 rounded-full" style="background-color: @tag.Color" aria-hidden="true"></span>@tag.Name
                                     </span>
                                 }
                                 @if (ticket.Tags.Count > 3)
                                 {
-                                    <span class="text-[10px] font-medium text-gray-400 dark:text-gray-500">
-                                        +@(ticket.Tags.Count - 3)
-                                    </span>
+                                    <span class="font-mono text-13 text-muted">+@(ticket.Tags.Count - 3)</span>
                                 }
-                            }
-
-                            <!-- Author -->
-                            @if (ShowAuthor && ticket.Author is not null)
-                            {
-                                <span class="shrink-0 text-gray-400 dark:text-gray-500 hidden sm:inline">&bull;</span>
-                                <div class="flex items-center gap-1 text-gray-500 dark:text-gray-400">
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-                                    <span class="truncate max-w-[100px]">@ticket.Author.Login</span>
-                                </div>
-                            }
-                            
-                            <!-- Assignee -->
-                            @if (ShowAssignee)
-                            {
-                                <span class="shrink-0 text-gray-400 dark:text-gray-500 hidden sm:inline">&bull;</span>
-                                @if (ticket.Developer is not null)
+                                @if (IsAdminOrDeveloper && !ticket.IsPriorityAssessed)
                                 {
-                                    <div class="flex items-center gap-1 text-green-600 dark:text-green-400">
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
-                                        <span class="truncate max-w-[100px]">@ticket.Developer.Login</span>
-                                    </div>
+                                    <span data-triage class="font-mono text-13 text-danger">[@Heading("tickets.triageRequired")]</span>
                                 }
-                                else
-                                {
-                                    <span class="italic text-gray-400 dark:text-gray-500">@L.Translate("table.unassigned")</span>
-                                }
-                            }
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Right Metadata Section (ID & Date) -->
-                <div class="flex sm:flex-col sm:items-end items-center justify-between sm:justify-center gap-1 ml-13 sm:ml-0 border-t sm:border-0 border-gray-100 dark:border-gray-700 pt-3 sm:pt-0 shrink-0">
-                    <span class="text-xs font-mono font-medium text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded-full whitespace-nowrap border border-gray-200 dark:border-gray-600">
-                        #@ticket.Id
-                    </span>
-                    
-                    <div class="flex items-center gap-2 text-xs sm:text-sm text-gray-500 dark:text-gray-400 font-medium whitespace-nowrap">
-                        <span class="flex items-center gap-1.5">
-                            <svg class="w-4 h-4 hidden sm:block text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                            <span class="hidden sm:inline text-gray-400">@L.Translate("table.created"):</span>
-                            <span class="text-gray-700 dark:text-gray-300">@ticket.CreatedAt.ToString("dd MMM yyyy, HH:mm")</span>
-                        </span>
-                        
-                        <div class="text-gray-300 dark:text-gray-600 group-hover/card:text-blue-500 transition-colors transform group-hover/card:translate-x-1 duration-200">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    }
+                            </div>
+                        }
+                    </td>
+                    <td><TypeTag Type="ticket.Type" /></td>
+                    <td><StatusTag Status="ticket.Status" /></td>
+                    <td><PriorityTag Priority="ticket.Priority" /></td>
+                    @if (ShowAuthor)
+                    {
+                        <td class="text-13 text-fg">@(ticket.Author?.Login ?? "—")</td>
+                    }
+                    @if (ShowAssignee)
+                    {
+                        <td class="text-13 @(ticket.Developer is null ? "text-muted" : "text-fg")">@(ticket.Developer?.Login ?? Heading("table.unassigned"))</td>
+                    }
+                    <td class="whitespace-nowrap font-mono text-13 text-muted">@ToLocal(ticket.CreatedAt).ToString("dd MMM yyyy, HH:mm", UiCulture)</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+<div class="md:hidden">
+    <TicketLog Tickets="rows" ShowTriage="IsAdminOrDeveloper" />
 </div>
 
+@code {
+    private RenderFragment Header(TicketSort column, string text, string? widthClass) => __builder =>
+    {
+        var active = sort == column;
+        <th class="@widthClass font-normal" aria-sort="@(active ? (descending ? "descending" : "ascending") : "none")">
+            <button type="button" data-sort="@column" class="inline-flex items-center gap-1 hover:text-fg @(active ? "text-fg" : null)"
+                    @onclick="() => SortBy(column)">
+                @text<span aria-hidden="true" class="w-3">@(active ? (descending ? "↓" : "↑") : null)</span>
+            </button>
+        </th>
+    };
+}

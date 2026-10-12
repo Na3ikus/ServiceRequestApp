@@ -1,0 +1,92 @@
+<div class="flex flex-wrap items-baseline justify-between gap-4 mb-4">
+    <div>
+        <h1 class="font-mono text-20 font-medium text-fg"><span class="text-muted">@(Segments.Count == 0 ? "~" : "~/")</span>@RenderSegments()@if (Segments.Count == 0 && !string.IsNullOrEmpty(HomeLabel))
+            {
+                <span class="sr-only">@HomeLabel</span>
+            }</h1>
+        @if (Status is not null)
+        {
+            <p class="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-13 text-muted"><span>@Subtitle</span>@Status</p>
+        }
+        else if (!string.IsNullOrEmpty(Subtitle))
+        {
+            <p class="text-13 text-muted mt-1">@Subtitle</p>
+        }
+    </div>
+    @if (Actions is not null)
+    {
+        <div class="flex flex-wrap items-center gap-2">@Actions</div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public IReadOnlyList<PathSegment> Segments { get; set; } = [];
+
+    [Parameter]
+    public string? Subtitle { get; set; }
+
+    /// <summary>
+    /// Gets or sets a live status shown after the subtitle (e.g. <c>● live · auto 20s</c>).
+    /// </summary>
+    [Parameter]
+    public RenderFragment? Status { get; set; }
+
+    [Parameter]
+    public RenderFragment? Actions { get; set; }
+
+    /// <summary>
+    /// Gets or sets the screen-reader name of the home path (<c>~</c> alone).
+    /// </summary>
+    [Parameter]
+    public string? HomeLabel { get; set; }
+
+    private RenderFragment RenderSegments() => builder =>
+    {
+        var seq = 0;
+        for (var i = 0; i < this.Segments.Count; i++)
+        {
+            var segment = this.Segments[i];
+            if (i > 0)
+            {
+                builder.OpenElement(seq++, "span");
+                builder.AddAttribute(seq++, "class", "text-muted");
+                builder.AddContent(seq++, "/");
+                builder.CloseElement();
+            }
+
+            var isLast = i == this.Segments.Count - 1;
+            if (isLast)
+            {
+                builder.OpenElement(seq++, "span");
+                builder.AddAttribute(seq++, "aria-current", "page");
+                if (segment.Href is not null)
+                {
+                    builder.OpenElement(seq++, "a");
+                    builder.AddAttribute(seq++, "href", segment.Href);
+                    builder.AddAttribute(seq++, "class", "text-muted border-b border-dashed border-line hover:text-fg");
+                    builder.AddContent(seq++, segment.Text);
+                    builder.CloseElement();
+                }
+                else
+                {
+                    builder.AddContent(seq++, segment.Text);
+                }
+
+                builder.CloseElement();
+            }
+            else if (segment.Href is not null)
+            {
+                builder.OpenElement(seq++, "a");
+                builder.AddAttribute(seq++, "href", segment.Href);
+                builder.AddAttribute(seq++, "class", "text-muted border-b border-dashed border-line hover:text-fg");
+                builder.AddContent(seq++, segment.Text);
+                builder.CloseElement();
+            }
+            else
+            {
+                builder.AddContent(seq++, segment.Text);
+            }
+        }
+    };
+}

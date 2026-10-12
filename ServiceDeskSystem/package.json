@@ -1,10 +1,11 @@
 {
   "name": "servicedesksystem",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
   "scripts": {
     "build:css": "npx tailwindcss -i ./Styles/input.css -o ./wwwroot/css/app.css",
-    "watch:css": "npx tailwindcss -i ./Styles/input.css -o ./wwwroot/css/app.css --watch"
+    "watch:css": "npx tailwindcss -i ./Styles/input.css -o ./wwwroot/css/app.css --watch",
+    "test:js": "node --test \"wwwroot/js/__tests__/*.test.js\""
   },
   "devDependencies": {
     "eslint": "^10.8.1",

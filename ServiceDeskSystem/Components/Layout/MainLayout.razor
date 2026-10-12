@@ -1,11 +1,12 @@
 @inherits LayoutComponentBase
 
 <!-- Created by Nazar "N1h3" Hutsol -->
-<div class="@(Theme.IsDarkMode ? "dark" : "")">
+@* The dark class lives on <html> only (prefs.js), so the palette's live preview recolors everything. *@
+<div>
     @if (!authRestored)
     {
-        <div class="flex items-center justify-center h-screen bg-gray-100 dark:bg-gray-900 app-layout-bg relative z-10">
-            <div class="text-gray-500">@L.Translate("common.loading")</div>
+        <div class="relative z-10 flex h-screen supports-[height:100dvh]:h-dvh items-center justify-center bg-canvas">
+            <div class="font-mono text-13 text-muted">@L.Translate("common.loading").ToLower(System.Globalization.CultureInfo.CurrentCulture)</div>
         </div>
     }
     else if (!AuthService.IsAuthenticated)
@@ -15,253 +16,155 @@
     }
     else
     {
-        <div class="flex h-screen bg-gray-100 dark:bg-gray-900 app-layout-bg transition-colors duration-200 overflow-hidden relative z-10">
+        <div class="relative z-10 flex h-screen supports-[height:100dvh]:h-dvh overflow-hidden bg-canvas pb-[env(safe-area-inset-bottom)]">
             @if (isSidebarOpen)
             {
-                <div class="fixed inset-0 bg-gray-900/60 dark:bg-black/60 backdrop-blur-sm z-40 lg:hidden transition-opacity duration-300"
+                <div class="fixed inset-0 z-40 bg-canvas/80 lg:hidden"
                      @onclick="CloseSidebar"></div>
             }
 
-            <aside class="fixed inset-y-0 left-0 z-50 transform transition-all duration-200 ease-out lg:static lg:translate-x-0 @(isSidebarOpen ? "translate-x-0" : "-translate-x-full") @(Theme.IsSidebarCollapsed ? "w-20 lg:w-20" : "w-72 lg:w-72") shadow-2xl lg:shadow-none flex-shrink-0 overflow-hidden">
-                <NavMenu IsCollapsed="Theme.IsSidebarCollapsed" ToggleCollapseRequested="ToggleSidebarCollapseAsync" />
+            <aside class="fixed inset-y-0 left-0 z-50 w-64 flex-shrink-0 transform transition-transform duration-200 ease-out lg:static lg:translate-x-0 @(isSidebarOpen ? "translate-x-0" : "-translate-x-full")">
+                <NavMenu />
             </aside>
 
-            <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+            <div class="flex min-w-0 flex-1 flex-col overflow-hidden">
                 <TopProgressBar />
-                <header class="sticky top-0 z-30 h-[4.5rem] bg-white dark:bg-gray-800 backdrop-blur-md border-b-2 border-gray-400 dark:border-gray-700 shadow-md shadow-gray-300/70 dark:shadow-black/30 transition-colors duration-200">
-                    <div class="flex items-center justify-between px-4 lg:px-6 h-full">
-                        <div class="flex items-center gap-4">
-                            <button @onclick="ToggleSidebar" class="p-2 -ml-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700 lg:hidden focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                <header class="sticky top-0 z-30 flex h-12 flex-shrink-0 items-center justify-between gap-4 border-b border-line bg-canvas px-4 lg:px-6">
+                    <div class="flex min-w-0 items-center gap-2">
+                        <button type="button"
+                                @onclick="ToggleSidebar"
+                                class="btn-ghost inline-flex items-center justify-center lg:hidden"
+                                aria-label="@L.Translate("nav.openMenu")"
+                                aria-expanded="@(isSidebarOpen ? "true" : "false")">
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                            </svg>
+                        </button>
+                        <RoutePath />
+                    </div>
+
+                    <div class="flex flex-shrink-0 items-center gap-2">
+                        <LanguageDropdown />
+
+                        <button type="button"
+                                @onclick="Theme.ToggleTheme"
+                                class="btn-ghost inline-flex items-center justify-center"
+                                aria-label="@L.Translate("theme.toggle")">
+                            @if (Theme.IsDarkMode)
+                            {
+                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
                                 </svg>
-                            </button>
+                            }
+                            else
+                            {
+                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+                                </svg>
+                            }
+                        </button>
 
-                            <div class="hidden sm:block">
-                                <p class="text-xs text-gray-500 dark:text-gray-400">@GetHeaderDateText()</p>
-                            </div>
-                        </div>
-
-                        <div class="header-actions flex items-center gap-2 sm:gap-3">
-                            <details class="header-dropdown relative language-dropdown-wrapper" open="@isLanguageDropdownOpen">
-                                <summary @onclick="ToggleLanguageDropdownAsync"
-                                         @onclick:preventDefault="true"
-                                         class="header-dropdown-summary h-10 px-3 rounded-lg bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 shadow-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors text-sm font-semibold flex items-center gap-1.5 cursor-pointer">
-                                    <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                    </svg>
-                                    <span class="uppercase">@L.CurrentLanguage</span> ▾
-                                </summary>
-                                <div class="header-dropdown-menu absolute right-0 mt-2 w-44 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-xl z-50 p-1">
-                                    @foreach (var lang in L.SupportedLanguages)
-                                    {
-                                        var isSelected = lang.Code == L.CurrentLanguage;
-                                        <button type="button" @onclick='@(() => SetLanguageAsync(lang.Code))'
-                                                class="w-full px-3 py-2 rounded-lg text-left text-xs sm:text-sm transition-colors flex items-center justify-between @(isSelected ? "bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 font-semibold" : "text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700")">
-                                            <div class="flex items-center gap-2">
-                                                <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-700 uppercase">@lang.Code</span>
-                                                <span>@lang.NativeName</span>
-                                            </div>
-                                            @if (isSelected)
-                                            {
-                                                <svg class="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
-                                                </svg>
-                                            }
-                                        </button>
-                                    }
-                                </div>
-                            </details>
-
-                            <button @onclick="Theme.ToggleTheme"
-                                    class="theme-toggle p-2 rounded-lg bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 shadow-sm text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
-                                    title="@L.Translate("theme.toggle")">
-                                @if (Theme.IsDarkMode)
+                        <div class="notification-wrapper relative">
+                            <button type="button"
+                                    @onclick="ToggleNotificationsAsync"
+                                    class="btn-ghost relative inline-flex items-center justify-center"
+                                    aria-label="@L.Translate("notifications.title")"
+                                    aria-haspopup="true"
+                                    aria-expanded="@(IsNotificationsOpen ? "true" : "false")">
+                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V4a2 2 0 10-4 0v1.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                                </svg>
+                                @if (UnreadNotificationsCount > 0)
                                 {
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
-                                    </svg>
-                                }
-                                else
-                                {
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
-                                    </svg>
+                                    <span class="absolute -right-1.5 -top-1.5 rounded bg-accent px-1 font-mono text-12 leading-4 text-on-accent">@UnreadNotificationsCount</span>
                                 }
                             </button>
 
-                            <div class="notification-wrapper relative @(HasNewNotificationPulse ? "has-new" : "")">
-                                <button @onclick="ToggleNotificationsAsync"
-                                        class="theme-toggle p-2 rounded-lg bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 shadow-sm text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors relative"
-                                        title="@L.Translate("notifications.title")">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V4a2 2 0 10-4 0v1.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
-                                    </svg>
-                                    @if (UnreadNotificationsCount > 0)
-                                    {
-                                        <span class="notification-badge">@UnreadNotificationsCount</span>
-                                    }
-                                </button>
-
-                                @if (IsNotificationsOpen)
-                                {
-                                    <div class="notification-dropdown notification-dropdown-enter absolute right-0 mt-2 w-[360px] sm:w-[440px] md:w-[480px] max-w-[calc(100vw-1.5rem)] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-2xl shadow-gray-900/15 dark:shadow-black/60 z-50 overflow-hidden">
-                                        <!-- Header -->
-                                        <div class="flex items-center justify-between px-4 py-3.5 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
-                                            <div class="flex items-center gap-2.5">
-                                                <div class="w-7 h-7 rounded-lg bg-blue-50 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 flex items-center justify-center flex-shrink-0">
-                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V4a2 2 0 10-4 0v1.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
-                                                    </svg>
-                                                </div>
-                                                <span class="text-sm font-bold text-gray-900 dark:text-white">@L.Translate("notifications.title")</span>
-                                                @if (UnreadNotificationsCount > 0)
-                                                {
-                                                    <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/70 dark:text-blue-300">
-                                                        @UnreadNotificationsCount
-                                                    </span>
-                                                }
-                                            </div>
+                            @if (IsNotificationsOpen)
+                            {
+                                <div class="absolute right-0 z-50 mt-1 w-[360px] max-w-[calc(100vw-1.5rem)] overflow-hidden rounded-lg border border-line bg-surface">
+                                    <div class="flex items-center justify-between gap-2 border-b border-line px-3 py-2">
+                                        <span class="font-mono text-13 text-muted">
+                                            # notifications
                                             @if (UnreadNotificationsCount > 0)
                                             {
-                                                <button class="text-xs font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 hover:underline transition-colors flex items-center gap-1 cursor-pointer"
-                                                        @onclick="MarkNotificationsAsReadAsync">
-                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                                    </svg>
-                                                    @L.Translate("notifications.markAllRead")
-                                                </button>
+                                                <span class="text-fg">@UnreadNotificationsCount</span>
                                             }
-                                        </div>
+                                        </span>
+                                        @if (UnreadNotificationsCount > 0)
+                                        {
+                                            <button type="button"
+                                                    class="text-13 text-muted hover:text-fg"
+                                                    @onclick="MarkNotificationsAsReadAsync">
+                                                @L.Translate("notifications.markAllRead")
+                                            </button>
+                                        }
+                                    </div>
 
-                                        <!-- Notifications List -->
-                                        <div class="max-h-[28rem] overflow-y-auto divide-y divide-gray-100 dark:divide-gray-700/50 custom-scrollbar">
-                                            @if (!Notifications.Any())
+                                    <div class="max-h-[28rem] overflow-y-auto">
+                                        @if (!Notifications.Any())
+                                        {
+                                            <EmptyState Message="@L.Translate("notifications.empty")" />
+                                        }
+                                        else
+                                        {
+                                            @foreach (var item in Notifications)
                                             {
-                                                <div class="px-4 py-10 text-center flex flex-col items-center justify-center gap-2">
-                                                    <div class="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-700/60 flex items-center justify-center text-gray-400 dark:text-gray-500 mb-1">
-                                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
-                                                        </svg>
-                                                    </div>
-                                                    <span class="text-sm font-medium text-gray-500 dark:text-gray-400">@L.Translate("notifications.empty")</span>
+                                                <div class="flex items-start gap-2 border-b border-dashed border-line px-3 py-2 last:border-b-0">
+                                                    <span aria-hidden="true" class="mt-[0.4375rem] h-1.5 w-1.5 flex-shrink-0 rounded-full @(item.IsRead ? string.Empty : "bg-accent")"></span>
+                                                    <button type="button"
+                                                            class="min-w-0 flex-1 text-left"
+                                                            @onclick="() => OpenNotificationAsync(item)">
+                                                        <span class="flex items-center justify-between gap-2 font-mono text-13 text-muted">
+                                                            <span>#@item.TicketId</span>
+                                                            <span class="whitespace-nowrap">@FormatNotificationTime(item.CreatedAt)</span>
+                                                        </span>
+                                                        <span class="block break-words text-13 text-fg">@item.Message</span>
+                                                    </button>
+                                                    <button type="button"
+                                                            class="flex-shrink-0 px-1 font-mono text-13 text-muted hover:text-danger"
+                                                            aria-label="@L.Translate("notifications.delete")"
+                                                            @onclick="() => DeleteNotificationAsync(item.Id)">
+                                                        ×
+                                                    </button>
                                                 </div>
                                             }
-                                            else
-                                            {
-                                                @foreach (var item in Notifications)
-                                                {
-                                                    <div class="notification-item group relative flex items-start gap-3 p-3.5 transition-all duration-150 @(item.IsRead ? "bg-white dark:bg-gray-800 hover:bg-gray-50/80 dark:hover:bg-gray-750" : "bg-blue-50/60 dark:bg-blue-950/30 border-l-4 border-l-blue-500 hover:bg-blue-50/90 dark:hover:bg-blue-900/30")">
-                                                        <!-- Type Icon -->
-                                                        <div class="mt-0.5 flex-shrink-0">
-                                                            @if (item.Type == "CommentAdded")
-                                                            {
-                                                                <div class="w-8 h-8 rounded-full bg-purple-100 text-purple-600 dark:bg-purple-900/40 dark:text-purple-300 flex items-center justify-center shadow-sm">
-                                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
-                                                                    </svg>
-                                                                </div>
-                                                            }
-                                                            else if (item.Type == "StatusChanged")
-                                                            {
-                                                                <div class="w-8 h-8 rounded-full bg-amber-100 text-amber-600 dark:bg-amber-900/40 dark:text-amber-300 flex items-center justify-center shadow-sm">
-                                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                                                                    </svg>
-                                                                </div>
-                                                            }
-                                                            else if (item.Type == "DatesChanged")
-                                                            {
-                                                                <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-300 flex items-center justify-center shadow-sm">
-                                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                                                    </svg>
-                                                                </div>
-                                                            }
-                                                            else
-                                                            {
-                                                                <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-300 flex items-center justify-center shadow-sm">
-                                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V4a2 2 0 10-4 0v1.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
-                                                                    </svg>
-                                                                </div>
-                                                            }
-                                                        </div>
-
-                                                        <!-- Text Content & Action -->
-                                                        <button class="notification-open-btn flex-1 text-left focus:outline-none cursor-pointer" @onclick="() => OpenNotificationAsync(item)">
-                                                            <div class="flex items-center justify-between gap-2 mb-1">
-                                                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[11px] font-semibold bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
-                                                                    #@item.TicketId
-                                                                </span>
-                                                                <span class="notification-time text-[11px] font-normal text-gray-400 dark:text-gray-500 whitespace-nowrap">
-                                                                    @FormatNotificationTime(item.CreatedAt)
-                                                                </span>
-                                                            </div>
-                                                            <p class="notification-message text-xs sm:text-sm font-medium text-gray-800 dark:text-gray-100 leading-relaxed break-words">
-                                                                @item.Message
-                                                            </p>
-                                                        </button>
-
-                                                        <!-- Delete Action -->
-                                                        <button class="notification-delete-btn flex-shrink-0 opacity-70 group-hover:opacity-100 p-1.5 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40 dark:hover:text-red-400 transition-all focus:outline-none cursor-pointer"
-                                                                title="@L.Translate("notifications.delete")"
-                                                                @onclick="() => DeleteNotificationAsync(item.Id)">
-                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                                            </svg>
-                                                        </button>
-                                                    </div>
-                                                }
-                                            }
-                                        </div>
+                                        }
                                     </div>
-                                }
-                            </div>
-
-                            <details class="header-dropdown relative">
-                                <summary class="header-dropdown-summary flex items-center gap-3 pl-2 sm:pl-3 border-l border-gray-200 dark:border-gray-600 cursor-pointer">
-                                    <div class="w-10 h-10 bg-gradient-to-br @(BaseComponent.GetAvatarGradient(AuthService.CurrentUser?.Login)) rounded-full flex items-center justify-center shadow-lg">
-                                        <span class="text-white font-semibold text-sm">
-                                            @(AuthService.CurrentUser?.Login?.Substring(0, 1).ToUpper() ?? "U")
-                                        </span>
-                                    </div>
-                                    <span class="hidden sm:inline text-sm font-medium text-gray-800 dark:text-white">
-                                        @(AuthService.CurrentUser?.Person?.FirstName ?? AuthService.CurrentUser?.Login)
-                                    </span>
-                                </summary>
-
-                                <div class="header-dropdown-menu absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl z-50 p-1">
-                                    <NavLink href="profile"
-                                             class="block w-full px-3 py-2 rounded-md text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-                                        @L.Translate("profile.title")
-                                    </NavLink>
-                                    <button @onclick="HandleLogout"
-                                            class="w-full flex items-center gap-2 px-3 py-2 rounded-md text-left text-sm text-gray-700 dark:text-gray-200 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
-                                        </svg>
-                                        @L.Translate("common.logout")
-                                    </button>
                                 </div>
-                            </details>
+                            }
                         </div>
+
+                        <details class="header-dropdown relative">
+                            <summary class="header-dropdown-summary flex items-center gap-2 rounded-md px-1 hover:bg-surface"
+                                     aria-label="@AuthService.CurrentUser?.Login">
+                                <Avatar Name="@DisplayName" Size="AvatarSize.Md" />
+                                <span class="hidden text-13 text-fg sm:inline">
+                                    @DisplayName
+                                </span>
+                            </summary>
+
+                            <div class="header-dropdown-menu absolute right-0 z-50 mt-1 w-48 rounded-lg border border-line bg-surface p-1">
+                                <NavLink href="profile"
+                                         class="flex h-8 w-full items-center rounded-md px-2 text-13 text-fg hover:bg-canvas">
+                                    @L.Translate("profile.title")
+                                </NavLink>
+                                <button type="button"
+                                        @onclick="HandleLogout"
+                                        class="flex h-8 w-full items-center rounded-md px-2 text-left text-13 text-fg hover:bg-canvas hover:text-danger">
+                                    @L.Translate("common.logout")
+                                </button>
+                            </div>
+                        </details>
                     </div>
                 </header>
 
-                <main class="main-content-area flex-1 overflow-y-auto bg-gray-100 dark:bg-gray-900 app-layout-bg transition-colors duration-200">
+                <main class="main-content-area flex-1 overflow-y-auto bg-canvas">
                     @Body
                 </main>
             </div>
         </div>
     }
-</div>
-
-<!-- Decorative background meshes, active only when data-bg-texture="mesh-gradient" is set -->
-<div class="mesh-bg-container pointer-events-none fixed inset-0 z-0 overflow-hidden opacity-0">
-    <div class="mesh-blob mesh-blob-1 absolute -top-[20%] -left-[10%] w-[50%] h-[50%] rounded-full filter blur-[100px] opacity-70 animate-blob"></div>
-    <div class="mesh-blob mesh-blob-2 absolute top-[10%] -right-[10%] w-[45%] h-[50%] rounded-full filter blur-[100px] opacity-70 animate-blob animation-delay-2000"></div>
-    <div class="mesh-blob mesh-blob-3 absolute -bottom-[20%] left-[20%] w-[60%] h-[60%] rounded-full filter blur-[120px] opacity-60 animate-blob animation-delay-4000"></div>
 </div>
 
 <div id="blazor-error-ui" data-nosnippet>

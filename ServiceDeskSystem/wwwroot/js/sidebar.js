@@ -1,16 +1,4 @@
 window.sidebarManager = {
-    getCollapsed: function () {
-        return localStorage.getItem('sidebarCollapsed') === 'true';
-    },
-
-    setCollapsed: function (isCollapsed) {
-        localStorage.setItem('sidebarCollapsed', isCollapsed ? 'true' : 'false');
-    },
-
-    isDesktop: function () {
-        return window.matchMedia('(min-width: 1024px)').matches;
-    },
-
     registerHotkey: function (dotNetRef) {
         this.unregisterHotkey();
 
@@ -18,16 +6,12 @@ window.sidebarManager = {
             const tag = (event.target.tagName || '').toLowerCase();
             const isInput = tag === 'input' || tag === 'textarea' || tag === 'select' || event.target.isContentEditable;
 
-            // Ctrl+B — sidebar collapse (use event.code for layout independence)
-            const isCtrlB = (event.ctrlKey || event.metaKey) && event.code === 'KeyB';
-            if (isCtrlB) {
-                event.preventDefault();
-                dotNetRef.invokeMethodAsync('HandleSidebarHotkey');
+            // Application keyboard shortcuts (only when not typing and no dialog is open)
+            if (isInput || event.ctrlKey || event.metaKey || event.altKey) {
                 return;
             }
 
-            // Application keyboard shortcuts (only when not typing)
-            if (isInput || event.ctrlKey || event.metaKey || event.altKey) {
+            if (document.querySelector('[aria-modal="true"]')) {
                 return;
             }
 
@@ -50,7 +34,7 @@ window.sidebarManager = {
                 dotNetRef.invokeMethodAsync('HandleNavigateHotkey', targetUrl);
             } else if (code === 'Slash' && !event.shiftKey) {
                 event.preventDefault();
-                const searchInput = document.querySelector('.search-input');
+                const searchInput = document.querySelector('input[type="search"]');
                 if (searchInput) {
                     searchInput.focus();
                     searchInput.select();
@@ -73,6 +57,10 @@ window.sidebarManager = {
         document.addEventListener('show-hotkeys-help', window.__showHotkeysHelpHandler);
     },
 
+    showHotkeysHelp: function () {
+        document.dispatchEvent(new CustomEvent('show-hotkeys-help'));
+    },
+
     unregisterHotkey: function () {
         if (!window.__sidebarHotkeyHandler) {
             return;
@@ -87,45 +75,6 @@ window.sidebarManager = {
         }
     }
 };
-
-// Initialize visual settings from localStorage on page load
-(function () {
-    var accent = localStorage.getItem('settings.accentColor');
-    if (accent && accent !== 'blue') {
-        document.documentElement.setAttribute('data-accent', accent);
-    }
-
-    var density = localStorage.getItem('settings.tableDensity');
-    if (density) {
-        document.documentElement.setAttribute('data-density', density);
-    }
-
-    var cardStyle = localStorage.getItem('settings.cardStyle');
-    if (cardStyle) {
-        document.documentElement.setAttribute('data-card-style', cardStyle);
-    } else {
-        document.documentElement.setAttribute('data-card-style', 'elevated');
-    }
-
-    var hoverStyle = localStorage.getItem('settings.hoverStyle');
-    if (hoverStyle) {
-        document.documentElement.setAttribute('data-hover-style', hoverStyle);
-    }
-
-    var bgTexture = localStorage.getItem('settings.bgTexture');
-    if (bgTexture && bgTexture !== 'clean') {
-        document.documentElement.setAttribute('data-bg-texture', bgTexture);
-    }
-
-    // Apply font size setting on every page load
-    var fontSize = localStorage.getItem('settings.fontSize');
-    if (fontSize) {
-        var pct = parseInt(fontSize, 10);
-        if (!isNaN(pct) && pct >= 85 && pct <= 115) {
-            document.documentElement.style.fontSize = pct + '%';
-        }
-    }
-})();
 
 // Close header dropdown details when clicking outside
 document.addEventListener('click', function (event) {

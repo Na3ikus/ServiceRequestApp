@@ -1,7 +1,7 @@
 window.quillInterop = {
     instances: {},
 
-    init: function (elementId, dotNetRef, initialContent, placeholder) {
+    init: function (elementId, dotNetRef, initialContent, placeholder, labelledBy) {
         var toolbarOptions = [
             ['bold', 'italic', 'underline', 'strike'],
             ['blockquote', 'code-block'],
@@ -19,6 +19,11 @@ window.quillInterop = {
             }
         });
         
+        // Name the editable area after the visible label (Quill creates it, so Blazor cannot).
+        if (labelledBy) {
+            quill.root.setAttribute('aria-labelledby', labelledBy);
+        }
+
         if (initialContent) {
             quill.root.innerHTML = initialContent;
         }

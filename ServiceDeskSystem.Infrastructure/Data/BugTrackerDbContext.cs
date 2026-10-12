@@ -41,6 +41,8 @@ namespace ServiceDeskSystem.Infrastructure.Data
 
         public DbSet<SlaPolicy> SlaPolicies { get; set; } = null!;
 
+        public DbSet<TicketStatusHistory> TicketStatusHistory { get; set; } = null!;
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             ArgumentNullException.ThrowIfNull(modelBuilder);
@@ -57,6 +59,23 @@ namespace ServiceDeskSystem.Infrastructure.Data
             modelBuilder.Entity<Ticket>()
                 .Property(t => t.Status)
                 .HasConversion(statusConverter);
+
+            modelBuilder.Entity<TicketStatusHistory>(history =>
+            {
+                history.ToTable("TicketStatusHistory");
+                history.Property(h => h.OldStatus).HasConversion(statusConverter).HasMaxLength(32);
+                history.Property(h => h.NewStatus).HasConversion(statusConverter).HasMaxLength(32);
+                history.HasOne(h => h.Ticket)
+                    .WithMany()
+                    .HasForeignKey(h => h.TicketId)
+                    .OnDelete(DeleteBehavior.Cascade);
+                history.HasOne(h => h.ChangedByUser)
+                    .WithMany()
+                    .HasForeignKey(h => h.ChangedByUserId)
+                    .OnDelete(DeleteBehavior.SetNull);
+                history.HasIndex(h => new { h.ChangedByUserId, h.ChangedAt })
+                    .HasDatabaseName("IX_TicketStatusHistory_ChangedByUserId_ChangedAt");
+            });
 
             modelBuilder.Entity<Ticket>()
                 .Property(t => t.Priority)

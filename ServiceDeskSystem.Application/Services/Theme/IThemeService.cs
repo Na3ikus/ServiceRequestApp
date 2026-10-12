@@ -15,9 +15,5 @@ public interface IThemeService
     void SetTheme(string theme);
 
     void ToggleTheme();
-
-    bool IsSidebarCollapsed { get; }
-
-    Task SetSidebarCollapsedAsync(bool collapsed);
 }
 

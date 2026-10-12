@@ -1,0 +1,63 @@
+@inherits ServiceDeskSystem.Components.UI.Base.BaseComponent
+
+<div data-ticket-filters class="mb-4 flex flex-wrap items-center gap-2">
+    <input type="search" class="input-field min-w-48 flex-1 basis-64"
+           value="@Value.Search" @oninput="e => ChangeAsync(Value with { Search = e.Value?.ToString() ?? string.Empty })"
+           placeholder="@L.Translate("tickets.searchPlaceholder")" aria-label="@L.Translate("search.label")" />
+
+    <select data-filter="type" class="input-field w-auto min-w-36" aria-label="@L.Translate("search.typeLabel")"
+            value="@Value.Type" @onchange="e => ChangeAsync(Value with { Type = Selected(e) })">
+        <option value="@TicketFilter.All">@L.Translate("tickets.allTypes")</option>
+        <option value="Bug">@L.Translate("ticketType.bug")</option>
+        <option value="Support">@L.Translate("ticketType.support")</option>
+        <option value="Consultation">@L.Translate("ticketType.consultation")</option>
+        <option value="Project">@L.Translate("ticketType.project")</option>
+    </select>
+
+    <select data-filter="priority" class="input-field w-auto min-w-36" aria-label="@L.Translate("search.priorityLabel")"
+            value="@Value.Priority" @onchange="e => ChangeAsync(Value with { Priority = Selected(e) })">
+        <option value="@TicketFilter.All">@L.Translate("tickets.allPriorities")</option>
+        <option value="Low">@L.Translate("priority.low")</option>
+        <option value="Medium">@L.Translate("priority.medium")</option>
+        <option value="High">@L.Translate("priority.high")</option>
+        <option value="Critical">@L.Translate("priority.critical")</option>
+    </select>
+
+    <select data-filter="status" class="input-field w-auto min-w-36" aria-label="@L.Translate("search.statusLabel")"
+            value="@Value.Status" @onchange="e => ChangeAsync(Value with { Status = Selected(e) })">
+        <option value="@TicketFilter.All">@L.Translate("tickets.allStatuses")</option>
+        <option value="Open">@L.Translate("status.open")</option>
+        <option value="InProgress">@L.Translate("status.inProgress")</option>
+        <option value="@TicketFilter.OpenOrInProgress">@L.Translate("tickets.openOrInProgress")</option>
+        <option value="Resolved">@L.Translate("status.resolved")</option>
+        <option value="Closed">@L.Translate("status.closed")</option>
+        <option value="@TicketFilter.ClosedOrResolved">@L.Translate("tickets.closedOrResolved")</option>
+    </select>
+
+    @if (Value.IsActive)
+    {
+        <button type="button" data-reset class="btn-ghost h-9 px-3 font-mono text-13" @onclick="() => ChangeAsync(new TicketFilterState())">
+            × @Heading("search.clearFilters")
+        </button>
+    }
+
+    <span data-counter class="ml-auto font-mono text-13 text-muted tabular-nums" aria-live="polite">@Shown / @Total</span>
+</div>
+
+@code {
+    [Parameter]
+    public TicketFilterState Value { get; set; } = new ();
+
+    [Parameter]
+    public EventCallback<TicketFilterState> ValueChanged { get; set; }
+
+    [Parameter]
+    public int Shown { get; set; }
+
+    [Parameter]
+    public int Total { get; set; }
+
+    private static string Selected(ChangeEventArgs e) => e.Value?.ToString() ?? TicketFilter.All;
+
+    private Task ChangeAsync(TicketFilterState state) => this.ValueChanged.InvokeAsync(state);
+}

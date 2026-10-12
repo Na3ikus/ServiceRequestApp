@@ -1,0 +1,36 @@
+@* Full-page terminal status (404, 403, crash): big mono code, muted "shell" line and one command.
+   The command defaults to "$ cd ~" (home); pass ChildContent to replace it. *@
+<div data-status-screen class="mx-auto max-w-7xl px-4 py-16 font-mono sm:px-6">
+    <h1 data-status-code class="text-40 font-medium leading-none text-fg">@Code</h1>
+    <p data-status-message class="mt-4 break-words text-14 text-muted">@Message</p>
+    <div class="mt-6 text-14">
+        @if (ChildContent is not null)
+        {
+            @ChildContent
+        }
+        else
+        {
+            <a href="/" data-status-home class="text-fg hover:underline"><span aria-hidden="true" class="text-accent-ink">$ </span>cd ~</a>
+        }
+    </div>
+</div>
+
+@code {
+    /// <summary>
+    /// Gets or sets the big status code (e.g. <c>404</c>).
+    /// </summary>
+    [Parameter]
+    public string Code { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets the muted line under the code.
+    /// </summary>
+    [Parameter]
+    public string Message { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets the command shown instead of the default <c>cd ~</c> link.
+    /// </summary>
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+}

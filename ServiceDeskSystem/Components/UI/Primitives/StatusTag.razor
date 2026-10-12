@@ -1,0 +1,22 @@
+@using ServiceDeskSystem.Domain.Enums
+@inject ILocalizationService L
+
+<Tag Tone="TicketTones.For(Status)">@L.Translate(StatusKey(Status))</Tag>
+
+@code {
+    [Parameter]
+    public TicketStatus Status { get; set; }
+
+    private static string StatusKey(TicketStatus status) => status switch
+    {
+        TicketStatus.New => "status.new",
+        TicketStatus.Open => "status.open",
+        TicketStatus.InProgress => "status.inProgress",
+        TicketStatus.Testing => "status.testing",
+        TicketStatus.CodeReview => "status.codeReview",
+        TicketStatus.Resolved => "status.resolved",
+        TicketStatus.Done => "status.done",
+        TicketStatus.Closed => "status.closed",
+        _ => throw new ArgumentOutOfRangeException(nameof(status), status, null),
+    };
+}

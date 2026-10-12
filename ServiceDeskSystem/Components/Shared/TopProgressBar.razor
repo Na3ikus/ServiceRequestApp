@@ -3,8 +3,8 @@
 
 @if (_isVisible)
 {
-    <div class="top-progress-bar" role="progressbar" aria-label="Page loading" aria-busy="true">
-        <div class="top-progress-bar__fill"></div>
+    <div class="pointer-events-none fixed inset-x-0 top-0 z-[9999] h-[3px]" role="progressbar" aria-label="Page loading" aria-busy="true">
+        <div class="h-full origin-left animate-top-progress bg-accent"></div>
     </div>
 }
 

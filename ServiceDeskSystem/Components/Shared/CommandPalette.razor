@@ -1,91 +1,116 @@
 @implements IDisposable
 @inject IJSRuntime JS
+@inject ServiceDeskSystem.Application.Services.Preferences.IPreferencesService Prefs
 @inherits ServiceDeskSystem.Components.UI.Base.BaseComponent
+@using ServiceDeskSystem.Application.Services.Preferences
+@using ServiceDeskSystem.Domain.Enums
 
 @if (_isOpen)
 {
-    <div class="cmd-palette-overlay" @onclick="Close" role="dialog" aria-modal="true" aria-label="Command palette">
-        <div class="cmd-palette-box" @onclick:stopPropagation>
-            <!-- Search Input -->
-            <div class="cmd-palette-search-row">
-                <svg class="cmd-palette-search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0" />
-                </svg>
+    <div class="fixed inset-0 z-[9998] flex items-start justify-center bg-canvas/80 px-4 pt-[10vh]" @onclick="CloseAsync" role="dialog" aria-modal="true" aria-label="Command palette">
+        <div class="w-full max-w-[38rem] overflow-hidden rounded-lg border border-line bg-surface shadow-[0_8px_24px_rgb(0_0_0/0.12)]" @onclick:stopPropagation>
+            <div class="flex items-center gap-2 border-b border-line px-4">
+                <span aria-hidden="true" class="font-mono text-15 text-accent-ink">&gt;</span>
                 <input @ref="_inputRef"
                        type="text"
-                       class="cmd-palette-input"
+                       class="h-12 min-w-0 flex-1 bg-transparent font-mono text-15 text-fg outline-none placeholder:text-muted"
                        placeholder="@L.Translate("cmd.placeholder")"
+                       aria-label="@L.Translate("cmd.placeholder")"
+                       role="combobox"
+                       aria-autocomplete="list"
+                       aria-expanded="@(HasList ? "true" : "false")"
+                       aria-controls="cmd-list"
+                       aria-activedescendant="@(HasList ? $"cmd-opt-{_selectedIndex}" : null)"
                        @bind="_query"
                        @bind:event="oninput"
-                       @bind:after="OnQueryChanged"
-                       @onkeydown="OnKeyDown" />
-                <kbd class="cmd-palette-esc">Esc</kbd>
+                       @bind:after="OnQueryChangedAsync"
+                       @onkeydown="OnKeyDownAsync" />
+                <Kbd>Esc</Kbd>
             </div>
 
-            <!-- Results -->
             @if (_filteredItems.Count == 0 && !string.IsNullOrWhiteSpace(_query))
             {
-                <div class="cmd-palette-empty">
-                    <svg class="w-8 h-8 text-gray-400 dark:text-gray-600 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0" />
-                    </svg>
-                    <p class="text-sm text-gray-500 dark:text-gray-400">@L.Translate("cmd.noResults")</p>
-                </div>
+                <EmptyState Message="@L.Translate("cmd.noResults")" />
             }
             else
             {
-                <div class="cmd-palette-results" role="listbox">
-                    @for (int i = 0; i < _filteredItems.Count; i++)
+                <div @ref="_listRef" id="cmd-list" class="max-h-[22rem] overflow-y-auto p-1" role="listbox" aria-label="Command palette">
+                    @foreach (var group in _filteredItems.Select((item, index) => (item, index)).GroupBy(x => x.item.Group))
                     {
-                        var item = _filteredItems[i];
-                        var idx = i;
-                        <button class="cmd-palette-item @(idx == _selectedIndex ? "cmd-palette-item--selected" : "")"
-                                role="option"
-                                aria-selected="@(idx == _selectedIndex)"
-                                @onclick="() => ExecuteItem(item)">
-                            <div class="cmd-palette-item-icon">
-                                @((MarkupString)item.IconSvg)
-                            </div>
-                            <div class="cmd-palette-item-content">
-                                <span class="cmd-palette-item-label">@item.Label</span>
-                                @if (!string.IsNullOrWhiteSpace(item.Description))
-                                {
-                                    <span class="cmd-palette-item-desc">@item.Description</span>
-                                }
-                            </div>
-                            @if (!string.IsNullOrWhiteSpace(item.Shortcut))
+                        <div role="group" aria-label="@group.Key">
+                            @* Group heading: a shell comment, not an option; arrow keys only walk the items. *@
+                            <div role="presentation" class="px-2 pb-1 pt-2 font-mono text-13 text-muted"># @group.Key</div>
+                            @foreach (var (item, idx) in group)
                             {
-                                <kbd class="cmd-palette-item-shortcut">@item.Shortcut</kbd>
+                                var selected = idx == _selectedIndex;
+                                @* Hover selection comes from commandPalette.js (data-cmd-index), not @onmouseenter. *@
+                                <button type="button"
+                                        id="cmd-opt-@idx"
+                                        tabindex="-1"
+                                        data-cmd-index="@idx"
+                                        class="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left font-mono text-14 @(selected ? "bg-canvas text-fg" : "text-muted")"
+                                        role="option"
+                                        aria-selected="@(selected ? "true" : "false")"
+                                        @onclick="() => ExecuteItemAsync(item)">
+                                    <span aria-hidden="true" class="w-[1ch] flex-shrink-0 text-accent-ink">@(selected ? "›" : "")</span>
+                                    @if (item.Swatch is not null)
+                                    {
+                                        <span aria-hidden="true" data-swatch class="h-3 w-3 flex-shrink-0 rounded-sm" style="background: @item.Swatch"></span>
+                                    }
+                                    <span class="min-w-0 flex-1">
+                                        <span class="block truncate">@item.Label</span>
+                                        <span class="block truncate font-sans text-13 text-muted">@item.Description</span>
+                                    </span>
+                                    @if (item.IsCurrent)
+                                    {
+                                        <span data-current class="flex-shrink-0 text-accent-ink"><span aria-hidden="true">●</span><span class="sr-only">@L.Translate("cmd.current")</span></span>
+                                    }
+                                    @if (!string.IsNullOrWhiteSpace(item.Shortcut))
+                                    {
+                                        <Kbd>@item.Shortcut</Kbd>
+                                    }
+                                </button>
                             }
-                        </button>
+                        </div>
                     }
                 </div>
             }
 
-            <!-- Footer hint -->
-            <div class="cmd-palette-footer">
-                <span><kbd>↑</kbd><kbd>↓</kbd> @L.Translate("cmd.navigate")</span>
-                <span><kbd>Enter</kbd> @L.Translate("cmd.select")</span>
-                <span><kbd>Esc</kbd> @L.Translate("cmd.close")</span>
+            <div class="flex flex-wrap gap-4 border-t border-line px-4 py-2 text-13 text-muted">
+                <span><Kbd>↑</Kbd> <Kbd>↓</Kbd> @L.Translate("cmd.navigate")</span>
+                <span><Kbd>Enter</Kbd> @L.Translate("cmd.select")</span>
+                <span><Kbd>Esc</Kbd> @L.Translate("cmd.close")</span>
             </div>
         </div>
     </div>
 }
 
 @code {
+    private const string GoGroup = "go";
+    private const string AppearanceGroup = "appearance";
+    private const string LanguageGroup = "language";
+    private const string ThemePref = "theme";
+
+    private static readonly string[] Themes = ["light", "dark", "system"];
+
     private bool _isOpen;
     private string _query = string.Empty;
     private int _selectedIndex;
+    private bool _scrollToSelected;
     private ElementReference _inputRef;
+    private ElementReference _listRef;
     private List<CommandItem> _allItems = [];
     private List<CommandItem> _filteredItems = [];
     private DotNetObjectReference<CommandPalette>? _dotNetRef;
 
+    // The theme/accent value applied by live preview but not saved yet.
+    private (string Name, string Value)? _preview;
+
+    private bool HasList => _filteredItems.Count > 0;
+
     protected override void OnInitialized()
     {
         base.OnInitialized();
-        _allItems = BuildItems();
-        _filteredItems = _allItems;
         _dotNetRef = DotNetObjectReference.Create(this);
     }
 
@@ -106,117 +131,273 @@
         if (_isOpen)
         {
             try { await _inputRef.FocusAsync(); } catch { }
+
+            if (_scrollToSelected)
+            {
+                _scrollToSelected = false;
+                try { await JS.InvokeVoidAsync("commandPalette.scrollToSelected", _listRef); } catch { }
+            }
         }
     }
 
-    [JSInvokable]
-    public void Toggle()
+    [JSInvokable("Toggle")]
+    public async Task ToggleAsync()
     {
-        if (_isOpen) Close();
-        else Open();
+        if (_isOpen) await CloseAsync();
+        else await OpenAsync();
     }
 
-    [JSInvokable]
-    public void Open()
+    [JSInvokable("Open")]
+    public async Task OpenAsync()
     {
-        _query = string.Empty;
+        // Load the saved accent so the current-value marker is right.
+        await Prefs.LoadAsync();
+        _allItems = BuildItems();
         _filteredItems = _allItems;
+        _query = string.Empty;
         _selectedIndex = 0;
+        _preview = null;
         _isOpen = true;
-        InvokeAsync(StateHasChanged);
+        await InvokeAsync(StateHasChanged);
     }
 
-    private void Close()
+    private async Task CloseAsync()
     {
+        await RestorePreviewAsync();
         _isOpen = false;
         _query = string.Empty;
         StateHasChanged();
     }
 
-    private void OnQueryChanged()
+    private async Task OnQueryChangedAsync()
     {
-        _selectedIndex = 0;
-        var q = _query.Trim().ToLowerInvariant();
-        _filteredItems = string.IsNullOrWhiteSpace(q)
+        var words = _query.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        _filteredItems = words.Length == 0
             ? _allItems
-            : _allItems.Where(x =>
-                x.Label.Contains(q, StringComparison.OrdinalIgnoreCase) ||
-                (x.Description?.Contains(q, StringComparison.OrdinalIgnoreCase) ?? false) ||
-                (x.Keywords?.Contains(q, StringComparison.OrdinalIgnoreCase) ?? false)
-            ).ToList();
+            : _allItems.Where(x => words.All(x.Matches)).ToList();
+        _selectedIndex = 0;
+        await UpdatePreviewAsync();
     }
 
-    private void OnKeyDown(KeyboardEventArgs e)
+    private async Task OnKeyDownAsync(KeyboardEventArgs e)
     {
         switch (e.Key)
         {
             case "ArrowDown":
-                _selectedIndex = Math.Min(_selectedIndex + 1, _filteredItems.Count - 1);
-                StateHasChanged();
+                _scrollToSelected = true;
+                await SelectAsync(Math.Min(_selectedIndex + 1, _filteredItems.Count - 1));
                 break;
             case "ArrowUp":
-                _selectedIndex = Math.Max(_selectedIndex - 1, 0);
-                StateHasChanged();
+                _scrollToSelected = true;
+                await SelectAsync(Math.Max(_selectedIndex - 1, 0));
                 break;
             case "Enter":
                 if (_selectedIndex >= 0 && _selectedIndex < _filteredItems.Count)
-                    ExecuteItem(_filteredItems[_selectedIndex]);
+                    await ExecuteItemAsync(_filteredItems[_selectedIndex]);
                 break;
             case "Escape":
-                Close();
+                await CloseAsync();
                 break;
         }
     }
 
-    private void ExecuteItem(CommandItem item)
+    /// <summary>Called by <c>commandPalette.js</c> when a real pointer move enters another row.</summary>
+    [JSInvokable("HoverItem")]
+    public async Task HoverItemAsync(int index)
     {
-        Close();
+        if (!_isOpen || index < 0 || index >= _filteredItems.Count)
+            return;
+
+        await SelectAsync(index);
+        StateHasChanged();
+    }
+
+    private async Task SelectAsync(int index)
+    {
+        if (index == _selectedIndex)
+            return;
+
+        _selectedIndex = index;
+        await UpdatePreviewAsync();
+    }
+
+    private async Task ExecuteItemAsync(CommandItem item)
+    {
+        if (item.Pref is { } pref)
+        {
+            // Saving supersedes a preview of the same preference (prefs.set stores and applies
+            // the value); a preview of the other one (Tab moved focus off it) goes back first.
+            if (_preview is { } previewed && previewed.Name != pref.Name)
+                await RestorePreviewAsync();
+            _preview = null;
+            await SaveAsync(pref.Name, pref.Value);
+        }
+
+        await CloseAsync();
+
         if (!string.IsNullOrWhiteSpace(item.Href))
             Navigation.NavigateTo(item.Href);
+        else if (item.Action is not null)
+            await item.Action();
+    }
+
+    // Same paths as the Settings page, so Settings and every subscriber stay in sync.
+    private async Task SaveAsync(string name, string value)
+    {
+        if (name == ThemePref)
+            Theme.SetTheme(value);
         else
-            item.Action?.Invoke();
+            await Prefs.SetAsync(name, value);
+    }
+
+    // Live preview: the selected theme/accent command is applied without saving;
+    // any other selection puts the saved value back.
+    private async Task UpdatePreviewAsync()
+    {
+        var pref = _selectedIndex >= 0 && _selectedIndex < _filteredItems.Count
+            ? _filteredItems[_selectedIndex].Pref
+            : null;
+
+        if (pref == _preview)
+            return;
+
+        if (_preview is { } old && old.Name != pref?.Name)
+            await RestorePreviewAsync();
+
+        if (pref is { } next)
+        {
+            _preview = next;
+            try { await JS.InvokeVoidAsync("prefs.preview", next.Name, next.Value); } catch (JSException) { }
+        }
+    }
+
+    private async Task RestorePreviewAsync()
+    {
+        if (_preview is not { } preview)
+            return;
+
+        _preview = null;
+        try { await JS.InvokeVoidAsync("prefs.restore", preview.Name); } catch (JSException) { }
+    }
+
+    // Fire-and-forget from Dispose: the circuit may already be gone.
+    private async Task RestoreAllQuietlyAsync()
+    {
+        try
+        {
+            await JS.InvokeVoidAsync("prefs.restoreAll");
+        }
+        catch (Exception ex) when (ex is JSException or JSDisconnectedException or TaskCanceledException or ObjectDisposedException)
+        {
+            // Nothing to restore in a closed page.
+        }
+    }
+
+    private async Task SetLanguageAsync(string code)
+    {
+        L.SetLanguage(code);
+        try
+        {
+            await JS.InvokeVoidAsync("localStorage.setItem", "settings.language", code);
+        }
+        catch (JSException)
+        {
+            // Language still applies for this session.
+        }
     }
 
     private List<CommandItem> BuildItems()
     {
-        const string navIcon = "<svg fill='none' stroke='currentColor' viewBox='0 0 24 24' style='width:1.1rem;height:1.1rem'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M13 9l3 3m0 0l-3 3m3-3H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z'/></svg>";
-        const string ticketIcon = "<svg fill='none' stroke='currentColor' viewBox='0 0 24 24' style='width:1.1rem;height:1.1rem'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2'/></svg>";
-        const string settingsIcon = "<svg fill='none' stroke='currentColor' viewBox='0 0 24 24' style='width:1.1rem;height:1.1rem'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z'/><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M15 12a3 3 0 11-6 0 3 3 0 016 0z'/></svg>";
-        const string profileIcon = "<svg fill='none' stroke='currentColor' viewBox='0 0 24 24' style='width:1.1rem;height:1.1rem'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z'/></svg>";
-        const string addIcon = "<svg fill='none' stroke='currentColor' viewBox='0 0 24 24' style='width:1.1rem;height:1.1rem'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 4v16m8-8H4'/></svg>";
-        const string calendarIcon = "<svg fill='none' stroke='currentColor' viewBox='0 0 24 24' style='width:1.1rem;height:1.1rem'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'/></svg>";
-        const string statsIcon = "<svg fill='none' stroke='currentColor' viewBox='0 0 24 24' style='width:1.1rem;height:1.1rem'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z'/></svg>";
-
-        return new List<CommandItem>
+        var role = AuthService.CurrentUser?.Role;
+        var items = new List<CommandItem>
         {
-            new("Go to Home", navIcon, "/", null, "home dashboard"),
-            new("Go to All Tickets", ticketIcon, "/tickets", null, "tickets list all"),
-            new("Create New Ticket", addIcon, "/create-ticket", null, "new ticket create", "N"),
-            new("My Tickets", ticketIcon, "/my-tickets", null, "my tickets personal"),
-            new("Calendar", calendarIcon, "/calendar", null, "calendar schedule dates"),
-            new("Statistics", statsIcon, "/statistics", null, "stats analytics charts"),
-            new("My Profile", profileIcon, "/profile", null, "profile account user"),
-            new("Settings", settingsIcon, "/settings", null, "settings preferences theme"),
-            new("Toggle Theme", settingsIcon, null, () => Theme.ToggleTheme(), "dark light mode theme", "D"),
+            Go("~", "/", "cmd.desc.home", "home dashboard"),
         };
+
+        if (IsAdminOrDeveloper)
+            items.Add(Go("~/tickets", "/tickets", "cmd.desc.tickets", "tickets list all"));
+        if (role == UserRole.User)
+            items.Add(Go("~/my-tickets", "/my-tickets", "cmd.desc.myTickets", "my tickets personal"));
+
+        items.Add(Go("~/calendar", "/calendar", "cmd.desc.calendar", "calendar schedule dates"));
+
+        if (IsAdminOrDeveloper)
+        {
+            items.Add(Go("~/developer", "/developer", "cmd.desc.developer", "developer dashboard assigned"));
+            items.Add(Go("~/statistics", "/statistics", "cmd.desc.statistics", "stats analytics charts"));
+        }
+
+        items.Add(Go("~/profile", "/profile", "cmd.desc.profile", "profile account user"));
+        items.Add(Go("~/settings", "/settings", "cmd.desc.settings", "settings preferences"));
+
+        if (role == UserRole.Admin)
+        {
+            items.Add(Go("~/admin", "/admin", "cmd.desc.admin", "admin users administration"));
+            items.Add(Go("~/audit-logs", "/audit-logs", "cmd.desc.auditLogs", "audit logs history"));
+        }
+
+        items.Add(new(GoGroup, "new ticket", L.Translate("cmd.desc.newTicket"), "create ticket", Href: "/create-ticket", Shortcut: "N"));
+
+        var theme = Theme.IsSystemTheme ? "system" : Theme.CurrentTheme;
+        foreach (var t in Themes)
+        {
+            items.Add(new(AppearanceGroup, $"theme {t}", L.Translate($"cmd.desc.theme.{t}"), "mode scheme",
+                Pref: (ThemePref, t), IsCurrent: t == theme));
+        }
+
+        foreach (var (name, hex) in AccentSwatches.All)
+        {
+            items.Add(new(AppearanceGroup, $"accent {name}", L.Translate($"settings.accent.{name}"), "color colour",
+                Pref: (PreferenceSchema.Accent, name), IsCurrent: name == Prefs.Current.Accent, Swatch: hex));
+        }
+
+        foreach (var code in new[] { "en", "uk", "fr", "es", "de" })
+        {
+            var lang = L.SupportedLanguages.FirstOrDefault(l => l.Code == code);
+            if (lang is null)
+                continue;
+
+            items.Add(new(LanguageGroup, $"lang {code}", lang.NativeName, $"language {lang.Name}",
+                Action: () => SetLanguageAsync(code),
+                IsCurrent: string.Equals(code, L.CurrentLanguage, StringComparison.OrdinalIgnoreCase)));
+        }
+
+        return items;
     }
+
+    private CommandItem Go(string path, string href, string descriptionKey, string keywords) =>
+        new(GoGroup, $"cd {path}", L.Translate(descriptionKey), keywords, Href: href);
 
     protected override void Dispose(bool disposing)
     {
         if (disposing)
         {
+            if (_preview is not null)
+            {
+                _preview = null;
+                _ = RestoreAllQuietlyAsync();
+            }
+
             _dotNetRef?.Dispose();
         }
         base.Dispose(disposing);
     }
 
-    private record CommandItem(
+    private sealed record CommandItem(
+        string Group,
         string Label,
-        string IconSvg,
-        string? Href,
-        Action? Action,
-        string? Keywords = null,
+        string Description,
+        string Keywords,
+        string? Href = null,
+        Func<Task>? Action = null,
         string? Shortcut = null,
-        string? Description = null
-    );
+        (string Name, string Value)? Pref = null,
+        bool IsCurrent = false,
+        string? Swatch = null)
+    {
+        public bool Matches(string word) =>
+            Label.Contains(word, StringComparison.OrdinalIgnoreCase) ||
+            Description.Contains(word, StringComparison.OrdinalIgnoreCase) ||
+            Keywords.Contains(word, StringComparison.OrdinalIgnoreCase);
+    }
 }

@@ -22,27 +22,39 @@ window.notificationManager = {
         window.__notificationOutsideClickHandler = null;
     },
 
-    registerLanguageOutsideClick: function (dotNetRef) {
-        this.unregisterLanguageOutsideClick();
-
-        window.__languageOutsideClickHandler = function (event) {
-            if (event.target.closest('.language-dropdown-wrapper')) {
-                return;
-            }
-
-            dotNetRef.invokeMethodAsync('HandleOutsideLanguageClick');
-        };
-
-        document.addEventListener('click', window.__languageOutsideClickHandler, true);
-    },
-
-    unregisterLanguageOutsideClick: function () {
-        if (!window.__languageOutsideClickHandler) {
-            return;
+    notifyNew: async function (title, body) {
+        if (window.prefs.get('sound') === 'true') {
+            await this.playNewNotificationSound();
         }
 
-        document.removeEventListener('click', window.__languageOutsideClickHandler, true);
-        window.__languageOutsideClickHandler = null;
+        if (window.prefs.get('desktopNotifications') === 'true'
+            && 'Notification' in window
+            && Notification.permission === 'granted'
+            && document.hidden) {
+            try {
+                new Notification(title, { body: body });
+            }
+            catch {
+                // Some browsers only allow notifications from a service worker.
+            }
+        }
+    },
+
+    requestDesktopPermission: async function () {
+        if (!('Notification' in window)) {
+            return 'denied';
+        }
+
+        if (Notification.permission !== 'default') {
+            return Notification.permission;
+        }
+
+        try {
+            return await Notification.requestPermission();
+        }
+        catch {
+            return 'denied';
+        }
     },
 
     playNewNotificationSound: async function () {

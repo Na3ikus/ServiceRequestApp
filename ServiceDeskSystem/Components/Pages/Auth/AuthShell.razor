@@ -1,0 +1,106 @@
+@inherits BaseComponent
+@implements IAsyncDisposable
+
+<!-- Created by Nazar "N1h3" Hutsol -->
+<div class="flex min-h-screen flex-col bg-canvas lg:flex-row">
+    <div class="hidden lg:flex lg:w-1/2 lg:flex-col lg:border-r lg:border-line lg:bg-surface lg:p-12">
+        <Logo Size="LogoSize.Lg" />
+        <div class="flex flex-1 items-center">
+            @* typewriter.js types the phrases; screen readers get only the tagline. *@
+            <p @ref="typewriter" data-typewriter data-phrases="@PhrasesJson"
+               class="min-h-[4lh] max-w-[30ch] font-mono text-20 text-fg">
+                <span class="sr-only">@L.Translate("auth.tagline")</span>
+                <span aria-hidden="true"><span class="text-muted">&gt; </span><span data-typewriter-text></span><span class="cursor-blink text-accent-ink">_</span></span>
+            </p>
+        </div>
+        <p class="text-13 text-muted">@L.Translate("common.footer") &copy; @DateTime.Now.Year</p>
+    </div>
+
+    <div class="relative flex flex-1 flex-col">
+        <div class="flex items-center justify-end gap-2 p-4">
+            <LanguageDropdown />
+            <button type="button"
+                    class="btn-ghost"
+                    @onclick="Theme.ToggleTheme"
+                    aria-label="@L.Translate("theme.toggle")">
+                @if (Theme.IsDarkMode)
+                {
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                    </svg>
+                }
+                else
+                {
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+                    </svg>
+                }
+            </button>
+        </div>
+
+        <div class="flex flex-1 items-center justify-center p-4">
+            <div class="w-full max-w-[380px]">
+                <div class="mb-6 lg:hidden">
+                    <Logo Size="LogoSize.Md" />
+                </div>
+                <h1 class="font-mono text-20 font-medium text-fg"><span class="text-muted">~/</span>@Path</h1>
+                <p class="mt-1 text-13 text-muted">@Subtitle</p>
+
+                <div class="mt-6">
+                    @ChildContent
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private const int QuoteCount = 8;
+
+    private ElementReference typewriter;
+    private bool typing;
+
+    [Inject]
+    private IJSRuntime JS { get; set; } = null!;
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter]
+    public string Path { get; set; } = string.Empty;
+
+    [Parameter]
+    public string Subtitle { get; set; } = string.Empty;
+
+    private string PhrasesJson => System.Text.Json.JsonSerializer.Serialize(
+        Enumerable.Range(1, QuoteCount)
+            .Select(i => L.Translate($"auth.quote.{i}"))
+            .Prepend(L.Translate("auth.tagline")));
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("typewriter.start", typewriter);
+            typing = true;
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        // Prerendering disposes the shell without JS; only stop what was started.
+        if (typing)
+        {
+            try
+            {
+                await JS.InvokeVoidAsync("typewriter.stop", typewriter);
+            }
+            catch (JSDisconnectedException)
+            {
+                // The circuit is gone, and the timer with it.
+            }
+        }
+
+        Dispose();
+    }
+}

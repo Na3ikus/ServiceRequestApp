@@ -260,7 +260,7 @@ public class TicketServiceTests
         _mockDispatcher.Setup(d => d.DispatchAsync(It.IsAny<IEnumerable<IDomainEvent>>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
 
         // Act
-        var success = await _ticketService.UpdateTicketStatusAsync(ticketId, newStatus);
+        var success = await _ticketService.UpdateTicketStatusAsync(ticketId, newStatus, actorUserId: 9);
 
         // Assert
         success.Should().BeTrue();
@@ -270,6 +270,24 @@ public class TicketServiceTests
         // Verify TicketStatusChangedEvent was dispatched
         _mockDispatcher.Verify(d => d.DispatchAsync(It.Is<IEnumerable<IDomainEvent>>(events =>
             events.Any(e => e is TicketStatusChangedEvent)), It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Test]
+    public async Task UpdateTicketStatusAsync_RecordsTheActingUser_NotTheAssignedDeveloper()
+    {
+        var ticket = new Ticket { Id = 5, Status = TicketStatus.Open, AuthorId = 1, DeveloperId = 2, Title = "Actor" };
+        _mockTicketRepo.Setup(r => r.GetByIdAsync(5)).ReturnsAsync(ticket);
+
+        TicketStatusChangedEvent? raised = null;
+        _mockDispatcher
+            .Setup(d => d.DispatchAsync(It.IsAny<IEnumerable<IDomainEvent>>(), It.IsAny<CancellationToken>()))
+            .Callback<IEnumerable<IDomainEvent>, CancellationToken>((events, _) => raised ??= events.OfType<TicketStatusChangedEvent>().FirstOrDefault())
+            .Returns(Task.CompletedTask);
+
+        await _ticketService.UpdateTicketStatusAsync(5, TicketStatus.Closed, actorUserId: 3);
+
+        raised.Should().NotBeNull();
+        raised!.ActorUserId.Should().Be(3);
     }
 
     [Test]
@@ -342,5 +360,21 @@ public class TicketServiceTests
         // Assert
         result.IsPriorityAssessed.Should().BeFalse();
         _mockTicketRepo.Verify(r => r.CreateAsync(ticket), Times.Once);
+    }
+
+    [Test]
+    public async Task GetStatusHistoryAsync_ReturnsTheTicketsHistoryFromTheRepository()
+    {
+        // Arrange
+        var history = new Mock<ITicketStatusHistoryRepository>();
+        var rows = new List<TicketStatusHistory> { new() { TicketId = 42, OldStatus = TicketStatus.Open, NewStatus = TicketStatus.InProgress } };
+        history.Setup(h => h.GetByTicketAsync(42)).ReturnsAsync(rows);
+        _mockFacade.Setup(f => f.TicketStatusHistory).Returns(history.Object);
+
+        // Act
+        var result = await _ticketService.GetStatusHistoryAsync(42);
+
+        // Assert
+        result.Should().BeSameAs(rows);
     }
 }

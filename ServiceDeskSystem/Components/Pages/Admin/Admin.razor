@@ -1,253 +1,75 @@
 @page "/admin"
-@using ServiceDeskSystem.Components.Features
+@page "/admin/{Section}"
 @using ServiceDeskSystem.Components.Pages.Admin.Components
-@using ServiceDeskSystem.Domain.Enums
 @inherits BaseComponent
 @rendermode InteractiveServer
 
 <!-- Created by Nazar "N1h3" Hutsol -->
-<div class="admin-shell @(Theme.IsDarkMode ? "is-dark" : "is-light")">
-    @if (AuthService.CurrentUser?.Role != UserRole.Admin)
+<div class="max-w-7xl mx-auto p-4 sm:p-6">
+    @if (!IsAdmin)
     {
-        <div class="admin-access-denied">
-            <div class="admin-access-denied-inner">
-                <div class="admin-access-denied-icon">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
-                        </path>
-                    </svg>
-                </div>
-                <span class="admin-access-denied-text">@L.Translate("admin.accessDenied")</span>
-            </div>
+        <PageHeader Segments="DeniedSegments" />
+        <div data-access-denied>
+            <EmptyState Message="@L.Translate("admin.accessDenied")" />
         </div>
     }
     else
     {
-        <!-- Hero Header -->
-        <div class="admin-hero">
-            <div class="admin-hero-glow admin-hero-glow-1"></div>
-            <div class="admin-hero-glow admin-hero-glow-2"></div>
-            <div class="admin-hero-content">
-                <div class="admin-hero-title-row">
-                    <div class="admin-hero-icon">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z">
-                            </path>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                        </svg>
-                    </div>
-                    <div>
-                        <h1 class="admin-hero-heading">@L.Translate("admin.title")</h1>
-                        <p class="admin-hero-sub">@L.Translate("admin.subtitle")</p>
-                    </div>
-                </div>
+        <PageHeader Segments="Segments" Subtitle="@L.Translate("admin.subtitle")" />
 
-                <div class="admin-stats-strip">
-                    <div class="admin-stat">
-                        <svg class="admin-stat-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                        </svg>
-                        <div class="admin-stat-value">@(Products?.Count ?? 0)</div>
-                        <div class="admin-stat-label">@L.Translate("admin.products")</div>
-                    </div>
-                    <div class="admin-stat-divider"></div>
-                    <div class="admin-stat">
-                        <svg class="admin-stat-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-                        </svg>
-                        <div class="admin-stat-value">@(TechStacks?.Count ?? 0)</div>
-                        <div class="admin-stat-label">@L.Translate("admin.techStacks")</div>
-                    </div>
-                    <div class="admin-stat-divider"></div>
-                    <div class="admin-stat">
-                        <svg class="admin-stat-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
-                        <div class="admin-stat-value">@(Users?.Count ?? 0)</div>
-                        <div class="admin-stat-label">@L.Translate("admin.users")</div>
-                    </div>
-                    <div class="admin-stat-divider"></div>
-                    <div class="admin-stat">
-                        <svg class="admin-stat-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-                        </svg>
-                        <div class="admin-stat-value">@(Tags?.Count ?? 0)</div>
-                        <div class="admin-stat-label">@L.Translate("admin.tags")</div>
-                    </div>
-                    <div class="admin-stat-divider"></div>
-                    <div class="admin-stat">
-                        <svg class="admin-stat-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <div class="admin-stat-value">@(SlaPolicies?.Count(p => p.IsActive) ?? 0)</div>
-                        <div class="admin-stat-label">@L.Translate("sla.title")</div>
-                    </div>
-                    <div class="admin-stat-divider"></div>
-                    <div class="admin-stat">
-                        <svg class="admin-stat-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                        </svg>
-                        <div class="admin-stat-value">
-                            <span class="admin-smtp-dot @(SmtpCheckSuccess == true ? "ok" : SmtpCheckSuccess == false ? "fail" : "unknown")"></span>
-                            @(IsCheckingSmtp ? L.Translate("admin.smtp.checking") : SmtpCheckSuccess == true ? L.Translate("admin.smtp.connected") : SmtpCheckSuccess == false ? L.Translate("admin.smtp.noConnection") : L.Translate("admin.smtp.unknown"))
-                        </div>
-                        <div class="admin-stat-label">SMTP</div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <nav data-admin-tabs aria-label="@L.Translate("nav.section.management")"
+             class="mb-5 flex gap-1 overflow-x-auto overflow-y-hidden border-b border-line font-mono text-14">
+            @foreach (var tab in Sections)
+            {
+                var active = tab == ActiveSection;
+                <a href="@($"/admin/{tab}")" data-tab="@tab" aria-current="@(active ? "page" : null)"
+                   class="relative shrink-0 whitespace-nowrap px-3 py-2 hover:text-fg @(active ? "text-fg" : "text-muted")">
+                    <span>@tab</span>@TabBadge(tab)
+                    @if (active)
+                    {
+                        <span aria-hidden="true" class="absolute inset-x-2 bottom-0 h-0.5 bg-accent"></span>
+                    }
+                </a>
+            }
+        </nav>
 
-        <!-- Two-column Layout -->
-        <div class="admin-body">
-            <!-- Sub-Sidebar -->
-            <aside class="admin-sub-sidebar @(IsMobileNavOpen ? "mobile-open" : "")">
-                <div class="admin-sub-sidebar-overlay" @onclick="CloseMobileNav"></div>
-                <nav class="admin-sub-nav">
-                    <div class="admin-sub-nav-header">
-                        <span class="admin-sub-nav-title">@L.Translate("nav.section.management")</span>
-                    </div>
-
-                    <button @onclick="@(() => SetActiveTab("products"))"
-                            class="admin-nav-item @(ActiveTab == "products" ? "is-active" : "")">
-                        <span class="admin-nav-item-icon">
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                            </svg>
-                        </span>
-                        <span class="admin-nav-item-label">@L.Translate("admin.products")</span>
-                        @if (Products is not null)
-                        {
-                            <span class="admin-nav-badge">@Products.Count</span>
-                        }
-                    </button>
-
-                    <button @onclick="@(() => SetActiveTab("techstacks"))"
-                            class="admin-nav-item @(ActiveTab == "techstacks" ? "is-active" : "")">
-                        <span class="admin-nav-item-icon">
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-                            </svg>
-                        </span>
-                        <span class="admin-nav-item-label">@L.Translate("admin.techStacks")</span>
-                        @if (TechStacks is not null)
-                        {
-                            <span class="admin-nav-badge">@TechStacks.Count</span>
-                        }
-                    </button>
-
-                    <button @onclick="@(() => SetActiveTab("users"))"
-                            class="admin-nav-item @(ActiveTab == "users" ? "is-active" : "")">
-                        <span class="admin-nav-item-icon">
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
-                            </svg>
-                        </span>
-                        <span class="admin-nav-item-label">@L.Translate("admin.users")</span>
-                        @if (Users is not null)
-                        {
-                            <span class="admin-nav-badge">@Users.Count</span>
-                        }
-                    </button>
-
-                    <button @onclick="@(() => SetActiveTab("tags"))"
-                            class="admin-nav-item @(ActiveTab == "tags" ? "is-active" : "")">
-                        <span class="admin-nav-item-icon">
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-                            </svg>
-                        </span>
-                        <span class="admin-nav-item-label">@L.Translate("admin.tags")</span>
-                        @if (Tags is not null)
-                        {
-                            <span class="admin-nav-badge">@Tags.Count</span>
-                        }
-                    </button>
-
-                    <button @onclick="@(() => SetActiveTab("sla"))"
-                            class="admin-nav-item @(ActiveTab == "sla" ? "is-active" : "")">
-                        <span class="admin-nav-item-icon">
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                        </span>
-                        <span class="admin-nav-item-label">@L.Translate("sla.title")</span>
-                        @if (SlaPolicies is not null)
-                        {
-                            <span class="admin-nav-badge">@SlaPolicies.Count</span>
-                        }
-                    </button>
-
-                    <div class="admin-nav-separator"></div>
-
-                    <button @onclick="@(() => SetActiveTab("smtp"))"
-                            class="admin-nav-item @(ActiveTab == "smtp" ? "is-active" : "")">
-                        <span class="admin-nav-item-icon">
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                            </svg>
-                        </span>
-                        <span class="admin-nav-item-label">@L.Translate("admin.smtp")</span>
-                        <span class="admin-nav-smtp-dot @(SmtpCheckSuccess == true ? "ok" : SmtpCheckSuccess == false ? "fail" : "unknown")"></span>
-                    </button>
-                </nav>
-            </aside>
-
-            <!-- Mobile Nav Toggle -->
-            <button class="admin-mobile-nav-toggle" @onclick="ToggleMobileNav">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="@(IsMobileNavOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h7")" />
-                </svg>
-                <span>@GetActiveTabLabel()</span>
-                <svg class="admin-mobile-nav-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                </svg>
-            </button>
-
-            <!-- Content Area -->
-            <main class="admin-content" @key="ActiveTab">
-                @if (ActiveTab == "products")
-                {
-                    <ProductsTab Products="Products" TechStacks="TechStacks" OnProductsChanged="LoadDataAsync" />
-                }
-                else if (ActiveTab == "techstacks")
-                {
-                    <TechStacksTab TechStacks="TechStacks" OnTechStacksChanged="LoadDataAsync" />
-                }
-                else if (ActiveTab == "users")
-                {
-                    <UsersTab Users="Users" OnUsersChanged="LoadDataAsync" />
-                }
-                else if (ActiveTab == "tags")
-                {
-                    <TagsTab Tags="Tags" OnTagsChanged="LoadDataAsync" />
-                }
-                else if (ActiveTab == "sla")
-                {
-                    <SlaTab Policies="SlaPolicies" Products="Products" OnPoliciesChanged="LoadDataAsync" />
-                }
-                else if (ActiveTab == "smtp")
-                {
-                    <SmtpTab SmtpCheckSuccess="SmtpCheckSuccess"
-                             SmtpCheckMessage="@SmtpCheckMessage"
-                             IsCheckingSmtp="@IsCheckingSmtp"
-                             OnCheckSmtp="CheckSmtpAsync" />
-                }
-            </main>
-        </div>
+        @switch (ActiveSection)
+        {
+            case "techstacks":
+                <TechStacksTab TechStacks="TechStacks" OnTechStacksChanged="LoadDataAsync" />
+                break;
+            case "users":
+                <UsersTab Users="Users" OnUsersChanged="LoadDataAsync" />
+                break;
+            case "tags":
+                <TagsTab Tags="Tags" OnTagsChanged="LoadDataAsync" />
+                break;
+            case "sla":
+                <SlaTab Policies="SlaPolicies" Products="Products" OnPoliciesChanged="LoadDataAsync" />
+                break;
+            case "smtp":
+                <SmtpTab Log="SmtpLog" IsChecking="IsCheckingSmtp" IsSending="IsSendingTestEmail"
+                         OnCheck="CheckSmtpAsync" OnSend="SendTestEmailAsync" />
+                break;
+            default:
+                <ProductsTab Products="Products" TechStacks="TechStacks" OnProductsChanged="LoadDataAsync" />
+                break;
+        }
     }
 </div>
+
+@code {
+    private RenderFragment TabBadge(string tab) => __builder =>
+    {
+        if (tab == "smtp")
+        {
+            var (state, dotClass, text) = SmtpState();
+            <span data-smtp-dot="@state" title="@text" class="ml-1.5 inline-block h-[7px] w-[7px] rounded-full align-middle @dotClass"></span>
+            <span class="sr-only">@text</span>
+        }
+        else if (Count(tab) is int count)
+        {
+            <span class="ml-1.5 text-12 text-muted">@count</span>
+        }
+    };
+}

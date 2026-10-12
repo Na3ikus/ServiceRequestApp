@@ -17,9 +17,13 @@
 
 ## 📌 Overview
 
-**ServiceDesk** is a modern, responsive IT Service Management (ITSM) system built with **.NET 10** and **Blazor Server**. It simplifies incident tracking, SLA management, and team collaboration with native multilingual support (🇬🇧 English / 🇺🇦 Ukrainian) and role-based access control (RBAC).
+**ServiceDesk** is a modern, responsive IT Service Management (ITSM) system built with **.NET 10** and **Blazor Server**. It simplifies incident tracking, SLA management, and team collaboration with native multilingual support (🇬🇧 English / 🇺🇦 Ukrainian / 🇩🇪 German / 🇪🇸 Spanish / 🇫🇷 French) and role-based access control (RBAC).
+
+Since **v2.0** the UI follows an "ops terminal" design: Geist and Geist Mono, design tokens instead of ad-hoc colours, `~/path` headings, single-hue charts, one accent colour (lime, amber, phosphor or ice) in a light or dark theme, and a `Ctrl+K` command palette that works like a small shell (`cd ~/tickets`, `theme light`, `accent amber`, `lang uk`) with live preview.
 
 > 💻 **Setup Note:** Uses a local MySQL database. Connection settings are in `appsettings.Development.json`. For Docker deployment, use environment variables.
+>
+> 🎨 **Styles:** Requires **Node.js 22+**. `dotnet build` compiles Tailwind; use `-p:SkipTailwindBuild=true` to skip.
 
 ---
 
@@ -68,33 +72,27 @@ graph TD
 | :---: | :---: |
 | <img src="screenshots/login-dark.png" alt="Login Dark" width="350"/> | <img src="screenshots/login-light.png" alt="Login Light" width="350"/> |
 
-### 📊 Dashboard & Analytics
+### 📊 Home & Analytics
 
-| Main Dashboard | Statistics |
+| Home | Statistics |
 | :---: | :---: |
-| <img src="screenshots/dashboard.png" alt="Dashboard" width="350"/> | <img src="screenshots/statistics.png" alt="Statistics" width="350"/> |
+| <img src="screenshots/dashboard.png" alt="Home" width="350"/> | <img src="screenshots/statistics.png" alt="Statistics" width="350"/> |
 
 ### 🎫 Ticket Management
 
-| Ticket Details |
-| :---: |
-| <img src="screenshots/ticket-details.png" alt="Ticket Details" width="700"/> |
-
-### ⚙️ Admin Panel
-
-| User Management | Product Management |
+| Kanban Board | Developer Queue |
 | :---: | :---: |
-| <img src="screenshots/admin-users.png" alt="User Management" width="350"/> | <img src="screenshots/admin-products.png" alt="Product Management" width="350"/> |
+| <img src="screenshots/tickets-kanban.png" alt="Kanban Board" width="350"/> | <img src="screenshots/developer.png" alt="Developer Queue" width="350"/> |
 
-| Tech Stack Management | SMTP Settings |
+| Calendar | Profile & Activity |
 | :---: | :---: |
-| <img src="screenshots/admin-techstacks.png" alt="Tech Stack" width="350"/> | <img src="screenshots/admin-smtp.png" alt="SMTP Settings" width="350"/> |
+| <img src="screenshots/calendar.png" alt="Calendar" width="350"/> | <img src="screenshots/profile.png" alt="Profile" width="350"/> |
 
-### 📋 Audit Logs
+### ⚙️ Admin Panel & Audit Logs
 
-| Activity Tracking |
-| :---: |
-| <img src="screenshots/audit-logs.png" alt="Audit Logs" width="700"/> |
+| Administration | Audit Log Stream |
+| :---: | :---: |
+| <img src="screenshots/admin-products.png" alt="Administration" width="350"/> | <img src="screenshots/audit-logs.png" alt="Audit Logs" width="350"/> |
 
 ---
 
@@ -103,7 +101,9 @@ graph TD
 | Feature | Status |
 |---|:---:|
 | Multilingual UI (EN / UA / DE / ES / FR) | ✅ |
-| Flat solid theme by default (gradient look optional) | ✅ |
+| Terminal-style design system (light / dark, 4 accents) | ✅ |
+| Command palette with live theme & accent preview | ✅ |
+| Statistics from real status history (period, time zone aware) | ✅ |
 | Interactive Dashboard (MTTR, MTBF, SLA) | ✅ |
 | Role-Based Access Control (RBAC) | ✅ |
 | Email Notifications (SMTP) | ✅ |

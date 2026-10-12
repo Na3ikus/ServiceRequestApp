@@ -1,0 +1,107 @@
+@inherits BaseComponent
+
+@* Inline edit form in a table row. Enter in a single-line input submits the form (save); Esc anywhere in the row cancels. *@
+<tr data-edit-row @onkeydown="OnKeyDownAsync">
+    <td colspan="@Columns" class="border-b border-line bg-surface light:bg-accent/10 px-4 py-3.5 shadow-[inset_2px_0_0_rgb(var(--accent))]">
+        <form novalidate aria-label="@Label" @onsubmit="SubmitAsync" @onsubmit:preventDefault="true">
+            @ChildContent
+            @if (!string.IsNullOrEmpty(Error))
+            {
+                <p data-edit-error role="alert" class="mt-3 font-mono text-13 text-danger">✗ @Error</p>
+            }
+            <div class="mt-3 flex flex-wrap items-center justify-end gap-2">
+                <span class="mr-auto hidden font-mono text-12 text-muted sm:inline">
+                    <Kbd>Enter</Kbd> @Heading("common.save") · <Kbd>Esc</Kbd> @Heading("common.cancel")
+                </span>
+                <button type="button" data-action="cancel" class="btn-outline" disabled="@IsSaving" @onclick="CancelAsync">@Heading("common.cancel")</button>
+                <button type="submit" data-action="save" class="btn-accent h-8 px-3 text-13" disabled="@IsSaving">
+                    @(IsSaving ? Heading("common.saving") : Heading("common.save"))
+                </button>
+            </div>
+        </form>
+    </td>
+</tr>
+
+@code {
+    /// <summary>
+    /// Gets or sets the number of table columns the row spans.
+    /// </summary>
+    [Parameter]
+    public int Columns { get; set; } = 1;
+
+    /// <summary>
+    /// Gets or sets the accessible name of the form (e.g. "Edit product").
+    /// </summary>
+    [Parameter]
+    public string? Label { get; set; }
+
+    /// <summary>
+    /// Gets or sets the fields, laid out by the caller.
+    /// </summary>
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether a save is running.
+    /// </summary>
+    [Parameter]
+    public bool IsSaving { get; set; }
+
+    /// <summary>
+    /// Gets or sets the error of the last failed save.
+    /// </summary>
+    [Parameter]
+    public string? Error { get; set; }
+
+    /// <summary>
+    /// Gets or sets the callback run on save (button or Enter).
+    /// </summary>
+    [Parameter]
+    public EventCallback OnSave { get; set; }
+
+    /// <summary>
+    /// Gets or sets the callback run on cancel (button or Esc).
+    /// </summary>
+    [Parameter]
+    public EventCallback OnCancel { get; set; }
+
+    /// <summary>
+    /// Gets or sets a function returning the field focused when the row opens.
+    /// </summary>
+    [Parameter]
+    public Func<ElementReference>? FocusTarget { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender || FocusTarget is null)
+        {
+            return;
+        }
+
+        try
+        {
+            await FocusTarget().FocusAsync();
+        }
+        catch (InvalidOperationException)
+        {
+            // Not attached to a browser yet (prerendering).
+        }
+        catch (Microsoft.JSInterop.JSException)
+        {
+            // The element was removed before focusing.
+        }
+    }
+
+    private async Task SubmitAsync()
+    {
+        if (!IsSaving)
+        {
+            await OnSave.InvokeAsync();
+        }
+    }
+
+    // A running save is not cancelled: closing the row then would let a second save overlap it.
+    private Task CancelAsync() => IsSaving ? Task.CompletedTask : OnCancel.InvokeAsync();
+
+    private Task OnKeyDownAsync(KeyboardEventArgs e) => e.Key == "Escape" ? CancelAsync() : Task.CompletedTask;
+}

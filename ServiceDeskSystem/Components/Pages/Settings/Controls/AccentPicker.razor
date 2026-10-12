@@ -1,0 +1,73 @@
+@inject ServiceDeskSystem.Application.Services.Localization.ILocalizationService L
+
+<div role="radiogroup" aria-label="@L.Translate("settings.accent")" class="flex items-center gap-2.5">
+    @for (var i = 0; i < Accents.Count; i++)
+    {
+        var index = i;
+        var accent = Accents[index];
+        var selected = accent.Name == Value;
+        <button type="button"
+                role="radio"
+                aria-checked="@(selected ? "true" : "false")"
+                aria-label="@L.Translate($"settings.accent.{accent.Name}")"
+                title="@L.Translate($"settings.accent.{accent.Name}")"
+                tabindex="@(index == Math.Max(SelectedIndex, 0) ? "0" : "-1")"
+                class="h-[26px] w-[26px] rounded-md focus-visible:outline focus-visible:outline-1 focus-visible:outline-accent-ink focus-visible:outline-offset-2 @(selected ? "outline outline-1 outline-fg outline-offset-2" : string.Empty)"
+                style="background: @accent.Hex"
+                @ref="buttons[index]"
+                @onclick="() => SelectAsync(index)"
+                @onkeydown="e => OnKeyDownAsync(e, index)">
+        </button>
+    }
+</div>
+
+@code {
+    private static readonly IReadOnlyList<(string Name, string Hex)> Accents = AccentSwatches.All;
+
+    private readonly ElementReference[] buttons = new ElementReference[Accents.Count];
+
+    [Parameter]
+    public string Value { get; set; } = "lime";
+
+    [Parameter]
+    public EventCallback<string> ValueChanged { get; set; }
+
+    private int SelectedIndex => Accents.ToList().FindIndex(a => a.Name == Value);
+
+    private async Task SelectAsync(int index)
+    {
+        if (Accents[index].Name != Value)
+        {
+            await ValueChanged.InvokeAsync(Accents[index].Name);
+        }
+    }
+
+    private async Task OnKeyDownAsync(KeyboardEventArgs e, int index)
+    {
+        var count = Accents.Count;
+        int? target = e.Key switch
+        {
+            "ArrowRight" or "ArrowDown" => (index + 1) % count,
+            "ArrowLeft" or "ArrowUp" => (index - 1 + count) % count,
+            "Home" => 0,
+            "End" => count - 1,
+            _ => null,
+        };
+
+        if (target is not int next)
+        {
+            return;
+        }
+
+        await SelectAsync(next);
+
+        try
+        {
+            await buttons[next].FocusAsync();
+        }
+        catch
+        {
+            // Element may not be rendered yet (e.g. prerendering).
+        }
+    }
+}

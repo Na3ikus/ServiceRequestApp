@@ -11,12 +11,12 @@ public partial class DashboardStats : ServiceDeskSystem.Components.UI.Base.BaseC
     protected int displayOpenTickets;
     protected int displayCriticalTickets;
     protected int displayMyTickets;
+    protected int criticalTickets;
 
     private readonly CancellationTokenSource animationCts = new ();
 
     private int totalTickets;
     private int openTickets;
-    private int criticalTickets;
     private int myTickets;
 
     [Inject]
@@ -61,9 +61,6 @@ public partial class DashboardStats : ServiceDeskSystem.Components.UI.Base.BaseC
 
         _ = this.AnimateNumbersAsync(animationToken);
     }
-
-    private static int GetPercentage(int part, int total) =>
-        total > 0 ? (int)Math.Round((double)part / total * 100) : 0;
 
     private async Task AnimateNumbersAsync(CancellationToken cancellationToken)
     {

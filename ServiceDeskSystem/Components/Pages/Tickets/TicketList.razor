@@ -1,301 +1,52 @@
 @page "/tickets"
 
-@using ServiceDeskSystem.Components.Features
 @inherits BaseComponent
 @rendermode InteractiveServer
 
 <!-- Created by Nazar "N1h3" Hutsol -->
 <div class="max-w-7xl mx-auto p-4 sm:p-6">
-    <!-- Header Hero -->
-    <div class="page-hero relative overflow-hidden bg-gradient-to-br from-indigo-600 via-blue-700 to-indigo-800 rounded-3xl shadow-lg p-6 sm:p-8 mb-8 border border-white/10 dark:border-gray-800 group">
-        <!-- Background Decoration -->
-        <div class="page-hero-decor absolute top-0 right-0 -mr-10 -mt-10 w-48 h-48 rounded-full bg-white/10 blur-2xl pointer-events-none group-hover:scale-110 transition-transform duration-700"></div>
-        <div class="page-hero-decor absolute bottom-0 left-0 -ml-10 -mb-10 w-64 h-64 rounded-full bg-blue-500/20 blur-2xl pointer-events-none group-hover:scale-110 transition-transform duration-700"></div>
-        
-        <div class="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
-            <div class="text-white">
-                <h1 class="text-2xl sm:text-3xl font-extrabold mb-1 tracking-tight flex items-center gap-3">
-                    <span class="p-2 bg-white/10 rounded-lg backdrop-blur-sm inline-flex">
-                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
-                        </svg>
-                    </span>
-                    @L.Translate("tickets.title")
-                </h1>
-                <p class="text-indigo-100 text-sm sm:text-base">
-                    @L.Translate("tickets.subtitle")
-                </p>
-            </div>
-            
-            <div class="flex items-center gap-3 flex-wrap">
-                <!-- View Mode Toggle -->
-                <div class="flex items-center bg-black/20 backdrop-blur-md rounded-xl p-1 border border-white/10">
-                    <button @onclick="@(() => SetViewModeAsync("Table"))"
-                        class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm sm:text-base font-semibold transition-all duration-200
-                               @(ViewMode == "Table" ? "bg-white !text-blue-700 shadow-sm" : "text-white/90 hover:text-white hover:bg-white/10")">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18M10 4v16M4 4h16a1 1 0 011 1v14a1 1 0 01-1 1H4a1 1 0 01-1-1V5a1 1 0 011-1z"></path>
-                        </svg>
-                        <span class="hidden sm:inline">@L.Translate("kanban.viewTable")</span>
-                    </button>
-                    <button @onclick="@(() => SetViewModeAsync("Kanban"))"
-                        class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm sm:text-base font-semibold transition-all duration-200
-                               @(ViewMode == "Kanban" ? "bg-white !text-blue-700 shadow-sm" : "text-white/90 hover:text-white hover:bg-white/10")">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"></path>
-                        </svg>
-                        <span class="hidden sm:inline">@L.Translate("kanban.viewKanban")</span>
-                    </button>
-                </div>
+    <PageHeader Segments="Segments">
+        <Actions>
+            <SegmentedControl Label="@L.Translate("settings.defaultView")" Options="ViewOptions"
+                              Value="@ViewMode" ValueChanged="SetViewModeAsync" />
+            <a href="create-ticket" class="btn-accent inline-flex items-center">@Heading("nav.newTicket")</a>
+        </Actions>
+    </PageHeader>
 
-                <a href="create-ticket"
-                    class="px-5 py-2.5 bg-white text-indigo-700 hover:bg-indigo-50 rounded-xl font-bold font-inter shadow-lg hover:shadow-xl transition-all flex items-center gap-2 transform hover:-translate-y-0.5 text-sm sm:text-base">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                    </svg>
-                    <span class="hidden sm:inline">@L.Translate("nav.newTicket")</span>
-                </a>
-            </div>
-        </div>
+    <h2 class="mt-2 mb-2 font-mono text-13 text-muted"># @Heading("home.overview")</h2>
+    <div class="mb-8">
+        <DashboardStats />
     </div>
-
-    <DashboardStats />
-
-    <!-- Filters Section — only in Table mode -->
-    @if (ViewMode == "Table")
-    {
-        <div class="bg-white dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700/50 overflow-hidden mb-6 transition-all duration-200">
-            <div class="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-gray-800/50 dark:to-gray-800/30 px-6 py-4 border-b border-gray-200 dark:border-gray-700/50">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-3">
-                        <div class="p-2 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg shadow-md">
-                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z">
-                                </path>
-                            </svg>
-                        </div>
-                        <div>
-                            <h3 class="text-base font-semibold text-gray-800 dark:text-white">@L.Translate("search.title")</h3>
-                            <p class="text-xs text-gray-500 dark:text-gray-400">@L.Translate("search.subtitle")</p>
-                        </div>
-                    </div>
-                    @if (!string.IsNullOrEmpty(SearchQuery) || SelectedPriority != "All" || SelectedStatus != "All" || SelectedType != "All")
-                    {
-                        <button @onclick="ClearFilters"
-                            class="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium flex items-center gap-1 transition-colors">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
-                                </path>
-                            </svg>
-                            @L.Translate("search.clearFilters")
-                        </button>
-                    }
-                </div>
-            </div>
-
-            <div class="p-6">
-                <div class="space-y-5">
-                    <!-- Search -->
-                    <div class="group">
-                        <label class="block text-sm font-bold text-gray-800 dark:text-white mb-3 flex items-center gap-2">
-                            <svg class="w-5 h-5 text-blue-500 dark:text-blue-400 group-hover:scale-110 transition-transform"
-                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                            </svg>
-                            <span class="text-base">@L.Translate("search.label")</span>
-                        </label>
-                        <div class="relative">
-                            <input type="text" @bind-value="SearchQuery" @bind-value:event="oninput"
-                                placeholder="@L.Translate("tickets.searchPlaceholder")"
-                                class="search-input w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600/50 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800/50 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 transition-all duration-200 hover:border-gray-300 dark:hover:border-gray-500/80">
-                            @if (!string.IsNullOrEmpty(SearchQuery))
-                            {
-                                <button @onclick="@(() => SearchQuery = string.Empty)"
-                                    class="absolute right-3 top-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M6 18L18 6M6 6l12 12"></path>
-                                    </svg>
-                                </button>
-                            }
-                        </div>
-                    </div>
-
-                    <!-- Type, Priority and Status - Side by Side -->
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <!-- Type Filter -->
-                        <div class="group">
-                            <label class="block text-sm font-bold text-gray-800 dark:text-white mb-2 flex items-center gap-2">
-                                <svg class="w-5 h-5 text-purple-500 dark:text-purple-400 group-hover:scale-110 transition-transform"
-                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z">
-                                    </path>
-                                </svg>
-                                <span class="text-base">@L.Translate("search.typeLabel")</span>
-                            </label>
-                            <div class="relative">
-                                <select @onchange="OnTypeChanged" value="@SelectedType"
-                                    class="filter-select w-full px-4 py-2 border-2 border-gray-200 dark:border-gray-600/50 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white dark:bg-gray-800/50 text-gray-900 dark:text-white transition-all duration-200 hover:border-gray-300 dark:hover:border-gray-500/80 cursor-pointer text-sm">
-                                    <option value="All">@L.Translate("tickets.allTypes")</option>
-                                    <option value="Bug">@L.Translate("ticketType.bug")</option>
-                                    <option value="Support">@L.Translate("ticketType.support")</option>
-                                    <option value="Consultation">@L.Translate("ticketType.consultation")</option>
-                                    <option value="Project">@L.Translate("ticketType.project")</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <!-- Priority Filter -->
-                        <div class="group">
-                            <label class="block text-sm font-bold text-gray-800 dark:text-white mb-2 flex items-center gap-2">
-                                <svg class="w-5 h-5 text-orange-500 dark:text-orange-400 group-hover:scale-110 transition-transform"
-                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
-                                    </path>
-                                </svg>
-                                <span class="text-base">@L.Translate("search.priorityLabel")</span>
-                            </label>
-                            <div class="relative">
-                                <select @onchange="OnPriorityChanged" value="@SelectedPriority"
-                                    class="filter-select w-full px-4 py-2 border-2 border-gray-200 dark:border-gray-600/50 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white dark:bg-gray-800/50 text-gray-900 dark:text-white transition-all duration-200 hover:border-gray-300 dark:hover:border-gray-500/80 cursor-pointer text-sm">
-                                    <option value="All">@L.Translate("tickets.allPriorities")</option>
-                                    <option value="Low">@L.Translate("priority.low")</option>
-                                    <option value="Medium">@L.Translate("priority.medium")</option>
-                                    <option value="High">@L.Translate("priority.high")</option>
-                                    <option value="Critical">@L.Translate("priority.critical")</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <!-- Status Filter -->
-                        <div class="group">
-                            <label class="block text-sm font-bold text-gray-800 dark:text-white mb-2 flex items-center gap-2">
-                                <svg class="w-5 h-5 text-green-500 dark:text-green-400 group-hover:scale-110 transition-transform"
-                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
-                                <span class="text-base">@L.Translate("search.statusLabel")</span>
-                            </label>
-                            <div class="relative">
-                                <select @onchange="OnStatusChanged" value="@SelectedStatus"
-                                    class="filter-select w-full px-4 py-2 border-2 border-gray-200 dark:border-gray-600/50 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white dark:bg-gray-800/50 text-gray-900 dark:text-white transition-all duration-200 hover:border-gray-300 dark:hover:border-gray-500/80 cursor-pointer text-sm">
-                                    <option value="All">@L.Translate("tickets.allStatuses")</option>
-                                    <option value="Open">@L.Translate("status.open")</option>
-                                    <option value="In Progress">@L.Translate("status.inProgress")</option>
-                                    <option value="Open/InProgress">@L.Translate("tickets.openOrInProgress")</option>
-                                    <option value="Resolved">@L.Translate("status.resolved")</option>
-                                    <option value="Closed">@L.Translate("status.closed")</option>
-                                    <option value="Closed/Resolved">@L.Translate("tickets.closedOrResolved")</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    }
 
     @if (Tickets is null)
     {
-        <div class="animate-pulse space-y-6">
-            <!-- Filters Skeleton -->
-            <div class="bg-white dark:bg-gray-800/80 rounded-2xl p-4 sm:p-6 shadow-sm">
-                <div class="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/3 sm:w-1/4 mb-4"></div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="h-10 bg-gray-200 dark:bg-gray-700 rounded-xl w-full"></div>
-                    <div class="h-10 bg-gray-200 dark:bg-gray-700 rounded-xl w-full"></div>
-                </div>
-            </div>
-
-            <!-- Table Skeleton -->
-            <div class="bg-white dark:bg-gray-800/80 rounded-2xl p-4 sm:p-6 shadow-sm">
-                <!-- Table Header Skeleton -->
-                <div class="hidden sm:flex gap-4 mb-4 border-b border-gray-200 dark:border-gray-700 pb-4">
-                    <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
-                    <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4"></div>
-                    <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24"></div>
-                    <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24"></div>
-                    <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24"></div>
-                </div>
-                
-                <!-- Table Rows Skeleton -->
-                <div class="space-y-4">
-                    @for (int i = 0; i < 5; i++)
-                    {
-                        <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 sm:items-center p-3 sm:p-0 rounded-lg sm:rounded-none bg-gray-50 dark:bg-gray-700/30 sm:bg-transparent dark:sm:bg-transparent">
-                            <div class="flex justify-between sm:justify-start sm:w-16">
-                                <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-12"></div>
-                                <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-20 sm:hidden"></div>
-                            </div>
-                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 sm:w-1/4"></div>
-                            <div class="flex sm:contents gap-2 mt-2 sm:mt-0">
-                                <div class="h-6 bg-gray-200 dark:bg-gray-700 rounded-full w-24"></div>
-                                <div class="h-6 bg-gray-200 dark:bg-gray-700 rounded-lg w-24"></div>
-                            </div>
-                        </div>
-                    }
-                </div>
-            </div>
+        <div class="space-y-2" aria-busy="true">
+            @for (var i = 0; i < 6; i++)
+            {
+                <div class="h-11 rounded-md bg-surface"></div>
+            }
         </div>
     }
-    else if (ViewMode == "Kanban")
+    else if (Tickets.Count == 0)
     {
-        @if (!Tickets.Any())
-        {
-            <div class="bg-white dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-lg p-8 sm:p-12 text-center border border-transparent dark:border-gray-700/50">
-                <div class="w-20 h-20 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2">
-                        </path>
-                    </svg>
-                </div>
-                <h3 class="text-xl font-semibold text-gray-700 dark:text-white mb-2">@L.Translate("tickets.noTickets")</h3>
-                <p class="text-gray-500 dark:text-gray-400 mb-6">@L.Translate("tickets.createFirst")</p>
-                <a href="create-ticket"
-                    class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                    </svg>
-                    @L.Translate("tickets.createTicket")
-                </a>
-            </div>
-        }
-        else
-        {
-            <KanbanBoard Tickets="FilteredTickets ?? []"
-                         CurrentUserId="CurrentUserId"
-                         IsAdmin="IsAdmin"
-                         OnStatusChanged="HandleKanbanStatusChangedAsync" />
-        }
+        <EmptyState Message="@L.Translate("tickets.noTickets")" ActionText="@Heading("nav.newTicket")"
+                    OnAction="@(() => Navigation.NavigateTo("/create-ticket"))" />
     }
     else
     {
-        @if (FilteredTickets is null || !FilteredTickets.Any())
+        <TicketFilters Value="Filter" ValueChanged="SetFilter" Shown="FilteredTickets.Count" Total="Tickets.Count" />
+
+        @if (FilteredTickets.Count == 0)
         {
-            <div class="bg-white dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-lg p-8 sm:p-12 text-center border border-transparent dark:border-gray-700/50">
-                <div class="w-20 h-20 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2">
-                        </path>
-                    </svg>
-                </div>
-                <h3 class="text-xl font-semibold text-gray-700 dark:text-white mb-2">@L.Translate("tickets.noTickets")</h3>
-                <p class="text-gray-500 dark:text-gray-400 mb-6">@L.Translate("tickets.createFirst")</p>
-                <a href="create-ticket"
-                    class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                    </svg>
-                    @L.Translate("tickets.createTicket")
-                </a>
-            </div>
+            <EmptyState Message="@L.Translate("tickets.nothingFound")" ActionText="@Heading("search.clearFilters")"
+                        OnAction="@(() => SetFilter(new TicketFilterState()))" />
+        }
+        else if (ViewMode == KanbanView)
+        {
+            <KanbanBoard Tickets="FilteredTickets"
+                         CurrentUserId="CurrentUserId"
+                         IsAdmin="IsAdmin"
+                         OnStatusChanged="HandleKanbanStatusChangedAsync" />
         }
         else
         {

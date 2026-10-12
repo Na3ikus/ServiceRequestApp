@@ -1,39 +1,21 @@
 @namespace ServiceDeskSystem.Components.UI
+@using ServiceDeskSystem.Application.Services.Localization
 @using ServiceDeskSystem.Application.Services.Toasts.Models
+@inject ILocalizationService L
 
-<div class="toast-container">
+@* toast-container: position from the toast-position setting, see Styles/input.css. *@
+<div class="toast-container pointer-events-none fixed z-[100000] flex flex-col gap-2" role="status" aria-live="polite">
     @foreach (var toast in Toasts)
     {
-        <div @key="toast.Id" class="toast toast-@toast.Type.ToString().ToLower() @(toast.IsHiding ? "hiding" : "")">
-            @switch (toast.Type)
-            {
-                case ToastType.Success:
-                    <svg class="toast-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                    </svg>
-                    break;
-                case ToastType.Error:
-                    <svg class="toast-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                    break;
-                case ToastType.Warning:
-                    <svg class="toast-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                    </svg>
-                    break;
-                default:
-                    <svg class="toast-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                    break;
-            }
-            <span class="toast-message">@toast.Message</span>
-            <button @onclick="@(() => OnRemoveToast.InvokeAsync(toast))" class="toast-close">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
-            </button>
+        <div @key="toast.Id" data-toast="@toast.Type.ToString().ToLowerInvariant()"
+             class="pointer-events-auto flex min-w-[300px] max-w-[400px] items-baseline gap-3 rounded-lg border border-line bg-surface px-3.5 py-2.5 @(toast.IsHiding ? "animate-toast-out" : "animate-toast-in")">
+            <span data-toast-label class="shrink-0 font-mono text-13 @LabelClass(toast.Type)">@Label(toast.Type)</span>
+            <span data-toast-message class="flex-1 text-13 text-fg">@toast.Message</span>
+            <button type="button"
+                    @onclick="@(() => OnRemoveToast.InvokeAsync(toast))"
+                    data-toast-close
+                    class="shrink-0 font-mono text-15 leading-none text-muted hover:text-fg"
+                    aria-label="@L.Translate("common.close")">×</button>
         </div>
     }
 </div>
@@ -44,4 +26,20 @@
 
     [Parameter]
     public EventCallback<ToastMessage> OnRemoveToast { get; set; }
+
+    // Mono type labels instead of colored icons.
+    private static string Label(ToastType type) => type switch
+    {
+        ToastType.Success => "ok",
+        ToastType.Error => "err",
+        ToastType.Warning => "warn",
+        _ => "info",
+    };
+
+    private static string LabelClass(ToastType type) => type switch
+    {
+        ToastType.Success => "text-accent-ink",
+        ToastType.Error or ToastType.Warning => "text-danger",
+        _ => "text-muted",
+    };
 }

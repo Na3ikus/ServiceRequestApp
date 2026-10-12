@@ -11,9 +11,6 @@ public class AttachmentService : IAttachmentService
     private readonly IAuditService _auditService;
     private readonly IWebHostEnvironment _env;
 
-    private const long MaxFileSize = 15 * 1024 * 1024; // 15 MB
-    private static readonly string[] AllowedExtensions = { ".png", ".jpg", ".jpeg", ".gif", ".webp", ".pdf", ".txt", ".log", ".json", ".csv", ".docx", ".xlsx", ".zip", ".rar", ".7z" };
-
     public AttachmentService(IRepositoryFacadeFactory repositoryFacadeFactory, IAuditService auditService, IWebHostEnvironment env)
     {
         this._repositoryFacadeFactory = repositoryFacadeFactory;
@@ -77,16 +74,17 @@ public class AttachmentService : IAttachmentService
 
     public async Task<(bool Success, string? ErrorMessage, Attachment? Attachment)> UploadAttachmentAsync(int ticketId, string fileName, string contentType, Stream contentStream, int currentUserId, int? commentId = null)
     {
-        if (contentStream.Length > MaxFileSize)
+        if (contentStream.Length > AttachmentRules.MaxFileSize)
         {
-            return (false, $"File size exceeds the limit of {MaxFileSize / 1024 / 1024} MB.", null);
+            return (false, $"File size exceeds the limit of {AttachmentRules.MaxFileSize / 1024 / 1024} MB.", null);
         }
 
-        var extension = Path.GetExtension(fileName).ToLowerInvariant();
-        if (string.IsNullOrWhiteSpace(extension) || !AllowedExtensions.Contains(extension))
+        if (!AttachmentRules.IsAllowedType(fileName))
         {
             return (false, "File type is not allowed.", null);
         }
+
+        var extension = Path.GetExtension(fileName).ToLowerInvariant();
 
         await using var repo = this._repositoryFacadeFactory.Create();
 

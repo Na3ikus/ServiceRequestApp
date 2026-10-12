@@ -1,0 +1,56 @@
+@inherits BaseComponent
+
+@* rm <kind> "<name>"? as a table row — the service runs only after "y". *@
+<tr data-delete-prompt>
+    <td colspan="@Columns" class="border-b border-danger/50 bg-danger/[.06] px-3 py-2.5">
+        <ConfirmPrompt Label="@($"{Kind} \"{Name}\"")"
+                       Note="@(string.IsNullOrEmpty(Detail) ? Heading("admin.deleteNote") : $"{Detail} · {Heading("admin.deleteNote")}")"
+                       ConfirmText="@Heading("common.delete")" IsBusy="IsDeleting" OnConfirm="OnConfirm" OnCancel="OnCancel">
+            <Target>@Kind <b class="font-medium text-fg">"@Name"</b></Target>
+        </ConfirmPrompt>
+    </td>
+</tr>
+
+@code {
+    /// <summary>
+    /// Gets or sets the number of table columns the row spans.
+    /// </summary>
+    [Parameter]
+    public int Columns { get; set; } = 1;
+
+    /// <summary>
+    /// Gets or sets the record kind in English (<c>product</c>, <c>user</c>…).
+    /// </summary>
+    [Parameter]
+    public string Kind { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets the record name.
+    /// </summary>
+    [Parameter]
+    public string Name { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets an optional translated detail shown before "this cannot be undone".
+    /// </summary>
+    [Parameter]
+    public string? Detail { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether the delete is running.
+    /// </summary>
+    [Parameter]
+    public bool IsDeleting { get; set; }
+
+    /// <summary>
+    /// Gets or sets the callback run on "y".
+    /// </summary>
+    [Parameter]
+    public EventCallback OnConfirm { get; set; }
+
+    /// <summary>
+    /// Gets or sets the callback run on "N" or Esc.
+    /// </summary>
+    [Parameter]
+    public EventCallback OnCancel { get; set; }
+}
