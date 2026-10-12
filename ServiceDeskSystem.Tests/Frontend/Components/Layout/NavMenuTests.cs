@@ -66,6 +66,14 @@ public class NavMenuTests
     }
 
     [Test]
+    public void Active_item_gets_an_accent_tint_in_light_theme()
+    {
+        var cut = RenderAs(UserRole.Admin);
+
+        cut.FindAll("li a").Should().OnlyContain(a => a.ClassList.Contains("light:[&.active]:bg-accent/22"));
+    }
+
+    [Test]
     public void Has_logo_and_no_collapse_button()
     {
         var cut = RenderAs(UserRole.Admin);

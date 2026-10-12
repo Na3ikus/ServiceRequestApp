@@ -2,7 +2,7 @@
 
 @* Inline edit form in a table row. Enter in a single-line input submits the form (save); Esc anywhere in the row cancels. *@
 <tr data-edit-row @onkeydown="OnKeyDownAsync">
-    <td colspan="@Columns" class="border-b border-line bg-surface px-4 py-3.5 shadow-[inset_2px_0_0_rgb(var(--accent))]">
+    <td colspan="@Columns" class="border-b border-line bg-surface light:bg-accent/10 px-4 py-3.5 shadow-[inset_2px_0_0_rgb(var(--accent))]">
         <form novalidate aria-label="@Label" @onsubmit="SubmitAsync" @onsubmit:preventDefault="true">
             @ChildContent
             @if (!string.IsNullOrEmpty(Error))

@@ -1,4 +1,5 @@
 /** @type {import('tailwindcss').Config} */
+const plugin = require('tailwindcss/plugin');
 const token = (name) => `rgb(var(--${name}) / <alpha-value>)`;
 
 module.exports = {
@@ -42,6 +43,11 @@ module.exports = {
                 '24': '1.5rem',
                 '40': '2.5rem',
             },
+            // Accent tints in light theme: hover 7 %, open / editing rows 10 %, active nav item 22 %.
+            opacity: {
+                '7': '0.07',
+                '22': '0.22',
+            },
             animation: {
                 'fade-in': 'fadeIn 0.3s ease-in-out',
                 'slide-up': 'slideUp 0.4s ease-out',
@@ -59,5 +65,8 @@ module.exports = {
             }
         },
     },
-    plugins: [],
+    plugins: [
+        // light: — the counterpart of dark: for light-only styles (accent tints).
+        plugin(({ addVariant }) => addVariant('light', 'html:not(.dark) &')),
+    ],
 }

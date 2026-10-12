@@ -69,6 +69,16 @@ public class AdminRowEditingTests
     }
 
     [Test]
+    public void Edit_row_uses_the_accent_tint_in_light_theme()
+    {
+        var cut = RenderProducts();
+
+        cut.Find("tr[data-row='2'] [data-action=edit]").Click();
+
+        cut.Find("[data-edit-row] td").ClassList.Should().Contain(["light:bg-accent/10", "bg-surface"]);
+    }
+
+    [Test]
     public void Escape_closes_the_row_without_saving()
     {
         var cut = RenderProducts();

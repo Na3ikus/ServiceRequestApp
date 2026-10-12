@@ -192,6 +192,19 @@ public class AuditLogsPageTests
     }
 
     [Test]
+    public void The_open_event_uses_the_accent_tint_in_light_theme()
+    {
+        _logs = [Log(2, Utc(Today, 9)), Log(1, Utc(Today, 8))];
+        var cut = Render();
+
+        Row(cut, 1).Click();
+
+        Row(cut, 1).ClassList.Should().Contain(["light:bg-accent/10", "bg-surface"]);
+        cut.Find("[data-detail='1']").ClassList.Should().Contain("light:bg-accent/10");
+        Row(cut, 2).ClassList.Should().NotContain("light:bg-accent/10").And.Contain("light:hover:bg-accent/7");
+    }
+
+    [Test]
     public void Ticket_events_link_to_the_ticket()
     {
         _logs = [Log(1, Utc(Today, 9), entity: "Ticket", entityId: "42")];

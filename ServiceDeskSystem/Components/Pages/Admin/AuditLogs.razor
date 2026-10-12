@@ -23,7 +23,7 @@
                       class="inline-flex items-center gap-1.5 font-mono @(IsRealtimeConnected ? "text-fg" : "text-muted")">
                     @if (IsRealtimeConnected)
                     {
-                        <span aria-hidden="true" class="inline-block h-[7px] w-[7px] rounded-full bg-accent"></span><text>live</text>
+                        <span aria-hidden="true" class="inline-block h-[7px] w-[7px] rounded-full bg-accent-ink"></span><text>live</text>
                     }
                     else
                     {
@@ -147,7 +147,7 @@
                             var summary = GetLogDisplaySummary(log);
                             <button type="button" data-event="@log.Id" aria-expanded="@(open ? "true" : "false")"
                                     aria-controls="@(open ? $"audit-event-{log.Id}" : null)"
-                                    class="flex w-full flex-wrap items-baseline gap-x-3 rounded px-2 py-1.5 text-left font-mono text-13 leading-relaxed hover:bg-surface focus-visible:outline focus-visible:outline-1 focus-visible:-outline-offset-2 focus-visible:outline-accent-ink md:grid md:grid-cols-[4.5rem_2.75rem_8rem_11rem_9rem_minmax(0,1fr)] md:gap-3 @(open ? "bg-surface" : null)"
+                                    class="flex w-full flex-wrap items-baseline gap-x-3 rounded px-2 py-1.5 text-left font-mono text-13 leading-relaxed hover:bg-surface light:hover:bg-accent/7 focus-visible:outline focus-visible:outline-1 focus-visible:-outline-offset-2 focus-visible:outline-accent-ink md:grid md:grid-cols-[4.5rem_2.75rem_8rem_11rem_9rem_minmax(0,1fr)] md:gap-3 @(open ? "bg-surface light:bg-accent/10" : null)"
                                     @onclick="() => ToggleLog(log.Id)">
                                 <span data-col="time" class="tabular-nums text-muted">@ToLocal(log.Timestamp).ToString("HH:mm:ss", CultureInfo.InvariantCulture)</span>
                                 <span data-col="level" class="@level.Class">@level.Text</span>
@@ -202,7 +202,7 @@
             who.Add(payload.IpAddress);
         }
 
-        <div id="audit-event-@log.Id" data-detail="@log.Id" class="mb-2 bg-surface px-4 py-3.5 shadow-[inset_2px_0_0_rgb(var(--accent))]">
+        <div id="audit-event-@log.Id" data-detail="@log.Id" class="mb-2 bg-surface light:bg-accent/10 px-4 py-3.5 shadow-[inset_2px_0_0_rgb(var(--accent))]">
             <dl class="mb-3 grid grid-cols-[4.5rem_minmax(0,1fr)] gap-x-3.5 gap-y-1 text-14">
                 <dt class="pt-px font-mono text-13 text-muted">@Heading("audit.when")</dt>
                 <dd>

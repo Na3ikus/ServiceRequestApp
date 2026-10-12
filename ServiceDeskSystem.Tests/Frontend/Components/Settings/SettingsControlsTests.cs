@@ -49,6 +49,16 @@ public class SettingsControlsTests
     }
 
     [Test]
+    public void SegmentedControl_FillsTheSelectedOptionWithTheAccentInLightTheme()
+    {
+        var cut = RenderSegmented("compact", _ => { });
+
+        var radios = cut.FindAll("button[role=radio]").ToList();
+        radios[1].ClassList.Should().Contain(["light:bg-accent", "light:text-on-accent", "bg-fg", "text-canvas"]);
+        radios[0].ClassList.Should().NotContain(["light:bg-accent", "bg-fg"]);
+    }
+
+    [Test]
     public void SegmentedControl_ClickRaisesValueChanged()
     {
         string? changed = null;

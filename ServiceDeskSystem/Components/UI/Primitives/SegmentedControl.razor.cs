@@ -62,7 +62,9 @@ public partial class SegmentedControl : ComponentBase
     private static string ButtonClass(bool selected, int index)
     {
         var border = index > 0 ? " border-l border-line" : string.Empty;
-        var state = selected ? " bg-fg text-canvas" : " text-muted hover:text-fg";
+
+        // The checked option is filled with the accent in light theme and with fg in dark.
+        var state = selected ? " bg-fg text-canvas light:bg-accent light:text-on-accent" : " text-muted hover:text-fg";
         return "px-3 py-1.5 transition-colors focus-visible:outline focus-visible:outline-1 focus-visible:outline-accent-ink focus-visible:-outline-offset-2" + border + state;
     }
 

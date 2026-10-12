@@ -16,7 +16,7 @@
         --fg: 23 23 23;
         --muted: 115 115 115;
         --accent: 198 244 50;
-        --accent-ink: 0 0 0;
+        --accent-ink: 77 124 15;
         --on-accent: 0 0 0;
         --danger: 220 38 38;
 
@@ -42,6 +42,12 @@
     html.dark[data-accent="amber"] { --accent: 255 176 0; }
     html.dark[data-accent="phosphor"] { --accent: 51 255 153; }
     html.dark[data-accent="ice"] { --accent: 77 232 240; }
+
+    /* Accent ink (text and marks) in light theme: a dark shade of the accent, at least 4.5:1 on white
+       and on the 10 % accent tint. Lime is the :root value; dark theme uses the accent itself. */
+    html:not(.dark)[data-accent="amber"] { --accent-ink: 180 83 9; }
+    html:not(.dark)[data-accent="phosphor"] { --accent-ink: 4 120 87; }
+    html:not(.dark)[data-accent="ice"] { --accent-ink: 14 116 144; }
 
     html[data-contrast="high"] {
         --muted: 64 64 64;
