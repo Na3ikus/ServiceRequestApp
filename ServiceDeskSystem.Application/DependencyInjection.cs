@@ -32,6 +32,7 @@ public static class DependencyInjection
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly()));
         services.AddScoped<ServiceDeskSystem.Application.Common.IDomainEventDispatcher, ServiceDeskSystem.Application.Common.MediatRDomainEventDispatcher>();
 
+        services.TryAddSingleton(TimeProvider.System);
         services.AddScoped<ITicketService, TicketService>();
         services.AddScoped<ITicketAssignmentService, TicketService>();
         services.AddScoped<ITicketStatisticsService, TicketService>();

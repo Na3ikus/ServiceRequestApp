@@ -7,8 +7,8 @@ public interface ITicketRepository : IRepository<Ticket>
 {
     Task<IEnumerable<Ticket>> GetAllWithIncludesAsync();
 
-    /// <summary>All tickets with their product and tags only (read-only, for the statistics page).</summary>
-    Task<List<Ticket>> GetAllWithProductAndTagsAsync();
+    /// <summary>Every ticket projected to the fields the statistics page needs (product name and tags included).</summary>
+    Task<List<TicketStatisticsRow>> GetStatisticsRowsAsync();
     Task<IEnumerable<Ticket>> GetActiveTicketsForSlaAsync();
     Task<(IEnumerable<Ticket> Items, int TotalCount)> GetPagedWithIncludesAsync(int page, int pageSize);
 

@@ -81,7 +81,8 @@ public partial class StatisticsPage : BaseComponent
     protected bool HasAccess => this.IsAdminOrDeveloper;
 
     /// <summary>
-    /// Gets the period length in days.
+    /// Gets the requested period length in days (the segmented control); the figures and headings follow
+    /// <see cref="Report"/>'s period, which differs while a new period loads.
     /// </summary>
     protected int Days { get; private set; } = 30;
 
@@ -145,7 +146,8 @@ public partial class StatisticsPage : BaseComponent
 
     protected async Task SelectPeriodAsync(string value)
     {
-        if (!int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var days) || days == this.Days)
+        if (!int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var days)
+            || (days == this.Days && this.Report?.Days == days))
         {
             return;
         }
@@ -198,9 +200,9 @@ public partial class StatisticsPage : BaseComponent
     protected string Number(int value) => value.ToString("N0", this.UiCulture);
 
     /// <summary>
-    /// A section label with the period suffix, which stays English: <c>created · 30d</c>.
+    /// A section label with the shown report's period, which stays English: <c>created · 30d</c>.
     /// </summary>
-    protected string WithPeriod(string key) => $"{this.Heading(key)} · {this.Days}d";
+    protected string WithPeriod(string key) => $"{this.Heading(key)} · {this.Report?.Days ?? this.Days}d";
 
     protected string DayTitle(DailyFlowDto day)
     {
@@ -301,6 +303,8 @@ public partial class StatisticsPage : BaseComponent
         {
             if (version == this.loadVersion)
             {
+                // Back to the period that is still shown, so the control matches it and choosing the period again retries.
+                this.Days = this.Report?.Days ?? this.Days;
                 await this.ToastService.ShowToastAsync($"{this.L.Translate("stats.loadFailed")}: {ex.Message}", ToastType.Error);
             }
         }

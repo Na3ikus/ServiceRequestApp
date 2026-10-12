@@ -65,13 +65,22 @@ namespace ServiceDeskSystem.Infrastructure.Data.Repository
             return topDevs.Select(x => (x.Login ?? "?", x.Count)).ToList();
         }
 
-        public async Task<List<Ticket>> GetAllWithProductAndTagsAsync()
+        public async Task<List<TicketStatisticsRow>> GetStatisticsRowsAsync()
         {
+            // Projected in SQL: the rich-text columns (description, steps, notes) are never read.
             return await this.Context.Tickets
-                .Include(t => t.Product)
-                .Include(t => t.Tags)
-                .AsSplitQuery()
                 .AsNoTracking()
+                .Select(t => new TicketStatisticsRow(
+                    t.Id,
+                    t.CreatedAt,
+                    t.Status,
+                    t.Priority,
+                    t.Type,
+                    t.DeveloperId,
+                    t.ProductId,
+                    t.Product != null ? t.Product.Name : null,
+                    t.Tags.Select(tag => new TicketTagRow(tag.Id, tag.Name)).ToList()))
+                .AsSplitQuery()
                 .ToListAsync()
                 .ConfigureAwait(false);
         }

@@ -17,7 +17,8 @@ public sealed class TicketService(
     IRealtimeNotifier realtimeNotifier,
     ServiceDeskSystem.Application.Common.IDomainEventDispatcher domainEventDispatcher,
     IMemoryCache memoryCache,
-    IAuditService? auditService = null)
+    IAuditService? auditService = null,
+    TimeProvider? timeProvider = null)
     : ITicketService, ITicketAssignmentService, ITicketStatisticsService
 {
     private void ClearDashboardCache()
@@ -581,12 +582,12 @@ public sealed class TicketService(
             DateOnly.FromDateTime(TimeZoneInfo.ConvertTimeFromUtc(DateTime.SpecifyKind(utc, DateTimeKind.Utc), zone));
 
         // The period is whole days in the user's zone: today and the days - 1 before it.
-        var to = LocalDate(DateTime.UtcNow);
+        var to = LocalDate((timeProvider ?? TimeProvider.System).GetUtcNow().UtcDateTime);
         var from = to.AddDays(-(days - 1));
         bool InPeriod(DateOnly date) => date >= from && date <= to;
 
         await using var repo = repositoryFacadeFactory.Create();
-        var tickets = await repo.Tickets.GetAllWithProductAndTagsAsync().ConfigureAwait(false);
+        var tickets = await repo.Tickets.GetStatisticsRowsAsync().ConfigureAwait(false);
         var firstResolved = await repo.TicketStatusHistory.GetFirstResolvedTimesAsync().ConfigureAwait(false);
         var users = await repo.Users.GetAllWithPersonAsync().ConfigureAwait(false);
 
@@ -640,14 +641,14 @@ public sealed class TicketService(
             .ToList();
 
         var products = rows
-            .Where(r => r.Ticket.Product is not null)
-            .GroupBy(r => r.Ticket.Product!.Id)
+            .Where(r => r.Ticket.ProductId is not null)
+            .GroupBy(r => r.Ticket.ProductId!.Value)
             .Select(g =>
             {
                 var productResolved = g.Where(r => r.ResolutionTime is not null).ToList();
                 return new ProductStatisticsDto(
                     g.Key,
-                    g.First().Ticket.Product!.Name,
+                    g.First().Ticket.ProductName ?? string.Empty,
                     g.Count(r => !IsDone(r.Ticket.Status)),
                     g.Count(r => r.CreatedOn is not null),
                     productResolved.Count,
@@ -706,7 +707,7 @@ public sealed class TicketService(
     /// A ticket with its period facts: the local day it was created and resolved on (<c>null</c> outside
     /// the period) and, when resolved in the period, the time it took.
     /// </summary>
-    private sealed record StatisticsTicket(Ticket Ticket, DateOnly? CreatedOn, DateOnly? ResolvedOn, TimeSpan? ResolutionTime);
+    private sealed record StatisticsTicket(TicketStatisticsRow Ticket, DateOnly? CreatedOn, DateOnly? ResolvedOn, TimeSpan? ResolutionTime);
 }
 
 

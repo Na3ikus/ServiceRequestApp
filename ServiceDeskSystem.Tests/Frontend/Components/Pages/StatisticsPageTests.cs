@@ -355,6 +355,7 @@ public class StatisticsPageTests
     [Test]
     public void A_slow_earlier_response_does_not_replace_a_newer_one()
     {
+        _report = Report(days: 30);
         var cut = Render();
         var slow = new TaskCompletionSource<StatisticsReportDto>();
         var fast = new TaskCompletionSource<StatisticsReportDto>();
@@ -364,16 +365,46 @@ public class StatisticsPageTests
         Option(cut, "7d").Click();
         Option(cut, "90d").Click();
 
-        // The previous report stays visible while loading.
+        // The previous report stays visible while loading, labelled with its own period; the control shows the request.
         Figure(cut, "created").Should().Be("12");
+        cut.Find("[data-figure=created] p:last-child").TextContent.Should().Be("# stats.created · 30d");
+        cut.Find("[data-section=trend] h2").TextContent.Should().Contain("· 30d");
+        Option(cut, "90d").GetAttribute("aria-checked").Should().Be("true");
         cut.Find("[data-report]").GetAttribute("aria-busy").Should().Be("true");
 
         cut.InvokeAsync(() => fast.SetResult(Report(days: 90, created: 90))).GetAwaiter().GetResult();
         cut.InvokeAsync(() => slow.SetResult(Report(days: 7, created: 7))).GetAwaiter().GetResult();
 
         cut.WaitForAssertion(() => Figure(cut, "created").Should().Be("90"));
+        cut.Find("[data-figure=created] p:last-child").TextContent.Should().Be("# stats.created · 90d");
         cut.Find("[data-report]").GetAttribute("aria-busy").Should().Be("false");
         cut.FindAll("[data-trend] [data-day]").Should().HaveCount(90);
+    }
+
+    [Test]
+    public void A_failed_period_switch_keeps_the_shown_period_and_can_be_retried()
+    {
+        _report = Report(days: 30);
+        var cut = Render();
+        var calls = 0;
+        _stats.Setup(s => s.GetStatisticsReportAsync(7, It.IsAny<TimeZoneInfo>()))
+            .Returns(() => ++calls == 1
+                ? Task.FromException<StatisticsReportDto>(new InvalidOperationException("timeout"))
+                : Task.FromResult(Report(days: 7, created: 7)));
+
+        Option(cut, "7d").Click();
+
+        _host.ToastService.Verify(t => t.ShowToastAsync(It.Is<string>(m => m.Contains("timeout")), ToastType.Error, It.IsAny<int>()), Times.Once);
+        Option(cut, "30d").GetAttribute("aria-checked").Should().Be("true");
+        Figure(cut, "created").Should().Be("12");
+        cut.Find("[data-figure=created] p:last-child").TextContent.Should().Be("# stats.created · 30d");
+
+        Option(cut, "7d").Click();
+
+        calls.Should().Be(2);
+        Option(cut, "7d").GetAttribute("aria-checked").Should().Be("true");
+        Figure(cut, "created").Should().Be("7");
+        cut.Find("[data-figure=created] p:last-child").TextContent.Should().Be("# stats.created · 7d");
     }
 
     [Test]

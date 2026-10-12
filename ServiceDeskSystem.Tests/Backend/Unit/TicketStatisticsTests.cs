@@ -25,6 +25,9 @@ namespace ServiceDeskSystem.Tests.Backend.Unit;
 [TestFixture]
 public class TicketStatisticsTests
 {
+    // A fixed "now": 12 Oct 2026 10:30 UTC is already 13 Oct (00:30) in Kiritimati and still 12 Oct in Honolulu.
+    private static readonly DateTimeOffset Now = new(2026, 10, 12, 10, 30, 0, TimeSpan.Zero);
+
     // UTC+14: the user's day is ahead of the server's and of UTC most of the time.
     private static readonly TimeZoneInfo Kiritimati = TimeZoneInfo.FindSystemTimeZoneById("Pacific/Kiritimati");
 
@@ -35,7 +38,7 @@ public class TicketStatisticsTests
     private IMemoryCache _memoryCache;
     private TicketService _service;
 
-    private List<Ticket> _ticketData;
+    private List<TicketStatisticsRow> _ticketData;
     private Dictionary<int, DateTime> _resolvedData;
     private List<User> _userData;
     private List<(int UserId, DateTime DateLogged, int Minutes)> _workLogData;
@@ -54,7 +57,7 @@ public class TicketStatisticsTests
         _workLogs = new Mock<IWorkLogRepository>();
         _memoryCache = new MemoryCache(new MemoryCacheOptions());
 
-        _tickets.Setup(r => r.GetAllWithProductAndTagsAsync()).ReturnsAsync(() => _ticketData);
+        _tickets.Setup(r => r.GetStatisticsRowsAsync()).ReturnsAsync(() => _ticketData);
         _history.Setup(r => r.GetFirstResolvedTimesAsync()).ReturnsAsync(() => _resolvedData);
         _users.Setup(r => r.GetAllWithPersonAsync()).ReturnsAsync(() => _userData);
         _workLogs.Setup(r => r.GetEntriesSinceAsync(It.IsAny<DateTime>())).ReturnsAsync(() => _workLogData);
@@ -74,7 +77,8 @@ public class TicketStatisticsTests
             new Mock<IRealtimeNotifier>().Object,
             new Mock<IDomainEventDispatcher>().Object,
             _memoryCache,
-            new Mock<IAuditService>().Object);
+            new Mock<IAuditService>().Object,
+            new FixedTimeProvider(Now));
     }
 
     [TearDown]
@@ -84,13 +88,13 @@ public class TicketStatisticsTests
     }
 
     private static DateOnly TodayIn(TimeZoneInfo zone) =>
-        DateOnly.FromDateTime(TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, zone));
+        DateOnly.FromDateTime(TimeZoneInfo.ConvertTimeFromUtc(Now.UtcDateTime, zone));
 
     /// <summary>UTC instant of a wall-clock time on <paramref name="day"/> in <paramref name="zone"/>.</summary>
     private static DateTime Utc(DateOnly day, int hour, int minute, TimeZoneInfo zone) =>
         TimeZoneInfo.ConvertTimeToUtc(day.ToDateTime(new TimeOnly(hour, minute)), zone);
 
-    private static Ticket NewTicket(
+    private static TicketStatisticsRow NewTicket(
         int id,
         DateTime createdAt,
         TicketStatus status = TicketStatus.Open,
@@ -99,18 +103,7 @@ public class TicketStatisticsTests
         int? developerId = null,
         Product? product = null,
         params Tag[] tags) =>
-        new()
-        {
-            Id = id,
-            CreatedAt = createdAt,
-            Status = status,
-            Priority = priority,
-            Type = type,
-            DeveloperId = developerId,
-            Product = product,
-            ProductId = product?.Id,
-            Tags = tags.ToList(),
-        };
+        new(id, createdAt, status, priority, type, developerId, product?.Id, product?.Name, tags.Select(t => new TicketTagRow(t.Id, t.Name)).ToList());
 
     private static User Developer(int id, string login, string first = "", string last = "", UserRole role = UserRole.Developer, bool active = true) =>
         new() { Id = id, Login = login, Role = role, IsActive = active, Person = new Person { FirstName = first, LastName = last } };
@@ -378,6 +371,39 @@ public class TicketStatisticsTests
     }
 
     [Test]
+    public async Task Repository_projects_tickets_with_product_name_and_tags()
+    {
+        var options = new DbContextOptionsBuilder<BugTrackerDbContext>()
+            .UseInMemoryDatabase($"StatisticsRows_{Guid.NewGuid()}")
+            .Options;
+        var created = new DateTime(2026, 10, 1, 9, 0, 0, DateTimeKind.Utc);
+
+        await using (var seed = new BugTrackerDbContext(options))
+        {
+            var billing = new Product { Id = 1, Name = "Billing" };
+            var backend = new Tag { Id = 4, Name = "backend" };
+            seed.Products.Add(billing);
+            seed.Tags.Add(backend);
+            seed.Tickets.AddRange(
+                new Ticket { Id = 1, Title = "a", Description = "<p>long text</p>", CreatedAt = created, Status = TicketStatus.InProgress, Priority = TicketPriority.High, Type = TicketType.Support, DeveloperId = 7, Product = billing, Tags = [backend] },
+                new Ticket { Id = 2, Title = "b", CreatedAt = created.AddDays(1), Status = TicketStatus.Closed, Priority = TicketPriority.Low, Type = TicketType.Project });
+            await seed.SaveChangesAsync();
+        }
+
+        await using var context = new BugTrackerDbContext(options);
+        var rows = await new TicketRepository(context).GetStatisticsRowsAsync();
+
+        rows.Should().HaveCount(2);
+        var first = rows.Single(r => r.Id == 1);
+        first.Should().BeEquivalentTo(new TicketStatisticsRow(
+            1, created, TicketStatus.InProgress, TicketPriority.High, TicketType.Support, 7, 1, "Billing", [new TicketTagRow(4, "backend")]));
+        var second = rows.Single(r => r.Id == 2);
+        second.ProductId.Should().BeNull();
+        second.ProductName.Should().BeNull();
+        second.Tags.Should().BeEmpty();
+    }
+
+    [Test]
     public async Task Repository_returns_work_logs_of_all_users_since_the_date()
     {
         var options = new DbContextOptionsBuilder<BugTrackerDbContext>()
@@ -398,5 +424,13 @@ public class TicketStatisticsTests
         var entries = await new WorkLogRepository(context).GetEntriesSinceAsync(since);
 
         entries.Should().BeEquivalentTo([(1, since, 30), (2, since.AddDays(3), 45)]);
+    }
+
+    /// <summary>
+    /// A clock that always reads <see cref="Now"/>, so "today" in the tests and in the service never drift apart.
+    /// </summary>
+    private sealed class FixedTimeProvider(DateTimeOffset now) : TimeProvider
+    {
+        public override DateTimeOffset GetUtcNow() => now;
     }
 }
