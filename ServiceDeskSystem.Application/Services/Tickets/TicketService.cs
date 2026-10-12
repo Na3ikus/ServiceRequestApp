@@ -612,6 +612,146 @@ public sealed class TicketService(
 
         return efficiencies.OrderByDescending(e => e.ClosureRatePercentage).ThenByDescending(e => e.TicketsClosed).ToList();
     }
+
+    public async Task<StatisticsReportDto> GetStatisticsReportAsync(int days, TimeZoneInfo zone)
+    {
+        ArgumentNullException.ThrowIfNull(zone);
+
+        if (days <= 0)
+        {
+            days = 30;
+        }
+
+        DateOnly LocalDate(DateTime utc) =>
+            DateOnly.FromDateTime(TimeZoneInfo.ConvertTimeFromUtc(DateTime.SpecifyKind(utc, DateTimeKind.Utc), zone));
+
+        // The period is whole days in the user's zone: today and the days - 1 before it.
+        var to = LocalDate(DateTime.UtcNow);
+        var from = to.AddDays(-(days - 1));
+        bool InPeriod(DateOnly date) => date >= from && date <= to;
+
+        await using var repo = repositoryFacadeFactory.Create();
+        var tickets = await repo.Tickets.GetAllWithProductAndTagsAsync().ConfigureAwait(false);
+        var firstResolved = await repo.TicketStatusHistory.GetFirstResolvedTimesAsync().ConfigureAwait(false);
+        var users = await repo.Users.GetAllWithPersonAsync().ConfigureAwait(false);
+
+        // One extra day on the UTC side covers any zone offset; exact filtering is by the date in the zone below.
+        var sinceUtc = from.AddDays(-1).ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
+        var workLogs = await repo.WorkLogs.GetEntriesSinceAsync(sinceUtc).ConfigureAwait(false);
+
+        // Resolved at = the first change to a done status. Done tickets without such a row (old data the
+        // history backfill could not rebuild) have no resolution time and stay out of the period numbers.
+        var rows = tickets
+            .Select(t =>
+            {
+                var createdOn = LocalDate(t.CreatedAt);
+                DateTime? resolvedAt = IsDone(t.Status) && firstResolved.TryGetValue(t.Id, out var at) ? at : null;
+                DateOnly? resolvedOn = resolvedAt is DateTime r && InPeriod(LocalDate(r)) ? LocalDate(r) : null;
+                return new StatisticsTicket(
+                    t,
+                    InPeriod(createdOn) ? createdOn : null,
+                    resolvedOn,
+                    resolvedOn is null ? null : resolvedAt!.Value - t.CreatedAt);
+            })
+            .ToList();
+        var open = rows.Where(r => !IsDone(r.Ticket.Status)).ToList();
+
+        var snapshot = new StatisticsSnapshotDto(
+            open.Count,
+            open.Count(r => r.Ticket.Priority == TicketPriority.Critical),
+            Enum.GetValues<TicketStatus>().ToDictionary(s => s, s => rows.Count(r => r.Ticket.Status == s)),
+            Enum.GetValues<TicketPriority>().ToDictionary(p => p, p => open.Count(r => r.Ticket.Priority == p)),
+            Enum.GetValues<TicketType>().ToDictionary(t => t, t => open.Count(r => r.Ticket.Type == t)),
+            open.SelectMany(r => r.Ticket.Tags)
+                .GroupBy(tag => tag.Id)
+                .Select(g => new TagCountDto(g.Key, g.First().Name, g.Count()))
+                .OrderByDescending(t => t.Count)
+                .ThenBy(t => t.Name, StringComparer.CurrentCultureIgnoreCase)
+                .ToList());
+
+        var created = rows.Count(r => r.CreatedOn is not null);
+        var resolved = rows.Where(r => r.ResolutionTime is not null).ToList();
+        var period = new StatisticsPeriodDto(
+            created,
+            resolved.Count,
+            AverageResolution(resolved),
+            created > 0 ? (int)Math.Round(resolved.Count * 100.0 / created, MidpointRounding.AwayFromZero) : null);
+
+        var createdByDay = rows.Where(r => r.CreatedOn is not null).CountBy(r => r.CreatedOn!.Value).ToDictionary();
+        var resolvedByDay = resolved.CountBy(r => r.ResolvedOn!.Value).ToDictionary();
+        var trend = Enumerable.Range(0, days)
+            .Select(i => from.AddDays(i))
+            .Select(day => new DailyFlowDto(day, createdByDay.GetValueOrDefault(day), resolvedByDay.GetValueOrDefault(day)))
+            .ToList();
+
+        var products = rows
+            .Where(r => r.Ticket.Product is not null)
+            .GroupBy(r => r.Ticket.Product!.Id)
+            .Select(g =>
+            {
+                var productResolved = g.Where(r => r.ResolutionTime is not null).ToList();
+                return new ProductStatisticsDto(
+                    g.Key,
+                    g.First().Ticket.Product!.Name,
+                    g.Count(r => !IsDone(r.Ticket.Status)),
+                    g.Count(r => r.CreatedOn is not null),
+                    productResolved.Count,
+                    AverageResolution(productResolved));
+            })
+            .Where(p => p.Open > 0 || p.Created > 0 || p.Resolved > 0)
+            .OrderBy(p => p.Name, StringComparer.CurrentCultureIgnoreCase)
+            .ToList();
+
+        var byDeveloper = rows.Where(r => r.Ticket.DeveloperId is not null).ToLookup(r => r.Ticket.DeveloperId!.Value);
+        var minutesByUser = workLogs
+            .Where(w => InPeriod(LocalDate(w.DateLogged)))
+            .GroupBy(w => w.UserId)
+            .ToDictionary(g => g.Key, g => g.Sum(w => w.Minutes));
+
+        var team = users
+            .Where(u => u.Role is UserRole.Developer or UserRole.Admin)
+            .Select(u =>
+            {
+                var assigned = byDeveloper[u.Id].ToList();
+                var name = $"{u.Person?.FirstName} {u.Person?.LastName}".Trim();
+                return (User: u, Row: new DeveloperStatisticsDto(
+                    u.Id,
+                    u.Login,
+                    string.IsNullOrEmpty(name) ? u.Login : name,
+                    assigned.Count(r => IsInProgress(r.Ticket.Status)),
+                    assigned.Count(r => !IsDone(r.Ticket.Status)),
+                    assigned.Count(r => r.ResolutionTime is not null),
+                    minutesByUser.GetValueOrDefault(u.Id)));
+            })
+
+            // Active developers are always listed (an empty row is information too); admins and
+            // deactivated developers only when they have something to show.
+            .Where(x => (x.User.Role == UserRole.Developer && x.User.IsActive) || !x.Row.IsIdle)
+            .Select(x => x.Row)
+            .OrderByDescending(r => r.ClosedInPeriod)
+            .ThenByDescending(r => r.Workload)
+            .ThenBy(r => r.DisplayName, StringComparer.CurrentCultureIgnoreCase)
+            .ToList();
+
+        return new StatisticsReportDto(days, from, to, snapshot, period, trend, products, team);
+    }
+
+    private static bool IsDone(TicketStatus status) =>
+        status is TicketStatus.Resolved or TicketStatus.Closed or TicketStatus.Done;
+
+    private static bool IsInProgress(TicketStatus status) =>
+        status is TicketStatus.InProgress or TicketStatus.CodeReview or TicketStatus.Testing;
+
+    private static TimeSpan? AverageResolution(IReadOnlyCollection<StatisticsTicket> resolved) =>
+        resolved.Count == 0
+            ? null
+            : TimeSpan.FromTicks((long)resolved.Average(r => Math.Max(0, r.ResolutionTime!.Value.Ticks)));
+
+    /// <summary>
+    /// A ticket with its period facts: the local day it was created and resolved on (<c>null</c> outside
+    /// the period) and, when resolved in the period, the time it took.
+    /// </summary>
+    private sealed record StatisticsTicket(Ticket Ticket, DateOnly? CreatedOn, DateOnly? ResolvedOn, TimeSpan? ResolutionTime);
 }
 
 

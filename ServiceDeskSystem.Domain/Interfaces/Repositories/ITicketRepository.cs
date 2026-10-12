@@ -6,6 +6,9 @@ namespace ServiceDeskSystem.Domain.Interfaces;
 public interface ITicketRepository : IRepository<Ticket>
 {
     Task<IEnumerable<Ticket>> GetAllWithIncludesAsync();
+
+    /// <summary>All tickets with their product and tags only (read-only, for the statistics page).</summary>
+    Task<List<Ticket>> GetAllWithProductAndTagsAsync();
     Task<IEnumerable<Ticket>> GetActiveTicketsForSlaAsync();
     Task<(IEnumerable<Ticket> Items, int TotalCount)> GetPagedWithIncludesAsync(int page, int pageSize);
 

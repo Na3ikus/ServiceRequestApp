@@ -63,4 +63,15 @@ public sealed class WorkLogRepository : TemplateRepository<WorkLog>, IWorkLogRep
 
         return rows.Select(r => (r.DateLogged, r.TimeSpentMinutes)).ToList();
     }
+
+    public async Task<List<(int UserId, DateTime DateLogged, int Minutes)>> GetEntriesSinceAsync(DateTime sinceUtc)
+    {
+        var rows = await this.DbSet
+            .Where(w => w.DateLogged >= sinceUtc)
+            .Select(w => new { w.UserId, w.DateLogged, w.TimeSpentMinutes })
+            .ToListAsync()
+            .ConfigureAwait(false);
+
+        return rows.Select(r => (r.UserId, r.DateLogged, r.TimeSpentMinutes)).ToList();
+    }
 }

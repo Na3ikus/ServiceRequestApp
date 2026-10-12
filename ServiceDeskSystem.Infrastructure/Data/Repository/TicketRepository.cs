@@ -65,6 +65,17 @@ namespace ServiceDeskSystem.Infrastructure.Data.Repository
             return topDevs.Select(x => (x.Login ?? "?", x.Count)).ToList();
         }
 
+        public async Task<List<Ticket>> GetAllWithProductAndTagsAsync()
+        {
+            return await this.Context.Tickets
+                .Include(t => t.Product)
+                .Include(t => t.Tags)
+                .AsSplitQuery()
+                .AsNoTracking()
+                .ToListAsync()
+                .ConfigureAwait(false);
+        }
+
         public async Task<IEnumerable<Ticket>> GetAllWithIncludesAsync()
         {
             return await this.Context.Tickets

@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using ServiceDeskSystem.Domain.Entities;
+using ServiceDeskSystem.Domain.Enums;
 using ServiceDeskSystem.Domain.Interfaces;
 using ServiceDeskSystem.Infrastructure.Data.Repository.Templates;
 
@@ -33,5 +34,17 @@ public sealed class TicketStatusHistoryRepository : TemplateRepository<TicketSta
             .ThenBy(h => h.Id)
             .ToListAsync()
             .ConfigureAwait(false);
+    }
+
+    public async Task<Dictionary<int, DateTime>> GetFirstResolvedTimesAsync()
+    {
+        var rows = await this.DbSet
+            .Where(h => h.NewStatus == TicketStatus.Resolved || h.NewStatus == TicketStatus.Closed || h.NewStatus == TicketStatus.Done)
+            .GroupBy(h => h.TicketId)
+            .Select(g => new { TicketId = g.Key, ChangedAt = g.Min(h => h.ChangedAt) })
+            .ToListAsync()
+            .ConfigureAwait(false);
+
+        return rows.ToDictionary(r => r.TicketId, r => r.ChangedAt);
     }
 }
