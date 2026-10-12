@@ -24,7 +24,8 @@
         --cell-px: 0.75rem;
     }
 
-    .dark {
+    /* Only <html> carries .dark (prefs.js); nested .dark wrappers would pin the theme. */
+    html.dark {
         --canvas: 0 0 0;
         --surface: 10 10 10;
         --line: 31 31 31;
@@ -107,7 +108,7 @@
         border-radius: 3px;
     }
 
-    .dark .mark {
+    html.dark .mark {
         background-color: transparent;
         color: rgb(var(--accent));
         padding: 0;

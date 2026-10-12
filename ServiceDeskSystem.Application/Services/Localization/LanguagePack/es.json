@@ -167,6 +167,7 @@
   "cmd.desc.tickets": "Todos los tickets",
   "cmd.desc.myTickets": "Tus tickets",
   "cmd.desc.calendar": "Agenda y plazos",
+  "cmd.desc.developer": "Tickets asignados a ti",
   "cmd.desc.statistics": "Informes y métricas",
   "cmd.desc.profile": "Tu perfil",
   "cmd.desc.settings": "Preferencias",

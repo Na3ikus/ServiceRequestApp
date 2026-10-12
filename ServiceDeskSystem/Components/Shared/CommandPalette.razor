@@ -16,6 +16,11 @@
                        class="h-12 min-w-0 flex-1 bg-transparent font-mono text-15 text-fg outline-none placeholder:text-muted"
                        placeholder="@L.Translate("cmd.placeholder")"
                        aria-label="@L.Translate("cmd.placeholder")"
+                       role="combobox"
+                       aria-autocomplete="list"
+                       aria-expanded="@(HasList ? "true" : "false")"
+                       aria-controls="cmd-list"
+                       aria-activedescendant="@(HasList ? $"cmd-opt-{_selectedIndex}" : null)"
                        @bind="_query"
                        @bind:event="oninput"
                        @bind:after="OnQueryChangedAsync"
@@ -29,7 +34,7 @@
             }
             else
             {
-                <div @ref="_listRef" class="max-h-[22rem] overflow-y-auto p-1" role="listbox" aria-label="Command palette">
+                <div @ref="_listRef" id="cmd-list" class="max-h-[22rem] overflow-y-auto p-1" role="listbox" aria-label="Command palette">
                     @foreach (var group in _filteredItems.Select((item, index) => (item, index)).GroupBy(x => x.item.Group))
                     {
                         <div role="group" aria-label="@group.Key">
@@ -38,11 +43,14 @@
                             @foreach (var (item, idx) in group)
                             {
                                 var selected = idx == _selectedIndex;
+                                @* Hover selection comes from commandPalette.js (data-cmd-index), not @onmouseenter. *@
                                 <button type="button"
+                                        id="cmd-opt-@idx"
+                                        tabindex="-1"
+                                        data-cmd-index="@idx"
                                         class="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left font-mono text-14 @(selected ? "bg-canvas text-fg" : "text-muted")"
                                         role="option"
                                         aria-selected="@(selected ? "true" : "false")"
-                                        @onmouseenter="() => SelectAsync(idx)"
                                         @onclick="() => ExecuteItemAsync(item)">
                                     <span aria-hidden="true" class="w-[1ch] flex-shrink-0 text-accent-ink">@(selected ? "›" : "")</span>
                                     @if (item.Swatch is not null)
@@ -97,6 +105,8 @@
 
     // The theme/accent value applied by live preview but not saved yet.
     private (string Name, string Value)? _preview;
+
+    private bool HasList => _filteredItems.Count > 0;
 
     protected override void OnInitialized()
     {
@@ -191,6 +201,17 @@
         }
     }
 
+    /// <summary>Called by <c>commandPalette.js</c> when a real pointer move enters another row.</summary>
+    [JSInvokable("HoverItem")]
+    public async Task HoverItemAsync(int index)
+    {
+        if (!_isOpen || index < 0 || index >= _filteredItems.Count)
+            return;
+
+        await SelectAsync(index);
+        StateHasChanged();
+    }
+
     private async Task SelectAsync(int index)
     {
         if (index == _selectedIndex)
@@ -204,7 +225,10 @@
     {
         if (item.Pref is { } pref)
         {
-            // Saving supersedes the preview: prefs.set stores and applies the value.
+            // Saving supersedes a preview of the same preference (prefs.set stores and applies
+            // the value); a preview of the other one (Tab moved focus off it) goes back first.
+            if (_preview is { } previewed && previewed.Name != pref.Name)
+                await RestorePreviewAsync();
             _preview = null;
             await SaveAsync(pref.Name, pref.Value);
         }
@@ -256,6 +280,19 @@
         try { await JS.InvokeVoidAsync("prefs.restore", preview.Name); } catch (JSException) { }
     }
 
+    // Fire-and-forget from Dispose: the circuit may already be gone.
+    private async Task RestoreAllQuietlyAsync()
+    {
+        try
+        {
+            await JS.InvokeVoidAsync("prefs.restoreAll");
+        }
+        catch (Exception ex) when (ex is JSException or JSDisconnectedException or TaskCanceledException or ObjectDisposedException)
+        {
+            // Nothing to restore in a closed page.
+        }
+    }
+
     private async Task SetLanguageAsync(string code)
     {
         L.SetLanguage(code);
@@ -285,7 +322,10 @@
         items.Add(Go("~/calendar", "/calendar", "cmd.desc.calendar", "calendar schedule dates"));
 
         if (IsAdminOrDeveloper)
+        {
+            items.Add(Go("~/developer", "/developer", "cmd.desc.developer", "developer dashboard assigned"));
             items.Add(Go("~/statistics", "/statistics", "cmd.desc.statistics", "stats analytics charts"));
+        }
 
         items.Add(Go("~/profile", "/profile", "cmd.desc.profile", "profile account user"));
         items.Add(Go("~/settings", "/settings", "cmd.desc.settings", "settings preferences"));
@@ -332,6 +372,12 @@
     {
         if (disposing)
         {
+            if (_preview is not null)
+            {
+                _preview = null;
+                _ = RestoreAllQuietlyAsync();
+            }
+
             _dotNetRef?.Dispose();
         }
         base.Dispose(disposing);

@@ -1,7 +1,8 @@
 @inherits LayoutComponentBase
 
 <!-- Created by Nazar "N1h3" Hutsol -->
-<div class="@(Theme.IsDarkMode ? "dark" : "")">
+@* The dark class lives on <html> only (prefs.js), so the palette's live preview recolors everything. *@
+<div>
     @if (!authRestored)
     {
         <div class="relative z-10 flex h-screen supports-[height:100dvh]:h-dvh items-center justify-center bg-canvas">

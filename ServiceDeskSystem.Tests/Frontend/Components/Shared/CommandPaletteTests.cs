@@ -1,7 +1,6 @@
 using AngleSharp.Dom;
 using Bunit;
 using FluentAssertions;
-using Microsoft.AspNetCore.Components.Web;
 using Moq;
 using NUnit.Framework;
 using ServiceDeskSystem.Application.Services.Preferences;
@@ -41,7 +40,12 @@ public class CommandPaletteTests
     private IEnumerable<object?[]> Calls(string identifier) =>
         _host.Context.JSInterop.Invocations[identifier].Select(i => i.Arguments.ToArray());
 
-    private static void Hover(IElement option) => option.TriggerEvent("onmouseenter", new MouseEventArgs());
+    // commandPalette.js reports real pointer moves into a row as HoverItem(index).
+    private static void Hover(IRenderedComponent<CommandPalette> cut, string label)
+    {
+        var index = Labels(cut).IndexOf(label);
+        cut.InvokeAsync(() => cut.Instance.HoverItemAsync(index));
+    }
 
     [Test]
     public void Opens_with_prompt_and_items_without_icons()
@@ -75,7 +79,7 @@ public class CommandPaletteTests
         var cut = RenderOpen();
 
         Labels(cut).Should().Equal(
-            "cd ~", "cd ~/tickets", "cd ~/calendar", "cd ~/statistics", "cd ~/profile", "cd ~/settings",
+            "cd ~", "cd ~/tickets", "cd ~/calendar", "cd ~/developer", "cd ~/statistics", "cd ~/profile", "cd ~/settings",
             "cd ~/admin", "cd ~/audit-logs", "new ticket",
             "theme light", "theme dark", "theme system",
             "accent lime", "accent amber", "accent phosphor", "accent ice",
@@ -94,7 +98,7 @@ public class CommandPaletteTests
         var labels = Labels(RenderOpen());
 
         labels.Should().Contain("cd ~/my-tickets");
-        labels.Should().NotContain(["cd ~/tickets", "cd ~/statistics", "cd ~/admin", "cd ~/audit-logs"]);
+        labels.Should().NotContain(["cd ~/tickets", "cd ~/developer", "cd ~/statistics", "cd ~/admin", "cd ~/audit-logs"]);
     }
 
     [Test]
@@ -104,7 +108,7 @@ public class CommandPaletteTests
 
         var labels = Labels(RenderOpen());
 
-        labels.Should().Contain("cd ~/statistics");
+        labels.Should().Contain(["cd ~/developer", "cd ~/statistics"]);
         labels.Should().NotContain(["cd ~/admin", "cd ~/audit-logs"]);
     }
 
@@ -183,7 +187,7 @@ public class CommandPaletteTests
     {
         var cut = RenderOpen();
 
-        Hover(Option(cut, "accent amber"));
+        Hover(cut, "accent amber");
 
         Calls("prefs.preview").Should().ContainSingle().Which.Should().Equal("accent", "amber");
         _host.Preferences.Verify(p => p.SetAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
@@ -205,7 +209,7 @@ public class CommandPaletteTests
     public void Escape_restores_the_preview_and_closes()
     {
         var cut = RenderOpen();
-        Hover(Option(cut, "accent amber"));
+        Hover(cut, "accent amber");
 
         cut.Find("input").KeyDown(key: "Escape");
 
@@ -217,7 +221,7 @@ public class CommandPaletteTests
     public void Clicking_outside_restores_the_preview()
     {
         var cut = RenderOpen();
-        Hover(Option(cut, "theme dark"));
+        Hover(cut, "theme dark");
 
         cut.Find("[role=dialog]").Click();
 
@@ -228,9 +232,9 @@ public class CommandPaletteTests
     public void Moving_to_a_non_appearance_item_restores_the_preview()
     {
         var cut = RenderOpen();
-        Hover(Option(cut, "accent amber"));
+        Hover(cut, "accent amber");
 
-        Hover(Option(cut, "lang fr"));
+        Hover(cut, "lang fr");
 
         Calls("prefs.restore").Should().ContainSingle().Which.Should().Equal("accent");
         cut.FindAll("[role=dialog]").Should().NotBeEmpty();
@@ -240,9 +244,9 @@ public class CommandPaletteTests
     public void Moving_between_accents_previews_without_restoring()
     {
         var cut = RenderOpen();
-        Hover(Option(cut, "accent amber"));
+        Hover(cut, "accent amber");
 
-        Hover(Option(cut, "accent ice"));
+        Hover(cut, "accent ice");
 
         Calls("prefs.preview").Select(a => a[1]).Should().Equal("amber", "ice");
         Calls("prefs.restore").Should().BeEmpty();
@@ -282,6 +286,82 @@ public class CommandPaletteTests
 
         _host.Localization.Verify(l => l.SetLanguage("uk"), Times.Once);
         Calls("localStorage.setItem").Should().ContainSingle().Which.Should().Equal("settings.language", "uk");
+    }
+
+    [Test]
+    public void Saving_one_preference_restores_a_preview_of_the_other()
+    {
+        var cut = RenderOpen();
+        Hover(cut, "accent amber");
+
+        // Keyboard focus (Tab) moved to another row while the mouse preview stays.
+        Option(cut, "theme dark").Click();
+
+        Calls("prefs.restore").Should().ContainSingle().Which.Should().Equal("accent");
+        _host.Theme.Verify(t => t.SetTheme("dark"), Times.Once);
+        _host.Preferences.Verify(p => p.SetAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+    }
+
+    [Test]
+    public void Dispose_restores_an_active_preview()
+    {
+        var cut = RenderOpen();
+        Hover(cut, "accent amber");
+
+        cut.Instance.Dispose();
+
+        Calls("prefs.restoreAll").Should().ContainSingle();
+    }
+
+    [Test]
+    public void Dispose_without_preview_restores_nothing()
+    {
+        var cut = RenderOpen();
+
+        cut.Instance.Dispose();
+
+        Calls("prefs.restoreAll").Should().BeEmpty();
+    }
+
+    [Test]
+    public void Hover_from_script_moves_the_selection()
+    {
+        var cut = RenderOpen();
+
+        Hover(cut, "cd ~/calendar");
+
+        Selected(cut).TextContent.Should().Contain("cd ~/calendar");
+    }
+
+    [Test]
+    public void Input_is_a_combobox_pointing_at_the_selected_option()
+    {
+        var cut = RenderOpen();
+        var input = cut.Find("input");
+
+        input.GetAttribute("role").Should().Be("combobox");
+        input.GetAttribute("aria-autocomplete").Should().Be("list");
+        input.GetAttribute("aria-expanded").Should().Be("true");
+        input.GetAttribute("aria-controls").Should().Be("cmd-list");
+        cut.Find("[role=listbox]").Id.Should().Be("cmd-list");
+        input.GetAttribute("aria-activedescendant").Should().Be(Selected(cut).Id);
+
+        input.KeyDown(key: "ArrowDown");
+
+        cut.Find("input").GetAttribute("aria-activedescendant").Should().Be("cmd-opt-1");
+        Selected(cut).Id.Should().Be("cmd-opt-1");
+        cut.FindAll("[role=option]").Should().OnlyContain(o => o.GetAttribute("tabindex") == "-1");
+    }
+
+    [Test]
+    public void Combobox_is_collapsed_without_results()
+    {
+        var cut = RenderOpen();
+
+        cut.Find("input").Input("zzzz-no-such-command");
+
+        cut.Find("input").GetAttribute("aria-expanded").Should().Be("false");
+        cut.Find("input").HasAttribute("aria-activedescendant").Should().BeFalse();
     }
 
     [Test]
