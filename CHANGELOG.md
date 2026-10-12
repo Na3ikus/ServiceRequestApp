@@ -5,6 +5,63 @@ All notable changes to ServiceDeskSystem are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2026-10-13
+
+The design release. Every page was rebuilt on a token-based "ops terminal" design system,
+statistics now come from the real ticket status history, and all times follow the
+browser's time zone.
+
+### Added
+
+- **Design system** — colour, type and spacing tokens in `Styles/input.css`; Geist and
+  Geist Mono; a rem type scale that follows the text-size setting; light and dark themes
+  with four accents (lime, amber, phosphor, ice), with a dark accent shade in the light
+  theme so accents stay coloured and readable.
+- **Shell-style command palette** (`Ctrl+K`) — `cd ~/…` navigation, `new ticket`,
+  `theme`, `accent` (with swatches) and `lang` commands, word filtering, and live preview
+  of theme and accent while browsing (Esc restores, Enter saves).
+- **New primitives** — `PageHeader` with `~/path` headings, `StatFigure`,
+  `SegmentedControl`, `Tag`, `Avatar`, `Kbd`, `EmptyState`, `StatusScreen`,
+  `ConfirmPrompt` (`rm … ? [y/N]`), sortable terminal tables.
+- **Ticket status history** — `TicketStatusHistory` table (backfilled from the audit
+  log), a merged activity feed on ticket details, and a profile activity heatmap.
+- **Statistics report** — `GetStatisticsReportAsync(days, zone)`: created/resolved trend,
+  resolution time from the first done transition, open-only distributions, products and a
+  single team table, loaded in four queries.
+- **User time zone** — `IUserTimeZone` set from the browser; home, tickets, calendar,
+  audit and statistics show local times and local day boundaries.
+- Login typewriter with rotating quotes in five languages; touch drag on the kanban board;
+  attachments while creating a ticket (up to 5 files, 10 MB each); `sd_` favicon.
+- Modal focus trap that restores focus to the trigger (#2).
+
+### Changed
+
+- **All pages redesigned**: login/register, shell (sidebar, top bar, popovers), home,
+  profile, ticket lists (table + kanban), ticket details (two-column, inline panel),
+  create ticket (single form), calendar (month grid + phone agenda), admin (path tabs,
+  inline row editing), audit logs (log stream grouped by day with inline git-style diff,
+  "show 50 more"), statistics (overview / team tabs, HTML charts), settings.
+- Ticket start/due dates entered in the panel are stored as UTC.
+- Server upload limit unified with the client at 10 MB.
+- Error, not-found and access-denied screens use terminal-style status screens.
+
+### Removed
+
+- Chart.js and `chartInterop.js` — charts are server-rendered HTML.
+- The legacy `wwwroot/app.css` (≈1,760 lines), page gradients, glassmorphism and the
+  default indigo palette.
+- The employee-efficiency endpoint model (`GetEmployeeEfficiencyAsync`), the unused
+  `MarkdownToolbar` and `markdownEditor.js`, and the `Breadcrumb` component.
+
+### Fixed
+
+- Statistics no longer use the due date as the resolution date, and the period switch
+  now applies to every period figure.
+- "Something went wrong" after logging out on a ticket page.
+- Audit auto-refresh no longer stalls when the opened event disappears; links to changed
+  tickets point to `/ticket/{id}`.
+- Missing French, Spanish and German translations for audit, login and theme keys.
+
 ## [1.0.0] - 2026-09-20
 
 First stable release. The core was rebuilt on a layered Domain/Application/Infrastructure
@@ -74,6 +131,7 @@ The UX & Stability Update — ticket UI surfaces and transitions.
 
 Early Beta & MVP Release.
 
+[2.0.0]: https://github.com/Na3ikus/ServiceRequestApp/compare/v1.0.0...v2.0.0
 [1.0.0]: https://github.com/Na3ikus/ServiceRequestApp/compare/v0.3.0-beta...v1.0.0
 [0.3.0-beta]: https://github.com/Na3ikus/ServiceRequestApp/compare/v0.2.0-beta...v0.3.0-beta
 [0.2.0-beta]: https://github.com/Na3ikus/ServiceRequestApp/compare/v0.1.0-beta...v0.2.0-beta
