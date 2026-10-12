@@ -44,21 +44,21 @@
                     @(isRefreshing ? Heading("audit.refreshing") : Heading("audit.refreshNow"))
                 </button>
                 <button type="button" data-action="export" class="btn-outline font-mono" @onclick="ExportToCsvAsync">export.csv</button>
-                @if (showClearConfirm)
-                {
-                    <div data-clear-prompt class="rounded-md border border-danger/50 bg-danger/[.06] py-1 pl-3 pr-1">
-                        <ConfirmPrompt Label="audit.log"
-                                       Note="@($"{string.Format(UiCulture, Heading("audit.clearCount"), TotalLogsCount)} · {Heading("admin.deleteNote")}")"
-                                       ConfirmText="@Heading("audit.clearLogs")" IsBusy="isClearing"
-                                       OnConfirm="ConfirmClearLogsAsync" OnCancel="CancelClearLogs" />
-                    </div>
-                }
-                else
-                {
-                    <button type="button" data-action="clear" class="btn-outline text-danger" @onclick="RequestClearLogs">@Heading("audit.clearLogs")…</button>
-                }
+                <button type="button" data-action="clear" class="btn-outline text-danger" aria-expanded="@showClearConfirm.ToString().ToLowerInvariant()"
+                        disabled="@showClearConfirm" @onclick="RequestClearLogs">@Heading("audit.clearLogs")…</button>
             </Actions>
         </PageHeader>
+
+        @* Its own row under the header: the prompt is wider than the buttons and would push them onto a new line. *@
+        @if (showClearConfirm)
+        {
+            <div data-clear-prompt class="mb-4 rounded-md border border-danger/50 bg-danger/[.06] py-1 pl-3 pr-1 sm:ml-auto sm:w-fit">
+                <ConfirmPrompt Label="audit.log"
+                               Note="@($"{string.Format(UiCulture, Heading("audit.clearCount"), TotalLogsCount)} · {Heading("admin.deleteNote")}")"
+                               ConfirmText="@Heading("audit.clearLogs")" IsBusy="isClearing"
+                               OnConfirm="ConfirmClearLogsAsync" OnCancel="CancelClearLogs" />
+            </div>
+        }
 
         <div data-figures class="my-6 flex flex-wrap gap-x-12 gap-y-4">
             @Figure("total", Heading("audit.metrics.total"), TotalLogsCount)

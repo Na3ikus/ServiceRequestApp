@@ -3584,6 +3584,10 @@ html:not(.dark) .light\:hover\:bg-accent\/7:hover {
 }
 
 @media (min-width: 640px) {
+  .sm\:ml-auto {
+    margin-left: auto;
+  }
+
   .sm\:block {
     display: block;
   }
@@ -3602,6 +3606,11 @@ html:not(.dark) .light\:hover\:bg-accent\/7:hover {
 
   .sm\:w-64 {
     width: 16rem;
+  }
+
+  .sm\:w-fit {
+    width: -moz-fit-content;
+    width: fit-content;
   }
 
   .sm\:grid-cols-3 {

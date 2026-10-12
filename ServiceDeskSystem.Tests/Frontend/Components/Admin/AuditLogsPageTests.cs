@@ -298,7 +298,10 @@ public class AuditLogsPageTests
 
         var prompt = cut.Find("[data-clear-prompt]");
         prompt.TextContent.Should().Contain("rm").And.Contain("audit.log?").And.Contain("admin.deletenote");
-        cut.FindAll("[data-action=clear]").Should().BeEmpty();
+        cut.Find("[data-action=clear]").ParentElement!.QuerySelector("[data-clear-prompt]")
+            .Should().BeNull("the prompt sits under the header, not among the actions");
+        cut.Find("[data-action=clear]").HasAttribute("disabled").Should().BeTrue();
+        cut.Find("[data-action=clear]").GetAttribute("aria-expanded").Should().Be("true");
         _audit.Verify(a => a.ClearAllLogsAsync(), Times.Never);
         _host.Context.JSInterop.VerifyFocusAsyncInvoke().Arguments[0]
             .ShouldBeElementReferenceTo(cut.Find("[data-clear-prompt] [data-action=keep]"));
@@ -313,7 +316,7 @@ public class AuditLogsPageTests
         cut.Find("[data-clear-prompt] [data-action=keep]").Click();
 
         cut.FindAll("[data-clear-prompt]").Should().BeEmpty();
-        cut.FindAll("[data-action=clear]").Should().ContainSingle();
+        cut.Find("[data-action=clear]").HasAttribute("disabled").Should().BeFalse();
         _audit.Verify(a => a.ClearAllLogsAsync(), Times.Never);
     }
 
@@ -416,7 +419,7 @@ public class AuditLogsPageTests
         cut.Find("[data-clear-prompt] [data-action=keep]").KeyDown(key: "Escape");
 
         cut.FindAll("[data-clear-prompt]").Should().ContainSingle();
-        cut.FindAll("[data-action=clear]").Should().BeEmpty();
+        cut.Find("[data-action=clear]").HasAttribute("disabled").Should().BeTrue();
 
         cut.InvokeAsync(clearing.SetResult).GetAwaiter().GetResult();
 
