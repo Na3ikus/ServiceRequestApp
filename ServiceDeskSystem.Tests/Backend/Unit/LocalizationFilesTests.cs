@@ -6,7 +6,7 @@ namespace ServiceDeskSystem.Tests.Backend.Unit;
 
 /// <summary>
 /// Guards the language pack files themselves: every key lives in exactly one file,
-/// settings keys match across languages, and keys for removed settings stay gone.
+/// settings and statistics keys match across languages, and keys for removed settings stay gone.
 /// </summary>
 public class LocalizationFilesTests
 {
@@ -82,17 +82,24 @@ public class LocalizationFilesTests
         duplicated.Should().BeEmpty("each key must live in exactly one file for '{0}'", lang);
     }
 
-    [Test]
-    public void SettingsKeysHaveParityAcrossLanguages()
+    [TestCase("settings.")]
+    [TestCase("stats.")]
+    public void PrefixedKeysHaveParityAcrossLanguages(string prefix)
     {
-        var english = AllKeys("en").Where(k => k.StartsWith("settings.", StringComparison.Ordinal)).ToHashSet();
+        var english = AllKeys("en").Where(k => k.StartsWith(prefix, StringComparison.Ordinal)).ToHashSet();
 
         foreach (var lang in Languages.Skip(1))
         {
-            var keys = AllKeys(lang).Where(k => k.StartsWith("settings.", StringComparison.Ordinal)).ToHashSet();
-            keys.Except(english).Should().BeEmpty("'{0}' must not have settings keys missing from en", lang);
-            english.Except(keys).Should().BeEmpty("'{0}' must define every en settings key", lang);
+            var keys = AllKeys(lang).Where(k => k.StartsWith(prefix, StringComparison.Ordinal)).ToHashSet();
+            keys.Except(english).Should().BeEmpty("'{0}' must not have {1} keys missing from en", lang, prefix);
+            english.Except(keys).Should().BeEmpty("'{0}' must define every en {1} key", lang, prefix);
         }
+    }
+
+    [TestCaseSource(nameof(Languages))]
+    public void NoKeysOfTheOldChartsAnalyticsPage(string lang)
+    {
+        AllKeys(lang).Where(k => k.StartsWith("analytics.", StringComparison.Ordinal)).Should().BeEmpty();
     }
 
     [TestCaseSource(nameof(Languages))]

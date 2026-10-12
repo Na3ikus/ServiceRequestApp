@@ -34,8 +34,6 @@ public interface ITicketStatisticsService
 
     Task<ExtendedAnalyticsDto> GetExtendedAnalyticsAsync(int days = 30);
 
-    Task<List<EmployeeEfficiencyDto>> GetEmployeeEfficiencyAsync(int days = 30);
-
     /// <summary>
     /// Statistics page report for the last <paramref name="days"/> days (today included) in <paramref name="zone"/>:
     /// resolution times come from the status history, days are the user's days.

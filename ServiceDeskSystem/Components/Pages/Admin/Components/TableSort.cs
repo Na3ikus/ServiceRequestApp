@@ -27,10 +27,12 @@ public sealed class TableSort
     public bool Descending { get; private set; }
 
     /// <summary>
-    /// Sorts by <paramref name="column"/>; the active column flips its direction, a new one starts ascending.
+    /// Sorts by <paramref name="column"/>; the active column flips its direction, a new one starts ascending
+    /// (or descending when <paramref name="descendingFirst"/> is set, e.g. for counts).
     /// </summary>
     /// <param name="column">The column header that was clicked.</param>
-    public void Toggle(string column)
+    /// <param name="descendingFirst">Whether a newly selected column starts in descending order.</param>
+    public void Toggle(string column, bool descendingFirst = false)
     {
         if (this.Column == column)
         {
@@ -39,7 +41,7 @@ public sealed class TableSort
         }
 
         this.Column = column;
-        this.Descending = false;
+        this.Descending = descendingFirst;
     }
 
     /// <summary>
