@@ -28,9 +28,22 @@ public class ToastContainerTests
 
         var cut = _host.Context.RenderComponent<ToastContainer>(p => p.Add(t => t.Toasts, toasts));
 
-        cut.Find(".toast-label").TextContent.Should().Be(label);
-        cut.Find(".toast-message").TextContent.Should().Be("Saved");
+        cut.Find("[data-toast-label]").TextContent.Should().Be(label);
+        cut.Find("[data-toast-message]").TextContent.Should().Be("Saved");
         cut.FindAll("svg").Should().BeEmpty();
+    }
+
+    [TestCase(ToastType.Success, "text-accent-ink")]
+    [TestCase(ToastType.Error, "text-danger")]
+    [TestCase(ToastType.Warning, "text-danger")]
+    [TestCase(ToastType.Info, "text-muted")]
+    public void Label_uses_token_colour_per_type(ToastType type, string colour)
+    {
+        var toasts = new List<ToastMessage> { new() { Message = "Saved", Type = type } };
+
+        var cut = _host.Context.RenderComponent<ToastContainer>(p => p.Add(t => t.Toasts, toasts));
+
+        cut.Find("[data-toast-label]").ClassList.Should().Contain(colour);
     }
 
     [Test]
@@ -51,7 +64,7 @@ public class ToastContainerTests
             .Add(t => t.Toasts, new List<ToastMessage> { toast })
             .Add(t => t.OnRemoveToast, EventCallback.Factory.Create<ToastMessage>(this, m => removed = m)));
 
-        var close = cut.Find(".toast-close");
+        var close = cut.Find("[data-toast-close]");
         close.GetAttribute("aria-label").Should().Be("common.close");
         close.Click();
 

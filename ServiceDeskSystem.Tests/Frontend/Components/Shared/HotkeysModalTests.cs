@@ -31,7 +31,7 @@ public class HotkeysModalTests
 
         cut.InvokeAsync(cut.Instance.Show);
 
-        cut.Find(".amodal-title").TextContent.Should().Be("settings.hotkeysTitle");
+        cut.Find("[data-modal-title]").TextContent.Should().Be("settings.hotkeysTitle");
         cut.FindAll("li").Should().HaveCount(5);
         cut.FindAll("kbd").Select(k => k.TextContent).Should().Equal("?", "H", "N", "T", "/", "D");
         cut.Markup.Should().NotContain("hotkeySidebar");
@@ -44,7 +44,7 @@ public class HotkeysModalTests
         var cut = _host.Context.RenderComponent<HotkeysModal>();
         cut.InvokeAsync(cut.Instance.Show);
 
-        cut.Find(".amodal-footer button").Click();
+        cut.Find("[data-modal-footer] button").Click();
 
         cut.FindAll("[role=dialog]").Should().BeEmpty();
     }

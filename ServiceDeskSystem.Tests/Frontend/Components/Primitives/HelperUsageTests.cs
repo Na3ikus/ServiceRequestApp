@@ -67,6 +67,18 @@ public class HelperUsageTests
     }
 
     [Test]
+    public void Legacy_app_css_is_gone()
+    {
+        // wwwroot/css/app.css (Tailwind output) stays; the hand-written wwwroot/app.css is gone.
+        var repoRoot = FindRepoRoot();
+        var cssPath = Path.Combine(repoRoot, "ServiceDeskSystem", "wwwroot", "app.css");
+        var appRazorPath = Path.Combine(repoRoot, "ServiceDeskSystem", "Components", "App.razor");
+
+        File.Exists(cssPath).Should().BeFalse(because: $"{cssPath} should have been deleted");
+        File.ReadAllText(appRazorPath).Should().NotContain("@Assets[\"app.css\"]");
+    }
+
+    [Test]
     public void Text_sizes_use_rem_tokens_not_pixels()
     {
         // text-[13px] ignores the interface-scale setting; use text-12/13/15/20/40 (rem) instead.

@@ -656,6 +656,19 @@ table th,
   padding: var(--row-py) var(--cell-px);
 }
 
+/* Thin token scrollbars for <main>, tables and menus. */
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(var(--muted) / 0.4) transparent;
+}
+
+/* FocusOnNavigate focuses the page h1 after each navigation; no ring for that. */
+
+h1:focus {
+  outline: none;
+}
+
 /* Form controls shared by Stage 2c auth screens and reused in Stage 3. */
 
 .input-field {
@@ -818,6 +831,14 @@ table th,
   border-width: 0;
 }
 
+.pointer-events-none {
+  pointer-events: none;
+}
+
+.pointer-events-auto {
+  pointer-events: auto;
+}
+
 .visible {
   visibility: visible;
 }
@@ -850,6 +871,11 @@ table th,
   inset: 0px;
 }
 
+.inset-x-0 {
+  left: 0px;
+  right: 0px;
+}
+
 .inset-x-2 {
   left: 0.5rem;
   right: 0.5rem;
@@ -880,12 +906,20 @@ table th,
   right: 0px;
 }
 
+.right-3 {
+  right: 0.75rem;
+}
+
 .right-4 {
   right: 1rem;
 }
 
 .top-0 {
   top: 0px;
+}
+
+.top-3 {
+  top: 0.75rem;
 }
 
 .top-4 {
@@ -912,8 +946,20 @@ table th,
   z-index: 50;
 }
 
+.z-\[100000\] {
+  z-index: 100000;
+}
+
+.z-\[100\] {
+  z-index: 100;
+}
+
 .z-\[9998\] {
   z-index: 9998;
+}
+
+.z-\[9999\] {
+  z-index: 9999;
 }
 
 .mx-1 {
@@ -1186,6 +1232,10 @@ table th,
   height: 26px;
 }
 
+.h-\[3px\] {
+  height: 3px;
+}
+
 .h-\[7px\] {
   height: 7px;
 }
@@ -1224,6 +1274,10 @@ table th,
 
 .max-h-\[85vh\] {
   max-height: 85vh;
+}
+
+.max-h-\[calc\(100vh-2rem\)\] {
+  max-height: calc(100vh - 2rem);
 }
 
 .max-h-full {
@@ -1350,6 +1404,10 @@ table th,
   width: 18rem;
 }
 
+.w-8 {
+  width: 2rem;
+}
+
 .w-9 {
   width: 2.25rem;
 }
@@ -1407,6 +1465,10 @@ table th,
   min-width: 12rem;
 }
 
+.min-w-\[300px\] {
+  min-width: 300px;
+}
+
 .min-w-\[560px\] {
   min-width: 560px;
 }
@@ -1460,6 +1522,14 @@ table th,
   max-width: 38rem;
 }
 
+.max-w-\[400px\] {
+  max-width: 400px;
+}
+
+.max-w-\[520px\] {
+  max-width: 520px;
+}
+
 .max-w-\[calc\(100vw-1\.5rem\)\] {
   max-width: calc(100vw - 1.5rem);
 }
@@ -1504,6 +1574,10 @@ table th,
   border-collapse: collapse;
 }
 
+.origin-left {
+  transform-origin: left;
+}
+
 .-translate-x-full {
   --tw-translate-x: -100%;
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
@@ -1526,6 +1600,73 @@ table th,
 
 .transform {
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes toastIn {
+  0% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.animate-toast-in {
+  animation: toastIn 0.3s ease-out;
+}
+
+@keyframes toastOut {
+  0% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+.animate-toast-out {
+  animation: toastOut 0.3s ease-in forwards;
+}
+
+@keyframes topProgress {
+  0% {
+    transform: scaleX(0);
+    opacity: 1;
+  }
+
+  70% {
+    transform: scaleX(0.85);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scaleX(1);
+    opacity: 0;
+  }
+}
+
+.animate-top-progress {
+  animation: topProgress 0.6s ease-out forwards;
 }
 
 .cursor-grab {
@@ -1648,6 +1789,10 @@ table th,
 
 .gap-3 {
   gap: 0.75rem;
+}
+
+.gap-3\.5 {
+  gap: 0.875rem;
 }
 
 .gap-4 {
@@ -2223,8 +2368,16 @@ table th,
   padding-bottom: 1.5rem;
 }
 
+.pb-\[env\(safe-area-inset-bottom\)\] {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
 .pl-3 {
   padding-left: 0.75rem;
+}
+
+.pl-6 {
+  padding-left: 1.5rem;
 }
 
 .pr-1 {
@@ -2233,6 +2386,10 @@ table th,
 
 .pr-1\.5 {
   padding-right: 0.375rem;
+}
+
+.pr-14 {
+  padding-right: 3.5rem;
 }
 
 .pr-3 {
@@ -2688,6 +2845,61 @@ table th,
 
 /* ============================================= */
 
+/* PREFERENCES (attributes set on <html> by      */
+
+/* wwwroot/js/prefs.js)                          */
+
+/* ============================================= */
+
+/* Content width: caps the page root inside <main> (MainLayout). */
+
+[data-content-width="narrow"] .main-content-area > * {
+  max-width: 56rem;
+  margin-inline: auto;
+}
+
+[data-content-width="standard"] .main-content-area > * {
+  max-width: 80rem;
+  margin-inline: auto;
+}
+
+[data-content-width="wide"] .main-content-area > * {
+  max-width: 100%;
+}
+
+/* Toast stack position (ToastContainer); top-right by default. */
+
+.toast-container {
+  top: 1rem;
+  right: 1rem;
+}
+
+[data-notif-position="top-center"] .toast-container,
+[data-notif-position="bottom-center"] .toast-container {
+  right: auto;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+[data-notif-position="bottom-right"] .toast-container,
+[data-notif-position="bottom-center"] .toast-container {
+  top: auto;
+  bottom: 1rem;
+}
+
+/* Short colour cross-fade on an explicit theme switch, not on load. */
+
+.theme-transitioning body,
+.theme-transitioning main,
+.theme-transitioning header,
+.theme-transitioning aside,
+.theme-transitioning section,
+.theme-transitioning article {
+  transition: color 0.18s ease, background-color 0.18s ease, border-color 0.18s ease;
+}
+
+/* ============================================= */
+
 /* RICH TEXT EDITOR (QUILL)                      */
 
 /* ============================================= */
@@ -2837,15 +3049,6 @@ input:-webkit-autofill:active {
 .hover\:border-muted:hover {
   --tw-border-opacity: 1;
   border-color: rgb(var(--muted) / var(--tw-border-opacity, 1));
-}
-
-.hover\:bg-blue-100:hover {
-  --tw-bg-opacity: 1;
-  background-color: rgb(219 234 254 / var(--tw-bg-opacity, 1));
-}
-
-.hover\:bg-blue-50\/50:hover {
-  background-color: rgb(239 246 255 / 0.5);
 }
 
 .hover\:bg-canvas:hover {

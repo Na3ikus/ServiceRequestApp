@@ -155,7 +155,7 @@ public class SettingsPageTests
         ButtonWithText(cut, "settings.resetDefaults").Click();
         _host.Preferences.Verify(p => p.ResetAsync(), Times.Never);
 
-        cut.Find("button.amodal-btn-save").Click();
+        cut.Find("button[data-modal-save]").Click();
 
         _host.Preferences.Verify(p => p.ResetAsync(), Times.Once);
         _host.Theme.Verify(t => t.SetTheme("system"), Times.Once);

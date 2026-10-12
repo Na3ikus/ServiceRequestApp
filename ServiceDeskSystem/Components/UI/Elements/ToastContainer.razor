@@ -3,15 +3,18 @@
 @using ServiceDeskSystem.Application.Services.Toasts.Models
 @inject ILocalizationService L
 
-<div class="toast-container" role="status" aria-live="polite">
+@* toast-container: position from the toast-position setting, see Styles/input.css. *@
+<div class="toast-container pointer-events-none fixed z-[100000] flex flex-col gap-2" role="status" aria-live="polite">
     @foreach (var toast in Toasts)
     {
-        <div @key="toast.Id" class="toast toast-@toast.Type.ToString().ToLowerInvariant() @(toast.IsHiding ? "hiding" : "")">
-            <span class="toast-label">@Label(toast.Type)</span>
-            <span class="toast-message">@toast.Message</span>
+        <div @key="toast.Id" data-toast="@toast.Type.ToString().ToLowerInvariant()"
+             class="pointer-events-auto flex min-w-[300px] max-w-[400px] items-baseline gap-3 rounded-lg border border-line bg-surface px-3.5 py-2.5 @(toast.IsHiding ? "animate-toast-out" : "animate-toast-in")">
+            <span data-toast-label class="shrink-0 font-mono text-13 @LabelClass(toast.Type)">@Label(toast.Type)</span>
+            <span data-toast-message class="flex-1 text-13 text-fg">@toast.Message</span>
             <button type="button"
                     @onclick="@(() => OnRemoveToast.InvokeAsync(toast))"
-                    class="toast-close"
+                    data-toast-close
+                    class="shrink-0 font-mono text-15 leading-none text-muted hover:text-fg"
                     aria-label="@L.Translate("common.close")">×</button>
         </div>
     }
@@ -31,5 +34,12 @@
         ToastType.Error => "err",
         ToastType.Warning => "warn",
         _ => "info",
+    };
+
+    private static string LabelClass(ToastType type) => type switch
+    {
+        ToastType.Success => "text-accent-ink",
+        ToastType.Error or ToastType.Warning => "text-danger",
+        _ => "text-muted",
     };
 }

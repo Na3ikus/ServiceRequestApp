@@ -198,7 +198,7 @@
 
         var slowest = report.Products.Max(p => p.AverageResolution ?? TimeSpan.Zero);
         <div class="overflow-x-auto">
-            <table data-table="products" class="w-full min-w-[640px] border-collapse text-left text-14">
+            <table data-table="products" class="w-full min-w-[640px] whitespace-nowrap border-collapse text-left text-14">
                 <thead>
                     <tr class="border-b border-line font-mono text-13 text-muted">
                         <SortHeader Text="@Heading("stats.product")" Column="name" Sort="productSort" OnSort="SortProducts" />
@@ -250,7 +250,7 @@
 
         var maxWorkload = Math.Max(1, team.Max(r => r.Workload));
         <div class="overflow-x-auto">
-            <table data-table="team" class="w-full min-w-[820px] border-collapse text-left text-14">
+            <table data-table="team" class="w-full min-w-[820px] whitespace-nowrap border-collapse text-left text-14">
                 <thead>
                     <tr class="border-b border-line font-mono text-13 text-muted">
                         <SortHeader Text="@Heading("stats.developer")" Column="name" Sort="teamSort" OnSort="SortTeam" />

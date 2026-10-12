@@ -63,7 +63,7 @@
 
 @if (lightboxAttachment != null)
 {
-    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4 sm:p-8" role="dialog" aria-modal="true"
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4 outline-none sm:p-8" role="dialog" aria-modal="true"
          aria-label="@lightboxAttachment.FileName" tabindex="-1" @ref="lightbox"
          @onclick="CloseLightbox" @onkeydown="OnLightboxKeyDown">
         <button type="button" class="absolute right-4 top-4 font-mono text-20 text-white/70 hover:text-white"

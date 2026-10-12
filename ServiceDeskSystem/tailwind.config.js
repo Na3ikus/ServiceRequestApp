@@ -12,10 +12,6 @@ module.exports = {
         "./wwwroot/**/*.html"
     ],
     darkMode: 'class',
-    safelist: [
-        'hover:bg-blue-100',
-        'hover:bg-blue-50/50'
-    ],
     theme: {
         extend: {
             fontFamily: {
@@ -52,6 +48,9 @@ module.exports = {
                 'fade-in': 'fadeIn 0.3s ease-in-out',
                 'slide-up': 'slideUp 0.4s ease-out',
                 'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                'toast-in': 'toastIn 0.3s ease-out',
+                'toast-out': 'toastOut 0.3s ease-in forwards',
+                'top-progress': 'topProgress 0.6s ease-out forwards',
             },
             keyframes: {
                 fadeIn: {
@@ -61,7 +60,20 @@ module.exports = {
                 slideUp: {
                     '0%': { transform: 'translateY(10px)', opacity: '0' },
                     '100%': { transform: 'translateY(0)', opacity: '1' },
-                }
+                },
+                toastIn: {
+                    '0%': { transform: 'translateX(100%)', opacity: '0' },
+                    '100%': { transform: 'translateX(0)', opacity: '1' },
+                },
+                toastOut: {
+                    '0%': { transform: 'translateX(0)', opacity: '1' },
+                    '100%': { transform: 'translateX(100%)', opacity: '0' },
+                },
+                topProgress: {
+                    '0%': { transform: 'scaleX(0)', opacity: '1' },
+                    '70%': { transform: 'scaleX(0.85)', opacity: '1' },
+                    '100%': { transform: 'scaleX(1)', opacity: '0' },
+                },
             }
         },
     },

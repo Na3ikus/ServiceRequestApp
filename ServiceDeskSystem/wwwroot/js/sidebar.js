@@ -34,7 +34,7 @@ window.sidebarManager = {
                 dotNetRef.invokeMethodAsync('HandleNavigateHotkey', targetUrl);
             } else if (code === 'Slash' && !event.shiftKey) {
                 event.preventDefault();
-                const searchInput = document.querySelector('.search-input');
+                const searchInput = document.querySelector('input[type="search"]');
                 if (searchInput) {
                     searchInput.focus();
                     searchInput.select();

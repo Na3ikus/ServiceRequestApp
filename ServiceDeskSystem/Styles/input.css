@@ -85,6 +85,17 @@
     table td {
         padding: var(--row-py) var(--cell-px);
     }
+
+    /* Thin token scrollbars for <main>, tables and menus. */
+    * {
+        scrollbar-width: thin;
+        scrollbar-color: rgb(var(--muted) / 0.4) transparent;
+    }
+
+    /* FocusOnNavigate focuses the page h1 after each navigation; no ring for that. */
+    h1:focus {
+        outline: none;
+    }
 }
 
 @layer utilities {
@@ -212,6 +223,55 @@
     -webkit-user-select: none;
     user-select: none;
     -webkit-touch-callout: none;
+}
+
+/* ============================================= */
+/* PREFERENCES (attributes set on <html> by      */
+/* wwwroot/js/prefs.js)                          */
+/* ============================================= */
+
+/* Content width: caps the page root inside <main> (MainLayout). */
+[data-content-width="narrow"] .main-content-area > * {
+    max-width: 56rem;
+    margin-inline: auto;
+}
+
+[data-content-width="standard"] .main-content-area > * {
+    max-width: 80rem;
+    margin-inline: auto;
+}
+
+[data-content-width="wide"] .main-content-area > * {
+    max-width: 100%;
+}
+
+/* Toast stack position (ToastContainer); top-right by default. */
+.toast-container {
+    top: 1rem;
+    right: 1rem;
+}
+
+[data-notif-position="top-center"] .toast-container,
+[data-notif-position="bottom-center"] .toast-container {
+    right: auto;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+[data-notif-position="bottom-right"] .toast-container,
+[data-notif-position="bottom-center"] .toast-container {
+    top: auto;
+    bottom: 1rem;
+}
+
+/* Short colour cross-fade on an explicit theme switch, not on load. */
+.theme-transitioning body,
+.theme-transitioning main,
+.theme-transitioning header,
+.theme-transitioning aside,
+.theme-transitioning section,
+.theme-transitioning article {
+    transition: color 0.18s ease, background-color 0.18s ease, border-color 0.18s ease;
 }
 
 /* ============================================= */

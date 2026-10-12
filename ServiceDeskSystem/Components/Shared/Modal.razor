@@ -4,36 +4,36 @@
 
 @if (IsOpen)
 {
-    <div class="amodal-overlay" @onclick="HandleOverlayClick" @onkeydown="HandleKeyDown" role="dialog" aria-modal="true" aria-labelledby="@($"modal-title-{_id}")">
-        <div class="amodal-box" tabindex="-1" @ref="_box" @onclick:stopPropagation>
-            <button type="button" @onclick="OnClose" class="amodal-close" aria-label="@L.Translate("common.close")">×</button>
+    <div data-modal class="fixed inset-0 z-[100] flex items-center justify-center bg-canvas/80 p-4" @onclick="HandleOverlayClick" @onkeydown="HandleKeyDown" role="dialog" aria-modal="true" aria-labelledby="@($"modal-title-{_id}")">
+        <div class="relative max-h-[calc(100vh-2rem)] w-full max-w-[520px] animate-fade-in overflow-y-auto rounded-lg border border-line bg-surface text-15 text-fg shadow-[0_8px_24px_rgb(0_0_0/0.12)] outline-none" tabindex="-1" @ref="_box" @onclick:stopPropagation>
+            <button type="button" @onclick="OnClose" data-modal-close class="absolute right-3 top-3 h-8 w-8 rounded-md font-mono text-15 leading-none text-muted hover:bg-canvas hover:text-fg" aria-label="@L.Translate("common.close")">×</button>
 
-            <div class="amodal-header">
-                <h3 class="amodal-title" id="@($"modal-title-{_id}")">@Title</h3>
+            <div class="pl-6 pr-14 pt-5">
+                <h3 data-modal-title class="text-15 font-medium text-fg" id="@($"modal-title-{_id}")">@Title</h3>
                 @if (!string.IsNullOrWhiteSpace(Subtitle))
                 {
-                    <p class="amodal-subtitle">@Subtitle</p>
+                    <p data-modal-subtitle class="mt-0.5 text-13 text-muted">@Subtitle</p>
                 }
             </div>
 
-            <div class="amodal-body">
+            <div class="flex flex-col gap-3.5 px-6 py-5">
                 @ChildContent
 
                 @if (!string.IsNullOrWhiteSpace(ErrorMessage))
                 {
-                    <div class="amodal-error" role="alert">@ErrorMessage</div>
+                    <div data-modal-error class="rounded-md border border-danger px-3 py-2 text-13 text-danger" role="alert">@ErrorMessage</div>
                 }
             </div>
 
-            <div class="amodal-footer">
+            <div data-modal-footer class="flex justify-end gap-2 border-t border-line px-6 py-4">
                 @if (FooterContent != null)
                 {
                     @FooterContent
                 }
                 else
                 {
-                    <button type="button" @onclick="OnClose" class="amodal-btn-cancel">@CancelText</button>
-                    <button type="button" @onclick="OnSave" disabled="@IsSaving" class="@(Danger ? "amodal-btn-save btn-danger" : "amodal-btn-save btn-accent")">
+                    <button type="button" @onclick="OnClose" data-modal-cancel class="h-9 rounded-md border border-line px-4 text-15 text-muted hover:bg-canvas hover:text-fg">@CancelText</button>
+                    <button type="button" @onclick="OnSave" disabled="@IsSaving" data-modal-save class="inline-flex items-center gap-1.5 @(Danger ? "btn-danger" : "btn-accent")">
                         @if (IsSaving)
                         {
                             <span>@SavingText</span>

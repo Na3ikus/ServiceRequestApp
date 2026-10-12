@@ -178,13 +178,13 @@ public class TicketDetailsPageTests
         SignIn(UserRole.User, AuthorId);
         var cut = Render();
 
-        cut.FindAll(".amodal-overlay").Should().BeEmpty();
+        cut.FindAll("[data-modal]").Should().BeEmpty();
         cut.Find("[data-action=delete]").Click();
 
-        cut.Find(".amodal-overlay").TextContent.Should().Contain("details.deleteText");
+        cut.Find("[data-modal]").TextContent.Should().Contain("details.deleteText");
         _tickets.Verify(t => t.DeleteTicketAsync(It.IsAny<int>()), Times.Never);
 
-        cut.Find(".amodal-btn-save").Click();
+        cut.Find("[data-modal-save]").Click();
 
         _tickets.Verify(t => t.DeleteTicketAsync(42), Times.Once);
         _host.Context.Services.GetRequiredService<FakeNavigationManager>().Uri.Should().EndWith("/my-tickets");
@@ -197,9 +197,9 @@ public class TicketDetailsPageTests
         var cut = Render();
 
         cut.Find("[data-action=delete]").Click();
-        cut.Find(".amodal-btn-cancel").Click();
+        cut.Find("[data-modal-cancel]").Click();
 
-        cut.FindAll(".amodal-overlay").Should().BeEmpty();
+        cut.FindAll("[data-modal]").Should().BeEmpty();
         _tickets.Verify(t => t.DeleteTicketAsync(It.IsAny<int>()), Times.Never);
     }
 
