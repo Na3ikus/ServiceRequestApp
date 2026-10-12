@@ -19,15 +19,19 @@
 
         <PageHeader Segments="Segments" Subtitle="@L.Translate("audit.subtitle")">
             <Status>
-                <span data-live="@(IsRealtimeConnected ? "live" : "connecting")" role="status"
-                      class="inline-flex items-center gap-1.5 font-mono @(IsRealtimeConnected ? "text-fg" : "text-muted")">
-                    @if (IsRealtimeConnected)
+                <span data-live="@Live.ToString().ToLowerInvariant()" role="status"
+                      class="inline-flex items-center gap-1.5 font-mono @(Live == LiveState.Live ? "text-fg" : "text-muted")">
+                    @switch (Live)
                     {
-                        <span aria-hidden="true" class="inline-block h-[7px] w-[7px] rounded-full bg-accent-ink"></span><text>live</text>
-                    }
-                    else
-                    {
-                        <span aria-hidden="true">○</span>@Heading("audit.realtime.connecting")
+                        case LiveState.Live:
+                            <span aria-hidden="true" class="inline-block h-[7px] w-[7px] rounded-full bg-accent-ink"></span><text>live</text>
+                            break;
+                        case LiveState.Offline:
+                            <span aria-hidden="true">○</span>@Heading("audit.realtime.offline")
+                            break;
+                        default:
+                            <span aria-hidden="true">○</span>@Heading("audit.realtime.connecting")
+                            break;
                     }
                 </span>
                 <span data-auto-refresh class="font-mono">· @(isAutoRefreshPaused ? Heading("audit.autoRefreshPaused") : "auto 20s")</span>
@@ -65,7 +69,7 @@
                     <span class="text-20 text-muted">/</span>
                     @WarningCount.ToString("N0", UiCulture)
                 </p>
-                <p class="mt-1 font-mono text-13 text-muted"># critical / warning</p>
+                <p class="mt-1 font-mono text-13 text-muted"># @Heading("audit.metrics.severity")</p>
             </div>
             @Figure("users", Heading("audit.metrics.users"), UniqueUsersCount)
         </div>
@@ -147,7 +151,7 @@
                             var summary = GetLogDisplaySummary(log);
                             <button type="button" data-event="@log.Id" aria-expanded="@(open ? "true" : "false")"
                                     aria-controls="@(open ? $"audit-event-{log.Id}" : null)"
-                                    class="flex w-full flex-wrap items-baseline gap-x-3 rounded px-2 py-1.5 text-left font-mono text-13 leading-relaxed hover:bg-surface light:hover:bg-accent/7 focus-visible:outline focus-visible:outline-1 focus-visible:-outline-offset-2 focus-visible:outline-accent-ink md:grid md:grid-cols-[4.5rem_2.75rem_8rem_11rem_9rem_minmax(0,1fr)] md:gap-3 @(open ? "bg-surface light:bg-accent/10" : null)"
+                                    class="flex w-full flex-wrap items-baseline gap-x-3 rounded px-2 py-1.5 text-left font-mono text-13 leading-relaxed hover:bg-surface focus-visible:outline focus-visible:outline-1 focus-visible:-outline-offset-2 focus-visible:outline-accent-ink md:grid md:grid-cols-[4.5rem_2.75rem_8rem_11rem_9rem_minmax(0,1fr)] md:gap-3 @(open ? "bg-surface light:bg-accent/10" : "light:hover:bg-accent/7")"
                                     @onclick="() => ToggleLog(log.Id)">
                                 <span data-col="time" class="tabular-nums text-muted">@ToLocal(log.Timestamp).ToString("HH:mm:ss", CultureInfo.InvariantCulture)</span>
                                 <span data-col="level" class="@level.Class">@level.Text</span>

@@ -199,7 +199,7 @@ public class AuditLogsPageTests
 
         Row(cut, 1).Click();
 
-        Row(cut, 1).ClassList.Should().Contain(["light:bg-accent/10", "bg-surface"]);
+        Row(cut, 1).ClassList.Should().Contain(["light:bg-accent/10", "bg-surface"]).And.NotContain("light:hover:bg-accent/7");
         cut.Find("[data-detail='1']").ClassList.Should().Contain("light:bg-accent/10");
         Row(cut, 2).ClassList.Should().NotContain("light:bg-accent/10").And.Contain("light:hover:bg-accent/7");
     }
@@ -367,16 +367,188 @@ public class AuditLogsPageTests
         _audit.Verify(a => a.GetLatestLogsAsync(It.IsAny<int>()), Times.Exactly(2));
     }
 
+    [TestCase(-6, true)]
+    [TestCase(-7, false)]
+    public void Seven_days_are_today_and_the_six_days_before(int days, bool listed)
+    {
+        _logs = [Log(1, Utc(Today.AddDays(days), 0, 1))];
+        var cut = Render();
+
+        Option(cut, "audit.period", "7d").Click();
+
+        cut.FindAll("[data-event]").Should().HaveCount(listed ? 1 : 0);
+    }
+
+    [TestCase(-29, true)]
+    [TestCase(-30, false)]
+    public void Thirty_days_are_today_and_the_29_days_before(int days, bool listed)
+    {
+        _logs = [Log(1, Utc(Today.AddDays(days), 0, 1))];
+        var cut = Render();
+
+        Option(cut, "audit.period", "30d").Click();
+
+        cut.FindAll("[data-event]").Should().HaveCount(listed ? 1 : 0);
+    }
+
+    [Test]
+    public void Escape_closes_the_clear_prompt()
+    {
+        var cut = Render();
+        cut.Find("[data-action=clear]").Click();
+
+        cut.Find("[data-clear-prompt] [data-action=keep]").KeyDown(key: "Escape");
+
+        cut.FindAll("[data-clear-prompt]").Should().BeEmpty();
+        _audit.Verify(a => a.ClearAllLogsAsync(), Times.Never);
+    }
+
+    [Test]
+    public void Cancel_is_ignored_while_the_log_is_clearing()
+    {
+        var clearing = new TaskCompletionSource();
+        _audit.Setup(a => a.ClearAllLogsAsync()).Returns(clearing.Task);
+        var cut = Render();
+        cut.Find("[data-action=clear]").Click();
+        cut.Find("[data-clear-prompt] [data-action=confirm]").Click();
+
+        cut.Find("[data-clear-prompt] [data-action=keep]").Click();
+        cut.Find("[data-clear-prompt] [data-action=keep]").KeyDown(key: "Escape");
+
+        cut.FindAll("[data-clear-prompt]").Should().ContainSingle();
+        cut.FindAll("[data-action=clear]").Should().BeEmpty();
+
+        cut.InvokeAsync(clearing.SetResult).GetAwaiter().GetResult();
+
+        cut.WaitForAssertion(() => cut.FindAll("[data-clear-prompt]").Should().BeEmpty());
+        _audit.Verify(a => a.ClearAllLogsAsync(), Times.Once);
+    }
+
+    [Test]
+    public void A_failed_clear_shows_an_error_toast_and_keeps_the_log()
+    {
+        _logs = [Log(1, Utc(Today, 9))];
+        _audit.Setup(a => a.ClearAllLogsAsync()).ThrowsAsync(new InvalidOperationException("db down"));
+        var cut = Render();
+        cut.Find("[data-action=clear]").Click();
+
+        cut.Find("[data-clear-prompt] [data-action=confirm]").Click();
+
+        _host.ToastService.Verify(
+            t => t.ShowToastAsync(
+                It.Is<string>(m => m.Contains("audit.clearFailed") && m.Contains("db down")),
+                ServiceDeskSystem.Application.Services.Toasts.Models.ToastType.Error,
+                It.IsAny<int>()),
+            Times.Once);
+        cut.FindAll("[data-clear-prompt]").Should().BeEmpty();
+        cut.FindAll("[data-event]").Should().ContainSingle();
+    }
+
+    [Test]
+    public void An_open_event_that_is_gone_after_a_reload_no_longer_holds_live_events()
+    {
+        _logs = [Log(5, Utc(Today, 9))];
+        var cut = Render();
+        Row(cut, 5).Click();
+
+        // Another admin clears the log: the event is held, then applied, and the open id is gone.
+        _logs = [Log(6, Utc(Today, 10))];
+        Raise(cut);
+        cut.Find("[data-pending-events]").Click();
+
+        cut.FindAll("[data-detail]").Should().BeEmpty();
+        _logs = [Log(7, Utc(Today, 11)), .. _logs];
+        Raise(cut);
+
+        cut.FindAll("[data-pending-events]").Should().BeEmpty();
+        cut.FindAll("[data-event]").Select(e => e.GetAttribute("data-event")).Should().Equal("7", "6");
+    }
+
+    [Test]
+    public void A_filter_change_closes_the_open_event()
+    {
+        _logs = [Log(2, Utc(Today, 9), action: "LOGIN"), Log(1, Utc(Today, 8))];
+        var cut = Render();
+        Row(cut, 1).Click();
+
+        cut.Find("[data-search]").Input("login");
+        cut.Find("[data-action=reset]").Click();
+
+        cut.FindAll("[data-detail]").Should().BeEmpty();
+        Row(cut, 1).GetAttribute("aria-expanded").Should().Be("false");
+    }
+
+    [Test]
+    public void Auto_refresh_follows_the_same_hold_rules_as_live_events()
+    {
+        _logs = [Log(1, Utc(Today, 9))];
+        var cut = Render();
+        Option(cut, "audit.severity", "info").Click();
+        _logs = [Log(2, Utc(Today, 10)), .. _logs];
+
+        cut.InvokeAsync(() => cut.Instance.TickAsync()).GetAwaiter().GetResult();
+
+        cut.FindAll("[data-event]").Should().ContainSingle();
+        _audit.Verify(a => a.GetLatestLogsAsync(It.IsAny<int>()), Times.Once);
+
+        Option(cut, "audit.severity", "all").Click();
+        cut.InvokeAsync(() => cut.Instance.TickAsync()).GetAwaiter().GetResult();
+
+        cut.FindAll("[data-event]").Should().HaveCount(2);
+    }
+
+    [Test]
+    public void Any_reload_clears_the_pending_events_bar()
+    {
+        _logs = [Log(1, Utc(Today, 9))];
+        var cut = Render();
+        cut.Find("[data-action=pause]").Click();
+        _logs = [Log(2, Utc(Today, 10)), .. _logs];
+        Raise(cut);
+        cut.Find("[data-pending-events]").TextContent.Should().Contain("1 new events");
+
+        cut.Find("[data-action=refresh]").Click();
+
+        cut.FindAll("[data-pending-events]").Should().BeEmpty();
+        cut.FindAll("[data-event]").Should().HaveCount(2);
+    }
+
+    [Test]
+    public void A_failed_hub_start_shows_offline()
+    {
+        var cut = _host.Context.RenderComponent<OfflineAuditLogs>();
+
+        cut.Find("[data-live]").GetAttribute("data-live").Should().Be("offline");
+        cut.Find("[data-live]").TextContent.Should().Contain("audit.realtime.offline");
+    }
+
+    private static void Raise(IRenderedComponent<TestAuditLogs> cut) =>
+        cut.InvokeAsync(() => cut.Instance.RaiseAuditLogsChangedAsync()).GetAwaiter().GetResult();
+
     /// <summary>
-    /// The page without a hub connection; tests raise "audit logs changed" by hand.
+    /// The page without a hub connection; tests raise "audit logs changed" and the refresh tick by hand.
     /// </summary>
     public sealed class TestAuditLogs : AuditLogs
     {
         public Task RaiseAuditLogsChangedAsync() => this.OnAuditLogsChangedAsync();
 
+        public Task TickAsync() => this.OnAutoRefreshTickAsync();
+
         protected override Task StartHubAsync()
         {
-            this.IsRealtimeConnected = true;
+            this.Live = LiveState.Live;
+            return Task.CompletedTask;
+        }
+    }
+
+    /// <summary>
+    /// The page when the first hub start fails.
+    /// </summary>
+    public sealed class OfflineAuditLogs : AuditLogs
+    {
+        protected override Task StartHubAsync()
+        {
+            this.Live = LiveState.Offline;
             return Task.CompletedTask;
         }
     }

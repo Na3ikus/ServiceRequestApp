@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.JSInterop;
 using ServiceDeskSystem.Application.Services.Audit;
+using ServiceDeskSystem.Application.Services.Toasts;
+using ServiceDeskSystem.Application.Services.Toasts.Models;
 using ServiceDeskSystem.Components.UI.Base;
 using ServiceDeskSystem.Domain.Entities;
 using ServiceDeskSystem.Domain.Enums;
@@ -54,15 +56,33 @@ public partial class AuditLogs : BaseComponent
     private CancellationTokenSource? cts;
     private HubConnection? hubConnection;
 
+    /// <summary>
+    /// State of the updates hub shown in the header.
+    /// </summary>
+    protected enum LiveState
+    {
+        /// <summary>Starting or reconnecting.</summary>
+        Connecting,
+
+        /// <summary>Connected; new events arrive live.</summary>
+        Live,
+
+        /// <summary>The first start failed or reconnecting gave up; only the 20 s refresh runs.</summary>
+        Offline,
+    }
+
     [Inject]
     protected IAuditService AuditService { get; set; } = null!;
 
     [Inject]
     protected IJSRuntime JS { get; set; } = null!;
 
+    [Inject]
+    protected IToastService ToastService { get; set; } = null!;
+
     protected bool IsAdmin => this.AuthService.CurrentUser?.Role == UserRole.Admin;
 
-    protected bool IsRealtimeConnected { get; set; }
+    protected LiveState Live { get; set; } = LiveState.Connecting;
 
     protected string SearchTerm
     {
@@ -116,6 +136,13 @@ public partial class AuditLogs : BaseComponent
     protected int WarningCount => this.logs?.Count(l => GetLogSeverity(l) == "Warning") ?? 0;
 
     protected int UniqueUsersCount => this.logs?.Select(l => l.UserId ?? 0).Where(id => id > 0).Distinct().Count() ?? 0;
+
+    /// <summary>
+    /// Gets a value indicating whether the list is held still while the reader works with it (paused, an event open,
+    /// filters set or more than one page shown): new events then only count towards the "new events" bar.
+    /// </summary>
+    protected bool IsHeld =>
+        this.isAutoRefreshPaused || this.openLogId is not null || this.HasActiveFilters || this.visibleCount > PageSize;
 
     protected bool HasActiveFilters =>
         !string.IsNullOrWhiteSpace(this.searchTerm) ||
@@ -380,7 +407,11 @@ public partial class AuditLogs : BaseComponent
 
     protected void CancelClearLogs()
     {
-        this.showClearConfirm = false;
+        // A running clear is not cancelled: the prompt stays until it finishes.
+        if (!this.isClearing)
+        {
+            this.showClearConfirm = false;
+        }
     }
 
     protected async Task ConfirmClearLogsAsync()
@@ -395,6 +426,11 @@ public partial class AuditLogs : BaseComponent
         {
             await this.AuditService.ClearAllLogsAsync();
         }
+        catch (Exception ex)
+        {
+            await this.ToastService.ShowToastAsync($"{this.L.Translate("audit.clearFailed")}: {ex.Message}", ToastType.Error);
+            return;
+        }
         finally
         {
             this.isClearing = false;
@@ -402,7 +438,6 @@ public partial class AuditLogs : BaseComponent
         }
 
         this.openLogId = null;
-        this.pendingNewEventsCount = 0;
         this.ResetFilters();
         await this.LoadLogsAsync();
     }
@@ -426,7 +461,6 @@ public partial class AuditLogs : BaseComponent
     protected async Task RefreshNowAsync()
     {
         this.isRefreshing = true;
-        this.pendingNewEventsCount = 0;
         try
         {
             await this.LoadLogsAsync();
@@ -439,7 +473,6 @@ public partial class AuditLogs : BaseComponent
 
     protected async Task ApplyPendingEventsAsync()
     {
-        this.pendingNewEventsCount = 0;
         this.visibleCount = PageSize;
         await this.LoadLogsAsync();
     }
@@ -493,26 +526,26 @@ public partial class AuditLogs : BaseComponent
                 .Build();
 
             this.hubConnection.On("AuditLogsChanged", this.OnAuditLogsChangedAsync);
-            this.hubConnection.Reconnecting += _ => this.SetConnectedAsync(false);
-            this.hubConnection.Reconnected += _ => this.SetConnectedAsync(true);
-            this.hubConnection.Closed += _ => this.SetConnectedAsync(false);
+            this.hubConnection.Reconnecting += _ => this.SetLiveAsync(LiveState.Connecting);
+            this.hubConnection.Reconnected += _ => this.SetLiveAsync(LiveState.Live);
+            this.hubConnection.Closed += _ => this.SetLiveAsync(LiveState.Offline);
 
             await this.hubConnection.StartAsync();
-            this.IsRealtimeConnected = true;
+            this.Live = LiveState.Live;
         }
         catch
         {
-            this.IsRealtimeConnected = false;
+            // Automatic reconnect does not retry a failed first start; the 20 s refresh still runs.
+            this.Live = LiveState.Offline;
         }
     }
 
     /// <summary>
-    /// Reloads the list, or counts the event for the "new events" bar while the reader is busy with it
-    /// (paused, an event open, filters set or more than one page shown).
+    /// Reloads the list, or counts the event for the "new events" bar while the list is held (<see cref="IsHeld"/>).
     /// </summary>
     protected Task OnAuditLogsChangedAsync() => this.InvokeAsync(async () =>
     {
-        if (this.isAutoRefreshPaused || this.openLogId is not null || this.HasActiveFilters || this.visibleCount > PageSize)
+        if (this.IsHeld)
         {
             this.pendingNewEventsCount++;
         }
@@ -521,6 +554,20 @@ public partial class AuditLogs : BaseComponent
             await this.LoadLogsAsync();
         }
 
+        this.StateHasChanged();
+    });
+
+    /// <summary>
+    /// Fallback refresh every 20 s, skipped while the list is held (<see cref="IsHeld"/>).
+    /// </summary>
+    protected Task OnAutoRefreshTickAsync() => this.InvokeAsync(async () =>
+    {
+        if (this.IsHeld)
+        {
+            return;
+        }
+
+        await this.LoadLogsAsync();
         this.StateHasChanged();
     });
 
@@ -541,18 +588,26 @@ public partial class AuditLogs : BaseComponent
         {
             field = value;
             this.visibleCount = PageSize;
+            this.openLogId = null;
         }
     }
 
-    private Task SetConnectedAsync(bool connected)
+    private Task SetLiveAsync(LiveState state)
     {
-        this.IsRealtimeConnected = connected;
+        this.Live = state;
         return this.InvokeAsync(this.StateHasChanged);
     }
 
+    // Everything is listed after a load, so held events are no longer pending. An open event that is gone
+    // (cleared, out of the 500, filtered out or past the shown page) is closed, so it does not hold the list.
     private async Task LoadLogsAsync()
     {
         this.logs = await this.AuditService.GetLatestLogsAsync(500);
+        this.pendingNewEventsCount = 0;
+        if (this.openLogId is int id && !this.FilteredLogs.Take(this.visibleCount).Any(l => l.Id == id))
+        {
+            this.openLogId = null;
+        }
     }
 
     private async Task StopHubAsync()
@@ -571,7 +626,6 @@ public partial class AuditLogs : BaseComponent
             finally
             {
                 this.hubConnection = null;
-                this.IsRealtimeConnected = false;
             }
         }
     }
@@ -591,17 +645,7 @@ public partial class AuditLogs : BaseComponent
             {
                 if (await timer.WaitForNextTickAsync(token))
                 {
-                    if (this.isAutoRefreshPaused || this.openLogId is not null)
-                    {
-                        continue;
-                    }
-
-                    // Passive fallback refresh
-                    await this.InvokeAsync(async () =>
-                    {
-                        await this.LoadLogsAsync();
-                        this.StateHasChanged();
-                    });
+                    await this.OnAutoRefreshTickAsync();
                 }
             }
             catch (OperationCanceledException)
