@@ -113,6 +113,18 @@ public class SettingsPageTests
     }
 
     [Test]
+    public void Reflects_a_preference_changed_elsewhere()
+    {
+        var cut = Render();
+
+        _host.Preferences.SetupGet(p => p.Current).Returns(UserPreferences.Defaults with { Accent = "ice" });
+        _host.Preferences.Raise(p => p.Changed += null, EventArgs.Empty);
+
+        cut.WaitForAssertion(() =>
+            cut.Find("button[aria-label='settings.accent.ice']").GetAttribute("aria-checked").Should().Be("true"));
+    }
+
+    [Test]
     public void ClickingDarkThemeCallsSetTheme()
     {
         var cut = Render();

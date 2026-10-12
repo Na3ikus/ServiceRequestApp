@@ -6,7 +6,7 @@ namespace ServiceDeskSystem.Tests.Backend.Unit;
 
 /// <summary>
 /// Guards the language pack files themselves: every key lives in exactly one file,
-/// settings and statistics keys match across languages, and keys for removed settings stay gone.
+/// settings, statistics and command palette keys match across languages, and keys for removed settings stay gone.
 /// </summary>
 public class LocalizationFilesTests
 {
@@ -84,6 +84,7 @@ public class LocalizationFilesTests
 
     [TestCase("settings.")]
     [TestCase("stats.")]
+    [TestCase("cmd.")]
     public void PrefixedKeysHaveParityAcrossLanguages(string prefix)
     {
         var english = AllKeys("en").Where(k => k.StartsWith(prefix, StringComparison.Ordinal)).ToHashSet();

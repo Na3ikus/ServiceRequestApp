@@ -71,6 +71,14 @@ public partial class Settings : BaseComponent
     private IReadOnlyList<(string Value, string Text)> LanguageOptions =>
         this.L.SupportedLanguages.Select(l => (l.Code, l.Code)).ToList();
 
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        // Preferences can change elsewhere (the command palette) while the page is open.
+        this.Prefs.Changed += this.OnPrefsChanged;
+    }
+
     protected override async Task OnInitializedAsync()
     {
         if (this.AuthService.CurrentUser is null)
@@ -88,7 +96,23 @@ public partial class Settings : BaseComponent
         }
     }
 
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing && !this.disposed)
+        {
+            this.Prefs.Changed -= this.OnPrefsChanged;
+        }
+
+        base.Dispose(disposing);
+    }
+
     private static string Bool(bool value) => value ? "true" : "false";
+
+    private void OnPrefsChanged(object? sender, EventArgs e)
+    {
+        this.prefs = this.Prefs.Current;
+        this.InvokeAsync(this.StateHasChanged);
+    }
 
     private async Task SetAsync(string name, string value)
     {

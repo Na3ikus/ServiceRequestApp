@@ -95,6 +95,7 @@
 
     let transitionTimer = null;
     let systemThemeListener = null;
+    const previewing = new Set(); // names applied by preview() but not stored
 
     function root() {
         return globalThis.document.documentElement;
@@ -127,17 +128,20 @@
         return all;
     }
 
-    function resolveTheme() {
-        const theme = get('theme');
+    function resolveThemeValue(theme) {
         if (theme === 'system') return osMatches(DARK_QUERY) ? 'dark' : 'light';
         return theme;
+    }
+
+    function resolveTheme() {
+        return resolveThemeValue(get('theme'));
     }
 
     function apply(name, value) {
         const html = root();
         switch (name) {
             case 'theme':
-                html.classList.toggle('dark', resolveTheme() === 'dark');
+                html.classList.toggle('dark', resolveThemeValue(value) === 'dark');
                 break;
             case 'accent':
                 html.setAttribute('data-accent', value);
@@ -188,12 +192,36 @@
         } catch (err) {
             // Storage unavailable: still apply for this page view.
         }
+        previewing.delete(name);
         if (name === 'theme') startThemeTransition();
         apply(name, value);
         return true;
     }
 
+    // Applies a value for this page view without storing it (command palette live preview).
+    function preview(name, value) {
+        const e = entry(name);
+        if (!e.values.includes(value)) return false;
+        previewing.add(name);
+        if (name === 'theme') startThemeTransition();
+        apply(name, value);
+        return true;
+    }
+
+    // Re-applies the stored value, dropping a preview.
+    function restore(name) {
+        entry(name);
+        if (!previewing.delete(name)) return;
+        if (name === 'theme') startThemeTransition();
+        apply(name, get(name));
+    }
+
+    function restoreAll() {
+        for (const name of [...previewing]) restore(name);
+    }
+
     function reset() {
+        previewing.clear();
         for (const name of Object.keys(SCHEMA)) {
             try {
                 globalThis.localStorage.removeItem(SCHEMA[name].key);
@@ -209,6 +237,7 @@
     }
 
     function init() {
+        previewing.clear();
         try {
             migrate(globalThis.localStorage);
         } catch (e) {
@@ -220,7 +249,7 @@
 
         globalThis.matchMedia(DARK_QUERY).addEventListener('change', (ev) => {
             if (get('theme') !== 'system') return;
-            apply('theme', 'system');
+            if (!previewing.has('theme')) apply('theme', 'system');
             if (systemThemeListener) {
                 systemThemeListener.invokeMethodAsync('OnSystemThemeChanged', !!ev.matches);
             }
@@ -249,6 +278,9 @@
         get,
         getAll,
         set,
+        preview,
+        restore,
+        restoreAll,
         reset,
         applyAll,
         resolveTheme,

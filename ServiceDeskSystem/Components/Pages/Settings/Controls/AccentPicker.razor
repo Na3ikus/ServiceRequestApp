@@ -1,7 +1,7 @@
 @inject ServiceDeskSystem.Application.Services.Localization.ILocalizationService L
 
 <div role="radiogroup" aria-label="@L.Translate("settings.accent")" class="flex items-center gap-2.5">
-    @for (var i = 0; i < Accents.Length; i++)
+    @for (var i = 0; i < Accents.Count; i++)
     {
         var index = i;
         var accent = Accents[index];
@@ -22,16 +22,9 @@
 </div>
 
 @code {
-    // Swatches use the dark-theme accent values so they read the same in both themes.
-    private static readonly (string Name, string Hex)[] Accents =
-    [
-        ("lime", "#c6f432"),
-        ("amber", "#ffb000"),
-        ("phosphor", "#33ff99"),
-        ("ice", "#4de8f0"),
-    ];
+    private static readonly IReadOnlyList<(string Name, string Hex)> Accents = AccentSwatches.All;
 
-    private readonly ElementReference[] buttons = new ElementReference[Accents.Length];
+    private readonly ElementReference[] buttons = new ElementReference[Accents.Count];
 
     [Parameter]
     public string Value { get; set; } = "lime";
@@ -39,7 +32,7 @@
     [Parameter]
     public EventCallback<string> ValueChanged { get; set; }
 
-    private int SelectedIndex => Array.FindIndex(Accents, a => a.Name == Value);
+    private int SelectedIndex => Accents.ToList().FindIndex(a => a.Name == Value);
 
     private async Task SelectAsync(int index)
     {
@@ -51,7 +44,7 @@
 
     private async Task OnKeyDownAsync(KeyboardEventArgs e, int index)
     {
-        var count = Accents.Length;
+        var count = Accents.Count;
         int? target = e.Key switch
         {
             "ArrowRight" or "ArrowDown" => (index + 1) % count,

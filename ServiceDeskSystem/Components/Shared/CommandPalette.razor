@@ -1,10 +1,13 @@
 @implements IDisposable
 @inject IJSRuntime JS
+@inject ServiceDeskSystem.Application.Services.Preferences.IPreferencesService Prefs
 @inherits ServiceDeskSystem.Components.UI.Base.BaseComponent
+@using ServiceDeskSystem.Application.Services.Preferences
+@using ServiceDeskSystem.Domain.Enums
 
 @if (_isOpen)
 {
-    <div class="fixed inset-0 z-[9998] flex items-start justify-center bg-canvas/80 px-4 pt-[10vh]" @onclick="Close" role="dialog" aria-modal="true" aria-label="Command palette">
+    <div class="fixed inset-0 z-[9998] flex items-start justify-center bg-canvas/80 px-4 pt-[10vh]" @onclick="CloseAsync" role="dialog" aria-modal="true" aria-label="Command palette">
         <div class="w-full max-w-[38rem] overflow-hidden rounded-lg border border-line bg-surface shadow-[0_8px_24px_rgb(0_0_0/0.12)]" @onclick:stopPropagation>
             <div class="flex items-center gap-2 border-b border-line px-4">
                 <span aria-hidden="true" class="font-mono text-15 text-accent-ink">&gt;</span>
@@ -15,8 +18,8 @@
                        aria-label="@L.Translate("cmd.placeholder")"
                        @bind="_query"
                        @bind:event="oninput"
-                       @bind:after="OnQueryChanged"
-                       @onkeydown="OnKeyDown" />
+                       @bind:after="OnQueryChangedAsync"
+                       @onkeydown="OnKeyDownAsync" />
                 <Kbd>Esc</Kbd>
             </div>
 
@@ -26,30 +29,41 @@
             }
             else
             {
-                <div class="max-h-[22rem] overflow-y-auto p-1" role="listbox">
-                    @for (int i = 0; i < _filteredItems.Count; i++)
+                <div @ref="_listRef" class="max-h-[22rem] overflow-y-auto p-1" role="listbox" aria-label="Command palette">
+                    @foreach (var group in _filteredItems.Select((item, index) => (item, index)).GroupBy(x => x.item.Group))
                     {
-                        var item = _filteredItems[i];
-                        var idx = i;
-                        var selected = idx == _selectedIndex;
-                        <button type="button"
-                                class="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left font-mono text-14 hover:bg-canvas @(selected ? "bg-canvas text-fg" : "text-muted")"
-                                role="option"
-                                aria-selected="@(selected ? "true" : "false")"
-                                @onclick="() => ExecuteItem(item)">
-                            <span aria-hidden="true" class="w-[1ch] flex-shrink-0 text-accent-ink">@(selected ? "›" : "")</span>
-                            <span class="min-w-0 flex-1">
-                                <span class="block truncate">@item.Label</span>
-                                @if (!string.IsNullOrWhiteSpace(item.Description))
-                                {
-                                    <span class="block truncate font-sans text-13 text-muted">@item.Description</span>
-                                }
-                            </span>
-                            @if (!string.IsNullOrWhiteSpace(item.Shortcut))
+                        <div role="group" aria-label="@group.Key">
+                            @* Group heading: a shell comment, not an option; arrow keys only walk the items. *@
+                            <div role="presentation" class="px-2 pb-1 pt-2 font-mono text-13 text-muted"># @group.Key</div>
+                            @foreach (var (item, idx) in group)
                             {
-                                <Kbd>@item.Shortcut</Kbd>
+                                var selected = idx == _selectedIndex;
+                                <button type="button"
+                                        class="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left font-mono text-14 @(selected ? "bg-canvas text-fg" : "text-muted")"
+                                        role="option"
+                                        aria-selected="@(selected ? "true" : "false")"
+                                        @onmouseenter="() => SelectAsync(idx)"
+                                        @onclick="() => ExecuteItemAsync(item)">
+                                    <span aria-hidden="true" class="w-[1ch] flex-shrink-0 text-accent-ink">@(selected ? "›" : "")</span>
+                                    @if (item.Swatch is not null)
+                                    {
+                                        <span aria-hidden="true" data-swatch class="h-3 w-3 flex-shrink-0 rounded-sm" style="background: @item.Swatch"></span>
+                                    }
+                                    <span class="min-w-0 flex-1">
+                                        <span class="block truncate">@item.Label</span>
+                                        <span class="block truncate font-sans text-13 text-muted">@item.Description</span>
+                                    </span>
+                                    @if (item.IsCurrent)
+                                    {
+                                        <span data-current class="flex-shrink-0 text-accent-ink"><span aria-hidden="true">●</span><span class="sr-only">@L.Translate("cmd.current")</span></span>
+                                    }
+                                    @if (!string.IsNullOrWhiteSpace(item.Shortcut))
+                                    {
+                                        <Kbd>@item.Shortcut</Kbd>
+                                    }
+                                </button>
                             }
-                        </button>
+                        </div>
                     }
                 </div>
             }
@@ -64,19 +78,29 @@
 }
 
 @code {
+    private const string GoGroup = "go";
+    private const string AppearanceGroup = "appearance";
+    private const string LanguageGroup = "language";
+    private const string ThemePref = "theme";
+
+    private static readonly string[] Themes = ["light", "dark", "system"];
+
     private bool _isOpen;
     private string _query = string.Empty;
     private int _selectedIndex;
+    private bool _scrollToSelected;
     private ElementReference _inputRef;
+    private ElementReference _listRef;
     private List<CommandItem> _allItems = [];
     private List<CommandItem> _filteredItems = [];
     private DotNetObjectReference<CommandPalette>? _dotNetRef;
 
+    // The theme/accent value applied by live preview but not saved yet.
+    private (string Name, string Value)? _preview;
+
     protected override void OnInitialized()
     {
         base.OnInitialized();
-        _allItems = BuildItems();
-        _filteredItems = _allItems;
         _dotNetRef = DotNetObjectReference.Create(this);
     }
 
@@ -97,92 +121,212 @@
         if (_isOpen)
         {
             try { await _inputRef.FocusAsync(); } catch { }
+
+            if (_scrollToSelected)
+            {
+                _scrollToSelected = false;
+                try { await JS.InvokeVoidAsync("commandPalette.scrollToSelected", _listRef); } catch { }
+            }
         }
     }
 
-    [JSInvokable]
-    public void Toggle()
+    [JSInvokable("Toggle")]
+    public async Task ToggleAsync()
     {
-        if (_isOpen) Close();
-        else Open();
+        if (_isOpen) await CloseAsync();
+        else await OpenAsync();
     }
 
-    [JSInvokable]
-    public void Open()
+    [JSInvokable("Open")]
+    public async Task OpenAsync()
     {
-        _query = string.Empty;
+        // Load the saved accent so the current-value marker is right.
+        await Prefs.LoadAsync();
+        _allItems = BuildItems();
         _filteredItems = _allItems;
+        _query = string.Empty;
         _selectedIndex = 0;
+        _preview = null;
         _isOpen = true;
-        InvokeAsync(StateHasChanged);
+        await InvokeAsync(StateHasChanged);
     }
 
-    private void Close()
+    private async Task CloseAsync()
     {
+        await RestorePreviewAsync();
         _isOpen = false;
         _query = string.Empty;
         StateHasChanged();
     }
 
-    private void OnQueryChanged()
+    private async Task OnQueryChangedAsync()
     {
-        _selectedIndex = 0;
-        var q = _query.Trim().ToLowerInvariant();
-        _filteredItems = string.IsNullOrWhiteSpace(q)
+        var words = _query.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        _filteredItems = words.Length == 0
             ? _allItems
-            : _allItems.Where(x =>
-                x.Label.Contains(q, StringComparison.OrdinalIgnoreCase) ||
-                (x.Description?.Contains(q, StringComparison.OrdinalIgnoreCase) ?? false) ||
-                (x.Keywords?.Contains(q, StringComparison.OrdinalIgnoreCase) ?? false)
-            ).ToList();
+            : _allItems.Where(x => words.All(x.Matches)).ToList();
+        _selectedIndex = 0;
+        await UpdatePreviewAsync();
     }
 
-    private void OnKeyDown(KeyboardEventArgs e)
+    private async Task OnKeyDownAsync(KeyboardEventArgs e)
     {
         switch (e.Key)
         {
             case "ArrowDown":
-                _selectedIndex = Math.Min(_selectedIndex + 1, _filteredItems.Count - 1);
-                StateHasChanged();
+                _scrollToSelected = true;
+                await SelectAsync(Math.Min(_selectedIndex + 1, _filteredItems.Count - 1));
                 break;
             case "ArrowUp":
-                _selectedIndex = Math.Max(_selectedIndex - 1, 0);
-                StateHasChanged();
+                _scrollToSelected = true;
+                await SelectAsync(Math.Max(_selectedIndex - 1, 0));
                 break;
             case "Enter":
                 if (_selectedIndex >= 0 && _selectedIndex < _filteredItems.Count)
-                    ExecuteItem(_filteredItems[_selectedIndex]);
+                    await ExecuteItemAsync(_filteredItems[_selectedIndex]);
                 break;
             case "Escape":
-                Close();
+                await CloseAsync();
                 break;
         }
     }
 
-    private void ExecuteItem(CommandItem item)
+    private async Task SelectAsync(int index)
     {
-        Close();
+        if (index == _selectedIndex)
+            return;
+
+        _selectedIndex = index;
+        await UpdatePreviewAsync();
+    }
+
+    private async Task ExecuteItemAsync(CommandItem item)
+    {
+        if (item.Pref is { } pref)
+        {
+            // Saving supersedes the preview: prefs.set stores and applies the value.
+            _preview = null;
+            await SaveAsync(pref.Name, pref.Value);
+        }
+
+        await CloseAsync();
+
         if (!string.IsNullOrWhiteSpace(item.Href))
             Navigation.NavigateTo(item.Href);
+        else if (item.Action is not null)
+            await item.Action();
+    }
+
+    // Same paths as the Settings page, so Settings and every subscriber stay in sync.
+    private async Task SaveAsync(string name, string value)
+    {
+        if (name == ThemePref)
+            Theme.SetTheme(value);
         else
-            item.Action?.Invoke();
+            await Prefs.SetAsync(name, value);
+    }
+
+    // Live preview: the selected theme/accent command is applied without saving;
+    // any other selection puts the saved value back.
+    private async Task UpdatePreviewAsync()
+    {
+        var pref = _selectedIndex >= 0 && _selectedIndex < _filteredItems.Count
+            ? _filteredItems[_selectedIndex].Pref
+            : null;
+
+        if (pref == _preview)
+            return;
+
+        if (_preview is { } old && old.Name != pref?.Name)
+            await RestorePreviewAsync();
+
+        if (pref is { } next)
+        {
+            _preview = next;
+            try { await JS.InvokeVoidAsync("prefs.preview", next.Name, next.Value); } catch (JSException) { }
+        }
+    }
+
+    private async Task RestorePreviewAsync()
+    {
+        if (_preview is not { } preview)
+            return;
+
+        _preview = null;
+        try { await JS.InvokeVoidAsync("prefs.restore", preview.Name); } catch (JSException) { }
+    }
+
+    private async Task SetLanguageAsync(string code)
+    {
+        L.SetLanguage(code);
+        try
+        {
+            await JS.InvokeVoidAsync("localStorage.setItem", "settings.language", code);
+        }
+        catch (JSException)
+        {
+            // Language still applies for this session.
+        }
     }
 
     private List<CommandItem> BuildItems()
     {
-        return new List<CommandItem>
+        var role = AuthService.CurrentUser?.Role;
+        var items = new List<CommandItem>
         {
-            new("Go to Home", "/", null, "home dashboard"),
-            new("Go to All Tickets", "/tickets", null, "tickets list all"),
-            new("Create New Ticket", "/create-ticket", null, "new ticket create", "N"),
-            new("My Tickets", "/my-tickets", null, "my tickets personal"),
-            new("Calendar", "/calendar", null, "calendar schedule dates"),
-            new("Statistics", "/statistics", null, "stats analytics charts"),
-            new("My Profile", "/profile", null, "profile account user"),
-            new("Settings", "/settings", null, "settings preferences theme"),
-            new("Toggle Theme", null, () => Theme.ToggleTheme(), "dark light mode theme", "D"),
+            Go("~", "/", "cmd.desc.home", "home dashboard"),
         };
+
+        if (IsAdminOrDeveloper)
+            items.Add(Go("~/tickets", "/tickets", "cmd.desc.tickets", "tickets list all"));
+        if (role == UserRole.User)
+            items.Add(Go("~/my-tickets", "/my-tickets", "cmd.desc.myTickets", "my tickets personal"));
+
+        items.Add(Go("~/calendar", "/calendar", "cmd.desc.calendar", "calendar schedule dates"));
+
+        if (IsAdminOrDeveloper)
+            items.Add(Go("~/statistics", "/statistics", "cmd.desc.statistics", "stats analytics charts"));
+
+        items.Add(Go("~/profile", "/profile", "cmd.desc.profile", "profile account user"));
+        items.Add(Go("~/settings", "/settings", "cmd.desc.settings", "settings preferences"));
+
+        if (role == UserRole.Admin)
+        {
+            items.Add(Go("~/admin", "/admin", "cmd.desc.admin", "admin users administration"));
+            items.Add(Go("~/audit-logs", "/audit-logs", "cmd.desc.auditLogs", "audit logs history"));
+        }
+
+        items.Add(new(GoGroup, "new ticket", L.Translate("cmd.desc.newTicket"), "create ticket", Href: "/create-ticket", Shortcut: "N"));
+
+        var theme = Theme.IsSystemTheme ? "system" : Theme.CurrentTheme;
+        foreach (var t in Themes)
+        {
+            items.Add(new(AppearanceGroup, $"theme {t}", L.Translate($"cmd.desc.theme.{t}"), "mode scheme",
+                Pref: (ThemePref, t), IsCurrent: t == theme));
+        }
+
+        foreach (var (name, hex) in AccentSwatches.All)
+        {
+            items.Add(new(AppearanceGroup, $"accent {name}", L.Translate($"settings.accent.{name}"), "color colour",
+                Pref: (PreferenceSchema.Accent, name), IsCurrent: name == Prefs.Current.Accent, Swatch: hex));
+        }
+
+        foreach (var code in new[] { "en", "uk", "fr", "es", "de" })
+        {
+            var lang = L.SupportedLanguages.FirstOrDefault(l => l.Code == code);
+            if (lang is null)
+                continue;
+
+            items.Add(new(LanguageGroup, $"lang {code}", lang.NativeName, $"language {lang.Name}",
+                Action: () => SetLanguageAsync(code),
+                IsCurrent: string.Equals(code, L.CurrentLanguage, StringComparison.OrdinalIgnoreCase)));
+        }
+
+        return items;
     }
+
+    private CommandItem Go(string path, string href, string descriptionKey, string keywords) =>
+        new(GoGroup, $"cd {path}", L.Translate(descriptionKey), keywords, Href: href);
 
     protected override void Dispose(bool disposing)
     {
@@ -193,12 +337,21 @@
         base.Dispose(disposing);
     }
 
-    private record CommandItem(
+    private sealed record CommandItem(
+        string Group,
         string Label,
-        string? Href,
-        Action? Action,
-        string? Keywords = null,
+        string Description,
+        string Keywords,
+        string? Href = null,
+        Func<Task>? Action = null,
         string? Shortcut = null,
-        string? Description = null
-    );
+        (string Name, string Value)? Pref = null,
+        bool IsCurrent = false,
+        string? Swatch = null)
+    {
+        public bool Matches(string word) =>
+            Label.Contains(word, StringComparison.OrdinalIgnoreCase) ||
+            Description.Contains(word, StringComparison.OrdinalIgnoreCase) ||
+            Keywords.Contains(word, StringComparison.OrdinalIgnoreCase);
+    }
 }

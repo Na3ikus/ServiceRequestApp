@@ -12,5 +12,10 @@ window.commandPalette = {
                 this._dotNetRef?.invokeMethodAsync('Toggle');
             }
         });
+    },
+
+    // Keeps the keyboard-selected option visible in the scrolling list.
+    scrollToSelected(list) {
+        list?.querySelector('[aria-selected="true"]')?.scrollIntoView({ block: 'nearest' });
     }
 };

@@ -157,3 +157,69 @@ test('migrate is idempotent', () => {
     assert.equal(s.getItem('settings.accentColor'), 'custom');
     assert.deepEqual({ ...s.snapshot(), 'settings.accentColor': 'lime' }, first);
 });
+
+test('preview applies accent without storing it', () => {
+    const b = fakeBrowser({ storage: { 'settings.accentColor': 'lime' } });
+    prefs.init();
+    assert.equal(prefs.preview('accent', 'amber'), true);
+    assert.equal(b.root.getAttribute('data-accent'), 'amber');
+    assert.equal(b.storage.getItem('settings.accentColor'), 'lime');
+    assert.equal(prefs.get('accent'), 'lime');
+});
+
+test('preview rejects invalid value', () => {
+    const b = fakeBrowser();
+    prefs.init();
+    assert.equal(prefs.preview('accent', 'pink'), false);
+    assert.equal(b.root.getAttribute('data-accent'), 'lime');
+});
+
+test('preview applies theme without storing it', () => {
+    const b = fakeBrowser({ storage: { theme: 'light' } });
+    prefs.init();
+    prefs.preview('theme', 'dark');
+    assert.equal(b.classes.has('dark'), true);
+    assert.equal(b.storage.getItem('theme'), 'light');
+});
+
+test('restore re-applies the stored value', () => {
+    const b = fakeBrowser({ storage: { theme: 'light', 'settings.accentColor': 'ice' } });
+    prefs.init();
+    prefs.preview('accent', 'amber');
+    prefs.preview('theme', 'dark');
+    prefs.restore('accent');
+    assert.equal(b.root.getAttribute('data-accent'), 'ice');
+    assert.equal(b.classes.has('dark'), true);
+    prefs.restore('theme');
+    assert.equal(b.classes.has('dark'), false);
+});
+
+test('restoreAll re-applies every previewed value', () => {
+    const b = fakeBrowser({ storage: { theme: 'dark', 'settings.accentColor': 'phosphor' } });
+    prefs.init();
+    prefs.preview('accent', 'amber');
+    prefs.preview('theme', 'light');
+    prefs.restoreAll();
+    assert.equal(b.root.getAttribute('data-accent'), 'phosphor');
+    assert.equal(b.classes.has('dark'), true);
+});
+
+test('set after preview stores the value and restore keeps it', () => {
+    const b = fakeBrowser();
+    prefs.init();
+    prefs.preview('accent', 'amber');
+    prefs.set('accent', 'ice');
+    prefs.restoreAll();
+    assert.equal(b.root.getAttribute('data-accent'), 'ice');
+    assert.equal(b.storage.getItem('settings.accentColor'), 'ice');
+});
+
+test('system theme change does not override a theme preview', () => {
+    const b = fakeBrowser({ storage: { theme: 'system' }, osDark: false });
+    prefs.init();
+    prefs.preview('theme', 'dark');
+    b.setOsDark(false);
+    assert.equal(b.classes.has('dark'), true);
+    prefs.restore('theme');
+    assert.equal(b.classes.has('dark'), false);
+});
