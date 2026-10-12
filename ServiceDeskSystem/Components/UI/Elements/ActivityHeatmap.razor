@@ -13,11 +13,13 @@ else
     var first = FirstMonday(Today);
     var summary = string.Format(culture, L.Translate("profile.activitySummary"), Days.Sum(d => d.Total));
 
-    @* Fills the content width; narrow screens scroll and start at the latest weeks (rtl scroller, ltr grid). *@
-    <div class="overflow-x-auto [direction:rtl]">
+    @* Fills the content width; narrow screens scroll and start at the latest weeks (rtl scroller, ltr grid).
+       Cells are rounded to whole pixels: fractional 1fr columns put them on half pixels and they look misaligned.
+       The first declaration is the fallback for browsers without round(). *@
+    <div class="overflow-x-auto [container-type:inline-size] [direction:rtl]">
         <div data-heatmap role="img" aria-label="@summary"
-             class="grid min-w-[44rem] gap-[3px] font-mono text-12 leading-none text-muted [direction:ltr]"
-             style="grid-template-columns: auto repeat(@Weeks, minmax(0, 1fr))">
+             class="grid gap-[3px] font-mono text-12 leading-none text-muted [direction:ltr]"
+             style="grid-template-columns: 2.5rem repeat(@Weeks, minmax(10px, 1fr)); grid-template-columns: 2.5rem repeat(@Weeks, max(10px, round(down, (100cqw - 2.5rem - @(Weeks * 3)px) / @Weeks, 1px)))">
             @for (var week = 0; week < Weeks; week++)
             {
                 var monday = first.AddDays(week * 7);

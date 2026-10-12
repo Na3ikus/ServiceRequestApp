@@ -1435,10 +1435,6 @@ table th,
   min-width: 12rem;
 }
 
-.min-w-\[44rem\] {
-  min-width: 44rem;
-}
-
 .min-w-\[500px\] {
   min-width: 500px;
 }
@@ -3046,6 +3042,10 @@ table th,
 
 .\[color-scheme\:light\] {
   color-scheme: light;
+}
+
+.\[container-type\:inline-size\] {
+  container-type: inline-size;
 }
 
 .\[direction\:ltr\] {
