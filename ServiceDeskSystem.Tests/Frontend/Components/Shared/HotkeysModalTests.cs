@@ -48,4 +48,17 @@ public class HotkeysModalTests
 
         cut.FindAll("[role=dialog]").Should().BeEmpty();
     }
+
+    [Test]
+    public void Traps_focus_while_shown_and_releases_it_on_close()
+    {
+        var cut = _host.Context.RenderComponent<HotkeysModal>();
+        cut.InvokeAsync(cut.Instance.Show);
+
+        _host.Context.JSInterop.VerifyInvoke("focusTrap.activate", calledTimes: 1);
+
+        cut.Find("[data-modal-footer] button").Click();
+
+        _host.Context.JSInterop.VerifyInvoke("focusTrap.release", calledTimes: 1);
+    }
 }

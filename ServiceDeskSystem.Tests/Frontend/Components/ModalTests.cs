@@ -159,6 +159,55 @@ public class ModalTests
     }
 
     [Test]
+    public void ClosedModalDoesNotTouchFocus()
+    {
+        _host.Context.RenderComponent<Modal>(p => p.Add(m => m.IsOpen, false));
+
+        _host.Context.JSInterop.VerifyNotInvoke("focusTrap.activate");
+        _host.Context.JSInterop.VerifyNotInvoke("focusTrap.release");
+    }
+
+    [Test]
+    public void OpeningTrapsFocusInTheDialogOnce()
+    {
+        var cut = _host.Context.RenderComponent<Modal>(p => p
+            .Add(m => m.IsOpen, true)
+            .Add(m => m.Title, "Edit policy"));
+
+        cut.SetParametersAndRender(p => p.Add(m => m.ErrorMessage, "Policy already exists"));
+
+        var activate = _host.Context.JSInterop.VerifyInvoke("focusTrap.activate", calledTimes: 1)[0];
+        activate.Arguments[0].Should().BeOfType<ElementReference>();
+        activate.Arguments[1].Should().BeOfType<string>().Which.Should().NotBeEmpty();
+        _host.Context.JSInterop.VerifyNotInvoke("focusTrap.release");
+    }
+
+    [Test]
+    public void ClosingReleasesTheTrapSoFocusReturnsToTheOpener()
+    {
+        var cut = _host.Context.RenderComponent<Modal>(p => p.Add(m => m.IsOpen, true));
+        var id = _host.Context.JSInterop.VerifyInvoke("focusTrap.activate").Arguments[1];
+
+        cut.SetParametersAndRender(p => p.Add(m => m.IsOpen, false));
+
+        _host.Context.JSInterop.VerifyInvoke("focusTrap.release", calledTimes: 1)[0].Arguments.Should().Equal(id);
+
+        cut.SetParametersAndRender(p => p.Add(m => m.IsOpen, true));
+
+        _host.Context.JSInterop.VerifyInvoke("focusTrap.activate", calledTimes: 2);
+    }
+
+    [Test]
+    public void DisposingAnOpenModalReleasesTheTrap()
+    {
+        _host.Context.RenderComponent<Modal>(p => p.Add(m => m.IsOpen, true));
+
+        _host.Context.DisposeComponents();
+
+        _host.Context.JSInterop.VerifyInvoke("focusTrap.release", calledTimes: 1);
+    }
+
+    [Test]
     public void HasNoIconsAndALabelledCloseButton()
     {
         var cut = _host.Context.RenderComponent<Modal>(p => p

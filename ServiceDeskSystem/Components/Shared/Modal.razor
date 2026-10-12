@@ -1,6 +1,8 @@
 @using Microsoft.AspNetCore.Components
 @using ServiceDeskSystem.Application.Services.Localization
 @inject ILocalizationService L
+@inject IJSRuntime JS
+@implements IAsyncDisposable
 
 @if (IsOpen)
 {
@@ -52,7 +54,7 @@
 @code {
     private readonly string _id = Guid.NewGuid().ToString("N")[..8];
     private ElementReference _box;
-    private bool _wasOpen;
+    private bool _trapped;
 
     [Parameter] public bool IsOpen { get; set; }
     [Parameter] public string Title { get; set; } = string.Empty;
@@ -69,23 +71,43 @@
     [Parameter] public EventCallback OnClose { get; set; }
     [Parameter] public EventCallback OnSave { get; set; }
 
+    // wwwroot/js/focusTrap.js keeps Tab inside the open dialog and gives focus back to the opener on close.
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (IsOpen && !_wasOpen)
+        if (IsOpen && !_trapped)
         {
-            _wasOpen = true;
-            try
-            {
-                await _box.FocusAsync();
-            }
-            catch (JSException)
-            {
-                // Focus is best effort (e.g. during prerendering).
-            }
+            _trapped = true;
+            await CallTrapAsync("focusTrap.activate", _box, _id);
         }
-        else if (!IsOpen)
+        else if (!IsOpen && _trapped)
         {
-            _wasOpen = false;
+            _trapped = false;
+            await CallTrapAsync("focusTrap.release", _id);
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_trapped)
+        {
+            _trapped = false;
+            await CallTrapAsync("focusTrap.release", _id);
+        }
+    }
+
+    private async Task CallTrapAsync(string identifier, params object[] args)
+    {
+        try
+        {
+            await JS.InvokeVoidAsync(identifier, args);
+        }
+        catch (JSException)
+        {
+            // Focus is best effort.
+        }
+        catch (JSDisconnectedException)
+        {
+            // The circuit is gone (page closed), nothing to focus.
         }
     }
 
