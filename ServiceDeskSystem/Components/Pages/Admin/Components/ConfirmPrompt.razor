@@ -1,0 +1,97 @@
+@inherits BaseComponent
+
+@* rm <target>? [y/N] — the action runs only after "y". N is focused, so a stray Enter is safe; y, n and Esc work while the prompt has focus. *@
+<div role="group" aria-label="@($"rm {Label}")" class="flex flex-wrap items-center gap-x-2.5 gap-y-2 font-mono text-13" @onkeydown="OnKeyDownAsync">
+    <span><span class="text-danger">rm</span> @(Target ?? (RenderFragment)(b => b.AddContent(0, Label)))?</span>
+    <span data-delete-note class="text-muted">@Note</span>
+    <span class="ml-auto inline-flex gap-1.5">
+        <button type="button" data-action="confirm" class="btn-danger h-7 px-2.5 font-mono text-13 font-normal"
+                disabled="@IsBusy" @onclick="ConfirmAsync">y, @ConfirmText</button>
+        <button type="button" data-action="keep" class="btn-outline h-7 font-mono" @ref="keepButton"
+                @onclick="CancelAsync">N, @Heading("common.no")</button>
+    </span>
+</div>
+
+@code {
+    private ElementReference keepButton;
+
+    /// <summary>
+    /// Gets or sets the plain-text target for the accessible name (<c>product "Billing"</c>, <c>audit.log</c>).
+    /// </summary>
+    [Parameter]
+    public string Label { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets the target shown after <c>rm</c>; defaults to <see cref="Label"/>.
+    /// </summary>
+    [Parameter]
+    public RenderFragment? Target { get; set; }
+
+    /// <summary>
+    /// Gets or sets the muted, translated note ("this cannot be undone"…).
+    /// </summary>
+    [Parameter]
+    public string? Note { get; set; }
+
+    /// <summary>
+    /// Gets or sets the translated verb after "y," (<c>delete</c>, <c>clear</c>).
+    /// </summary>
+    [Parameter]
+    public string ConfirmText { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets a value indicating whether the confirmed action is running.
+    /// </summary>
+    [Parameter]
+    public bool IsBusy { get; set; }
+
+    /// <summary>
+    /// Gets or sets the callback run on "y".
+    /// </summary>
+    [Parameter]
+    public EventCallback OnConfirm { get; set; }
+
+    /// <summary>
+    /// Gets or sets the callback run on "N" or Esc.
+    /// </summary>
+    [Parameter]
+    public EventCallback OnCancel { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+        {
+            return;
+        }
+
+        try
+        {
+            await keepButton.FocusAsync();
+        }
+        catch (InvalidOperationException)
+        {
+            // Not attached to a browser yet (prerendering).
+        }
+        catch (Microsoft.JSInterop.JSException)
+        {
+            // The prompt was closed before focusing.
+        }
+    }
+
+    private async Task ConfirmAsync()
+    {
+        if (!IsBusy)
+        {
+            await OnConfirm.InvokeAsync();
+        }
+    }
+
+    private Task CancelAsync() => OnCancel.InvokeAsync();
+
+    private Task OnKeyDownAsync(KeyboardEventArgs e) => e.Key switch
+    {
+        "y" or "Y" => ConfirmAsync(),
+        "n" or "N" or "Escape" => CancelAsync(),
+        _ => Task.CompletedTask,
+    };
+}

@@ -219,7 +219,7 @@ public class AdminRowEditingTests
         var cut = RenderProducts();
         cut.Find("tr[data-row='2'] [data-action=delete]").Click();
 
-        cut.Find("tr[data-delete-prompt]").KeyDown(key: key);
+        cut.Find("[data-delete-prompt] [data-action=keep]").KeyDown(key: key);
 
         cut.FindAll("[data-delete-prompt]").Should().BeEmpty();
         _admin.Verify(a => a.DeleteProductAsync(It.IsAny<int>()), Times.Never);
@@ -257,7 +257,7 @@ public class AdminRowEditingTests
         var cut = RenderStacks();
         cut.Find("tr[data-row='2'] [data-action=delete]").Click();
 
-        cut.Find("tr[data-delete-prompt]").KeyDown(key: "y");
+        cut.Find("[data-delete-prompt] [data-action=keep]").KeyDown(key: "y");
 
         _admin.Verify(a => a.DeleteTechStackAsync(2), Times.Once);
     }

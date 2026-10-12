@@ -42,6 +42,8 @@
   "common.logout": "Cerrar sesión",
   "common.required": "obligatorio",
   "common.footer": "Sistema Service Desk",
+  "common.themeLight": "Tema claro",
+  "common.themeDark": "Tema oscuro",
   "common.loading": "Cargando...",
   "common.no": "no",
   "auth.tagline": "Rastree, clasifique y resuelva solicitudes desde una sola terminal.",

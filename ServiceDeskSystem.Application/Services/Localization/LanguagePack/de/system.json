@@ -42,6 +42,8 @@
   "common.logout": "Abmelden",
   "common.required": "erforderlich",
   "common.footer": "Service-Desk-System",
+  "common.themeLight": "Helles Design",
+  "common.themeDark": "Dunkles Design",
   "common.loading": "Wird geladen...",
   "common.no": "nein",
   "auth.tagline": "Verfolgen, sortieren und lösen Sie Anfragen von einem Terminal aus.",

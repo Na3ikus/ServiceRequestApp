@@ -42,6 +42,8 @@
   "common.logout": "Déconnexion",
   "common.required": "requis",
   "common.footer": "Système Service Desk",
+  "common.themeLight": "Thème clair",
+  "common.themeDark": "Thème sombre",
   "common.loading": "Chargement...",
   "common.no": "non",
   "auth.tagline": "Suivez, triez et résolvez les demandes depuis un seul terminal.",

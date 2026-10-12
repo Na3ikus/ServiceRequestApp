@@ -4,7 +4,11 @@
             {
                 <span class="sr-only">@HomeLabel</span>
             }</h1>
-        @if (!string.IsNullOrEmpty(Subtitle))
+        @if (Status is not null)
+        {
+            <p class="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-13 text-muted"><span>@Subtitle</span>@Status</p>
+        }
+        else if (!string.IsNullOrEmpty(Subtitle))
         {
             <p class="text-13 text-muted mt-1">@Subtitle</p>
         }
@@ -21,6 +25,12 @@
 
     [Parameter]
     public string? Subtitle { get; set; }
+
+    /// <summary>
+    /// Gets or sets a live status shown after the subtitle (e.g. <c>● live · auto 20s</c>).
+    /// </summary>
+    [Parameter]
+    public RenderFragment? Status { get; set; }
 
     [Parameter]
     public RenderFragment? Actions { get; set; }
