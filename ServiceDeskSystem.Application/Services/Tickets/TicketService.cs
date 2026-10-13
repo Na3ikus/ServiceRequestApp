@@ -1,4 +1,5 @@
 
+using ServiceDeskSystem.Application.Common;
 using ServiceDeskSystem.Application.Common.Models;
 using ServiceDeskSystem.Domain.Entities;
 using ServiceDeskSystem.Domain.Enums;
@@ -21,6 +22,34 @@ public sealed class TicketService(
     TimeProvider? timeProvider = null)
     : ITicketService, ITicketAssignmentService, ITicketStatisticsService
 {
+    // Edits of one ticket run one at a time on this server, so the version check and the save cannot interleave.
+    private static readonly KeyedLock<int> TicketEditLocks = new ();
+
+    /// <summary>
+    /// Loads the ticket, checks the caller's version, bumps it and runs <paramref name="edit"/>, which changes and
+    /// saves the ticket, all under the ticket's edit lock.
+    /// </summary>
+    private async Task<TicketUpdateResult> EditTicketAsync(int ticketId, int? expectedVersion, Func<IRepositoryFacade, Ticket, Task> edit)
+    {
+        using var editLock = await TicketEditLocks.AcquireAsync(ticketId).ConfigureAwait(false);
+        await using var repo = repositoryFacadeFactory.Create();
+        var ticket = await repo.Tickets.GetByIdAsync(ticketId).ConfigureAwait(false);
+
+        if (ticket is null)
+        {
+            return TicketUpdateResult.NotFound;
+        }
+
+        if (expectedVersion is int expected && ticket.Version != expected)
+        {
+            return TicketUpdateResult.Conflict;
+        }
+
+        ticket.Version++;
+        await edit(repo, ticket).ConfigureAwait(false);
+        return TicketUpdateResult.Updated;
+    }
+
     private void ClearDashboardCache()
     {
         memoryCache.Remove("TicketCountByStatus");
@@ -129,17 +158,9 @@ public sealed class TicketService(
 
 
 
-    public async Task<bool> UpdateTicketStatusAsync(int ticketId, TicketStatus newStatus, int? actorUserId)
+    public Task<TicketUpdateResult> UpdateTicketStatusAsync(int ticketId, TicketStatus newStatus, int? actorUserId, int? expectedVersion = null) =>
+        EditTicketAsync(ticketId, expectedVersion, async (repo, ticket) =>
     {
-        await using var repo = repositoryFacadeFactory.Create();
-        var ticket = await repo.Tickets.GetByIdAsync(ticketId).ConfigureAwait(false);
-
-        if (ticket is null)
-        {
-            return false;
-        }
-
-        var oldStatus = ticket.Status;
         ticket.ChangeStatus(newStatus, actorUserId);
         await repo.UnitOfWork.SaveChangesAsync().ConfigureAwait(false);
 
@@ -151,20 +172,11 @@ public sealed class TicketService(
 
         // The remaining code (notification, audit, realtimeNotifier) is handled by DomainEvent handlers.
         // But what if oldStatus == newStatus? The DomainEvents collection will be empty, so DispatchAsync does nothing.
+    });
 
-        return true;
-    }
-
-    public async Task<bool> UpdateTicketPriorityAsync(int ticketId, TicketPriority newPriority)
+    public Task<TicketUpdateResult> UpdateTicketPriorityAsync(int ticketId, TicketPriority newPriority, int? expectedVersion = null) =>
+        EditTicketAsync(ticketId, expectedVersion, async (repo, ticket) =>
     {
-        await using var repo = repositoryFacadeFactory.Create();
-        var ticket = await repo.Tickets.GetByIdAsync(ticketId).ConfigureAwait(false);
-
-        if (ticket is null)
-        {
-            return false;
-        }
-
         var oldPriority = ticket.Priority;
         ticket.Priority = newPriority;
         ticket.IsPriorityAssessed = true;
@@ -198,20 +210,11 @@ public sealed class TicketService(
                 null
             ).ConfigureAwait(false);
         }
+    });
 
-        return true;
-    }
-
-    public async Task<bool> UpdateTicketDatesAsync(int ticketId, DateTime? startDate, DateTime? dueDate, int? actorUserId = null)
+    public Task<TicketUpdateResult> UpdateTicketDatesAsync(int ticketId, DateTime? startDate, DateTime? dueDate, int? actorUserId = null, int? expectedVersion = null) =>
+        EditTicketAsync(ticketId, expectedVersion, async (repo, ticket) =>
     {
-        await using var repo = repositoryFacadeFactory.Create();
-        var ticket = await repo.Tickets.GetByIdAsync(ticketId).ConfigureAwait(false);
-
-        if (ticket is null)
-        {
-            return false;
-        }
-
         bool datesChanged = ticket.StartDate != startDate || ticket.DueDate != dueDate;
 
         ticket.StartDate = startDate;
@@ -224,20 +227,11 @@ public sealed class TicketService(
         }
 
         await realtimeNotifier.NotifyTicketsChangedAsync().ConfigureAwait(false);
+    });
 
-        return true;
-    }
-
-    public async Task<bool> UpdateAnalyticalNoteAsync(int ticketId, string? analyticalNote, int? actorUserId = null)
+    public Task<TicketUpdateResult> UpdateAnalyticalNoteAsync(int ticketId, string? analyticalNote, int? actorUserId = null, int? expectedVersion = null) =>
+        EditTicketAsync(ticketId, expectedVersion, async (repo, ticket) =>
     {
-        await using var repo = repositoryFacadeFactory.Create();
-        var ticket = await repo.Tickets.GetByIdAsync(ticketId).ConfigureAwait(false);
-
-        if (ticket is null)
-        {
-            return false;
-        }
-
         ticket.AnalyticalNote = analyticalNote;
         await repo.UnitOfWork.SaveChangesAsync().ConfigureAwait(false);
 
@@ -253,9 +247,7 @@ public sealed class TicketService(
         }
 
         await realtimeNotifier.NotifyTicketsChangedAsync().ConfigureAwait(false);
-
-        return true;
-    }
+    });
 
     public async Task<bool> DeleteTicketAsync(int ticketId)
     {
@@ -316,41 +308,23 @@ public sealed class TicketService(
         return tickets.ToList();
     }
 
-    public async Task<bool> AssignDeveloperAsync(int ticketId, int developerId)
+    public Task<TicketUpdateResult> AssignDeveloperAsync(int ticketId, int developerId, int? expectedVersion = null) =>
+        EditTicketAsync(ticketId, expectedVersion, async (repo, ticket) =>
     {
-        await using var repo = repositoryFacadeFactory.Create();
-        var ticket = await repo.Tickets.GetByIdAsync(ticketId).ConfigureAwait(false);
-
-        if (ticket is null)
-        {
-            return false;
-        }
-
         ticket.DeveloperId = developerId;
         ticket.FirstRespondedAt ??= DateTime.UtcNow;
 
         await repo.UnitOfWork.SaveChangesAsync().ConfigureAwait(false);
         await realtimeNotifier.NotifyTicketsChangedAsync().ConfigureAwait(false);
+    });
 
-        return true;
-    }
-
-    public async Task<bool> UnassignDeveloperAsync(int ticketId)
+    public Task<TicketUpdateResult> UnassignDeveloperAsync(int ticketId, int? expectedVersion = null) =>
+        EditTicketAsync(ticketId, expectedVersion, async (repo, ticket) =>
     {
-        await using var repo = repositoryFacadeFactory.Create();
-        var ticket = await repo.Tickets.GetByIdAsync(ticketId).ConfigureAwait(false);
-
-        if (ticket is null)
-        {
-            return false;
-        }
-
         ticket.DeveloperId = null;
         await repo.UnitOfWork.SaveChangesAsync().ConfigureAwait(false);
         await realtimeNotifier.NotifyTicketsChangedAsync().ConfigureAwait(false);
-
-        return true;
-    }
+    });
 
     public async Task<List<Ticket>> GetDeveloperTicketsAsync(int developerId)
     {

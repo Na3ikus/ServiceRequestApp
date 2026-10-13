@@ -70,7 +70,7 @@ public class TicketDetailsPageTests
             new TicketStatusHistory { Id = 2, TicketId = 42, OldStatus = TicketStatus.New, NewStatus = TicketStatus.Open, ChangedAt = new DateTime(2026, 10, 10, 6, 30, 0) },
         ]);
         _tickets.Setup(t => t.DeleteTicketAsync(42)).ReturnsAsync(true);
-        _tickets.Setup(t => t.UpdateTicketDatesAsync(42, It.IsAny<DateTime?>(), It.IsAny<DateTime?>(), It.IsAny<int?>())).ReturnsAsync(true);
+        _tickets.Setup(t => t.UpdateTicketDatesAsync(42, It.IsAny<DateTime?>(), It.IsAny<DateTime?>(), It.IsAny<int?>(), It.IsAny<int?>())).ReturnsAsync(TicketUpdateResult.Updated);
 
         _tags = new Mock<ITagService>();
         _tags.Setup(t => t.GetAllTagsAsync()).ReturnsAsync(
@@ -149,12 +149,12 @@ public class TicketDetailsPageTests
     public void Status_step_saves_with_the_current_user_and_reloads_the_feed()
     {
         SignIn(UserRole.Developer, DeveloperId);
-        _tickets.Setup(t => t.UpdateTicketStatusAsync(42, TicketStatus.Testing, DeveloperId)).ReturnsAsync(true);
+        _tickets.Setup(t => t.UpdateTicketStatusAsync(42, TicketStatus.Testing, DeveloperId, It.IsAny<int?>())).ReturnsAsync(TicketUpdateResult.Updated);
         var cut = Render();
 
         cut.Find("[data-transition=Testing]").Click();
 
-        _tickets.Verify(t => t.UpdateTicketStatusAsync(42, TicketStatus.Testing, DeveloperId), Times.Once);
+        _tickets.Verify(t => t.UpdateTicketStatusAsync(42, TicketStatus.Testing, DeveloperId, It.IsAny<int?>()), Times.Once);
         _tickets.Verify(t => t.GetStatusHistoryAsync(42), Times.AtLeast(2));
     }
 
@@ -251,7 +251,7 @@ public class TicketDetailsPageTests
         cut.Find("[data-edit=due]").Change("2026-10-14T18:30");
         cut.Find("[data-save-dates]").Click();
 
-        _tickets.Verify(t => t.UpdateTicketDatesAsync(42, null, new DateTime(2026, 10, 14, 15, 30, 0), DeveloperId), Times.Once);
+        _tickets.Verify(t => t.UpdateTicketDatesAsync(42, null, new DateTime(2026, 10, 14, 15, 30, 0), DeveloperId, It.IsAny<int?>()), Times.Once);
     }
 
     [Test]
@@ -267,7 +267,7 @@ public class TicketDetailsPageTests
         cut.Find("[data-confirm-critical]").Change(true);
         cut.Find("[data-priority-save] button").Click();
 
-        _tickets.Verify(t => t.UpdateTicketPriorityAsync(42, TicketPriority.Critical), Times.Once);
+        _tickets.Verify(t => t.UpdateTicketPriorityAsync(42, TicketPriority.Critical, It.IsAny<int?>()), Times.Once);
     }
 
     [Test]
@@ -458,15 +458,15 @@ public class TicketDetailsPageTests
         cut.Find("[data-edit=due]").Change("2026-10-14T18:30");
         cut.Find("[data-save-dates]").Click();
 
-        _tickets.Verify(t => t.UpdateTicketDatesAsync(42, new DateTime(2026, 10, 11, 4, 30, 59), new DateTime(2026, 10, 14, 15, 30, 0), DeveloperId), Times.Once);
+        _tickets.Verify(t => t.UpdateTicketDatesAsync(42, new DateTime(2026, 10, 11, 4, 30, 59), new DateTime(2026, 10, 14, 15, 30, 0), DeveloperId, It.IsAny<int?>()), Times.Once);
     }
 
     [Test]
     public void Failed_saves_keep_the_edits_and_say_so()
     {
         SignIn(UserRole.Developer, DeveloperId);
-        _tickets.Setup(t => t.UpdateTicketPriorityAsync(42, It.IsAny<TicketPriority>())).ReturnsAsync(false);
-        _tickets.Setup(t => t.UpdateTicketDatesAsync(42, It.IsAny<DateTime?>(), It.IsAny<DateTime?>(), It.IsAny<int?>())).ReturnsAsync(false);
+        _tickets.Setup(t => t.UpdateTicketPriorityAsync(42, It.IsAny<TicketPriority>(), It.IsAny<int?>())).ReturnsAsync(TicketUpdateResult.NotFound);
+        _tickets.Setup(t => t.UpdateTicketDatesAsync(42, It.IsAny<DateTime?>(), It.IsAny<DateTime?>(), It.IsAny<int?>(), It.IsAny<int?>())).ReturnsAsync(TicketUpdateResult.NotFound);
         var cut = Render();
 
         cut.Find("[data-edit=priority]").Change("High");
@@ -527,23 +527,48 @@ public class TicketDetailsPageTests
     {
         _ticket.DeveloperId = null;
         _ticket.Developer = null;
-        _assignment.Setup(a => a.AssignDeveloperAsync(42, DeveloperId)).ReturnsAsync(true);
+        _assignment.Setup(a => a.AssignDeveloperAsync(42, DeveloperId, It.IsAny<int?>())).ReturnsAsync(TicketUpdateResult.Updated);
         SignIn(UserRole.Developer, DeveloperId);
         var cut = Render();
 
         cut.Find("[data-action=take]").Click();
 
-        _assignment.Verify(a => a.AssignDeveloperAsync(42, DeveloperId), Times.Once);
+        _assignment.Verify(a => a.AssignDeveloperAsync(42, DeveloperId, It.IsAny<int?>()), Times.Once);
 
         _ticket = CopyOf(_ticket);
         _ticket.DeveloperId = DeveloperId;
         _ticket.Developer = new User { Id = DeveloperId, Login = "nazar" };
-        _assignment.Setup(a => a.UnassignDeveloperAsync(42)).ReturnsAsync(true);
+        _assignment.Setup(a => a.UnassignDeveloperAsync(42, It.IsAny<int?>())).ReturnsAsync(TicketUpdateResult.Updated);
         cut.InvokeAsync(() => cut.Instance.RefreshAsync()).GetAwaiter().GetResult();
 
         cut.Find("[data-action=release]").Click();
 
-        _assignment.Verify(a => a.UnassignDeveloperAsync(42), Times.Once);
+        _assignment.Verify(a => a.UnassignDeveloperAsync(42, It.IsAny<int?>()), Times.Once);
+    }
+
+    [Test]
+    public void Taking_a_ticket_someone_else_just_changed_passes_the_loaded_version_then_reloads_and_warns()
+    {
+        _ticket.DeveloperId = null;
+        _ticket.Developer = null;
+        _ticket.Version = 7;
+        SignIn(UserRole.Developer, DeveloperId);
+        var cut = Render();
+
+        // Meanwhile another developer takes it.
+        var taken = CopyOf(_ticket);
+        taken.DeveloperId = 99;
+        taken.Developer = new User { Id = 99, Login = "olha" };
+        taken.Version = 8;
+        _ticket = taken;
+        _assignment.Setup(a => a.AssignDeveloperAsync(42, DeveloperId, 7)).ReturnsAsync(TicketUpdateResult.Conflict);
+
+        cut.Find("[data-action=take]").Click();
+
+        _assignment.Verify(a => a.AssignDeveloperAsync(42, DeveloperId, 7), Times.Once);
+        _host.ToastService.Verify(t => t.ShowToastAsync("details.conflict", ServiceDeskSystem.Application.Services.Toasts.Models.ToastType.Warning), Times.Once);
+        cut.FindAll("[data-action=take]").Should().BeEmpty();
+        cut.Markup.Should().Contain("olha");
     }
 
     [Test]

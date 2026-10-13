@@ -1,12 +1,14 @@
+using System.Net;
+using Microsoft.AspNetCore.Components.Server.Circuits;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using ServiceDeskSystem.Application;
 using ServiceDeskSystem.Application.Services.Realtime;
 using ServiceDeskSystem.Components;
 using ServiceDeskSystem.Domain.Interfaces;
-using ServiceDeskSystem.Hubs;
 using ServiceDeskSystem.Infrastructure;
 using ServiceDeskSystem.Infrastructure.Data;
-using ServiceDeskSystem.Services.Realtime;
+using ServiceDeskSystem.Services.Presence;
 
 namespace ServiceDeskSystem;
 
@@ -19,14 +21,35 @@ internal static class Program
         builder.Services.AddRazorComponents()
             .AddInteractiveServerComponents();
         builder.Services.AddHttpClient();
-        builder.Services.AddSignalR();
 
         builder.Services.AddInfrastructureServices(builder.Configuration);
         builder.Services.AddApplicationServices();
         builder.Services.AddHttpContextAccessor();
-        builder.Services.AddSingleton<IRealtimeNotifier, SignalRRealtimeNotifier>();
+
+        // One instance: services raise changes through IRealtimeNotifier, open pages listen through IRealtimeEvents.
+        builder.Services.AddSingleton<InProcessRealtimeNotifier>();
+        builder.Services.AddSingleton<IRealtimeNotifier>(sp => sp.GetRequiredService<InProcessRealtimeNotifier>());
+        builder.Services.AddSingleton<IRealtimeEvents>(sp => sp.GetRequiredService<InProcessRealtimeNotifier>());
+
+        // Who is connected (admin "online" tab): one tracker, one handler per circuit that pages can ask for its id.
+        builder.Services.AddSingleton<OnlineSessionTracker>();
+        builder.Services.AddScoped<OnlineCircuitHandler>();
+        builder.Services.AddScoped<CircuitHandler>(sp => sp.GetRequiredService<OnlineCircuitHandler>());
+
+        // Behind a reverse proxy (nginx, IIS) the client's address and scheme come in X-Forwarded-* headers.
+        // Only proxies on this machine are trusted by default; list others in ForwardedHeaders:KnownProxies.
+        builder.Services.Configure<ForwardedHeadersOptions>(options =>
+        {
+            options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+            foreach (var proxy in builder.Configuration.GetSection("ForwardedHeaders:KnownProxies").Get<string[]>() ?? [])
+            {
+                options.KnownProxies.Add(IPAddress.Parse(proxy));
+            }
+        });
 
         var app = builder.Build();
+
+        app.UseForwardedHeaders();
 
         using (var scope = app.Services.CreateScope())
         {
@@ -65,8 +88,6 @@ internal static class Program
             var (isSuccess, message) = await emailSender.CheckConnectionAsync(cancellationToken).ConfigureAwait(false);
             return Results.Ok(new { IsAvailable = isSuccess, Message = message });
         });
-
-        app.MapHub<UpdatesHub>("/hubs/updates");
 
         app.MapRazorComponents<App>()
             .AddInteractiveServerRenderMode();

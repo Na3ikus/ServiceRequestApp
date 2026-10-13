@@ -1,13 +1,16 @@
 using Bunit;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using ServiceDeskSystem.Application.Services.Auth;
 using ServiceDeskSystem.Application.Services.Localization;
 using ServiceDeskSystem.Application.Services.Preferences;
+using ServiceDeskSystem.Application.Services.Realtime;
 using ServiceDeskSystem.Application.Services.Sla;
 using ServiceDeskSystem.Application.Services.Theme;
 using ServiceDeskSystem.Application.Services.Toasts;
 using ServiceDeskSystem.Domain.Entities;
+using ServiceDeskSystem.Services.Presence;
 using ServiceDeskSystem.Domain.Enums;
 using BunitContext = Bunit.TestContext;
 
@@ -52,6 +55,9 @@ public sealed class ComponentTestHost : IDisposable
         this.Context.Services.AddSingleton(this.SlaPolicyService.Object);
         this.Context.Services.AddSingleton(this.ToastService.Object);
         this.Context.Services.AddSingleton<ServiceDeskSystem.Application.Services.Time.IUserTimeZone>(this.TimeZone);
+        this.Context.Services.AddSingleton<IRealtimeEvents>(this.Realtime);
+        this.Context.Services.AddSingleton(this.Presence);
+        this.Context.Services.AddSingleton(new OnlineCircuitHandler(this.Presence, this.Auth.Object, new HttpContextAccessor()));
     }
 
     public BunitContext Context { get; }
@@ -69,6 +75,16 @@ public sealed class ComponentTestHost : IDisposable
     public Mock<IPreferencesService> Preferences { get; }
 
     public ServiceDeskSystem.Application.Services.Time.UserTimeZone TimeZone { get; } = new ();
+
+    /// <summary>
+    /// Gets the change events pages listen to; tests raise them through its <see cref="IRealtimeNotifier"/> side.
+    /// </summary>
+    public InProcessRealtimeNotifier Realtime { get; } = new ();
+
+    /// <summary>
+    /// Gets the open tabs the admin "online" tab lists; tests open and close sessions on it by hand.
+    /// </summary>
+    public OnlineSessionTracker Presence { get; } = new (TimeProvider.System);
 
     public void Dispose()
     {

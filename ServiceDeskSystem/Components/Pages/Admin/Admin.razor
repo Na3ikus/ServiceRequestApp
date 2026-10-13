@@ -41,6 +41,9 @@
             case "users":
                 <UsersTab Users="Users" OnUsersChanged="LoadDataAsync" />
                 break;
+            case "online":
+                <OnlineTab Sessions="Presence.Sessions" OwnCircuitId="@Circuit.CircuitId" />
+                break;
             case "tags":
                 <TagsTab Tags="Tags" OnTagsChanged="LoadDataAsync" />
                 break;

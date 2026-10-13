@@ -1,6 +1,6 @@
-using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.JSInterop;
 using ServiceDeskSystem.Application.Services.Notifications.Models;
+using ServiceDeskSystem.Application.Services.Realtime;
 
 namespace ServiceDeskSystem.Components.Layout;
 
@@ -89,112 +89,50 @@ public partial class MainLayout
         this.lastKnownUnreadCount = this.UnreadNotificationsCount;
     }
 
-    private async Task StartNotificationsHubAsync()
+    // Raised on the thread of whoever changed the notifications; only this user's changes matter here.
+    private void OnNotificationsChanged(object? sender, NotificationsChangedEventArgs e)
     {
-        if (this.notificationsHubInitialized)
+        if (this.AuthService.CurrentUser?.Id is not int userId || !e.UserIds.Contains(userId))
         {
             return;
         }
 
-        this.notificationsHubConnection = new HubConnectionBuilder()
-            .WithUrl(this.Navigation.ToAbsoluteUri("/hubs/updates"))
-            .WithAutomaticReconnect()
-            .Build();
-
-        this.notificationsHubConnection.On("NotificationsChanged", async () =>
-        {
-            await this.HandleNotificationsChangedAsync();
-        });
-
-        this.notificationsHubConnection.Reconnected += async _ =>
-        {
-            await this.JoinNotificationsGroupAsync().ConfigureAwait(false);
-        };
-
-        try
-        {
-            await this.notificationsHubConnection.StartAsync();
-            await this.JoinNotificationsGroupAsync();
-            this.notificationsHubInitialized = true;
-        }
-        catch
-        {
-            this.notificationsHubConnection = null;
-        }
-    }
-
-    private async Task StopNotificationsHubAsync()
-    {
-        if (this.notificationsHubConnection is null)
-        {
-            return;
-        }
-
-        try
-        {
-            await this.LeaveNotificationsGroupAsync();
-            await this.notificationsHubConnection.StopAsync();
-            await this.notificationsHubConnection.DisposeAsync();
-        }
-        catch
-        {
-            // Ignore disposal/reconnect race issues.
-        }
-        finally
-        {
-            this.notificationsHubConnection = null;
-            this.notificationsHubInitialized = false;
-        }
+        _ = this.HandleNotificationsChangedAsync();
     }
 
     private async Task HandleNotificationsChangedAsync()
     {
-        if (!this.AuthService.IsAuthenticated)
+        try
         {
-            return;
-        }
-
-        await this.InvokeAsync(async () =>
-        {
-            var previousUnread = this.lastKnownUnreadCount;
-            await this.LoadNotificationsAsync();
-
-            if (this.UnreadNotificationsCount > previousUnread)
+            await this.InvokeAsync(async () =>
             {
-                var newest = this.notifications.FirstOrDefault();
-                await this.NotifyNewAsync(newest);
-
-                // Show visual toast notification for the newest received notification
-                if (newest != null)
+                if (this.disposed || !this.AuthService.IsAuthenticated)
                 {
-                    await this.ToastService.ShowToastAsync(newest.Message, ToastType.Info);
+                    return;
                 }
-            }
 
-            this.StateHasChanged();
-        });
-    }
+                var previousUnread = this.lastKnownUnreadCount;
+                await this.LoadNotificationsAsync();
 
-    private async Task JoinNotificationsGroupAsync()
-    {
-        var userId = this.AuthService.CurrentUser?.Id;
-        if (userId is null || this.notificationsHubConnection is null)
-        {
-            return;
+                if (this.UnreadNotificationsCount > previousUnread)
+                {
+                    var newest = this.notifications.FirstOrDefault();
+                    await this.NotifyNewAsync(newest);
+
+                    // Show visual toast notification for the newest received notification
+                    if (newest != null)
+                    {
+                        await this.ToastService.ShowToastAsync(newest.Message, ToastType.Info);
+                    }
+                }
+
+                this.StateHasChanged();
+            });
         }
-
-        await this.notificationsHubConnection.InvokeAsync("JoinNotificationsGroup", userId.Value);
-    }
-
-    private async Task LeaveNotificationsGroupAsync()
-    {
-        var userId = this.AuthService.CurrentUser?.Id;
-        if (userId is null || this.notificationsHubConnection is null)
+        catch
         {
-            return;
+            // The circuit may be closing; there is nothing left to update.
         }
-
-        await this.notificationsHubConnection.InvokeAsync("LeaveNotificationsGroup", userId.Value);
     }
 
     private async Task RegisterNotificationOutsideClickAsync()

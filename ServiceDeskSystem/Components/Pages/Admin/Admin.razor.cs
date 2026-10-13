@@ -9,12 +9,13 @@ using ServiceDeskSystem.Components.UI.Base;
 using ServiceDeskSystem.Domain.Entities;
 using ServiceDeskSystem.Domain.Enums;
 using ServiceDeskSystem.Domain.Interfaces;
+using ServiceDeskSystem.Services.Presence;
 using PathSegment = ServiceDeskSystem.Components.UI.Primitives.PathSegment;
 
 namespace ServiceDeskSystem.Components.Pages.Admin;
 
 /// <summary>
-/// Admin page: one route per section (products, tech stacks, users, tags, SLA, SMTP).
+/// Admin page: one route per section (products, tech stacks, users, who is online, tags, SLA, SMTP).
 /// </summary>
 public partial class Admin : BaseComponent
 {
@@ -23,7 +24,7 @@ public partial class Admin : BaseComponent
 
     private static readonly IReadOnlyList<PathSegment> DeniedSegments = [new ("admin")];
 
-    private static readonly string[] Sections = ["products", "techstacks", "users", "tags", "sla", "smtp"];
+    private static readonly string[] Sections = ["products", "techstacks", "users", "online", "tags", "sla", "smtp"];
 
     private readonly List<SmtpLogEntry> smtpLog = [];
 
@@ -44,6 +45,12 @@ public partial class Admin : BaseComponent
 
     [Inject]
     protected ISlaPolicyService SlaPolicyService { get; set; } = null!;
+
+    [Inject]
+    protected OnlineSessionTracker Presence { get; set; } = null!;
+
+    [Inject]
+    protected OnlineCircuitHandler Circuit { get; set; } = null!;
 
     protected IList<Product>? Products { get; set; }
 
@@ -89,9 +96,20 @@ public partial class Admin : BaseComponent
     {
         if (this.IsAdmin)
         {
+            this.Presence.Changed += this.OnPresenceChanged;
             await this.LoadDataAsync();
             await this.CheckSmtpAsync();
         }
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            this.Presence.Changed -= this.OnPresenceChanged;
+        }
+
+        base.Dispose(disposing);
     }
 
     protected async Task LoadDataAsync()
@@ -190,6 +208,7 @@ public partial class Admin : BaseComponent
         "techstacks" => this.TechStacks?.Count,
         "users" => this.Users?.Count,
         "tags" => this.Tags?.Count,
+        "online" => this.Presence.Sessions.Count,
         "sla" => this.SlaPolicies?.Count,
         _ => null,
     };
@@ -208,6 +227,9 @@ public partial class Admin : BaseComponent
             _ => ("unknown", "bg-muted", this.L.Translate("admin.smtp.unknown")),
         };
     }
+
+    // Raised on the thread of the circuit that connected, signed in or left.
+    private void OnPresenceChanged(object? sender, EventArgs e) => _ = this.InvokeAsync(this.StateHasChanged);
 
     private SmtpLogEntry StartCommand(string command)
     {

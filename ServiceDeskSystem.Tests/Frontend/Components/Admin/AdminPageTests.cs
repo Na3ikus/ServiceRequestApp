@@ -96,9 +96,59 @@ public class AdminPageTests
         var cut = Render(null);
 
         cut.FindAll("[data-admin-tabs] a").Select(a => a.GetAttribute("href"))
-            .Should().Equal("/admin/products", "/admin/techstacks", "/admin/users", "/admin/tags", "/admin/sla", "/admin/smtp");
+            .Should().Equal("/admin/products", "/admin/techstacks", "/admin/users", "/admin/online", "/admin/tags", "/admin/sla", "/admin/smtp");
         cut.Find("[data-tab=products]").TextContent.Replace(" ", string.Empty).Should().Contain("products2");
         cut.Find("[data-tab=users]").TextContent.Replace(" ", string.Empty).Should().Contain("users3");
+    }
+
+    [Test]
+    public void Online_tab_lists_each_open_tab_with_login_role_and_ip()
+    {
+        _host.Localization.Setup(l => l.Translate("admin.online.summary")).Returns("{0} connections · {1} users");
+        _host.Presence.Open("dev-tab-1", "10.0.0.5");
+        _host.Presence.SetUser("dev-tab-1", new User { Id = 2, Login = "o.kovalenko", Role = UserRole.Developer });
+        _host.Presence.Open("dev-tab-2", "10.0.0.5");
+        _host.Presence.SetUser("dev-tab-2", new User { Id = 2, Login = "o.kovalenko", Role = UserRole.Developer });
+        _host.Presence.Open("guest-tab", "192.168.1.20");
+
+        var cut = Render("online");
+
+        ActiveTab(cut).Should().Be("online");
+        cut.Find("[data-tab=online]").TextContent.Replace(" ", string.Empty).Should().Contain("online3");
+        cut.Find("[data-online-summary]").TextContent.Trim().Should().Be("3 connections · 1 users");
+        cut.FindAll("tr[data-online-row]").Select(r => r.GetAttribute("data-online-row"))
+            .Should().Equal("o.kovalenko", "o.kovalenko", "guest");
+        cut.FindAll("[data-online-ip]").Select(c => c.TextContent).Should().Equal("10.0.0.5", "10.0.0.5", "192.168.1.20");
+        cut.Find("tr[data-online-row='o.kovalenko']").TextContent.Should().Contain("admin.roleDeveloper");
+        cut.Find("tr[data-online-row=guest]").TextContent.Should().Contain("admin.online.guest");
+    }
+
+    [Test]
+    public void Online_tab_follows_sign_ins_drops_and_departures_live()
+    {
+        _host.Presence.Open("a", "10.0.0.5");
+        _host.Presence.Open("b", "10.0.0.6");
+        var cut = Render("online");
+
+        _host.Presence.SetUser("b", new User { Id = 3, Login = "m.shevchenko", Role = UserRole.User });
+        _host.Presence.SetConnected("b", false);
+        _host.Presence.Close("a");
+
+        cut.WaitForAssertion(() =>
+        {
+            cut.FindAll("tr[data-online-row]").Select(r => r.GetAttribute("data-online-row")).Should().Equal("m.shevchenko");
+            cut.Find("[data-online-state]").GetAttribute("data-online-state").Should().Be("reconnecting");
+            cut.Find("[data-tab=online]").TextContent.Replace(" ", string.Empty).Should().Contain("online1");
+        });
+    }
+
+    [Test]
+    public void Online_tab_with_nobody_says_so()
+    {
+        var cut = Render("online");
+
+        cut.Markup.Should().Contain("admin.online.empty");
+        cut.FindAll("tr[data-online-row]").Should().BeEmpty();
     }
 
     [Test]

@@ -163,5 +163,6 @@
   "create.tip1": "Eine Anfrage – ein Problem.",
   "create.tip2": "Ein Screenshot oder eine Logdatei hilft dem Team, das Problem schneller nachzustellen.",
   "create.tip3": "Die Priorität legt das Team fest.",
-  "details.saveFailed": "Die Änderungen konnten nicht gespeichert werden. Bitte erneut versuchen."
+  "details.saveFailed": "Die Änderungen konnten nicht gespeichert werden. Bitte erneut versuchen.",
+  "details.conflict": "Jemand hat dieses Ticket gerade geändert. Die aktuelle Version ist geladen; prüfen Sie sie und versuchen Sie es erneut."
 }

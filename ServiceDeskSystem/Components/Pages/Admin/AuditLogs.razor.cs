@@ -1,9 +1,9 @@
 using System.Globalization;
 using System.Text;
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.JSInterop;
 using ServiceDeskSystem.Application.Services.Audit;
+using ServiceDeskSystem.Application.Services.Realtime;
 using ServiceDeskSystem.Application.Services.Toasts;
 using ServiceDeskSystem.Application.Services.Toasts.Models;
 using ServiceDeskSystem.Components.UI.Base;
@@ -54,10 +54,10 @@ public partial class AuditLogs : BaseComponent
     private bool isRefreshing;
     private int pendingNewEventsCount;
     private CancellationTokenSource? cts;
-    private HubConnection? hubConnection;
+    private bool liveSubscribed;
 
     /// <summary>
-    /// State of the updates hub shown in the header.
+    /// State of the live updates shown in the header.
     /// </summary>
     protected enum LiveState
     {
@@ -67,7 +67,7 @@ public partial class AuditLogs : BaseComponent
         /// <summary>Connected; new events arrive live.</summary>
         Live,
 
-        /// <summary>The first start failed or reconnecting gave up; only the 20 s refresh runs.</summary>
+        /// <summary>Live updates could not start; only the 20 s refresh runs.</summary>
         Offline,
     }
 
@@ -79,6 +79,9 @@ public partial class AuditLogs : BaseComponent
 
     [Inject]
     protected IToastService ToastService { get; set; } = null!;
+
+    [Inject]
+    protected IRealtimeEvents RealtimeEvents { get; set; } = null!;
 
     protected bool IsAdmin => this.AuthService.CurrentUser?.Role == UserRole.Admin;
 
@@ -373,7 +376,7 @@ public partial class AuditLogs : BaseComponent
         if (this.IsAdmin)
         {
             await this.LoadLogsAsync();
-            await this.StartHubAsync();
+            await this.StartLiveUpdatesAsync();
             this.StartAutoRefresh();
         }
     }
@@ -384,7 +387,7 @@ public partial class AuditLogs : BaseComponent
         {
             this.cts?.Cancel();
             this.cts?.Dispose();
-            _ = this.StopHubAsync();
+            this.StopLiveUpdates();
         }
 
         base.Dispose(disposing);
@@ -514,30 +517,14 @@ public partial class AuditLogs : BaseComponent
     }
 
     /// <summary>
-    /// Connects to the updates hub; <see cref="OnAuditLogsChangedAsync"/> runs for every new event.
+    /// Listens for new audit events; <see cref="OnAuditLogsChangedAsync"/> runs for every one.
     /// </summary>
-    protected virtual async Task StartHubAsync()
+    protected virtual Task StartLiveUpdatesAsync()
     {
-        try
-        {
-            this.hubConnection = new HubConnectionBuilder()
-                .WithUrl(this.Navigation.ToAbsoluteUri("/hubs/updates"))
-                .WithAutomaticReconnect()
-                .Build();
-
-            this.hubConnection.On("AuditLogsChanged", this.OnAuditLogsChangedAsync);
-            this.hubConnection.Reconnecting += _ => this.SetLiveAsync(LiveState.Connecting);
-            this.hubConnection.Reconnected += _ => this.SetLiveAsync(LiveState.Live);
-            this.hubConnection.Closed += _ => this.SetLiveAsync(LiveState.Offline);
-
-            await this.hubConnection.StartAsync();
-            this.Live = LiveState.Live;
-        }
-        catch
-        {
-            // Automatic reconnect does not retry a failed first start; the 20 s refresh still runs.
-            this.Live = LiveState.Offline;
-        }
+        this.RealtimeEvents.AuditLogsChanged += this.OnAuditLogsChanged;
+        this.liveSubscribed = true;
+        this.Live = LiveState.Live;
+        return Task.CompletedTask;
     }
 
     /// <summary>
@@ -592,12 +579,6 @@ public partial class AuditLogs : BaseComponent
         }
     }
 
-    private Task SetLiveAsync(LiveState state)
-    {
-        this.Live = state;
-        return this.InvokeAsync(this.StateHasChanged);
-    }
-
     // Everything is listed after a load, so held events are no longer pending. An open event that is gone
     // (cleared, out of the 500, filtered out or past the shown page) is closed, so it does not hold the list.
     private async Task LoadLogsAsync()
@@ -610,23 +591,15 @@ public partial class AuditLogs : BaseComponent
         }
     }
 
-    private async Task StopHubAsync()
+    // Raised on the thread that wrote the audit event.
+    private void OnAuditLogsChanged(object? sender, EventArgs e) => _ = this.OnAuditLogsChangedAsync();
+
+    private void StopLiveUpdates()
     {
-        if (this.hubConnection is not null)
+        if (this.liveSubscribed)
         {
-            try
-            {
-                await this.hubConnection.StopAsync();
-                await this.hubConnection.DisposeAsync();
-            }
-            catch
-            {
-                // Ignore hub disconnect errors
-            }
-            finally
-            {
-                this.hubConnection = null;
-            }
+            this.RealtimeEvents.AuditLogsChanged -= this.OnAuditLogsChanged;
+            this.liveSubscribed = false;
         }
     }
 

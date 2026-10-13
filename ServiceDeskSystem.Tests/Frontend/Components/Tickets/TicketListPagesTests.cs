@@ -115,6 +115,23 @@ public class TicketListPagesTests
     }
 
     [Test]
+    public async Task Ticket_list_reloads_when_tickets_change_and_stops_listening_once_closed()
+    {
+        SignIn(UserRole.Admin);
+        var cut = _host.Context.RenderComponent<TicketList>();
+        _tickets.Invocations.Clear();
+
+        await _host.Realtime.NotifyTicketsChangedAsync();
+
+        cut.WaitForAssertion(() => _tickets.Verify(t => t.GetAllTicketsAsync(), Times.Once));
+
+        _host.Context.DisposeComponents();
+        await _host.Realtime.NotifyTicketsChangedAsync();
+
+        _tickets.Verify(t => t.GetAllTicketsAsync(), Times.Once);
+    }
+
+    [Test]
     public void Kanban_card_avatars_do_not_repeat_the_name_for_screen_readers()
     {
         var ticket = new Ticket { Id = 5, Title = "x", Author = new User { Login = "olena" }, Developer = new User { Login = "ivan" } };

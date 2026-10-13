@@ -517,7 +517,7 @@ public class AuditLogsPageTests
     }
 
     [Test]
-    public void A_failed_hub_start_shows_offline()
+    public void Live_updates_that_cannot_start_show_offline()
     {
         var cut = _host.Context.RenderComponent<OfflineAuditLogs>();
 
@@ -529,7 +529,7 @@ public class AuditLogsPageTests
         cut.InvokeAsync(() => cut.Instance.RaiseAuditLogsChangedAsync()).GetAwaiter().GetResult();
 
     /// <summary>
-    /// The page without a hub connection; tests raise "audit logs changed" and the refresh tick by hand.
+    /// The page without live updates; tests raise "audit logs changed" and the refresh tick by hand.
     /// </summary>
     public sealed class TestAuditLogs : AuditLogs
     {
@@ -537,7 +537,7 @@ public class AuditLogsPageTests
 
         public Task TickAsync() => this.OnAutoRefreshTickAsync();
 
-        protected override Task StartHubAsync()
+        protected override Task StartLiveUpdatesAsync()
         {
             this.Live = LiveState.Live;
             return Task.CompletedTask;
@@ -545,11 +545,11 @@ public class AuditLogsPageTests
     }
 
     /// <summary>
-    /// The page when the first hub start fails.
+    /// The page when live updates cannot start.
     /// </summary>
     public sealed class OfflineAuditLogs : AuditLogs
     {
-        protected override Task StartHubAsync()
+        protected override Task StartLiveUpdatesAsync()
         {
             this.Live = LiveState.Offline;
             return Task.CompletedTask;

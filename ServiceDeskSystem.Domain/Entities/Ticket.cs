@@ -67,6 +67,12 @@ public class Ticket : AggregateRoot
 
     public ICollection<Tag> Tags { get; set; } = new List<Tag>();
 
+    /// <summary>
+    /// Goes up with every edit a person makes, so an edit based on an older copy of the ticket is caught
+    /// instead of silently overwriting someone else's change. SLA bookkeeping does not count as an edit.
+    /// </summary>
+    public int Version { get; set; }
+
     public static Ticket Create(string title, string description, TicketType type, TicketPriority priority, int authorId, int? productId = null, bool isPriorityAssessed = true)
     {
         var ticket = new Ticket

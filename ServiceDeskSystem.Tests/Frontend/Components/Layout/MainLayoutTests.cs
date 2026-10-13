@@ -43,4 +43,20 @@ public class MainLayoutTests
 
         cut.FindAll(".dark").Should().BeEmpty();
     }
+
+    [Test]
+    public async Task Reloads_notifications_only_when_they_change_for_its_own_user()
+    {
+        var notifications = new Mock<INotificationService>();
+        notifications.Setup(n => n.GetRecentForUserAsync(It.IsAny<int>(), It.IsAny<int>())).ReturnsAsync([]);
+        _host.Context.Services.AddSingleton(notifications.Object);
+        _host.Auth.SetupGet(a => a.IsAuthenticated).Returns(true);
+        var cut = _host.Context.RenderComponent<MainLayout>();
+
+        await _host.Realtime.NotifyNotificationsChangedAsync([2]);
+        notifications.Verify(n => n.GetUnreadCountAsync(It.IsAny<int>()), Times.Never);
+
+        await _host.Realtime.NotifyNotificationsChangedAsync([1, 2]);
+        cut.WaitForAssertion(() => notifications.Verify(n => n.GetUnreadCountAsync(1), Times.Once));
+    }
 }

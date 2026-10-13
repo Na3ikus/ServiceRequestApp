@@ -86,9 +86,9 @@ public sealed class TicketsController(
     public async Task<IActionResult> UpdateStatus(int id, [FromBody] UpdateStatusRequest request)
     {
         logger.LogInformation("Updating ticket {TicketId} status to {Status}", id, request.Status);
-        var success = await ticketService.UpdateTicketStatusAsync(id, request.Status, currentUserService.UserId).ConfigureAwait(false);
+        var result = await ticketService.UpdateTicketStatusAsync(id, request.Status, currentUserService.UserId).ConfigureAwait(false);
 
-        if (!success)
+        if (result == TicketUpdateResult.NotFound)
         {
             return NotFound(new ApiErrorResponse(404, $"Ticket with ID {id} not found."));
         }
@@ -101,9 +101,9 @@ public sealed class TicketsController(
     public async Task<IActionResult> UpdatePriority(int id, [FromBody] UpdatePriorityRequest request)
     {
         logger.LogInformation("Updating ticket {TicketId} priority to {Priority}", id, request.Priority);
-        var success = await ticketService.UpdateTicketPriorityAsync(id, request.Priority).ConfigureAwait(false);
+        var result = await ticketService.UpdateTicketPriorityAsync(id, request.Priority).ConfigureAwait(false);
 
-        if (!success)
+        if (result == TicketUpdateResult.NotFound)
         {
             return NotFound(new ApiErrorResponse(404, $"Ticket with ID {id} not found."));
         }
@@ -131,9 +131,9 @@ public sealed class TicketsController(
     public async Task<IActionResult> AssignDeveloper(int id, [FromBody] AssignDeveloperRequest request)
     {
         logger.LogInformation("Assigning developer {DeveloperId} to ticket {TicketId}", request.DeveloperId, id);
-        var success = await assignmentService.AssignDeveloperAsync(id, request.DeveloperId).ConfigureAwait(false);
+        var result = await assignmentService.AssignDeveloperAsync(id, request.DeveloperId).ConfigureAwait(false);
 
-        if (!success)
+        if (result == TicketUpdateResult.NotFound)
         {
             return NotFound(new ApiErrorResponse(404, $"Ticket with ID {id} not found."));
         }
@@ -146,9 +146,9 @@ public sealed class TicketsController(
     public async Task<IActionResult> UnassignDeveloper(int id)
     {
         logger.LogInformation("Unassigning developer from ticket {TicketId}", id);
-        var success = await assignmentService.UnassignDeveloperAsync(id).ConfigureAwait(false);
+        var result = await assignmentService.UnassignDeveloperAsync(id).ConfigureAwait(false);
 
-        if (!success)
+        if (result == TicketUpdateResult.NotFound)
         {
             return NotFound(new ApiErrorResponse(404, $"Ticket with ID {id} not found."));
         }

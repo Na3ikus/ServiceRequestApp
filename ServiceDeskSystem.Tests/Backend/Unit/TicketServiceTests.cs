@@ -214,6 +214,83 @@ public class TicketServiceTests
     }
 
     [Test]
+    public async Task Edit_based_on_the_current_version_is_saved_and_moves_the_version_on()
+    {
+        var ticket = new Ticket { Id = 12, Title = "Fresh", AuthorId = 1, Version = 4 };
+        _mockTicketRepo.Setup(r => r.GetByIdAsync(12)).ReturnsAsync(ticket);
+
+        var result = await _ticketService.AssignDeveloperAsync(12, developerId: 3, expectedVersion: 4);
+
+        result.Should().Be(TicketUpdateResult.Updated);
+        ticket.DeveloperId.Should().Be(3);
+        ticket.Version.Should().Be(5);
+        _mockUnitOfWork.Verify(u => u.SaveChangesAsync(), Times.Once);
+    }
+
+    [Test]
+    public async Task Edit_based_on_an_older_version_is_a_conflict_and_saves_nothing()
+    {
+        // Someone else took the ticket after this user opened it.
+        var ticket = new Ticket { Id = 13, Title = "Taken", AuthorId = 1, DeveloperId = 8, Version = 2 };
+        _mockTicketRepo.Setup(r => r.GetByIdAsync(13)).ReturnsAsync(ticket);
+
+        var result = await _ticketService.AssignDeveloperAsync(13, developerId: 3, expectedVersion: 1);
+
+        result.Should().Be(TicketUpdateResult.Conflict);
+        ticket.DeveloperId.Should().Be(8);
+        ticket.Version.Should().Be(2);
+        _mockUnitOfWork.Verify(u => u.SaveChangesAsync(), Times.Never);
+        _mockRealtimeNotifier.Verify(n => n.NotifyTicketsChangedAsync(It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Test]
+    public async Task Edit_of_a_missing_ticket_is_not_found()
+    {
+        _mockTicketRepo.Setup(r => r.GetByIdAsync(404)).ReturnsAsync((Ticket?)null);
+
+        var result = await _ticketService.UpdateTicketPriorityAsync(404, TicketPriority.High, expectedVersion: 0);
+
+        result.Should().Be(TicketUpdateResult.NotFound);
+    }
+
+    [Test]
+    public async Task Two_simultaneous_edits_of_the_same_version_let_exactly_one_through()
+    {
+        // Both developers press "take" on version 0 at once. Like a database, every load hands out its own
+        // copy of what is stored, and a slow load lets the second read version 0 before the first saves,
+        // unless something keeps the two edits apart.
+        var storedVersion = 0;
+        var loaded = new List<Ticket>();
+        _mockTicketRepo.Setup(r => r.GetByIdAsync(14)).Returns(async () =>
+        {
+            var copy = new Ticket { Id = 14, Title = "Race", AuthorId = 1, Version = storedVersion };
+            lock (loaded)
+            {
+                loaded.Add(copy);
+            }
+
+            await Task.Delay(50);
+            return copy;
+        });
+        _mockUnitOfWork.Setup(u => u.SaveChangesAsync()).ReturnsAsync(() =>
+        {
+            lock (loaded)
+            {
+                storedVersion = loaded.Max(t => t.Version);
+            }
+
+            return 1;
+        });
+
+        var results = await Task.WhenAll(
+            Task.Run(() => _ticketService.AssignDeveloperAsync(14, developerId: 3, expectedVersion: 0)),
+            Task.Run(() => _ticketService.AssignDeveloperAsync(14, developerId: 4, expectedVersion: 0)));
+
+        results.Should().BeEquivalentTo([TicketUpdateResult.Updated, TicketUpdateResult.Conflict]);
+        storedVersion.Should().Be(1);
+    }
+
+    [Test]
     public async Task CreateTicketAsync_UsesTicketCreateFactory_PreventsDuplicateCreatedEvents()
     {
         // Arrange
@@ -260,10 +337,10 @@ public class TicketServiceTests
         _mockDispatcher.Setup(d => d.DispatchAsync(It.IsAny<IEnumerable<IDomainEvent>>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
 
         // Act
-        var success = await _ticketService.UpdateTicketStatusAsync(ticketId, newStatus, actorUserId: 9);
+        var result = await _ticketService.UpdateTicketStatusAsync(ticketId, newStatus, actorUserId: 9);
 
         // Assert
-        success.Should().BeTrue();
+        result.Should().Be(TicketUpdateResult.Updated);
         ticket.Status.Should().Be(newStatus);
         _mockUnitOfWork.Verify(u => u.SaveChangesAsync(), Times.Once);
 
@@ -311,10 +388,10 @@ public class TicketServiceTests
         _mockRealtimeNotifier.Setup(n => n.NotifyTicketsChangedAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
 
         // Act
-        var success = await _ticketService.UpdateTicketPriorityAsync(ticketId, TicketPriority.Critical);
+        var result = await _ticketService.UpdateTicketPriorityAsync(ticketId, TicketPriority.Critical);
 
         // Assert
-        success.Should().BeTrue();
+        result.Should().Be(TicketUpdateResult.Updated);
         ticket.Priority.Should().Be(TicketPriority.Critical);
         ticket.IsPriorityAssessed.Should().BeTrue();
         ticket.IsSlaBreached.Should().BeFalse();

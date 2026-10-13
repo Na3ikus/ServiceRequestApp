@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.JSInterop;
 using ServiceDeskSystem.Application.Services.Auth;
+using ServiceDeskSystem.Application.Services.Realtime;
 using ServiceDeskSystem.Application.Services.Tickets;
 using ServiceDeskSystem.Components.Features.Tickets;
 using ServiceDeskSystem.Components.UI.Base;
@@ -22,15 +22,21 @@ public partial class TicketList : BaseComponent
 
     private static readonly IReadOnlyList<PathSegment> Segments = [new ("tickets")];
 
-    private HubConnection? ticketsHubConnection;
-    private bool ticketsHubInitialized;
+    private bool liveSubscribed;
     private bool isRefreshing;
+    private bool refreshPending;
 
     [Inject]
     protected ITicketService TicketService { get; set; } = null!;
 
     [Inject]
     protected IJSRuntime JS { get; set; } = null!;
+
+    [Inject]
+    protected IRealtimeEvents RealtimeEvents { get; set; } = null!;
+
+    [Inject]
+    protected IToastService ToastService { get; set; } = null!;
 
     protected IList<Ticket>? Tickets { get; set; }
 
@@ -64,7 +70,7 @@ public partial class TicketList : BaseComponent
 
         this.Tickets = await this.TicketService.GetAllTicketsAsync();
         this.ApplyFilters();
-        await this.StartTicketsHubAsync();
+        this.StartLiveUpdates();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -93,7 +99,7 @@ public partial class TicketList : BaseComponent
     {
         if (disposing)
         {
-            _ = this.StopTicketsHubAsync();
+            this.StopLiveUpdates();
         }
 
         base.Dispose(disposing);
@@ -127,86 +133,81 @@ public partial class TicketList : BaseComponent
             return;
         }
 
-        var success = await this.TicketService.UpdateTicketStatusAsync(args.TicketId, args.NewStatus, this.AuthService.CurrentUser?.Id);
-        if (success)
+        var result = await this.TicketService.UpdateTicketStatusAsync(args.TicketId, args.NewStatus, this.AuthService.CurrentUser?.Id, ticket.Version);
+        if (result == TicketUpdateResult.Updated)
         {
             ticket.Status = args.NewStatus;
+            ticket.Version++;
             this.ApplyFilters();
             await this.InvokeAsync(this.StateHasChanged);
         }
-    }
-
-    protected async Task StartTicketsHubAsync()
-    {
-        if (this.ticketsHubInitialized)
-        {
-            return;
-        }
-
-        this.ticketsHubConnection = new HubConnectionBuilder()
-            .WithUrl(this.Navigation.ToAbsoluteUri("/hubs/updates"))
-            .WithAutomaticReconnect()
-            .Build();
-
-        this.ticketsHubConnection.On("TicketsChanged", async () =>
+        else if (result == TicketUpdateResult.Conflict)
         {
             await this.RefreshTicketsAsync();
-        });
-
-        try
-        {
-            await this.ticketsHubConnection.StartAsync();
-            this.ticketsHubInitialized = true;
-        }
-        catch
-        {
-            this.ticketsHubConnection = null;
+            await this.ToastService.ShowToastAsync(this.L.Translate("details.conflict"), ToastType.Warning);
         }
     }
 
-    protected async Task StopTicketsHubAsync()
+    protected void StartLiveUpdates()
     {
-        if (this.ticketsHubConnection is null)
+        if (this.liveSubscribed)
         {
             return;
         }
 
-        try
-        {
-            await this.ticketsHubConnection.StopAsync();
-            await this.ticketsHubConnection.DisposeAsync();
-        }
-        catch
-        {
-            // Ignore shutdown/reconnect races.
-        }
-        finally
-        {
-            this.ticketsHubConnection = null;
-            this.ticketsHubInitialized = false;
-        }
+        this.RealtimeEvents.TicketsChanged += this.OnTicketsChanged;
+        this.liveSubscribed = true;
     }
 
+    protected void StopLiveUpdates()
+    {
+        if (!this.liveSubscribed)
+        {
+            return;
+        }
+
+        this.RealtimeEvents.TicketsChanged -= this.OnTicketsChanged;
+        this.liveSubscribed = false;
+    }
+
+    /// <summary>
+    /// Reloads the tickets after a change anywhere in the app. A change that lands while a reload is
+    /// running is not dropped: the running reload goes round once more.
+    /// </summary>
     protected async Task RefreshTicketsAsync()
     {
-        if (this.isRefreshing)
-        {
-            return;
-        }
-
-        this.isRefreshing = true;
         try
         {
             await this.InvokeAsync(async () =>
             {
-                this.Tickets = await this.TicketService.GetAllTicketsAsync();
-                this.ApplyFilters();
+                if (this.isRefreshing)
+                {
+                    this.refreshPending = true;
+                    return;
+                }
+
+                this.isRefreshing = true;
+                try
+                {
+                    do
+                    {
+                        this.refreshPending = false;
+                        this.Tickets = await this.TicketService.GetAllTicketsAsync();
+                        this.ApplyFilters();
+                    }
+                    while (this.refreshPending);
+                }
+                finally
+                {
+                    this.isRefreshing = false;
+                }
+
                 this.StateHasChanged();
             });
         }
-        finally
+        catch
         {
-            this.isRefreshing = false;
+            // The circuit is closing or the database is unreachable; the next change reloads again.
         }
     }
 
@@ -218,4 +219,7 @@ public partial class TicketList : BaseComponent
         this.Filter = filter;
         this.ApplyFilters();
     }
+
+    // Raised on the thread that made the change.
+    private void OnTicketsChanged(object? sender, EventArgs e) => _ = this.RefreshTicketsAsync();
 }

@@ -17,14 +17,17 @@ public interface ITicketService
 
     Task<Ticket> CreateTicketAsync(Ticket ticket);
 
+    // Edits take the ticket's Version the caller loaded; when the stored ticket has moved on since, nothing is
+    // saved and the result is Conflict. Without a version the edit is saved whatever changed in between.
+
     /// <param name="actorUserId">The user making the change (recorded in history, audit and notifications).</param>
-    Task<bool> UpdateTicketStatusAsync(int ticketId, TicketStatus newStatus, int? actorUserId);
+    Task<TicketUpdateResult> UpdateTicketStatusAsync(int ticketId, TicketStatus newStatus, int? actorUserId, int? expectedVersion = null);
 
-    Task<bool> UpdateTicketPriorityAsync(int ticketId, TicketPriority newPriority);
+    Task<TicketUpdateResult> UpdateTicketPriorityAsync(int ticketId, TicketPriority newPriority, int? expectedVersion = null);
 
-    Task<bool> UpdateTicketDatesAsync(int ticketId, DateTime? startDate, DateTime? dueDate, int? actorUserId = null);
+    Task<TicketUpdateResult> UpdateTicketDatesAsync(int ticketId, DateTime? startDate, DateTime? dueDate, int? actorUserId = null, int? expectedVersion = null);
 
-    Task<bool> UpdateAnalyticalNoteAsync(int ticketId, string? analyticalNote, int? actorUserId = null);
+    Task<TicketUpdateResult> UpdateAnalyticalNoteAsync(int ticketId, string? analyticalNote, int? actorUserId = null, int? expectedVersion = null);
 
     Task<bool> DeleteTicketAsync(int ticketId);
 

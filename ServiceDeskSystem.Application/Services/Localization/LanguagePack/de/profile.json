@@ -101,5 +101,14 @@
   "admin.smtp.notSent": "Nicht gesendet",
   "admin.smtp.invalidRecipient": "Geben Sie eine gültige Empfänger-E-Mail ein",
   "sla.policy": "Richtlinie",
-  "sla.recalculating": "Wird neu berechnet…"
+  "sla.recalculating": "Wird neu berechnet…",
+  "admin.online.summary": "{0} Verbindungen · {1} Benutzer",
+  "admin.online.empty": "Niemand ist verbunden",
+  "admin.online.ip": "IP",
+  "admin.online.since": "Verbunden seit",
+  "admin.online.state": "Status",
+  "admin.online.guest": "Gast",
+  "admin.online.live": "Online",
+  "admin.online.reconnecting": "Verbindet neu",
+  "admin.online.you": "Sie"
 }

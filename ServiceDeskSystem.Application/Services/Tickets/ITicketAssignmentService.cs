@@ -8,8 +8,12 @@ namespace ServiceDeskSystem.Application.Services.Tickets;
 /// </summary>
 public interface ITicketAssignmentService
 {
-    Task<bool> AssignDeveloperAsync(int ticketId, int developerId);
+    /// <summary>
+    /// Assigns the developer; with <paramref name="expectedVersion"/> it is a Conflict when the ticket changed
+    /// (e.g. someone else took it) after the caller loaded it. See <see cref="ITicketService"/>.
+    /// </summary>
+    Task<TicketUpdateResult> AssignDeveloperAsync(int ticketId, int developerId, int? expectedVersion = null);
 
-    Task<bool> UnassignDeveloperAsync(int ticketId);
+    Task<TicketUpdateResult> UnassignDeveloperAsync(int ticketId, int? expectedVersion = null);
 }
 

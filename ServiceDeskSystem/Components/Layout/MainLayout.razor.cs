@@ -2,9 +2,9 @@ using System.Globalization;
 using System.Net.Http.Json;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Routing;
-using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.JSInterop;
+using ServiceDeskSystem.Application.Services.Realtime;
 using ServiceDeskSystem.Components.UI.Base;
 using ServiceDeskSystem.Infrastructure.Data;
 
@@ -23,13 +23,11 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
     private bool isSidebarOpen;
     private bool hotkeyRegistered;
     private bool databaseConnectionLost;
-    private bool notificationsHubInitialized;
     private bool disposed;
     private int lastKnownUnreadCount;
     private DotNetObjectReference<MainLayout>? dotNetRef;
     private CancellationTokenSource? databaseMonitorCts;
     private Task? databaseMonitorTask;
-    private HubConnection? notificationsHubConnection;
     private ServiceDeskSystem.Components.Shared.HotkeysModal? hotkeysModal;
 
     internal IReadOnlyList<UserNotificationDto> Notifications => this.notifications;
@@ -62,6 +60,9 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
 
     [Inject]
     private IDbContextFactory<BugTrackerDbContext> DbContextFactory { get; set; } = null!;
+
+    [Inject]
+    private IRealtimeEvents RealtimeEvents { get; set; } = null!;
 
     [Inject]
     private ServiceDeskSystem.Application.Services.Time.IUserTimeZone UserZone { get; set; } = null!;
@@ -108,7 +109,6 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
     public async ValueTask DisposeAsync()
     {
         await this.StopDatabaseMonitorAsync();
-        await this.StopNotificationsHubAsync();
         await this.UnregisterNotificationOutsideClickAsync();
 
         if (!this.disposed && this.hotkeyRegistered)
@@ -138,6 +138,7 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
         this.AuthService.AuthStateChanged += this.OnStateChanged;
         this.Navigation.LocationChanged += this.OnLocationChanged;
         this.ToastService.OnToastsChanged += this.OnStateChanged;
+        this.RealtimeEvents.NotificationsChanged += this.OnNotificationsChanged;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -159,7 +160,6 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
         this.authRestored = true;
         this.StartDatabaseMonitor();
         await this.LoadNotificationsAsync();
-        await this.StartNotificationsHubAsync();
         await this.RestoreVisualSettingsAsync();
 
         // Persist the current user role to localStorage so that JS hotkeys (e.g. T) can
@@ -196,6 +196,7 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
             this.AuthService.AuthStateChanged -= this.OnStateChanged;
             this.Navigation.LocationChanged -= this.OnLocationChanged;
             this.ToastService.OnToastsChanged -= this.OnStateChanged;
+            this.RealtimeEvents.NotificationsChanged -= this.OnNotificationsChanged;
 
             this.dotNetRef?.Dispose();
             this.dotNetRef = null;
@@ -203,9 +204,6 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
             this.databaseMonitorCts?.Cancel();
             this.databaseMonitorCts?.Dispose();
             this.databaseMonitorCts = null;
-
-            this.notificationsHubConnection = null;
-            this.notificationsHubInitialized = false;
         }
 
         this.disposed = true;

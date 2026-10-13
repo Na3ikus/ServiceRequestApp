@@ -163,5 +163,6 @@
   "create.tip1": "Una solicitud, un problema.",
   "create.tip2": "Una captura o un archivo de log ayuda al equipo a reproducir el problema más rápido.",
   "create.tip3": "El equipo evaluará la prioridad.",
-  "details.saveFailed": "No se pudieron guardar los cambios. Inténtelo de nuevo."
+  "details.saveFailed": "No se pudieron guardar los cambios. Inténtelo de nuevo.",
+  "details.conflict": "Alguien acaba de cambiar este ticket. Se cargó la versión más reciente; revísela e inténtelo de nuevo."
 }

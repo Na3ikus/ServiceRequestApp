@@ -101,5 +101,14 @@
   "admin.smtp.notSent": "Не надіслано",
   "admin.smtp.invalidRecipient": "Вкажіть коректну адресу отримувача",
   "sla.policy": "Політика",
-  "sla.recalculating": "Перераховуємо…"
+  "sla.recalculating": "Перераховуємо…",
+  "admin.online.summary": "{0} з'єднань · {1} користувачів",
+  "admin.online.empty": "Ніхто не підключений",
+  "admin.online.ip": "IP",
+  "admin.online.since": "Підключено",
+  "admin.online.state": "Стан",
+  "admin.online.guest": "Гість",
+  "admin.online.live": "Онлайн",
+  "admin.online.reconnecting": "Перепідключення",
+  "admin.online.you": "ви"
 }

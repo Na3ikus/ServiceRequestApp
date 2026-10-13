@@ -163,5 +163,6 @@
   "create.tip1": "One request, one problem.",
   "create.tip2": "A screenshot or a log file helps the team reproduce the problem faster.",
   "create.tip3": "The team will assess the priority.",
-  "details.saveFailed": "Could not save the changes. Try again."
+  "details.saveFailed": "Could not save the changes. Try again.",
+  "details.conflict": "Someone else changed this ticket a moment ago. The latest version is loaded; check it and try again."
 }

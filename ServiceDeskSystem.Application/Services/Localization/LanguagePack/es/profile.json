@@ -101,5 +101,14 @@
   "admin.smtp.notSent": "No enviado",
   "admin.smtp.invalidRecipient": "Introduce un correo de destinatario válido",
   "sla.policy": "Política",
-  "sla.recalculating": "Recalculando…"
+  "sla.recalculating": "Recalculando…",
+  "admin.online.summary": "{0} conexiones · {1} usuarios",
+  "admin.online.empty": "No hay nadie conectado",
+  "admin.online.ip": "IP",
+  "admin.online.since": "Conectado",
+  "admin.online.state": "Estado",
+  "admin.online.guest": "Invitado",
+  "admin.online.live": "En línea",
+  "admin.online.reconnecting": "Reconectando",
+  "admin.online.you": "usted"
 }

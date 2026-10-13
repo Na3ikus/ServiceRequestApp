@@ -186,10 +186,10 @@ public partial class TicketDetails : BaseComponent
             return false;
         }
 
-        var success = await this.TicketService.UpdateTicketPriorityAsync(this.Ticket.Id, priority);
-        if (!success)
+        var result = await this.TicketService.UpdateTicketPriorityAsync(this.Ticket.Id, priority, this.Ticket.Version);
+        if (result != TicketUpdateResult.Updated)
         {
-            await this.ToastService.ShowToastAsync(this.L.Translate("details.saveFailed"), ToastType.Error);
+            await this.ReportNotSavedAsync(result);
             return false;
         }
 
@@ -221,15 +221,17 @@ public partial class TicketDetails : BaseComponent
         var start = change.StartChanged ? change.StartUtc : stored.StartDate;
         var due = change.DueChanged ? change.DueUtc : stored.DueDate;
 
-        var success = await this.TicketService.UpdateTicketDatesAsync(this.Ticket.Id, start, due, this.CurrentUserId);
-        if (!success)
+        // Checked against the copy just loaded: the merge above already keeps other people's date changes.
+        var result = await this.TicketService.UpdateTicketDatesAsync(this.Ticket.Id, start, due, this.CurrentUserId, stored.Version);
+        if (result != TicketUpdateResult.Updated)
         {
-            await this.ToastService.ShowToastAsync(this.L.Translate("details.saveFailed"), ToastType.Error);
+            await this.ReportNotSavedAsync(result);
             return false;
         }
 
         this.Ticket.StartDate = start;
         this.Ticket.DueDate = due;
+        this.Ticket.Version = stored.Version + 1;
         await this.ToastService.ShowToastAsync(this.L.Translate("details.datesUpdated"), ToastType.Success);
         return true;
     }
@@ -310,11 +312,15 @@ public partial class TicketDetails : BaseComponent
         this.IsBusy = true;
         try
         {
-            var success = await this.TicketService.UpdateTicketStatusAsync(this.Ticket.Id, newStatus, this.AuthService.CurrentUser?.Id);
-            if (success)
+            var result = await this.TicketService.UpdateTicketStatusAsync(this.Ticket.Id, newStatus, this.AuthService.CurrentUser?.Id, this.Ticket.Version);
+            if (result == TicketUpdateResult.Updated)
             {
                 this.Ticket.Status = newStatus;
                 await this.LoadTicketAsync();
+            }
+            else
+            {
+                await this.ReportNotSavedAsync(result);
             }
         }
         finally
@@ -386,9 +392,14 @@ public partial class TicketDetails : BaseComponent
         this.IsBusy = true;
         try
         {
-            if (await this.TicketAssignmentService.AssignDeveloperAsync(this.Ticket.Id, this.CurrentUserId))
+            var result = await this.TicketAssignmentService.AssignDeveloperAsync(this.Ticket.Id, this.CurrentUserId, this.Ticket.Version);
+            if (result == TicketUpdateResult.Updated)
             {
                 await this.LoadTicketAsync();
+            }
+            else
+            {
+                await this.ReportNotSavedAsync(result);
             }
         }
         finally
@@ -407,9 +418,14 @@ public partial class TicketDetails : BaseComponent
         this.IsBusy = true;
         try
         {
-            if (await this.TicketAssignmentService.UnassignDeveloperAsync(this.Ticket.Id))
+            var result = await this.TicketAssignmentService.UnassignDeveloperAsync(this.Ticket.Id, this.Ticket.Version);
+            if (result == TicketUpdateResult.Updated)
             {
                 await this.LoadTicketAsync();
+            }
+            else
+            {
+                await this.ReportNotSavedAsync(result);
             }
         }
         finally
@@ -471,12 +487,18 @@ public partial class TicketDetails : BaseComponent
         try
         {
             var note = this.AnalyticalNoteEdit.Trim();
-            var success = await this.TicketService.UpdateAnalyticalNoteAsync(this.Ticket.Id, note, this.CurrentUserId);
-            if (success)
+            var result = await this.TicketService.UpdateAnalyticalNoteAsync(this.Ticket.Id, note, this.CurrentUserId, this.Ticket.Version);
+            if (result == TicketUpdateResult.Updated)
             {
                 this.Ticket.AnalyticalNote = note;
+                this.Ticket.Version++;
                 this.IsEditingAnalyticalNote = false;
                 await this.ToastService.ShowToastAsync(this.L.Translate("details.analyticalNoteSaved"), ToastType.Success);
+            }
+            else
+            {
+                // The editor stays open with the text, so nothing typed is lost.
+                await this.ReportNotSavedAsync(result);
             }
         }
         finally
@@ -487,6 +509,22 @@ public partial class TicketDetails : BaseComponent
 
     [LoggerMessage(Level = LogLevel.Warning, Message = "Refreshing ticket {TicketId} failed")]
     private static partial void LogRefreshFailed(ILogger logger, Exception exception, int ticketId);
+
+    /// <summary>
+    /// Tells the user an edit was not saved. After a conflict the ticket is reloaded first, so the page
+    /// shows the other person's change before the user decides what to do.
+    /// </summary>
+    private async Task ReportNotSavedAsync(TicketUpdateResult result)
+    {
+        if (result == TicketUpdateResult.Conflict)
+        {
+            await this.LoadTicketAsync();
+            await this.ToastService.ShowToastAsync(this.L.Translate("details.conflict"), ToastType.Warning);
+            return;
+        }
+
+        await this.ToastService.ShowToastAsync(this.L.Translate("details.saveFailed"), ToastType.Error);
+    }
 
     private async Task LoadTicketAsync(bool isInitialLoad = false)
     {

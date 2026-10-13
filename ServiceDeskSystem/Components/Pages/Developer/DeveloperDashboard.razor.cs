@@ -37,6 +37,9 @@ public partial class DeveloperDashboard : BaseComponent
     [Inject]
     private IJSRuntime JS { get; set; } = null!;
 
+    [Inject]
+    private IToastService ToastService { get; set; } = null!;
+
     private List<Ticket>? tickets { get; set; }
 
     private int assignedCount { get; set; }
@@ -213,11 +216,18 @@ public partial class DeveloperDashboard : BaseComponent
             return;
         }
 
-        var success = await this.TicketService.UpdateTicketStatusAsync(args.TicketId, args.NewStatus, this.AuthService.CurrentUser?.Id);
-        if (success)
+        var result = await this.TicketService.UpdateTicketStatusAsync(args.TicketId, args.NewStatus, this.AuthService.CurrentUser?.Id, ticket.Version);
+        if (result == TicketUpdateResult.Updated)
         {
             ticket.Status = args.NewStatus;
-            await this.InvokeAsync(this.StateHasChanged);
+            ticket.Version++;
         }
+        else if (result == TicketUpdateResult.Conflict)
+        {
+            await this.LoadDataAsync();
+            await this.ToastService.ShowToastAsync(this.L.Translate("details.conflict"), ToastType.Warning);
+        }
+
+        await this.InvokeAsync(this.StateHasChanged);
     }
 }

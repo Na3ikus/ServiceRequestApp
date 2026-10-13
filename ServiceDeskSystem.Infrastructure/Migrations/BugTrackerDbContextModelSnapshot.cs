@@ -851,6 +851,9 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("varchar(255)");
 
+                    b.Property<int>("Version")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("AuthorId");
@@ -906,7 +909,8 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                             Status = "In Progress",
                             StepsToReproduce = "1. Відкрити розділ Звіти\n2. Вибрати 'Звіт ПДВ'\n3. Встановити період: 01.01.2024 - 31.03.2024\n4. Натиснути 'Сформувати'",
                             Title = "Помилка при формуванні звіту ПДВ",
-                            Type = "Bug"
+                            Type = "Bug",
+                            Version = 0
                         },
                         new
                         {
@@ -925,7 +929,8 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                             Status = "New",
                             StepsToReproduce = "1. Відкрити будь-який документ\n2. Натиснути Експорт -> Excel\n3. Зберегти файл",
                             Title = "Не працює експорт в Excel",
-                            Type = "Bug"
+                            Type = "Bug",
+                            Version = 0
                         },
                         new
                         {
@@ -945,7 +950,8 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                             Status = "Code Review",
                             StepsToReproduce = "1. Perform physical inventory count\n2. Sync data from handheld scanners\n3. Compare totals in system",
                             Title = "Inventory count mismatch after sync",
-                            Type = "Bug"
+                            Type = "Bug",
+                            Version = 0
                         },
                         new
                         {
@@ -965,7 +971,8 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                             Status = "In Progress",
                             StepsToReproduce = "1. Open product search\n2. Enter partial product name\n3. Wait for results",
                             Title = "Slow search performance",
-                            Type = "Support"
+                            Type = "Support",
+                            Version = 0
                         },
                         new
                         {
@@ -985,7 +992,8 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                             Status = "Testing",
                             StepsToReproduce = "1. Увійти в особистий кабінет\n2. Перейти в розділ 'Відпустки'\n3. Перевірити баланс днів",
                             Title = "Не відображаються дні відпустки",
-                            Type = "Bug"
+                            Type = "Bug",
+                            Version = 0
                         },
                         new
                         {
@@ -1004,7 +1012,8 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                             Status = "New",
                             StepsToReproduce = "1. Go to Reports section\n2. Select Attendance Report\n3. Click Generate PDF",
                             Title = "PDF generation fails for reports",
-                            Type = "Bug"
+                            Type = "Bug",
+                            Version = 0
                         },
                         new
                         {
@@ -1024,7 +1033,8 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                             Status = "In Progress",
                             StepsToReproduce = "1. Додати товар в кошик\n2. Перейти до оформлення\n3. Вибрати оплату LiqPay\n4. Спробувати оплатити",
                             Title = "Помилка оплати через LiqPay",
-                            Type = "Bug"
+                            Type = "Bug",
+                            Version = 0
                         },
                         new
                         {
@@ -1044,7 +1054,8 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                             Status = "Done",
                             StepsToReproduce = "1. Browse as guest\n2. Add items to cart\n3. Click Login\n4. Enter credentials\n5. Check cart",
                             Title = "Cart items disappear after login",
-                            Type = "Bug"
+                            Type = "Bug",
+                            Version = 0
                         },
                         new
                         {
@@ -1063,7 +1074,8 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                             Status = "New",
                             StepsToReproduce = "1. Assign task to user\n2. Wait for notification\n3. Check device - no notification received",
                             Title = "Push notifications not working",
-                            Type = "Bug"
+                            Type = "Bug",
+                            Version = 0
                         },
                         new
                         {
@@ -1083,7 +1095,8 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                             Status = "In Progress",
                             StepsToReproduce = "1. Відкрити налаштування\n2. Натиснути 'Синхронізувати контакти'\n3. Дочекатися завершення",
                             Title = "Синхронізація контактів зависає",
-                            Type = "Bug"
+                            Type = "Bug",
+                            Version = 0
                         },
                         new
                         {
@@ -1102,7 +1115,8 @@ namespace ServiceDeskSystem.Infrastructure.Migrations
                             Status = "New",
                             StepsToReproduce = "Це запит на нову функцію, а не баг.",
                             Title = "Запит на додавання темної теми",
-                            Type = "Project"
+                            Type = "Project",
+                            Version = 0
                         });
                 });
 

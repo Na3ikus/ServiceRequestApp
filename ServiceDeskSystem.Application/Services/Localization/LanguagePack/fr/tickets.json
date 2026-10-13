@@ -163,5 +163,6 @@
   "create.tip1": "Une demande, un problème.",
   "create.tip2": "Une capture d'écran ou un fichier log aide l'équipe à reproduire le problème plus vite.",
   "create.tip3": "L'équipe évaluera la priorité.",
-  "details.saveFailed": "Impossible d'enregistrer les modifications. Réessayez."
+  "details.saveFailed": "Impossible d'enregistrer les modifications. Réessayez.",
+  "details.conflict": "Quelqu'un vient de modifier ce ticket. La dernière version est chargée ; vérifiez-la et réessayez."
 }
