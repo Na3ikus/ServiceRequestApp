@@ -4,7 +4,6 @@
 @inject IJSRuntime JSRuntime
 
 @inherits ServiceDeskSystem.Components.UI.Base.BaseComponent
-@implements IAsyncDisposable
 
 <!-- Created by Nazar "N1h3" Hutsol -->
 <div class="kanban-board overflow-x-auto pb-4" @ref="boardContainer">
@@ -96,6 +95,11 @@
 
             foreach (var col in Columns)
             {
+                // Each call is a round-trip; the board can be removed mid-loop (view switch, filter, navigation),
+                // and passing the disposed reference to JS would throw ObjectDisposedException.
+                if (dotnetRef is null)
+                    return;
+
                 if (dropZoneRefs.TryGetValue(col, out var el))
                 {
                     await JSRuntime.InvokeVoidAsync("kanban.initDropZone", el, dotnetRef, col.ToString());
@@ -123,9 +127,14 @@
     private bool CanUserDragTicket(Ticket ticket)
         => IsAdmin || ticket.DeveloperId == CurrentUserId;
 
-    public async ValueTask DisposeAsync()
+    protected override void Dispose(bool disposing)
     {
-        dotnetRef?.Dispose();
-        await Task.CompletedTask;
+        if (disposing)
+        {
+            dotnetRef?.Dispose();
+            dotnetRef = null;
+        }
+
+        base.Dispose(disposing);
     }
 }

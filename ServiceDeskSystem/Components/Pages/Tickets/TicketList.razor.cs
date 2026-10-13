@@ -62,9 +62,9 @@ public partial class TicketList : BaseComponent
             return;
         }
 
-        this.Tickets = await this.TicketService.GetAllTicketsAsync().ConfigureAwait(false);
+        this.Tickets = await this.TicketService.GetAllTicketsAsync();
         this.ApplyFilters();
-        await this.StartTicketsHubAsync().ConfigureAwait(false);
+        await this.StartTicketsHubAsync();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -73,7 +73,7 @@ public partial class TicketList : BaseComponent
         {
             try
             {
-                var defaultView = await this.JS.InvokeAsync<string?>("localStorage.getItem", "settings.defaultView").ConfigureAwait(false);
+                var defaultView = await this.JS.InvokeAsync<string?>("localStorage.getItem", "settings.defaultView");
                 if (string.Equals(defaultView, KanbanView, StringComparison.OrdinalIgnoreCase))
                 {
                     this.ViewMode = KanbanView;
@@ -86,7 +86,7 @@ public partial class TicketList : BaseComponent
             }
         }
 
-        await base.OnAfterRenderAsync(firstRender).ConfigureAwait(false);
+        await base.OnAfterRenderAsync(firstRender);
     }
 
     protected override void Dispose(bool disposing)
@@ -106,7 +106,7 @@ public partial class TicketList : BaseComponent
 
         try
         {
-            await this.JS.InvokeVoidAsync("localStorage.setItem", "settings.defaultView", mode).ConfigureAwait(false);
+            await this.JS.InvokeVoidAsync("localStorage.setItem", "settings.defaultView", mode);
         }
         catch
         {
@@ -127,12 +127,12 @@ public partial class TicketList : BaseComponent
             return;
         }
 
-        var success = await this.TicketService.UpdateTicketStatusAsync(args.TicketId, args.NewStatus, this.AuthService.CurrentUser?.Id).ConfigureAwait(false);
+        var success = await this.TicketService.UpdateTicketStatusAsync(args.TicketId, args.NewStatus, this.AuthService.CurrentUser?.Id);
         if (success)
         {
             ticket.Status = args.NewStatus;
             this.ApplyFilters();
-            await this.InvokeAsync(this.StateHasChanged).ConfigureAwait(false);
+            await this.InvokeAsync(this.StateHasChanged);
         }
     }
 
@@ -150,12 +150,12 @@ public partial class TicketList : BaseComponent
 
         this.ticketsHubConnection.On("TicketsChanged", async () =>
         {
-            await this.RefreshTicketsAsync().ConfigureAwait(false);
+            await this.RefreshTicketsAsync();
         });
 
         try
         {
-            await this.ticketsHubConnection.StartAsync().ConfigureAwait(false);
+            await this.ticketsHubConnection.StartAsync();
             this.ticketsHubInitialized = true;
         }
         catch
@@ -173,8 +173,8 @@ public partial class TicketList : BaseComponent
 
         try
         {
-            await this.ticketsHubConnection.StopAsync().ConfigureAwait(false);
-            await this.ticketsHubConnection.DisposeAsync().ConfigureAwait(false);
+            await this.ticketsHubConnection.StopAsync();
+            await this.ticketsHubConnection.DisposeAsync();
         }
         catch
         {
@@ -199,10 +199,10 @@ public partial class TicketList : BaseComponent
         {
             await this.InvokeAsync(async () =>
             {
-                this.Tickets = await this.TicketService.GetAllTicketsAsync().ConfigureAwait(false);
+                this.Tickets = await this.TicketService.GetAllTicketsAsync();
                 this.ApplyFilters();
                 this.StateHasChanged();
-            }).ConfigureAwait(false);
+            });
         }
         finally
         {

@@ -38,7 +38,7 @@ public partial class MyTickets : BaseComponent
             return;
         }
 
-        this.Tickets = await this.TicketService.GetUserTicketsAsync(currentUser.Id).ConfigureAwait(false);
+        this.Tickets = await this.TicketService.GetUserTicketsAsync(currentUser.Id);
         this.StartAutoRefresh();
     }
 
@@ -54,7 +54,7 @@ public partial class MyTickets : BaseComponent
 
     protected void StartAutoRefresh()
     {
-        this.refreshTimer ??= new Timer(async _ => await this.RefreshTicketsAsync().ConfigureAwait(false), null, this.refreshInterval, this.refreshInterval);
+        this.refreshTimer ??= new Timer(async _ => await this.RefreshTicketsAsync(), null, this.refreshInterval, this.refreshInterval);
     }
 
     protected async Task RefreshTicketsAsync()
@@ -71,10 +71,10 @@ public partial class MyTickets : BaseComponent
             {
                 if (this.CurrentUserId != 0)
                 {
-                    this.Tickets = await this.TicketService.GetUserTicketsAsync(this.CurrentUserId).ConfigureAwait(false);
+                    this.Tickets = await this.TicketService.GetUserTicketsAsync(this.CurrentUserId);
                     this.StateHasChanged();
                 }
-            }).ConfigureAwait(false);
+            });
         }
         finally
         {
