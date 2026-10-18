@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using ServiceDeskSystem.Domain.Enums;
 
 namespace ServiceDeskSystem.Domain.Entities;
@@ -8,6 +9,8 @@ public class User : AggregateRoot
 {
     public string Login { get; set; } = string.Empty;
 
+    // The API returns entities that reference users (ticket author, comment author); the hash never goes out.
+    [JsonIgnore]
     public string PasswordHash { get; set; } = string.Empty;
 
     public UserRole Role { get; set; } = UserRole.User;

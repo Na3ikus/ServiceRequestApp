@@ -291,8 +291,6 @@ namespace ServiceDeskSystem.Infrastructure.Data
             UserConfiguration.Seed(modelBuilder);
             TechStackConfiguration.Seed(modelBuilder);
             ProductConfiguration.Seed(modelBuilder);
-            TicketConfiguration.Seed(modelBuilder);
-            CommentConfiguration.Seed(modelBuilder);
             TagConfiguration.Seed(modelBuilder);
             SlaPolicyConfiguration.Seed(modelBuilder);
         }

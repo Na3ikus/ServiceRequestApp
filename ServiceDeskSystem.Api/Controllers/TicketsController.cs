@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ServiceDeskSystem.Api.Models;
+using ServiceDeskSystem.Application.Common.Models;
 using ServiceDeskSystem.Application.Services.Tickets;
 using ServiceDeskSystem.Application.Services.Comments;
 using ServiceDeskSystem.Domain.Entities;
@@ -26,6 +27,19 @@ public sealed class TicketsController(
         if (pageSize < 1) pageSize = 10;
         if (pageSize > 100) pageSize = 100;
 
+        if (!IsStaff)
+        {
+            // Users list only their own tickets (without comments, so no internal ones).
+            var userId = currentUserService.UserId;
+            if (userId is null)
+            {
+                return Unauthorized(new ApiErrorResponse(401, "User not authenticated."));
+            }
+
+            var own = await ticketService.GetUserTicketsAsync(userId.Value).ConfigureAwait(false);
+            return Ok(new PagedResult<Ticket>(own.Skip((page - 1) * pageSize).Take(pageSize).ToList(), own.Count, page, pageSize));
+        }
+
         var tickets = await ticketService.GetPagedTicketsAsync(page, pageSize).ConfigureAwait(false);
         return Ok(tickets);
     }
@@ -36,14 +50,12 @@ public sealed class TicketsController(
         logger.LogInformation("Fetching ticket {TicketId}", id);
         var ticket = await ticketService.GetTicketByIdAsync(id).ConfigureAwait(false);
 
-        if (ticket is null)
+        if (ticket is null || !CanView(ticket))
         {
             return NotFound(new ApiErrorResponse(404, $"Ticket with ID {id} not found."));
         }
 
-        var role = currentUserService.UserRole;
-        bool isDevOrAdmin = role is "Admin" or "Developer";
-        if (!isDevOrAdmin && ticket.Comments is not null)
+        if (!IsStaff && ticket.Comments is not null)
         {
             ticket.Comments = ticket.Comments.Where(c => !c.IsInternal).ToList();
         }
@@ -60,11 +72,8 @@ public sealed class TicketsController(
             return Unauthorized(new ApiErrorResponse(401, "User not authenticated or extracted properly from token."));
         }
 
-        var role = currentUserService.UserRole;
-        bool isDevOrAdmin = role is "Admin" or "Developer";
-
-        var priority = isDevOrAdmin ? request.Priority : ServiceDeskSystem.Domain.Enums.TicketPriority.Medium;
-        bool isPriorityAssessed = isDevOrAdmin;
+        var priority = IsStaff ? request.Priority : ServiceDeskSystem.Domain.Enums.TicketPriority.Medium;
+        bool isPriorityAssessed = IsStaff;
 
         var ticket = Ticket.Create(
             request.Title,
@@ -165,15 +174,19 @@ public sealed class TicketsController(
             return Unauthorized(new ApiErrorResponse(401, "User not authenticated."));
         }
 
+        var ticket = await ticketService.GetTicketByIdAsync(id).ConfigureAwait(false);
+        if (ticket is null || !CanView(ticket))
+        {
+            return NotFound(new ApiErrorResponse(404, $"Ticket with ID {id} not found."));
+        }
+
         logger.LogInformation("Adding comment to ticket {TicketId} by {AuthorId}", id, authorId.Value);
-        var role = currentUserService.UserRole;
-        bool isDevOrAdmin = role is "Admin" or "Developer";
         var comment = new Comment
         {
             TicketId = id,
             AuthorId = authorId.Value,
             Message = request.Message,
-            IsInternal = isDevOrAdmin && request.IsInternal,
+            IsInternal = IsStaff && request.IsInternal,
         };
 
         var created = await commentService.AddCommentAsync(comment).ConfigureAwait(false);
@@ -266,4 +279,12 @@ public sealed class TicketsController(
         var products = await ticketService.GetProductsAsync().ConfigureAwait(false);
         return Ok(products);
     }
+
+    private bool IsStaff => currentUserService.UserRole is "Admin" or "Developer";
+
+    private bool CanView(Ticket ticket) =>
+        TicketAccess.CanView(
+            ticket,
+            currentUserService.UserId,
+            Enum.TryParse<ServiceDeskSystem.Domain.Enums.UserRole>(currentUserService.UserRole, out var role) ? role : null);
 }

@@ -11,7 +11,7 @@
     }
     else if (!AuthService.IsAuthenticated)
     {
-        @Body
+        @* No @Body: a page rendered for a signed-out visitor would load its data before the redirect. *@
         <RedirectToLogin />
     }
     else

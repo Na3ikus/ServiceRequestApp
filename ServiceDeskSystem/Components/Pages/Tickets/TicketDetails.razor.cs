@@ -371,7 +371,7 @@ public partial class TicketDetails : BaseComponent
 
     protected async Task AssignToMeAsync()
     {
-        if (this.IsBusy || this.Ticket is null)
+        if (this.IsBusy || this.Ticket is null || !this.IsAdminOrDeveloper)
         {
             return;
         }
@@ -410,7 +410,7 @@ public partial class TicketDetails : BaseComponent
 
     protected async Task UnassignAsync()
     {
-        if (this.IsBusy || this.Ticket is null)
+        if (this.IsBusy || this.Ticket is null || !this.ShowReleaseButton)
         {
             return;
         }
@@ -436,7 +436,7 @@ public partial class TicketDetails : BaseComponent
 
     protected async Task AssignTagToTicketAsync(int tagId)
     {
-        if (this.Ticket is null || tagId <= 0)
+        if (this.Ticket is null || tagId <= 0 || !this.IsAdminOrDeveloper)
         {
             return;
         }
@@ -451,7 +451,7 @@ public partial class TicketDetails : BaseComponent
 
     protected async Task RemoveTagFromTicketAsync(int tagId)
     {
-        if (this.Ticket is null)
+        if (this.Ticket is null || !this.IsAdminOrDeveloper)
         {
             return;
         }
@@ -529,7 +529,12 @@ public partial class TicketDetails : BaseComponent
     private async Task LoadTicketAsync(bool isInitialLoad = false)
     {
         var fetchedTicket = await this.TicketService.GetTicketByIdAsync(this.Id);
-        if (fetchedTicket is not null)
+        if (fetchedTicket is not null && !TicketAccess.CanView(fetchedTicket, this.AuthService.CurrentUser))
+        {
+            // Someone else's ticket reads as "not found", also when access is lost after a reload.
+            this.Ticket = null;
+        }
+        else if (fetchedTicket is not null)
         {
             this.Ticket = fetchedTicket;
             this.History = await this.TicketService.GetStatusHistoryAsync(this.Id);

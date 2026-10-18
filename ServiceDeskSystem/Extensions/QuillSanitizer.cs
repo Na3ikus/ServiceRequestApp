@@ -1,3 +1,4 @@
+using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Components;
@@ -40,9 +41,24 @@ public static partial class QuillSanitizer
             return new MarkupString(string.Empty);
         }
 
-        var result = TagPattern().Replace(html, match => SanitizeTag(match));
-        return new MarkupString(result);
+        // Text between tags is escaped, so dropping a tag can never join the text around it into a
+        // new one: "<<x>img src=x onerror=...>" must not come out as a live <img>.
+        var result = new StringBuilder(html.Length);
+        var position = 0;
+        foreach (Match match in TagPattern().Matches(html))
+        {
+            result.Append(EscapeText(html[position..match.Index]));
+            result.Append(SanitizeTag(match));
+            position = match.Index + match.Length;
+        }
+
+        result.Append(EscapeText(html[position..]));
+        return new MarkupString(result.ToString());
     }
+
+    // Entities such as &amp; stay as they are; only the characters that could open or close a tag change.
+    private static string EscapeText(string text) =>
+        text.Replace("<", "&lt;", StringComparison.Ordinal).Replace(">", "&gt;", StringComparison.Ordinal);
 
     [GeneratedRegex(@"<(/?)(\w+)([^>]*)(/?)>", RegexOptions.IgnoreCase | RegexOptions.Singleline)]
     private static partial Regex TagPattern();
@@ -52,6 +68,9 @@ public static partial class QuillSanitizer
 
     [GeneratedRegex("""href\s*=\s*(?:"([^"]*)"|'([^']*)'|(\S+))""", RegexOptions.IgnoreCase)]
     private static partial Regex HrefPattern();
+
+    [GeneratedRegex(@"^ql-[a-z0-9-]+$")]
+    private static partial Regex QuillClassPattern();
 
     private static string SanitizeTag(Match match)
     {
@@ -119,7 +138,13 @@ public static partial class QuillSanitizer
                       : attr.Groups[3].Success ? attr.Groups[3].Value
                       : attr.Groups[4].Value;
 
-            kept.Add($"""{name}="{HtmlEncoder.Default.Encode(value)}" """);
+            // Only Quill's own classes: app classes (fixed inset-0 z-50 ...) could cover the page.
+            var quillClasses = value.Split(' ', StringSplitOptions.RemoveEmptyEntries).Where(c => QuillClassPattern().IsMatch(c));
+            var classes = string.Join(' ', quillClasses);
+            if (classes.Length > 0)
+            {
+                kept.Add($"""{name}="{HtmlEncoder.Default.Encode(classes)}" """);
+            }
         }
 
         return string.Join(string.Empty, kept).TrimEnd();

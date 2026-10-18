@@ -16,6 +16,13 @@ internal static class UserConfiguration
     private const string ShevchenkoPasswordHash = "U3ZjRGVza1NlZWRTYWx0Mw==:NPGoKnpCuSvcy5UOjkFBuUsfPWfY7Wy9n8HEZZZBA30=";
     private const string SmithPasswordHash = "U3ZjRGVza1NlZWRTYWx0NA==:zggZqFDVV5pvh+rK54pZ0zRivz8AGkR4u4NeVmEdlr4=";
     private const string BondarenkoPasswordHash = "U3ZjRGVza1NlZWRTYWx0NQ==:aluImitgI/5MSw+YERyrtv48OrALZ/MfTegJlKLJfYo=";
+    private const string MelnykPasswordHash = "U3ZjRGVza1NlZWRTYWx0Ng==:hcoI8IiAEtldbK7YNWXagdJb6h5UwIK3BjDV9rIpQwg=";
+    private const string TkachenkoPasswordHash = "U3ZjRGVza1NlZWRTYWx0Nw==:SV1oOp7MMGzWb1K/+BdZ52EfbO0X0jQOAI0WSCc0dUk=";
+    private const string LysenkoPasswordHash = "U3ZjRGVza1NlZWRTYWx0OA==:nf2tdiHNorD4PO+dxpRQfb7VYIZNUoeHtbsYX99VK5I=";
+    private const string PetrenkoPasswordHash = "U3ZjRGVza1NlZWRTYWx0OQ==:mjKwqNqTOVttaW6+4Or/eh3ms4VqpZPc7iEqQSElwNY=";
+    private const string WilsonPasswordHash = "U3ZjRGVza1NlZWRTYWx0QQ==:eFGwufuXgHOfB0LiKECswrPgi7oMkp6gUEq4Godj/6Q=";
+    private const string HrytsenkoPasswordHash = "U3ZjRGVza1NlZWRTYWx0Qg==:B6FENngup9HJCakIq4LVrT/GQcA1WA+pwOG/t6SrYhs=";
+    private const string SavchukPasswordHash = "U3ZjRGVza1NlZWRTYWx0Qw==:8oD33HADYdlGZt/JOJ/JXrd0CBel2/x6etfzavZb1JQ=";
 
     public static void Seed(ModelBuilder modelBuilder)
     {
@@ -64,6 +71,13 @@ internal static class UserConfiguration
                 Role = UserRole.Developer,
                 PersonId = 5,
                 IsActive = true,
-            });
+            },
+            new User { Id = 6, Login = "i.melnyk", PasswordHash = MelnykPasswordHash, Role = UserRole.Developer, PersonId = 6, IsActive = true },
+            new User { Id = 7, Login = "d.tkachenko", PasswordHash = TkachenkoPasswordHash, Role = UserRole.Developer, PersonId = 7, IsActive = true },
+            new User { Id = 8, Login = "s.lysenko", PasswordHash = LysenkoPasswordHash, Role = UserRole.Developer, PersonId = 8, IsActive = true },
+            new User { Id = 9, Login = "o.petrenko", PasswordHash = PetrenkoPasswordHash, Role = UserRole.User, PersonId = 9, IsActive = true },
+            new User { Id = 10, Login = "k.wilson", PasswordHash = WilsonPasswordHash, Role = UserRole.User, PersonId = 10, IsActive = true },
+            new User { Id = 11, Login = "v.hrytsenko", PasswordHash = HrytsenkoPasswordHash, Role = UserRole.User, PersonId = 11, IsActive = true },
+            new User { Id = 12, Login = "n.savchuk", PasswordHash = SavchukPasswordHash, Role = UserRole.User, PersonId = 12, IsActive = false });
     }
 }

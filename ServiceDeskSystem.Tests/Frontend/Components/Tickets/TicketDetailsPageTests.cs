@@ -377,6 +377,42 @@ public class TicketDetailsPageTests
     }
 
     [Test]
+    public void Someone_elses_ticket_reads_as_not_found_for_a_user()
+    {
+        SignIn(UserRole.User, 99);
+
+        var cut = Render();
+
+        cut.Markup.Should().Contain("details.notFound");
+        cut.Markup.Should().NotContain("Monthly report is empty").And.NotContain("Blank screen").And.NotContain("public note");
+        cut.FindAll("[data-section]").Should().BeEmpty("no comments, attachments or composer for a ticket the user may not see");
+        _tickets.Verify(t => t.GetStatusHistoryAsync(It.IsAny<int>()), Times.Never);
+    }
+
+    [Test]
+    public void Signed_out_visitor_sees_no_ticket()
+    {
+        _host.Auth.SetupGet(a => a.CurrentUser).Returns((User?)null);
+
+        var cut = Render();
+
+        cut.Markup.Should().Contain("details.notFound").And.NotContain("Monthly report is empty");
+    }
+
+    [Test]
+    public void Ticket_disappears_when_access_is_lost_on_refresh()
+    {
+        SignIn(UserRole.Developer, DeveloperId);
+        var cut = Render();
+        cut.Find("[data-ticket-title]");
+
+        SignIn(UserRole.User, 99);
+        cut.InvokeAsync(() => cut.Instance.RefreshAsync()).GetAwaiter().GetResult();
+
+        cut.Markup.Should().Contain("details.notFound").And.NotContain("Monthly report is empty");
+    }
+
+    [Test]
     public void Leaving_while_the_ticket_loads_does_not_throw()
     {
         // Logging out on this page re-creates it and navigates away before the load finishes.
